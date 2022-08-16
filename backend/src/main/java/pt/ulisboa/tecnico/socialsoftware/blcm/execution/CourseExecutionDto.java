@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution;
 
 public class CourseExecutionDto {
-    private Integer id;
+    private Integer aggregateId;
 
     private Integer courseId;
 
@@ -9,16 +9,28 @@ public class CourseExecutionDto {
 
     private String status;
 
+    private Integer version;
+
+
+
     public CourseExecutionDto() {
 
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getAggregateId() {
+        return aggregateId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public Integer getCourseId() {
@@ -44,4 +56,6 @@ public class CourseExecutionDto {
     public void setStatus(String status) {
         this.status = status;
     }
+
+
 }

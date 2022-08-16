@@ -8,7 +8,7 @@ import javax.transaction.Transactional;
 @Service
 public class TopicService {
     @Transactional
-    public TopicDto getTopicById(Integer topicId, UnitOfWork unitOfWork) {
+    public TopicDto getTopicByAggregateId(Integer topicAggregateId, UnitOfWork unitOfWork) {
         return new TopicDto();
     }
 }

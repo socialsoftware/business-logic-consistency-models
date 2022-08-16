@@ -7,26 +7,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "quizzes")
-public class Quiz implements Aggregate {
-    @Id
-    @GeneratedValue
-    private Integer id;
-
+public class Quiz extends Aggregate {
     @Column(name = "number_of_questions")
     private Integer numberOfQuestions;
-
-    @Column(name = "aggregate_id", unique = true)
-    private Integer aggregateId;
-
-    @Column(name = "version")
-    private Integer version;
-
-    @Column(name = "creation_ts")
-    private LocalDateTime creationTs;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "state")
-    private AggregateState state;
 
     public Quiz() {
 
@@ -38,14 +21,10 @@ public class Quiz implements Aggregate {
         setState(AggregateState.INACTIVE);
     }
 
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public Quiz(Quiz other) {
+        super(other.getAggregateId());
+        setId(null); /* to force a new database entry when saving to be able to distinguish between versions of the same aggregate*/
+        setNumberOfQuestions(other.getNumberOfQuestions());
     }
 
     public Integer getNumberOfQuestions() {
@@ -57,44 +36,16 @@ public class Quiz implements Aggregate {
     }
 
     @Override
-    public Integer getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    @Override
     public boolean verifyInvariants() {
         return false;
     }
 
     @Override
-    public LocalDateTime getCreationTs() {
+    public Aggregate getPrev() {
         return null;
     }
 
-    public void setCreationTs(LocalDateTime creationTs) {
-        this.creationTs = creationTs;
-    }
+    public void setPrev() {
 
-    @Override
-    public AggregateState getState() {
-        return this.state;
-    }
-
-    @Override
-    public void setState(AggregateState state) {
-        this.state = state;
-    }
-
-    @Override
-    public Integer getAggregateId() {
-        return this.getAggregateId();
-    }
-
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
     }
 }

@@ -11,19 +11,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.TOURNAMENT_DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.TOURNAMENT_MERGE_FAILURE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /* each version of the tournament is a new instance of the tournament*/
 @Entity
 @Table(name = "tournaments")
-public class Tournament implements Aggregate {
-    @Id
-    @GeneratedValue
-    private Integer id;
+public class Tournament extends Aggregate {
 
-    @Column(name = "aggregate_id")
-    private Integer aggregateId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Tournament prev;
+
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
@@ -33,12 +30,8 @@ public class Tournament implements Aggregate {
     @Column(name = "number_of_questions")
     private Integer numberOfQuestions;
 
-    @Column(name = "version")
-    private Integer version;
-
-    /* this refers to the version ts*/
-    @Column(name = "creation_ts")
-    private  LocalDateTime creationTs;
+    @Column
+    private boolean cancelled;
 
     @Embedded
     @Column(name = "creator")
@@ -60,45 +53,37 @@ public class Tournament implements Aggregate {
     @Column(name = "tournament_quiz")
     private TournamentQuiz tournamentQuiz;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "state")
-    private AggregateState state;
-
 
     public Tournament() {
 
     }
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz, Integer version) {
-        setAggregateId(aggregateId);
+        super(aggregateId, version);
         setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
         setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
+        setCancelled(tournamentDto.isCancelled());
         setCreator(creator);
         setCourseExecution(execution);
         setTopics(topics);
         setTournamentQuiz(quiz);
-        setVersion(version);
-        this.creationTs = LocalDateTime.now();
-        setState(AggregateState.INACTIVE);
-
+        setCreationTs(LocalDateTime.now());
     }
     /* used to update the tournament by creating new versions */
     public Tournament(Tournament other) {
-        setId(null);
-        setAggregateId(other.getAggregateId());
+        super(other.getAggregateId());
+        setId(null); /* to force a new database entry when saving to be able to distinguish between versions of the same aggregate*/
         setStartTime(other.getStartTime());
         setEndTime(other.getEndTime());
         setNumberOfQuestions(other.getNumberOfQuestions());
+        setCancelled(other.isCancelled());
         setCourseExecution(other.getCourseExecution());
         setTopics(other.getTopics());
         setTournamentQuiz(other.getTournamentQuiz());
-        setState(AggregateState.INACTIVE);
         setCreator(other.getCreator()); /* change this to create new instances (maye this not)*/
         setParticipants(other.getParticipants()); /* change this to create new instances (maybe not needed) */
     }
-
-
 
     public boolean invariantStartTimeBeforeEndTime() {
         return this.startTime.isBefore(this.endTime);
@@ -263,25 +248,21 @@ public class Tournament implements Aggregate {
         return false;
     }
 
-
-    public Integer getId() {
-        return id;
+    public void cancel() {
+        this.cancelled = true;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    @Override
+    public Aggregate getPrev() {
+        return this.prev;
+    }
+
+    public void setPrev(Tournament tournament) {
+        this.prev = prev;
     }
 
     public LocalDateTime getStartTime() {
         return startTime;
-    }
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
     }
 
     public void setStartTime(LocalDateTime startTime) {
@@ -302,6 +283,14 @@ public class Tournament implements Aggregate {
 
     public void setNumberOfQuestions(Integer numberOfQuestions) {
         this.numberOfQuestions = numberOfQuestions;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 
     public TournamentCreator getCreator() {
@@ -348,32 +337,12 @@ public class Tournament implements Aggregate {
         this.tournamentQuiz = tournamentQuiz;
     }
 
-    public Integer getVersion() {
-        return version;
+    public TournamentParticipant findParticipant(Integer userAggregateId) {
+        return this.participants.stream().filter(p -> p.getAggregateId() == userAggregateId).findFirst()
+                .orElseThrow(() -> new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, getAggregateId()));
     }
 
-
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void removeParticipant(TournamentParticipant participant) {
+        this.participants.remove(participant);
     }
-
-    @Override
-    public void setCreationTs(LocalDateTime creationTs) {
-        this.creationTs = creationTs;
-    }
-
-    public LocalDateTime getCreationTs() {
-        return creationTs;
-    }
-
-    @Override
-    public AggregateState getState() {
-        return this.state;
-    }
-
-    public void setState(AggregateState state) {
-        this.state = state;
-    }
-
-
 }

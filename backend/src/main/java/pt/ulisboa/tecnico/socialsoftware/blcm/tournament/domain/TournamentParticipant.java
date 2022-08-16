@@ -32,6 +32,9 @@ public class TournamentParticipant {
     }
 
 
+    public void answerQuiz() {
+        this.answer.setAnswered(true);
+    }
 
     public Integer getAggregateId() {
         return aggregateId;

@@ -15,6 +15,7 @@ public enum ErrorMessage {
     TOURNAMENT_MISSING_END_TIME("Tournament requires an end time."),
     TOURNAMENT_MISSING_NUMBER_OF_QUESTIONS("Tournament requires a number of questions."),
     TOURNAMENT_DELETED("Tournament with aggregate id %d already deleted."),
+    TOURNAMENT_PARTICIPANT_NOT_FOUND("Tournament participant %d is not enrolled in tournament %d"),
 
     QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist");
 

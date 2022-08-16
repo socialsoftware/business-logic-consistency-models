@@ -1,25 +1,23 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 public class AggregateIdTypePair {
     private Integer objectId;
 
-    private Integer prevObjectId;
-
     private String type;
 
-    private boolean isCommited;
+    private boolean isCommitted;
+
+    private Map<Integer, Dependency> dependencies;
 
     public AggregateIdTypePair(Integer objectId, String type) {
         this.objectId = objectId;
         this.type = type;
-        this.isCommited = false;
-    }
-
-    public AggregateIdTypePair(Integer objectId, Integer prevObjectId, String type) {
-        this.objectId = objectId;
-        this.prevObjectId = prevObjectId;
-        this.type = type;
-        this.isCommited = false;
+        this.isCommitted = false;
+        this.dependencies = new HashMap<>();
     }
 
     public Integer getObjectId() {
@@ -30,14 +28,6 @@ public class AggregateIdTypePair {
         this.objectId = objectId;
     }
 
-    public Integer getPrevObjectId() {
-        return prevObjectId;
-    }
-
-    public void setPrevObjectId(Integer prevObjectId) {
-        this.prevObjectId = prevObjectId;
-    }
-
     public String getType() {
         return type;
     }
@@ -46,11 +36,25 @@ public class AggregateIdTypePair {
         this.type = type;
     }
 
-    public boolean isCommited() {
-        return isCommited;
+    public boolean isCommitted() {
+        return isCommitted;
     }
 
-    public void setCommited(boolean commited) {
-        isCommited = commited;
+    public void setCommitted(boolean committed) {
+        isCommitted = committed;
+    }
+
+    public Map<Integer, Dependency> getDependencies() {
+        return dependencies;
+    }
+
+    public void addDependencies(Set<Dependency> dependencies) {
+        dependencies.forEach(dep -> {
+            this.dependencies.put(dep.getAggregateId(), dep);
+        });
+    }
+
+    public void addDependency(Dependency dep) {
+        this.dependencies.put(dep.getAggregateId(), dep);
     }
 }

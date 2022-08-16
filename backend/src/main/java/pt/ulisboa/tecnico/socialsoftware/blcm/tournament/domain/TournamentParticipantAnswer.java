@@ -14,6 +14,8 @@ public class TournamentParticipantAnswer {
     @Column(name = "answer_number_of_correct")
     private Integer numberOfCorrect;
 
+    @Column
+    private boolean answered;
 
 
     public Integer getAggregateId() {
@@ -38,5 +40,13 @@ public class TournamentParticipantAnswer {
 
     public void setNumberOfCorrect(Integer numberOfCorrect) {
         this.numberOfCorrect = numberOfCorrect;
+    }
+
+    public boolean isAnswered() {
+        return answered;
+    }
+
+    public void setAnswered(boolean answered) {
+        this.answered = answered;
     }
 }

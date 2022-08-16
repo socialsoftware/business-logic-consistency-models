@@ -1,8 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic;
 
 public class TopicDto {
-    private Integer id;
+    private Integer aggregateId;
 
+    private Integer version;
     private Integer courseId;
 
     private String name;
@@ -12,12 +13,20 @@ public class TopicDto {
 
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getAggregateId() {
+        return aggregateId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public Integer getCourseId() {

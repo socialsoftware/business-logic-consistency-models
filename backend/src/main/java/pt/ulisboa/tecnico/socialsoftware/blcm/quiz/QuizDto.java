@@ -1,16 +1,27 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
 
 public class QuizDto {
-    public Integer id;
+    private Integer aggregateId;
+
+    private Integer version;
+
     public QuizDto(Quiz quiz) {
 
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getAggregateId() {
+        return aggregateId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

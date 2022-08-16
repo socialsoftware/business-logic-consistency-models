@@ -2,10 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.DomainEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
@@ -16,8 +14,10 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.version.service.VersionService;
 import javax.persistence.PostLoad;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
@@ -28,7 +28,7 @@ public class UnitOfWork {
 
     private Integer version;
 
-    private Set<AggregateIdTypePair> updatedObjects;
+    private Map<Integer, AggregateIdTypePair> updatedObjects;
 
     private Set<DomainEvent> eventsToEmit;
 
@@ -47,8 +47,9 @@ public class UnitOfWork {
 
 
     public UnitOfWork() {
-
+        this.updatedObjects = new HashMap<Integer, AggregateIdTypePair>();
     }
+
 
     /* executes after all services have been instantiated and all fields have been injected*/
     @PostLoad
@@ -74,7 +75,7 @@ public class UnitOfWork {
     }
 
     private void commitAllObjects(Integer version) {
-        this.updatedObjects.forEach(obj -> {
+        this.updatedObjects.values().forEach(obj -> {
             switch (obj.getType()) {
                 case "Tournament":
                     Tournament tournamentToWrite = tournamentRepository.findById(obj.getObjectId())
@@ -85,9 +86,9 @@ public class UnitOfWork {
                         throw new TutorException(TOURNAMENT_DELETED, concurrentTournament.getAggregateId());
                     }
                     /* no need to commit again if as already been committed and no concurrent version exists*/
-                    if(!obj.isCommited() || concurrentTournament != null) {
-                        Tournament prevTournament = tournamentRepository.findById(obj.getPrevObjectId())
-                                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, obj.getPrevObjectId()));
+                    if(!obj.isCommitted() || concurrentTournament != null) {
+                        //cast necessary due to method signature returning Aggregate
+                        Tournament prevTournament = ((Tournament)tournamentToWrite.getPrev());
                         commitTournament(prevTournament, tournamentToWrite, concurrentTournament, version);
                     }
                     break;
@@ -139,12 +140,12 @@ public class UnitOfWork {
         this.version = version;
     }
 
-    public Set<AggregateIdTypePair> getUpdatedObjects() {
-        return updatedObjects;
+    public Collection<AggregateIdTypePair> getUpdatedObjects() {
+        return updatedObjects.values();
     }
 
-    public void addUpdatedObject(Aggregate aggregate) {
-        this.updatedObjects.add(new AggregateIdTypePair(aggregate.getId(), aggregate.getClass().getTypeName()));
+    public void addUpdatedObject(Aggregate aggregate, Aggregate prev) {
+        this.updatedObjects.put(aggregate.getAggregateId(), new AggregateIdTypePair(aggregate.getId(), aggregate.getClass().getTypeName()));
     }
 
     public Set<DomainEvent> getEventsToEmit() {
@@ -153,5 +154,19 @@ public class UnitOfWork {
 
     public void addEvent(DomainEvent event) {
         this.eventsToEmit.add(event);
+    }
+
+    /*public void addDependencies(Integer aggregateId, Set<Dependency> tournamentDeps) {
+        if(this.updatedObjects.containsKey(aggregateId)) {
+            AggregateIdTypePair pair = this.updatedObjects.get(aggregateId);
+            pair.addDependencies(tournamentDeps);
+        }
+    }*/
+
+    public void addDependency(Integer objAggregateId, Dependency dep) {
+        if(this.updatedObjects.containsKey(objAggregateId)) {
+            AggregateIdTypePair pair = this.updatedObjects.get(objAggregateId);
+            pair.addDependency(dep);
+        }
     }
 }

@@ -34,7 +34,7 @@ public class UserService {
         executionsUsers.forEach(oldUser -> {
             User newUser = new User(oldUser);
             newUser.anonymize();
-            unitOfWork.addUpdatedObject(newUser);
+            unitOfWork.addUpdatedObject(newUser, oldUser);
             unitOfWork.addEvent(new AnonymizeUserEvent(newUser.getAggregateId()));
         });
     }
