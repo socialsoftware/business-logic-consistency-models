@@ -4,6 +4,7 @@ import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
@@ -57,6 +58,8 @@ public class Tournament extends Aggregate {
     public Tournament() {
 
     }
+
+    // TODO should the version be assigned on the functionality or service?
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz, Integer version) {
         super(aggregateId, version);
@@ -83,6 +86,7 @@ public class Tournament extends Aggregate {
         setTournamentQuiz(other.getTournamentQuiz());
         setCreator(other.getCreator()); /* change this to create new instances (maye this not)*/
         setParticipants(other.getParticipants()); /* change this to create new instances (maybe not needed) */
+        setPrev(other);
     }
 
     public boolean invariantStartTimeBeforeEndTime() {
@@ -183,6 +187,14 @@ public class Tournament extends Aggregate {
                     SetUtils.difference(prev.getParticipants(), v2.getParticipants())
             );
             mergedTournament.setParticipants(SetUtils.union(SetUtils.difference(prev.getParticipants(), removedParticipants), addedParticipants));
+
+            for(Aggregate dep : v2.getDependencies().values()){
+                if (!mergedTournament.getDependencies().containsKey(dep.getAggregateId()) && dep instanceof User) {
+                    // TODO: create method to allow adding individual dependencies
+                    mergedTournament.getDependencies().put(dep.getAggregateId(), dep);
+                }
+            }
+
         }
 
         return mergedTournament;
@@ -204,6 +216,10 @@ public class Tournament extends Aggregate {
 
         if(!prev.getTopics().equals(v.getTopics())) {
             v1ChangedFields.add("topics");
+        }
+
+        if(!prev.getTopics().equals(v.getNumberOfQuestions())) {
+            v1ChangedFields.add("numberOfQuestions");
         }
 
          return v1ChangedFields;

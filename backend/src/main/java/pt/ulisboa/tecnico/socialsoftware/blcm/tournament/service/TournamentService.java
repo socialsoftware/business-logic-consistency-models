@@ -2,12 +2,9 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.TournamentCreationEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
@@ -15,15 +12,12 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.INACTIVE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.TOURNAMENT_DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.TOURNAMENT_NOT_FOUND;
 
 @Service
@@ -37,45 +31,53 @@ public class TournamentService {
     @Transactional
     public TournamentDto createTournament(TournamentDto tournamentDto, TournamentCreator creator,
                                           TournamentCourseExecution courseExecution, Set<TournamentTopic> topics,
-                                          TournamentQuiz quiz, UnitOfWork unitOfWork) {
+                                          TournamentQuiz quiz, UnitOfWork unitOfWorkWorkService) {
 
 
         /* add the dependencies to the tournament here */
         /* in the unit of work manage the dependencies on commit time*/
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-        Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWork.getVersion()); /* should the skeleton creation be part of the functionality?? */
+        Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWorkWorkService.getVersion()); /* should the skeleton creation be part of the functionality?? */
         tournamentRepository.save(tournament);
-        unitOfWork.addUpdatedObject(tournament, null);
-        unitOfWork.addEvent(new TournamentCreationEvent(tournament));
+        unitOfWorkWorkService.addUpdatedObject(tournament, "Tournament");
+        unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
         return new TournamentDto(tournament);
     }
 
+    // intended for requests from external functionalities
     @Transactional
-    public TournamentDto getTournament(Integer aggregateId, UnitOfWork unitOfWork) {
-        Tournament tournament = tournamentRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+    public TournamentDto getCausalTournamentRemote(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
+        return new TournamentDto(getCausalTournamentLocal(aggregateId, unitOfWorkWorkService));
+    }
+
+    // intended for requests from local functionalities
+    @Transactional
+    public Tournament getCausalTournamentLocal(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
+        Tournament tournament = tournamentRepository.findByAggregateIdAndVersion(aggregateId, unitOfWorkWorkService.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
-        if(tournament.getState().equals(INACTIVE) || tournament.getState().equals(DELETED)) {
-            throw new TutorException(TOURNAMENT_NOT_FOUND, aggregateId);
+
+        if(tournament.getState().equals(DELETED)) {
+            throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
-        return new TournamentDto(tournament);
+        tournament.checkDependencies(unitOfWorkWorkService);
+        return tournament;
     }
 
     @Transactional
-    public void joinTournament(Integer tournamentAggregateId, TournamentParticipant tournamentParticipant, UnitOfWork unitOfWork) {
-        Tournament tournament = tournamentRepository.findByAggregateIdAndVersion(tournamentAggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentAggregateId));
+    public void joinTournament(Integer tournamentAggregateId, TournamentParticipant tournamentParticipant, UnitOfWork unitOfWorkWorkService) {
+        Tournament tournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournamentVersion = new Tournament(tournament);
         newTournamentVersion.addParticipant(tournamentParticipant);
-        unitOfWork.addUpdatedObject(newTournamentVersion, tournament);
+        unitOfWorkWorkService.addUpdatedObject(newTournamentVersion, "Tournament");
     }
 
 
 
     /* discuss if the processing for all tournaments should be done at the same time */
     @Transactional
-    public void anonymizeUser(Integer userAggregateId, UnitOfWork unitOfWork) {
-        Set<Tournament> allTournaments = findAllTournamentByVersion(unitOfWork.getVersion());
+    public void anonymizeUser(Integer userAggregateId, UnitOfWork unitOfWorkWorkService) {
+        Set<Tournament> allTournaments = findAllTournamentByVersion(unitOfWorkWorkService);
         boolean update1 = false;
         boolean update2 = false;
         for(Tournament t : allTournaments) {
@@ -105,18 +107,24 @@ public class TournamentService {
             }
 
             if(update1 || update2) {
-                unitOfWork.addUpdatedObject(newTournament, t);
+                unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
             }
         }
     }
 
-    private Set<Tournament> findAllTournamentByVersion(Integer version) {
-        /*get all tournaments latest versions inferior to the given version*/
+    private Set<Tournament> findAllTournamentByVersion(UnitOfWork unitOfWorkWorkService) {
         Set<Tournament> tournaments = tournamentRepository.findAll()
                 .stream()
+                .filter(t -> t.getVersion() <= unitOfWorkWorkService.getVersion())
                 .collect(Collectors.toSet());
+
         Map<Integer, Tournament> tournamentPerAggregateId = new HashMap<>();
         for(Tournament t : tournaments) {
+            if(t.getState().equals(DELETED)) {
+                throw new TutorException(TOURNAMENT_DELETED, t.getAggregateId());
+            }
+             t.checkDependencies(unitOfWorkWorkService);
+
             if (!tournamentPerAggregateId.containsKey(t.getAggregateId())) {
                 tournamentPerAggregateId.put(t.getAggregateId(), t);
             } else {
@@ -129,34 +137,33 @@ public class TournamentService {
     }
 
     @Transactional
-    public TournamentDto updateTournament(TournamentDto tournamentDto, Set<TournamentTopic> tournamentTopics, UnitOfWork unitOfWork) {
+    public TournamentDto updateTournament(TournamentDto tournamentDto, Set<TournamentTopic> tournamentTopics, UnitOfWork unitOfWorkWorkService) {
         /* check how the update is actually done */
-        Tournament oldTournament = tournamentRepository.findByAggregateIdAndVersion(tournamentDto.getAggregateId(), unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentDto.getAggregateId()));
+        Tournament oldTournament = getCausalTournamentLocal(tournamentDto.getAggregateId(), unitOfWorkWorkService);
 
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
         newTournament.setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         newTournament.setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
         newTournament.setTopics(tournamentTopics);
-        unitOfWork.addUpdatedObject(newTournament, oldTournament);
+        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
         return new TournamentDto(newTournament);
     }
 
     @Transactional
-    public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
+    public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
         /*switch this to query???*/
-        return findAllTournamentByVersion(unitOfWork.getVersion()).stream()
+        return findAllTournamentByVersion(unitOfWorkWorkService).stream()
                 .filter(t -> t.getCourseExecution().getAggregateId() == executionAggregateId)
                 .map(TournamentDto::new)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
+    public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
         /*switch this to query???*/
         LocalDateTime now = LocalDateTime.now();
-        return findAllTournamentByVersion(unitOfWork.getVersion()).stream()
+        return findAllTournamentByVersion(unitOfWorkWorkService).stream()
                 .filter(t -> t.getCourseExecution().getAggregateId() == executionAggregateId)
                 .filter(t -> now.isBefore(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
@@ -165,10 +172,10 @@ public class TournamentService {
     }
 
     @Transactional
-    public List<TournamentDto> getClosedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
+    public List<TournamentDto> getClosedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
         /*switch this to query???*/
         LocalDateTime now = LocalDateTime.now();
-        return findAllTournamentByVersion(unitOfWork.getVersion()).stream()
+        return findAllTournamentByVersion(unitOfWorkWorkService).stream()
                 .filter(t -> t.getCourseExecution().getAggregateId() == executionAggregateId)
                 .filter(t -> now.isAfter(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
@@ -177,43 +184,32 @@ public class TournamentService {
     }
 
     @Transactional
-    public void leaveTournament(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        Tournament oldTournament = tournamentRepository.findByAggregateIdAndVersion(tournamentAggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentAggregateId));
-
+    public void leaveTournament(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWorkWorkService) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournament = new Tournament(oldTournament);
         TournamentParticipant participantToRemove = newTournament.findParticipant(userAggregateId);
         newTournament.removeParticipant(participantToRemove);
-        unitOfWork.addUpdatedObject(newTournament, oldTournament);
+        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
     }
 
     @Transactional
-    public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        Tournament oldTournament = tournamentRepository.findByAggregateIdAndVersion(tournamentAggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentAggregateId));
-
+    public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWorkWorkService) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournament = new Tournament(oldTournament);
-
         newTournament.findParticipant(userAggregateId).answerQuiz();
-
-        unitOfWork.addUpdatedObject(newTournament, oldTournament);
-
+        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
     }
 
     @Transactional
-    public void cancelTournament(Integer tournamentAggregateId, UnitOfWork unitOfWork) {
-        Tournament oldTournament = tournamentRepository.findByAggregateIdAndVersion(tournamentAggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentAggregateId));
-
+    public void cancelTournament(Integer tournamentAggregateId, UnitOfWork unitOfWorkWorkService) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.cancel();
-        unitOfWork.addUpdatedObject(newTournament, oldTournament);
+        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
     }
 
-    public void remove(Integer tournamentAggregateId, UnitOfWork unitOfWork) {
-        Tournament oldTournament = tournamentRepository.findByAggregateIdAndVersion(tournamentAggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentAggregateId));
-
+    public void remove(Integer tournamentAggregateId, UnitOfWork unitOfWorkWorkService) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.remove();
     }

@@ -1,15 +1,23 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 
-public class UserDto {
+import java.io.Serializable;
+import java.util.Set;
+
+public class UserDto implements Serializable {
     private Integer aggregateId;
 
     private String name;
 
     private String username;
 
+    private String role;
+
     private Integer version;
+
+    private Set<UserCourseExecution> executions;
 
     public UserDto() {
 
@@ -18,6 +26,7 @@ public class UserDto {
     public UserDto(User user) {
         this.aggregateId = user.getAggregateId();
         this.name = user.getName();
+        setRole(user.getRole().toString());
         this.username = user.getUsername();
         this.version = user.getVersion();
     }
@@ -46,11 +55,27 @@ public class UserDto {
         this.username = username;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public Integer getVersion() {
         return version;
     }
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Set<UserCourseExecution> getExecutions() {
+        return executions;
+    }
+
+    public void setExecutions(Set<UserCourseExecution> executions) {
+        this.executions = executions;
     }
 }

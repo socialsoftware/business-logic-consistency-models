@@ -14,7 +14,7 @@ public class Version {
     private Integer versionNumber = 1;
 
     public Version() {
-
+        versionNumber = 1;
     }
 
     public Integer getVersionNumber() {

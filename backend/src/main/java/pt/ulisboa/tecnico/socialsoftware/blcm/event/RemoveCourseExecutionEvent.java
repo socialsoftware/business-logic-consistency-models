@@ -4,15 +4,15 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("COURSE_EXECUTION_DELETE")
-public class DeleteCourseExecutionEvent extends DomainEvent {
+@DiscriminatorValue("COURSE_EXECUTION_REMOVE")
+public class RemoveCourseExecutionEvent extends DomainEvent {
     private Integer courseExecutionAggregateId;
 
-    public DeleteCourseExecutionEvent() {
+    public RemoveCourseExecutionEvent() {
 
     }
 
-    public DeleteCourseExecutionEvent(Integer courseExecutionAggregateId) {
+    public RemoveCourseExecutionEvent(Integer courseExecutionAggregateId) {
         this.courseExecutionAggregateId = courseExecutionAggregateId;
     }
 

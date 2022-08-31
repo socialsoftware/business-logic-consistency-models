@@ -1,6 +1,10 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.topic;
+package pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto;
 
-public class TopicDto {
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
+
+import java.io.Serializable;
+
+public class TopicDto implements Serializable {
     private Integer aggregateId;
 
     private Integer version;
@@ -8,8 +12,15 @@ public class TopicDto {
 
     private String name;
 
-
     public TopicDto() {
+
+    }
+
+    public TopicDto(Topic topic) {
+        setAggregateId(topic.getAggregateId());
+        setVersion(topic.getVersion());
+        setCourseId(topic.getCourse().getAggregateId());
+        setName(topic.getName());
 
     }
 

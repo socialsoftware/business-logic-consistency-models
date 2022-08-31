@@ -19,6 +19,10 @@ public class VersionService {
     @Transactional
     public Integer getVersionNumber() {
         Version version = versionRepository.findAll().stream().findFirst().orElseThrow(() -> new TutorException(ErrorMessage.VERSION_MANAGER_DOES_NOT_EXIST));
+        if(version.getVersionNumber() == null) {
+            version = new Version();
+            versionRepository.save(version);
+        }
         return version.getVersionNumber();
     }
 

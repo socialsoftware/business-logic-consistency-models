@@ -1,9 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
 
-public class QuizDto {
+import java.io.Serializable;
+
+public class QuizDto implements Serializable {
     private Integer aggregateId;
 
     private Integer version;
+
+    public QuizDto() {
+
+    }
 
     public QuizDto(Quiz quiz) {
 

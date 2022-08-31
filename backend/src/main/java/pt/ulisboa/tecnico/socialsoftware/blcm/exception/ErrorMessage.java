@@ -7,8 +7,8 @@ public enum ErrorMessage {
 
 
     TOURNAMENT_NOT_FOUND("Tournament with aggregate Id %d does not exist."),
-    TOURNAMENT_INVALID("Tournament version with id %d breaks invariants."),
-    TOURNAMENT_MERGE_FAILURE("Two version of tournament with aggregate id %d cannot be merged."),
+    TOURNAMENT_INVALID("Tournament version with aggregate id %d and version %d breaks invariants."),
+    TOURNAMENT_MERGE_FAILURE("Two versions of a tournament with aggregate id %d cannot be merged."),
     TOURNAMENT_MISSING_USER("Tournament requires a user."),
     TOURNAMENT_MISSING_TOPICS("Tournament requires topics."),
     TOURNAMENT_MISSING_START_TIME("Tournament requires a start time."),
@@ -17,7 +17,49 @@ public enum ErrorMessage {
     TOURNAMENT_DELETED("Tournament with aggregate id %d already deleted."),
     TOURNAMENT_PARTICIPANT_NOT_FOUND("Tournament participant %d is not enrolled in tournament %d"),
 
-    QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist");
+    QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist"),
+
+    COURSE_EXECUTION_NOT_FOUND("Course execution with aggregate id %d does not exist."),
+    COURSE_EXECUTION_DELETED("Course execution with aggregate id %d already deleted."),
+    COURSE_EXECUTION_MISSING_COURSE_ID("Course execution requires a course id."),
+    COURSE_EXECUTION_MISSING_ACRONYM("Course execution requires an acronym."),
+    COURSE_EXECUTION_MISSING_ACADEMIC_TERM("Course execution requires an academic term."),
+    COURSE_EXECUTION_MISSING_END_DATE("Course execution requires an end date."),
+
+    COURSE_EXECUTION_INVALID("Course execution aggregate id %d  and version %d breaks invariants."),
+
+    CANNOT_DELETE_COURSE_EXECUTION("Cannot delete course execution with aggregate id %d."),
+
+
+    TOPIC_MISSING_NAME("Topic requires a name."),
+    TOPIC_MISSING_COURSE("Topic requires a course."),
+    TOPIC_NOT_FOUND("Topic with aggregate id %d not found."),
+    TOPIC_DELETED("Topic with aggregate id %d already deleted."),
+
+
+    USER_MISSING_NAME("User requires a name."),
+    USER_MISSING_USERNAME("User requires an username."),
+    USER_MISSING_ROLE("User requires a role."),
+
+    USER_NOT_FOUND("User with aggregate id %d does not exist."),
+    USER_DELETED("User with aggregate id %d alreadt deleted."),
+    INACTIVE_USER("Cannot add course execution to inactive user."),
+    USER_ACTIVE("User %d is already active."),
+
+    USER_MERGE_FAILURE("Two versions of a user with aggregate id %d cannot be merged."),
+
+    COURSE_MISSING_TYPE("Course requires a type."),
+    COURSE_MISSING_NAME("Course requires a name."),
+    COURSE_NOT_FOUND("Course with aggregate id %d not found."),
+    COURSE_DELETED("Course with aggregate id %d already deleted."),
+    COURSE_INVALID("Course version with aggregate id %d and version %d breaks invariants."),
+
+    QUESTION_NOT_FOUND("Question with aggregate id %d does no exist."),
+
+    QUESTION_DELETED("Question with aggregate id %d already deleted."),
+
+    CANNOT_PERFORM_CAUSAL_READ("Cannot causally read object with aggregate id %d"),
+    INVALID_PREV("Prev does not match the type of the aggregate.");
 
     public final String label;
 

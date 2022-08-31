@@ -1,0 +1,39 @@
+package pt.ulisboa.tecnico.socialsoftware.blcm.topic.api;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.TopicFunctionalities;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.TopicCourse;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+
+import java.util.List;
+
+@RestController
+public class TopicController {
+
+    @Autowired
+    private TopicFunctionalities topicFunctionalities;
+
+    @GetMapping("/courses/{courseAggregateId}/topics")
+    public List<TopicDto> findTopicsByCourseAggregateId(@PathVariable Integer courseAggregateId) {
+        return topicFunctionalities.findTopicsByCourseAggregateId(courseAggregateId);
+    }
+
+    @PostMapping("/courses/{courseAggregateId}/create")
+    public TopicDto createTopic(@PathVariable Integer courseAggregateId, @RequestBody TopicDto topicDto) {
+        return topicFunctionalities.createTopic(courseAggregateId, topicDto);
+    }
+
+    @PostMapping("/topics/update")
+    public void updateTopic(@RequestBody TopicDto topicDto) {
+        topicFunctionalities.updateTopic(topicDto);
+    }
+
+    @PostMapping("/topics/{topicAggregateId}/delete")
+    public void deleteTopic(@PathVariable Integer topicAggregateId) {
+        topicFunctionalities.deleteTopic(topicAggregateId);
+    }
+
+}

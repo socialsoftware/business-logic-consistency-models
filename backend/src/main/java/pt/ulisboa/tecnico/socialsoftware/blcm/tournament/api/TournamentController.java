@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
@@ -11,6 +13,9 @@ import java.util.Set;
 
 @RestController
 public class TournamentController {
+
+    private final Logger logger = LoggerFactory.getLogger(TournamentController.class);
+
 
     @Autowired
     private TournamentFunctionalities tournamentFunctionalities;

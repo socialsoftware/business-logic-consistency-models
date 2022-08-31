@@ -1,13 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain;
 
-import org.hibernate.annotations.Type;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
 
 //@MappedSuperclass
 @Entity
@@ -66,7 +67,7 @@ public abstract class Aggregate {
 
     public abstract boolean verifyInvariants();
 
-    //public abstract T merge(T prev, T v1, T v2);
+    //public abstract Aggregate merge(Aggregate prev, Aggregate v1, Aggregate v2);
 
     public Integer getId() {
         return id;
@@ -117,5 +118,13 @@ public abstract class Aggregate {
 
     public void setDependencies(Map<Integer, Aggregate> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    public void checkDependencies(UnitOfWork unitOfWorkWorkService) {
+        for(Aggregate dep : this.getDependencies().values()) {
+            if (unitOfWorkWorkService.hasAggregateDep(dep.getAggregateId()) && unitOfWorkWorkService.getAggregateDep(dep.getAggregateId()).getVersion() > dep.getVersion()) {
+                throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId());
+            }
+        }
     }
 }

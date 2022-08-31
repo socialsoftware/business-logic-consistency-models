@@ -3,9 +3,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class TournamentDto {
+public class TournamentDto implements Serializable {
     private Integer aggregateId;
 
     private Integer version;
@@ -27,6 +28,10 @@ public class TournamentDto {
     private Set<TournamentTopic> topics;
 
     private TournamentQuiz quiz;
+
+    public TournamentDto() {
+
+    }
 
     public TournamentDto(Tournament tournament) {
         setAggregateId(tournament.getAggregateId());
