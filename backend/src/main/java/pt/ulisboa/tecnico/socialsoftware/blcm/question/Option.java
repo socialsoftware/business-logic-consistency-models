@@ -16,6 +16,10 @@ public class Option {
         setContent(optionDto.getContent());
     }
 
+    public Option() {
+
+    }
+
     public Integer getSequence() {
         return sequence;
     }

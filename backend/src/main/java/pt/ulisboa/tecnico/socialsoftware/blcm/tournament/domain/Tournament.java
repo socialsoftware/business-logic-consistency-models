@@ -131,7 +131,8 @@ public class Tournament extends Aggregate {
     }
 
 
-    public static Tournament merge(Tournament prev, Tournament v1, Tournament v2) {
+    @Override
+    public Aggregate merge(Aggregate other) {
         /*
         Causal Consistency
 		FIELD MERGE RULES
@@ -156,6 +157,14 @@ public class Tournament extends Aggregate {
 			*/
 
         /* if there is an already concurrent version which is deleted this should not execute*/
+        Tournament prev = (Tournament) getPrev();
+        Tournament v1 = this;
+        if(!(other instanceof Tournament)) {
+            throw new TutorException(TOURNAMENT_MERGE_FAILURE, getAggregateId());
+        }
+        Tournament v2 = (Tournament)other;
+
+
         if(v1.getState().equals(DELETED)) {
             throw new TutorException(TOURNAMENT_DELETED, v1.getAggregateId());
         }
@@ -272,6 +281,8 @@ public class Tournament extends Aggregate {
     public Aggregate getPrev() {
         return this.prev;
     }
+
+
 
     public void setPrev(Tournament tournament) {
         this.prev = prev;

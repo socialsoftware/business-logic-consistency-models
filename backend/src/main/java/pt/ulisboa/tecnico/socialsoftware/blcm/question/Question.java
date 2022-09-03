@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Entity
 @Table(name = "questions")
 public class Question extends Aggregate {
 
@@ -66,13 +67,14 @@ public class Question extends Aggregate {
         return false;
     }
 
-    public static Question merge(Question prev, Question v1, Question v2) {
-        return null;
-    }
-
     @Override
     public Aggregate getPrev() {
         return prev;
+    }
+
+    @Override
+    public Aggregate merge(Aggregate other) {
+        return this;
     }
 
     public void setPrev(Question prev) {

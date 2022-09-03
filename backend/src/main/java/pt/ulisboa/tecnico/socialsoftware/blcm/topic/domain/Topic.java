@@ -52,6 +52,11 @@ public class Topic extends Aggregate {
         return this.prev;
     }
 
+    @Override
+    public Aggregate merge(Aggregate other) {
+        return this;
+    }
+
     public void setPrev(Topic prev) {
         this.prev = prev;
     }

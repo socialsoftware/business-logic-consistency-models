@@ -28,7 +28,6 @@ public class CourseExecution extends Aggregate {
     private LocalDateTime endDate;
 
     @Embedded
-    @Column
     private ExecutionCourse course;
 
     public CourseExecution() {
@@ -55,13 +54,16 @@ public class CourseExecution extends Aggregate {
         setPrev(other);
     }
     
-    public static CourseExecution merge(CourseExecution prev, CourseExecution v1, CourseExecution v2) {
-        return new CourseExecution();
-    }
+
 
     @Override
     public CourseExecution getPrev() {
         return prev;
+    }
+
+    @Override
+    public Aggregate merge(Aggregate other) {
+        return this;
     }
 
     public void setPrev(CourseExecution prev) {

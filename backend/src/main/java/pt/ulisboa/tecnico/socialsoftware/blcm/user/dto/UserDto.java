@@ -15,6 +15,8 @@ public class UserDto implements Serializable {
 
     private String role;
 
+    private boolean active;
+
     private Integer version;
 
     private Set<UserCourseExecution> executions;
@@ -29,6 +31,8 @@ public class UserDto implements Serializable {
         setRole(user.getRole().toString());
         this.username = user.getUsername();
         this.version = user.getVersion();
+        setActive(user.isActive());
+
     }
 
     public Integer getAggregateId() {
@@ -77,5 +81,13 @@ public class UserDto implements Serializable {
 
     public void setExecutions(Set<UserCourseExecution> executions) {
         this.executions = executions;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

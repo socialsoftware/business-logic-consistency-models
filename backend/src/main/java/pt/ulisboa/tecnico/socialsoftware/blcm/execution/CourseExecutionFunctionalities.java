@@ -38,8 +38,8 @@ public class CourseExecutionFunctionalities {
 
         CourseExecutionDto courseExecutionDto1 = courseExecutionService.createCourseExecution(courseExecutionDto, executionCourse, unitOfWork);
 
-        unitOfWork.addDependency(courseExecutionDto.getAggregateId(), new Dependency(executionCourse.getAggregateId(), "Course", unitOfWork.getVersion()));
-        unitOfWork.addDependency(executionCourse.getAggregateId(), new Dependency(courseExecutionDto.getAggregateId(), "CourseExecution", unitOfWork.getVersion()));
+        //unitOfWork.addDependency(courseExecutionDto.getAggregateId(), new Dependency(executionCourse.getAggregateId(), "Course", unitOfWork.getVersion()));
+        //unitOfWork.addDependency(executionCourse.getAggregateId(), new Dependency(courseExecutionDto.getAggregateId(), "CourseExecution", unitOfWork.getVersion()));
 
         // TODO replace with UoW commit after fixing it
         unitOfWorkService.commit(unitOfWork);

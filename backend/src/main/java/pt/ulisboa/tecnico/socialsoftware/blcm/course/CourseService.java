@@ -7,13 +7,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGener
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import javax.transaction.Transactional;
-
-import java.util.List;
-import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
 
@@ -53,12 +49,11 @@ public class CourseService {
         if(course == null) {
             Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
             course = new Course(aggregateId, unitOfWork.getVersion(), courseExecutionDto);
-            courseRepository.save(course);
             unitOfWork.addUpdatedObject(course, "Course");
         }
-        courseExecutionDto.setCourseId(course.getId());
+        courseExecutionDto.setCourseAggregateId(course.getAggregateId());
         courseExecutionDto.setName(course.getName());
-        courseExecutionDto.setType(courseExecutionDto.getType());
+        courseExecutionDto.setType(course.getType().toString());
         return courseExecutionDto;
     }
 

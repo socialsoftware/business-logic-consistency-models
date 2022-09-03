@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.RemoveCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
@@ -64,7 +63,7 @@ public class CourseExecutionService {
         CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(),
                 unitOfWork.getVersion(), courseExecutionDto.getAcronym(),
                 courseExecutionDto.getAcademicTerm(), DateHandler.toLocalDateTime(courseExecutionDto.getEndDate()), executionCourse);
-        courseExecutionRepository.save(courseExecution);
+        //courseExecutionRepository.save(courseExecution);
 
         unitOfWork.addUpdatedObject(courseExecution, "CourseExecution");
         // TODO replace with UoW commit after fixing it
@@ -93,7 +92,7 @@ public class CourseExecutionService {
         CourseExecution newCourseExecution = new CourseExecution(oldCourseExecution);
 
         Integer numberOfExecutionsOfCourse = Math.toIntExact(getAllCausalCourseExecutions(unitOfWork).stream()
-                .filter(ce -> ce.getCourseId() == newCourseExecution.getCourse().getAggregateId())
+                .filter(ce -> ce.getCourseAggregateId() == newCourseExecution.getCourse().getAggregateId())
                 .count());
         if(numberOfExecutionsOfCourse == 1) {
             throw new TutorException(CANNOT_DELETE_COURSE_EXECUTION);

@@ -29,7 +29,7 @@ public class UserController {
         userFunctionalities.anonymizeCourseExecutionUsers(executionAggregateId);
     }
 
-    @PostMapping("/users/{userAggregateId}")
+    @PostMapping("/users/{userAggregateId}/executions/add")
     public void addCourseExecution(@PathVariable Integer userAggregateId, @RequestParam Integer executionAggregateId) {
         userFunctionalities.addCourseExecution(userAggregateId, executionAggregateId);
 
@@ -67,6 +67,6 @@ public class UserController {
 
     @GetMapping("/users/teachers")
     public List<UserDto> getTeachers() {
-        userFunctionalities.getTeachers();
+        return userFunctionalities.getTeachers();
     }
 }

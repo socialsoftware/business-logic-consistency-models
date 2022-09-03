@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -11,8 +10,7 @@ import javax.persistence.Enumerated;
 @Embeddable
 public class ExecutionCourse {
 
-    @Column(name = "course_aggregate_id")
-    private Integer aggregateId;
+    private Integer courseAggregateId;
 
     private String name;
 
@@ -22,16 +20,17 @@ public class ExecutionCourse {
     public ExecutionCourse() {}
 
     public ExecutionCourse(CourseExecutionDto courseExecutionDto) {
+        setAggregateId(courseExecutionDto.getCourseAggregateId());
         setName(courseExecutionDto.getName());
         setType(CourseType.valueOf(courseExecutionDto.getType()));
     }
 
     public Integer getAggregateId() {
-        return aggregateId;
+        return courseAggregateId;
     }
 
     public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+        this.courseAggregateId = aggregateId;
     }
 
     public String getName() {

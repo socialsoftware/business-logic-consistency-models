@@ -53,8 +53,8 @@ public class UserFunctionalities {
 
         userService.addCourseExecution(userAggregateId, userCourseExecution, unitOfWork);
 
-        unitOfWork.addDependency(userAggregateId, new Dependency(userCourseExecution.getAggregateId(), "Course Execution", unitOfWork.getVersion()));
-        unitOfWork.addDependency(userCourseExecution.getAggregateId(), new Dependency(userAggregateId, "User", unitOfWork.getVersion()));
+        //unitOfWork.addDependency(userAggregateId, new Dependency(userCourseExecution.getAggregateId(), "Course Execution", unitOfWork.getVersion()));
+        //unitOfWork.addDependency(userCourseExecution.getAggregateId(), new Dependency(userAggregateId, "User", unitOfWork.getVersion()));
 
         unitOfWorkService.commit(unitOfWork);
 

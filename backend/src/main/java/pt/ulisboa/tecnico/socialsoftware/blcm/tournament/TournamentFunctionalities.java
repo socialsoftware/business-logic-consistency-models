@@ -11,7 +11,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service.TournamentService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
@@ -60,27 +59,27 @@ public class TournamentFunctionalities {
         UserDto userDto = userService.getUserById(userId, unitOfWork);
         TournamentCreator creator = new TournamentCreator(userDto.getAggregateId(), userDto.getName(), userDto.getUsername());
 
-        unitOfWorkService.addDependency(unitOfWork, tournamentDto.getAggregateId(), new Dependency(userDto.getAggregateId(), "User", userDto.getVersion()));
+        //unitOfWork.addDependency(tournamentDto.getAggregateId(), new Dependency(userDto.getAggregateId(), "User", userDto.getVersion()));
 
         CourseExecutionDto courseExecutionDto = courseExecutionService.getCausalCourseExecutionRemote(executionId, unitOfWork);
         TournamentCourseExecution tournamentCourseExecution = new TournamentCourseExecution(courseExecutionDto.getAggregateId(),
-                courseExecutionDto.getCourseId(), courseExecutionDto.getAcronym(), courseExecutionDto.getStatus());
+                courseExecutionDto.getCourseAggregateId(), courseExecutionDto.getAcronym(), courseExecutionDto.getStatus());
 
-        unitOfWorkService.addDependency(unitOfWork, tournamentDto.getAggregateId(), new Dependency(courseExecutionDto.getAggregateId(), "CourseExecution", courseExecutionDto.getVersion()));
+        //unitOfWork.addDependency(tournamentDto.getAggregateId(), new Dependency(courseExecutionDto.getAggregateId(), "CourseExecution", courseExecutionDto.getVersion()));
 
         Set<TournamentTopic> tournamentTopics = new HashSet<>();
         topicsId.forEach(topicId -> {
             TopicDto topicDto = topicService.getCausalTopicRemote(topicId, unitOfWork);
             tournamentTopics.add(new TournamentTopic(topicDto.getAggregateId(), topicDto.getName(), topicDto.getCourseId()));
 
-            unitOfWorkService.addDependency(unitOfWork, tournamentDto.getAggregateId(), new Dependency(topicDto.getAggregateId(), "Topic", topicDto.getVersion()));
+            //unitOfWork.addDependency(tournamentDto.getAggregateId(), new Dependency(topicDto.getAggregateId(), "Topic", topicDto.getVersion()));
         });
 
         QuizDto quizDto = quizService.generateQuiz(tournamentDto.getNumberOfQuestions(), topicsId, unitOfWork);
         TournamentDto tournamentDto2 = tournamentService.createTournament(tournamentDto, creator, tournamentCourseExecution, tournamentTopics, new TournamentQuiz(quizDto.getAggregateId()), unitOfWork);
 
-        unitOfWorkService.addDependency(unitOfWork, tournamentDto.getAggregateId(), new Dependency(quizDto.getAggregateId(), "Quiz", quizDto.getVersion()));
-        unitOfWorkService.addDependency(unitOfWork, quizDto.getAggregateId(), new Dependency(tournamentDto2.getAggregateId(), "Tournament", tournamentDto2.getVersion()));
+        //unitOfWork.addDependency(tournamentDto.getAggregateId(), new Dependency(quizDto.getAggregateId(), "Quiz", quizDto.getVersion()));
+        //unitOfWork.addDependency(quizDto.getAggregateId(), new Dependency(tournamentDto2.getAggregateId(), "Tournament", tournamentDto2.getVersion()));
 
         unitOfWorkService.commit(unitOfWork);
 
@@ -109,14 +108,14 @@ public class TournamentFunctionalities {
         topicsAggregateIds.forEach(topicAggregateId -> {
             TopicDto topicDto = topicService.getCausalTopicRemote(topicAggregateId, unitOfWork);
             tournamentTopics.add(new TournamentTopic(topicDto.getAggregateId(), topicDto.getName(), topicDto.getCourseId()));
-            unitOfWorkService.addDependency(unitOfWork, tournamentDto.getAggregateId(), new Dependency(topicDto.getAggregateId(), "Topic", topicDto.getVersion()));
+            //unitOfWork.addDependency(tournamentDto.getAggregateId(), new Dependency(topicDto.getAggregateId(), "Topic", topicDto.getVersion()));
         });
 
         TournamentDto newTournamentDto = tournamentService.updateTournament(tournamentDto, tournamentTopics, unitOfWork);
         QuizDto quizDto = quizService.generateQuiz(newTournamentDto.getNumberOfQuestions(), newTournamentDto.getTopics().stream().map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), unitOfWork);
 
-        unitOfWorkService.addDependency(unitOfWork, tournamentDto.getAggregateId(), new Dependency(quizDto.getAggregateId(), "Quiz", quizDto.getVersion()));
-        unitOfWorkService.addDependency(unitOfWork, quizDto.getAggregateId(), new Dependency(newTournamentDto.getAggregateId(), "Tournament", newTournamentDto.getVersion()));
+        //unitOfWork.addDependency(tournamentDto.getAggregateId(), new Dependency(quizDto.getAggregateId(), "Quiz", quizDto.getVersion()));
+        //unitOfWork.addDependency(quizDto.getAggregateId(), new Dependency(newTournamentDto.getAggregateId(), "Tournament", newTournamentDto.getVersion()));
 
         unitOfWorkService.commit(unitOfWork);
     }
@@ -149,8 +148,8 @@ public class TournamentFunctionalities {
         tournamentService.solveQuiz(tournamentAggregateId, userAggregateId, unitOfWork);
         QuizDto quizDto = quizService.startTournamentQuiz(userAggregateId, tournamentDto.getQuiz().getAggregateId(), unitOfWork);
 
-        unitOfWorkService.addDependency(unitOfWork, tournamentAggregateId, new Dependency(quizDto.getAggregateId(), "Quiz", unitOfWork.getVersion()));
-        unitOfWorkService.addDependency(unitOfWork, quizDto.getAggregateId(), new Dependency(tournamentAggregateId, "Tournament", unitOfWork.getVersion()));
+        //unitOfWork.addDependency(tournamentAggregateId, new Dependency(quizDto.getAggregateId(), "Quiz", unitOfWork.getVersion()));
+        //unitOfWork.addDependency(quizDto.getAggregateId(), new Dependency(tournamentAggregateId, "Tournament", unitOfWork.getVersion()));
 
         unitOfWorkService.commit(unitOfWork);
     }

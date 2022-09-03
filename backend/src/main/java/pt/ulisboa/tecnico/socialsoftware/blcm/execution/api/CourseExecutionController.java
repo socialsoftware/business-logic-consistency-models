@@ -18,7 +18,7 @@ public class CourseExecutionController {
     @Autowired
     private CourseExecutionFunctionalities courseExecutionFunctionalities;
 
-    @PostMapping(value = "/executions/{courseId}")
+    @PostMapping(value = "/executions/create")
     public CourseExecutionDto createTournament(@RequestBody CourseExecutionDto executionDto) {
         formatDates(executionDto);
         return courseExecutionFunctionalities.createCourseExecution(executionDto);

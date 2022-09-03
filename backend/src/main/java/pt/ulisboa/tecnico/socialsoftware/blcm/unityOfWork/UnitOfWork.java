@@ -28,17 +28,17 @@ public class UnitOfWork {
 
     private Integer version;
 
-    private Map<Integer, AggregateIdTypePair> updatedObjects;
+    private Map<Integer, Aggregate> updatedObjects;
 
     private Set<DomainEvent> eventsToEmit;
 
     // Cumulative dependencies of the functionality
+    // Map type ensures only a version of an aggregate is written by transaction
     private Map<Integer, Aggregate> currentReadDependencies;
 
     public UnitOfWork(Integer version) {
-        this.updatedObjects = new HashMap<Integer, AggregateIdTypePair>();
+        this.updatedObjects = new HashMap<Integer, Aggregate>();
         this.eventsToEmit = new HashSet<>();
-
         setVersion(version);
     }
 
@@ -50,13 +50,19 @@ public class UnitOfWork {
         this.version = version;
     }
 
-    public Collection<AggregateIdTypePair> getUpdatedObjects() {
+    public Collection<Aggregate> getUpdatedObjects() {
         return updatedObjects.values();
+    }
+
+    public Map<Integer, Aggregate> getUpdatedObjectsMap() {
+        return updatedObjects;
     }
 
     // TODO store type in aggregate
     public void addUpdatedObject(Aggregate aggregate, String type) {
-        this.updatedObjects.put(aggregate.getAggregateId(), new AggregateIdTypePair(aggregate.getId(), type));
+        // the id to null is to enforce a new entry in the db
+        aggregate.setId(null);
+        this.updatedObjects.put(aggregate.getAggregateId(), aggregate);
     }
 
     public Set<DomainEvent> getEventsToEmit() {
@@ -85,12 +91,12 @@ public class UnitOfWork {
         return this.currentReadDependencies.get(aggregateId);
     }
 
-    public void addDependency(Integer objAggregateId, Dependency dep) {
+    /*public void addDependency(Integer objAggregateId, Dependency dep) {
         if(this.updatedObjects.containsKey(objAggregateId)) {
             AggregateIdTypePair pair = this.updatedObjects.get(objAggregateId);
             pair.addDependency(dep);
         }
-    }
+    }*/
 
 
 }

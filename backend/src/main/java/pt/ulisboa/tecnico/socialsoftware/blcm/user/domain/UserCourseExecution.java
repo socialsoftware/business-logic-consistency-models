@@ -6,7 +6,7 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 public class UserCourseExecution {
-    private Integer aggregateId;
+    private Integer courseExecutionAggregateId;
 
     private String courseName;
 
@@ -16,26 +16,26 @@ public class UserCourseExecution {
 
     public UserCourseExecution() {}
 
-    public UserCourseExecution(Integer aggregateId, String courseName, String acronym, String academicTerm) {
-        setAggregateId(aggregateId);
+    public UserCourseExecution(Integer courseExecutionAggregateId, String courseName, String acronym, String academicTerm) {
+        setCourseExecutionAggregateId(courseExecutionAggregateId);
         setCourseName(courseName);
         setAcronym(acronym);
         setAcademicTerm(academicTerm);
     }
 
     public UserCourseExecution (CourseExecutionDto courseExecutionDto) {
-        setAggregateId((courseExecutionDto.getAggregateId()));
+        setCourseExecutionAggregateId((courseExecutionDto.getAggregateId()));
         setCourseName(courseExecutionDto.getName());
         setAcronym(courseExecutionDto.getAcronym());
         setAcademicTerm(courseExecutionDto.getAcademicTerm());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getCourseExecutionAggregateId() {
+        return courseExecutionAggregateId;
     }
 
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+    public void setCourseExecutionAggregateId(Integer aggregateId) {
+        this.courseExecutionAggregateId = aggregateId;
     }
 
     public String getCourseName() {
@@ -65,7 +65,7 @@ public class UserCourseExecution {
     // TODO discuss this with teacher
     public CourseExecutionDto buildDto() {
         CourseExecutionDto courseExecutionDto = new CourseExecutionDto();
-        courseExecutionDto.setAggregateId(this.aggregateId);
+        courseExecutionDto.setAggregateId(this.courseExecutionAggregateId);
         courseExecutionDto.setName(courseExecutionDto.getName());
         courseExecutionDto.setAcronym(this.acronym);
         courseExecutionDto.setAcademicTerm(this.academicTerm);
@@ -79,7 +79,7 @@ public class UserCourseExecution {
         }
 
         UserCourseExecution other = (UserCourseExecution) obj;
-        return this.getAggregateId() == other.getAggregateId() &&
+        return this.getCourseExecutionAggregateId() == other.getCourseExecutionAggregateId() &&
                 this.getCourseName().equals(other.getCourseName()) &&
                 this.getAcronym().equals(other.getAcronym()) &&
                 this.getAcademicTerm().equals(other.getAcademicTerm());

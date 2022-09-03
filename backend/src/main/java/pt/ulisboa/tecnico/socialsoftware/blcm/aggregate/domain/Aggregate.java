@@ -57,7 +57,7 @@ public abstract class Aggregate {
         setAggregateId(aggregateId);
         setVersion(version);
         setCreationTs(LocalDateTime.now());
-        setState(AggregateState.INACTIVE);
+        setState(AggregateState.ACTIVE);
     }
 
     /* used when updating the aggregate */
@@ -127,4 +127,6 @@ public abstract class Aggregate {
             }
         }
     }
+
+    public abstract Aggregate merge(Aggregate other);
 }

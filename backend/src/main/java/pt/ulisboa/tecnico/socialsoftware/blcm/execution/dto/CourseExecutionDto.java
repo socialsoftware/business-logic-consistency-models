@@ -7,7 +7,7 @@ import java.io.Serializable;
 public class CourseExecutionDto implements Serializable {
     private Integer aggregateId;
 
-    private Integer courseId;
+    private Integer courseAggregateId;
 
     private String name;
 
@@ -30,7 +30,7 @@ public class CourseExecutionDto implements Serializable {
 
     public CourseExecutionDto(CourseExecution courseExecution) {
         setAggregateId(courseExecution.getAggregateId());
-        setCourseId(courseExecution.getCourse().getAggregateId());
+        setCourseAggregateId(courseExecution.getCourse().getAggregateId());
         setName(courseExecution.getCourse().getName());
         setType(courseExecution.getCourse().getType().toString());
         setAcronym(courseExecution.getAcronym());
@@ -48,12 +48,12 @@ public class CourseExecutionDto implements Serializable {
         this.aggregateId = aggregateId;
     }
 
-    public Integer getCourseId() {
-        return courseId;
+    public Integer getCourseAggregateId() {
+        return courseAggregateId;
     }
 
-    public void setCourseId(Integer courseId) {
-        this.courseId = courseId;
+    public void setCourseAggregateId(Integer courseAggregateId) {
+        this.courseAggregateId = courseAggregateId;
     }
 
     public String getName() {

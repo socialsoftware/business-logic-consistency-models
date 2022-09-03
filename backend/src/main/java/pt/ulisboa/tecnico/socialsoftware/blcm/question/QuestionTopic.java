@@ -2,25 +2,31 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
 public class QuestionTopic {
-    private Integer aggregateId;
+    @Column(name = "question_aggregate_id")
+    private Integer questionAggregateId;
 
     private String name;
 
     public QuestionTopic (TopicDto topicDto) {
-        setAggregateId(topicDto.getAggregateId());
+        setQuestionAggregateId(topicDto.getAggregateId());
         setName(topicDto.getName());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public QuestionTopic() {
+
     }
 
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+    public Integer getQuestionAggregateId() {
+        return questionAggregateId;
+    }
+
+    public void setQuestionAggregateId(Integer aggregateId) {
+        this.questionAggregateId = aggregateId;
     }
 
     public String getName() {
@@ -33,7 +39,7 @@ public class QuestionTopic {
 
     public TopicDto buildDto() {
         TopicDto dto = new TopicDto();
-        dto.setAggregateId(this.aggregateId);
+        dto.setAggregateId(this.questionAggregateId);
         dto.setName(this.name);
         return dto;
     }

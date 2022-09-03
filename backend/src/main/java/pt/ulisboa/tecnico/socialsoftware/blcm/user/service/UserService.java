@@ -57,7 +57,6 @@ public class UserService {
     public UserDto createUser(UserDto userDto, UnitOfWork unitOfWorkWorkService) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         User user = new User(aggregateId, unitOfWorkWorkService.getVersion(), userDto);
-        userRepository.save(user);
         unitOfWorkWorkService.addUpdatedObject(user, "User");
         return new UserDto(user);
     }
@@ -90,7 +89,6 @@ public class UserService {
 
         User newUser = new User(oldUser);
         newUser.addCourseExecution(userCourseExecution);
-        userRepository.save(newUser);
         unitOfWork.addUpdatedObject(newUser, "User");
     }
 
@@ -102,7 +100,6 @@ public class UserService {
         }
         User newUser = new User(oldUser);
         newUser.setActive(true);
-        userRepository.save(newUser);
         unitOfWork.addUpdatedObject(newUser, "User");
     }
 

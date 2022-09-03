@@ -15,12 +15,12 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface UserRepository extends JpaRepository<User, Integer> {
-    @Query(value = "select * from users t where t.aggregate_id = :aggregateId AND t.version <= :maxVersion AND t.state != 'INACTIVE'", nativeQuery = true)
+    @Query(value = "select * from users u where u.aggregate_id = :aggregateId AND u.version < :maxVersion AND u.state != 'INACTIVE' AND  u.version >= (select max(version) from users where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<User> findByAggregateIdAndVersion(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from users t where t.course_execution_id = :executionAggregateId AND t.version <= :maxVersion AND t.state != 'INACTIVE'", nativeQuery = true)
+    @Query(value = "select * from users u where u.course_execution_id = :executionAggregateId AND u.version <= :maxVersion AND u.state != 'INACTIVE'", nativeQuery = true)
     Set<User> findByExecutionAggregateIdAndVersion(Integer executionAggregateId, Integer maxVersion);
 
-    @Query(value = "select * from users u where u.aggregate_id = :aggregateId AND u.version > :version AND u.state != 'INACTIVE'", nativeQuery = true)
+    @Query(value = "select * from users u where u.aggregate_id = :aggregateId AND u.version >= :version AND u.state != 'INACTIVE'", nativeQuery = true)
     Set<User> findConcurrentVersions(Integer aggregateId, Integer version);
 }

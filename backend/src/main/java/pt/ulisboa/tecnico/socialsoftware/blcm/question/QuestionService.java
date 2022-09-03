@@ -7,8 +7,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.event.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import javax.transaction.Transactional;
@@ -49,7 +47,7 @@ public class QuestionService {
 
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return questionRepository.findAll().stream()
-                .filter(q -> q.getCourse().getAggregateId() == courseAggregateId)
+                .filter(q -> q.getCourse().getCourseAggregateId() == courseAggregateId)
                 .map(Question::getAggregateId)
                 .distinct()
                 .map(id -> getCausalQuestionLocal(id, unitOfWork))

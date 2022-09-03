@@ -21,7 +21,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 public class User extends Aggregate {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Tournament prev;
+    private User prev;
 
     @Column
     private String name;
@@ -49,8 +49,11 @@ public class User extends Aggregate {
         setName(otherUser.getName());
         setUsername(otherUser.getUsername());
         setRole(otherUser.getRole());
-        setState(AggregateState.INACTIVE);
+        setState(AggregateState.ACTIVE);
         setPrev(otherUser);
+        setActive(otherUser.isActive());
+        setCourseExecutions(new HashSet<>(otherUser.getCourseExecutions()));
+
     }
 
     public User(Integer aggregateId, Integer version, UserDto userDto) {
@@ -58,6 +61,8 @@ public class User extends Aggregate {
         setName(userDto.getName());
         setUsername(userDto.getUsername());
         setRole(Role.valueOf(userDto.getRole()));
+        setActive(false);
+        setCourseExecutions(new HashSet<>());
     }
 
     public void anonymize() {
@@ -73,80 +78,6 @@ public class User extends Aggregate {
     }
 
 
-    public static User merge(User prev, User v1, User v2) {
-
-
-        /* if there is an already concurrent version which is deleted this should not execute*/
-        if(v1.getState().equals(DELETED)) {
-            throw new TutorException(USER_DELETED, v1.getAggregateId());
-        }
-
-        Set<String> v1ChangedFields = getChangedFields(prev, v1);
-        Set<String> v2ChangedFields = getChangedFields(prev, v2);
-
-        /* only course executions are incremental */
-        if((v1ChangedFields.contains("course executions") && v1ChangedFields.size() == 1 && v2ChangedFields.contains("course executions") && v2ChangedFields.size() == 1)) {
-            throw new TutorException(ErrorMessage.USER_MERGE_FAILURE, prev.getAggregateId());
-        }
-
-
-        User mergedUser = new User(v1);
-
-
-        if(v1ChangedFields.contains("course executions") || v2ChangedFields.contains("course executions")) {
-
-            Set<UserCourseExecution> addedCourseExecutions =  SetUtils.union(
-                    SetUtils.difference(v1.getCourseExecutions(), prev.getCourseExecutions()),
-                    SetUtils.difference(v2.getCourseExecutions(), prev.getCourseExecutions())
-            );
-
-            Set<UserCourseExecution> removedCourseExecutions = SetUtils.union(
-                    SetUtils.difference(prev.getCourseExecutions(), v1.getCourseExecutions()),
-                    SetUtils.difference(prev.getCourseExecutions(), v2.getCourseExecutions())
-            );
-
-
-            mergedUser.setCourseExecutions(SetUtils.union(SetUtils.difference(prev.getCourseExecutions(), removedCourseExecutions), addedCourseExecutions));
-
-            for(Aggregate dep : v2.getDependencies().values()){
-                if (!mergedUser.getDependencies().containsKey(dep.getAggregateId()) && dep instanceof User) {
-                    // TODO: create method to allow adding individual dependencies
-                    mergedUser.getDependencies().put(dep.getAggregateId(), dep);
-                }
-            }
-
-        }
-
-        return mergedUser;
-    }
-
-
-    private static Set<String> getChangedFields(User prev, User v) {
-        Set<String> v1ChangedFields = new HashSet<>();
-        if(prev.getRole() != v.getRole()) {
-            v1ChangedFields.add("role");
-        }
-
-        if(prev.getName() != v.getName()) {
-            v1ChangedFields.add("name");
-        }
-
-        if(!prev.getUsername().equals(v.getUsername())) {
-            v1ChangedFields.add("username");
-        }
-
-        if(!prev.isActive().equals(v.isActive())) {
-            v1ChangedFields.add("active");
-        }
-
-        if(!prev.getCourseExecutions().equals(v.getCourseExecutions())) {
-            v1ChangedFields.add("course executions");
-        }
-
-
-
-        return v1ChangedFields;
-    }
 
     public void removeCourseExecution(UserCourseExecution userCourseExecution) {
         this.courseExecutions.remove(userCourseExecution);
@@ -209,10 +140,89 @@ public class User extends Aggregate {
         return this.prev;
     }
 
-    public void setPrev(User user) {
-
+    public void setPrev(User prev) {
+        this.prev = prev;
     }
 
+    @Override
+    public Aggregate merge(Aggregate other) {
+        User v1 = this;
+        if(!(other instanceof User)) {
+            throw new TutorException(ErrorMessage.USER_MERGE_FAILURE, prev.getAggregateId());
+        }
+        User v2 = (User)other;
+        User prev = (User)(this.getPrev());
+
+        /* if there is an already concurrent version which is deleted this should not execute*/
+        if(v1.getState().equals(DELETED)) {
+            throw new TutorException(USER_DELETED, v1.getAggregateId());
+        }
+
+        Set<String> v1ChangedFields = getChangedFields(prev, v1);
+        Set<String> v2ChangedFields = getChangedFields(prev, v2);
+
+        /* only course executions are incremental */
+        if(!(v1ChangedFields.contains("course executions") && v1ChangedFields.size() == 1 && v2ChangedFields.contains("course executions") && v2ChangedFields.size() == 1)) {
+            throw new TutorException(ErrorMessage.USER_MERGE_FAILURE, prev.getAggregateId());
+        }
+
+
+        User mergedUser = this;
+
+
+        if(v1ChangedFields.contains("course executions") || v2ChangedFields.contains("course executions")) {
+
+            Set<UserCourseExecution> addedCourseExecutions =  SetUtils.union(
+                    SetUtils.difference(v1.getCourseExecutions(), prev.getCourseExecutions()),
+                    SetUtils.difference(v2.getCourseExecutions(), prev.getCourseExecutions())
+            );
+
+            Set<UserCourseExecution> removedCourseExecutions = SetUtils.union(
+                    SetUtils.difference(prev.getCourseExecutions(), v1.getCourseExecutions()),
+                    SetUtils.difference(prev.getCourseExecutions(), v2.getCourseExecutions())
+            );
+
+
+            mergedUser.setCourseExecutions(SetUtils.union(SetUtils.difference(prev.getCourseExecutions(), removedCourseExecutions), addedCourseExecutions));
+
+            /*for(Aggregate dep : v2.getDependencies().values()){
+                if (!mergedUser.getDependencies().containsKey(dep.getAggregateId()) && dep instanceof User) {
+                    // TODO: create method to allow adding individual dependencies
+                    mergedUser.getDependencies().put(dep.getAggregateId(), dep);
+                }
+            }*/
+
+        }
+
+        return mergedUser;
+    }
+
+    private static Set<String> getChangedFields(User prev, User v) {
+        Set<String> v1ChangedFields = new HashSet<>();
+        if(!prev.getRole().equals(v.getRole())) {
+            v1ChangedFields.add("role");
+        }
+
+        if(!prev.getName().equals(v.getName())) {
+            v1ChangedFields.add("name");
+        }
+
+        if(!prev.getUsername().equals(v.getUsername())) {
+            v1ChangedFields.add("username");
+        }
+
+        if(!prev.isActive().equals(v.isActive())) {
+            v1ChangedFields.add("active");
+        }
+
+        if(!prev.getCourseExecutions().equals(v.getCourseExecutions())) {
+            v1ChangedFields.add("course executions");
+        }
+
+
+
+        return v1ChangedFields;
+    }
 
 
 }

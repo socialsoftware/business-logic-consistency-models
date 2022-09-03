@@ -54,6 +54,11 @@ public class Course extends Aggregate {
         return this.prev;
     }
 
+    @Override
+    public Aggregate merge(Aggregate other) {
+        return this;
+    }
+
     public void setPrev(Course prev) {
         this.prev = prev;
     }

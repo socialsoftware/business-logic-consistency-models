@@ -26,7 +26,10 @@ public class Quiz extends Aggregate {
         setNumberOfQuestions(other.getNumberOfQuestions());
     }
 
-
+    @Override
+    public Aggregate merge(Aggregate other) {
+        return this;
+    }
 
     public Integer getNumberOfQuestions() {
         return numberOfQuestions;
@@ -45,6 +48,8 @@ public class Quiz extends Aggregate {
     public Aggregate getPrev() {
         return null;
     }
+
+
 
     public void setPrev() {
 

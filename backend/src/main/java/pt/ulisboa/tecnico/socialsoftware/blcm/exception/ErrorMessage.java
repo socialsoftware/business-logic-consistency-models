@@ -3,6 +3,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.exception;
 public enum ErrorMessage {
     INVALID_AGGREGATE_TYPE("Aggregate type %s does not exist"),
 
+    AGGREGATE_DELETED("Aggregate with aggregate id %d already deleted."),
+
     VERSION_MANAGER_DOES_NOT_EXIST("Version manager does not exist."),
 
 
