@@ -2,18 +2,23 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE_EXECUTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Entity
@@ -197,6 +202,8 @@ public class User extends Aggregate {
         return mergedUser;
     }
 
+
+
     private static Set<String> getChangedFields(User prev, User v) {
         Set<String> v1ChangedFields = new HashSet<>();
         if(!prev.getRole().equals(v.getRole())) {
@@ -224,5 +231,13 @@ public class User extends Aggregate {
         return v1ChangedFields;
     }
 
+    @Override
+    public Map<Integer, Dependency> getDependenciesMap() {
+        Map<Integer, Dependency> depMap = new HashMap<>();
+        this.courseExecutions.forEach(ce -> {
+            depMap.put(ce.getAggregateId(), new Dependency(ce.getAggregateId(), COURSE_EXECUTION, ce.getVersion()));
+        });
+        return depMap;
+    }
 
 }

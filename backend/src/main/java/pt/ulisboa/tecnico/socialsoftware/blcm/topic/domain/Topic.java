@@ -1,8 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 
 import javax.persistence.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE;
 
 @Entity
 @Table(name = "topics")
@@ -55,6 +60,13 @@ public class Topic extends Aggregate {
     @Override
     public Aggregate merge(Aggregate other) {
         return this;
+    }
+
+    @Override
+    public Map<Integer, Dependency> getDependenciesMap() {
+        Map<Integer, Dependency> depMap = new HashMap<>();
+        depMap.put(this.course.getAggregateId(), new Dependency(this.course.getAggregateId(), COURSE ,this.course.getVersion()));
+        return depMap;
     }
 
     public void setPrev(Topic prev) {

@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 public class QuestionDto implements Serializable {
     private Integer aggregateId;
 
+    private Integer version;
+
     private String title;
 
     private String content;
@@ -28,8 +30,11 @@ public class QuestionDto implements Serializable {
 
     private List<OptionDto> optionDto;
 
+    private Integer sequence;
+
    public QuestionDto(Question question) {
        setAggregateId(question.getAggregateId());
+       setVersion(question.getVersion());
        setTitle(question.getTitle());
        setContent(question.getContent());
        setCreationDate(DateHandler.toISOString(question.getCreationDate()));
@@ -48,6 +53,14 @@ public class QuestionDto implements Serializable {
 
     public void setAggregateId(Integer aggregateId) {
         this.aggregateId = aggregateId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public String getTitle() {
@@ -98,5 +111,13 @@ public class QuestionDto implements Serializable {
 
     public void setOptionDto(List<OptionDto> optionDto) {
         this.optionDto = optionDto;
+    }
+
+    public Integer getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(Integer sequence) {
+        this.sequence = sequence;
     }
 }

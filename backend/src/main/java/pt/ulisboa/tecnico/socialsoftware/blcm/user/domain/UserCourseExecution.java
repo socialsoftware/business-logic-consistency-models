@@ -2,11 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
 public class UserCourseExecution {
-    private Integer courseExecutionAggregateId;
+    @Column(name = "course_execution_aggregate_id")
+    private Integer aggregateId;
 
     private String courseName;
 
@@ -14,28 +16,24 @@ public class UserCourseExecution {
 
     private String academicTerm;
 
+    private Integer version;
+
     public UserCourseExecution() {}
 
-    public UserCourseExecution(Integer courseExecutionAggregateId, String courseName, String acronym, String academicTerm) {
-        setCourseExecutionAggregateId(courseExecutionAggregateId);
-        setCourseName(courseName);
-        setAcronym(acronym);
-        setAcademicTerm(academicTerm);
-    }
-
     public UserCourseExecution (CourseExecutionDto courseExecutionDto) {
-        setCourseExecutionAggregateId((courseExecutionDto.getAggregateId()));
+        setAggregateId((courseExecutionDto.getAggregateId()));
         setCourseName(courseExecutionDto.getName());
         setAcronym(courseExecutionDto.getAcronym());
         setAcademicTerm(courseExecutionDto.getAcademicTerm());
+        setVersion(courseExecutionDto.getVersion());
     }
 
-    public Integer getCourseExecutionAggregateId() {
-        return courseExecutionAggregateId;
+    public Integer getAggregateId() {
+        return aggregateId;
     }
 
-    public void setCourseExecutionAggregateId(Integer aggregateId) {
-        this.courseExecutionAggregateId = aggregateId;
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
     }
 
     public String getCourseName() {
@@ -62,10 +60,18 @@ public class UserCourseExecution {
         this.academicTerm = academicTerm;
     }
 
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     // TODO discuss this with teacher
     public CourseExecutionDto buildDto() {
         CourseExecutionDto courseExecutionDto = new CourseExecutionDto();
-        courseExecutionDto.setAggregateId(this.courseExecutionAggregateId);
+        courseExecutionDto.setAggregateId(this.aggregateId);
         courseExecutionDto.setName(courseExecutionDto.getName());
         courseExecutionDto.setAcronym(this.acronym);
         courseExecutionDto.setAcademicTerm(this.academicTerm);
@@ -79,7 +85,7 @@ public class UserCourseExecution {
         }
 
         UserCourseExecution other = (UserCourseExecution) obj;
-        return this.getCourseExecutionAggregateId() == other.getCourseExecutionAggregateId() &&
+        return this.getAggregateId() == other.getAggregateId() &&
                 this.getCourseName().equals(other.getCourseName()) &&
                 this.getAcronym().equals(other.getAcronym()) &&
                 this.getAcademicTerm().equals(other.getAcademicTerm());

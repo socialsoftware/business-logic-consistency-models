@@ -45,6 +45,7 @@ public class QuestionService {
         return question;
     }
 
+    @Transactional
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return questionRepository.findAll().stream()
                 .filter(q -> q.getCourse().getCourseAggregateId() == courseAggregateId)
@@ -55,11 +56,12 @@ public class QuestionService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public QuestionDto createQuestion(QuestionCourse course, QuestionDto questionDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Question question = new Question(aggregateId, unitOfWork.getVersion(), course, questionDto);
         questionRepository.save(question);
-        unitOfWork.addUpdatedObject(question, "Question");
+        unitOfWork.addUpdatedObject(question);
         return new QuestionDto(question);
     }
 
@@ -67,27 +69,50 @@ public class QuestionService {
         // TODO
     }
 
+    @Transactional
     public void updateQuestion(QuestionDto questionDto, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(questionDto.getAggregateId(), unitOfWork);
         Question newQuestion = new Question(oldQuestion);
         newQuestion.update(questionDto);
-        unitOfWork.addUpdatedObject(newQuestion, "Question");
+        unitOfWork.addUpdatedObject(newQuestion);
         unitOfWork.addEvent(new UpdateQuestionEvent(newQuestion.getAggregateId(), newQuestion.getTitle(), newQuestion.getContent()));
     }
 
+    @Transactional
     public void removeQuestion(Integer courseAggregateId, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
         // TODO check remove conditions, maybe not needed because they are written based on info from downstream aggregates
         newQuestion.remove();
-        unitOfWork.addUpdatedObject(newQuestion, "Question");
+        unitOfWork.addUpdatedObject(newQuestion);
         unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion.getAggregateId()));
     }
 
+    @Transactional
     public void updateQuestionTopics(Integer courseAggregateId, Set<QuestionTopic> topics, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
         newQuestion.setTopics(topics);
-        unitOfWork.addUpdatedObject(newQuestion, "Question");
+        unitOfWork.addUpdatedObject(newQuestion);
+    }
+
+    @Transactional
+    public List<QuestionDto> findQuestionsByTopics(List<Integer> topicIds, UnitOfWork unitOfWork) {
+        Set<Integer> questionAggregateIds = questionRepository.findAll().stream()
+                .filter(q -> {
+                    for(QuestionTopic qt : q.getTopics()) {
+                        if (topicIds.contains(qt.getAggregateId())) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .map(Question::getAggregateId)
+                .collect(Collectors.toSet());
+        return questionAggregateIds.stream()
+                .map(id -> getCausalQuestionLocal(id, unitOfWork))
+                .map(QuestionDto::new)
+                .collect(Collectors.toList());
+
     }
 }

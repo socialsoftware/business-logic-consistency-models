@@ -7,26 +7,29 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 public class QuestionTopic {
-    @Column(name = "question_aggregate_id")
-    private Integer questionAggregateId;
+    @Column(name = "topic_aggregate_id")
+    private Integer aggregateId;
 
     private String name;
 
+    private Integer version;
+
     public QuestionTopic (TopicDto topicDto) {
-        setQuestionAggregateId(topicDto.getAggregateId());
+        setAggregateId(topicDto.getAggregateId());
         setName(topicDto.getName());
+        setVersion(topicDto.getVersion());
     }
 
     public QuestionTopic() {
 
     }
 
-    public Integer getQuestionAggregateId() {
-        return questionAggregateId;
+    public Integer getAggregateId() {
+        return aggregateId;
     }
 
-    public void setQuestionAggregateId(Integer aggregateId) {
-        this.questionAggregateId = aggregateId;
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
     }
 
     public String getName() {
@@ -37,9 +40,17 @@ public class QuestionTopic {
         this.name = name;
     }
 
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     public TopicDto buildDto() {
         TopicDto dto = new TopicDto();
-        dto.setAggregateId(this.questionAggregateId);
+        dto.setAggregateId(this.aggregateId);
         dto.setName(this.name);
         return dto;
     }

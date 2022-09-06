@@ -22,13 +22,17 @@ public class TournamentParticipant {
     @Column(name = "tournament_answer")
     private TournamentParticipantAnswer answer;
 
+    @Column(name = "participant_version")
+    private Integer version;
+
     public TournamentParticipant() {
 
     }
-    public TournamentParticipant(Integer aggregateId, String name, String username) {
-        this.aggregateId = aggregateId;
-        this.name = name;
-        this.username = username;
+    public TournamentParticipant(Integer aggregateId, String name, String username, Integer version) {
+        setAggregateId(aggregateId);
+        setName(name);
+        setUsername(username);
+        setVersion(version);
     }
 
 
@@ -74,5 +78,13 @@ public class TournamentParticipant {
 
     public void setAnswer(TournamentParticipantAnswer answer) {
         this.answer = answer;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

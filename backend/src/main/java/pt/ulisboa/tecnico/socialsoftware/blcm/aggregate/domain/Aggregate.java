@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import javax.persistence.*;
@@ -32,10 +33,6 @@ public abstract class Aggregate {
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private AggregateState state;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "dependencies")
-    private Map<Integer, Aggregate> dependencies;
 
     public void remove() {
         setState(DELETED);
@@ -112,16 +109,9 @@ public abstract class Aggregate {
 
     public abstract Aggregate getPrev();
 
-    public Map<Integer, Aggregate> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(Map<Integer, Aggregate> dependencies) {
-        this.dependencies = dependencies;
-    }
-
     public void checkDependencies(UnitOfWork unitOfWorkWorkService) {
-        for(Aggregate dep : this.getDependencies().values()) {
+        for(Dependency dep : this.getDependenciesMap().values()) {
+            // TODO fetch new version of one aggregate
             if (unitOfWorkWorkService.hasAggregateDep(dep.getAggregateId()) && unitOfWorkWorkService.getAggregateDep(dep.getAggregateId()).getVersion() > dep.getVersion()) {
                 throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId());
             }
@@ -129,4 +119,6 @@ public abstract class Aggregate {
     }
 
     public abstract Aggregate merge(Aggregate other);
+
+    public abstract Map<Integer, Dependency> getDependenciesMap();
 }

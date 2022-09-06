@@ -44,7 +44,7 @@ public class TournamentDto implements Serializable {
         setParticipants(tournament.getParticipants());
         setCourseExecution(tournament.getCourseExecution());
         setTopics(tournament.getTopics());
-        setQuiz(tournament.getTournamentQuiz());
+        setQuiz(tournament.getQuiz());
     }
 
     public Integer getAggregateId() {

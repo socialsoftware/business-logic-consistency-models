@@ -11,9 +11,9 @@ import java.util.Optional;
 @Repository
 @Transactional
 public interface QuizRepository extends JpaRepository<Quiz, Integer> {
-    @Query(value = "select * from quizzes q where q.aggregate_id = :aggregateId AND q.state", nativeQuery = true)
+    @Query(value = "select * from quizzes q where q.aggregate_id = :aggregateId AND q.version >= (select max(version) from quizzes where aggregate_id = :aggregateId AND version < :maxVersion", nativeQuery = true)
     Optional<Quiz> findByAggregateId(Integer aggregateId);
 
-    @Query(value = "select * from quizzes q where q.aggregate_id = :aggregateId AND q.version <= :maxVersion AND t.state != 'INACTIVE'", nativeQuery = true)
+    @Query(value = "select * from quizzes q where q.aggregate_id = :aggregateId AND q.version < :maxVersion AND t.state != 'INACTIVE' AND q.version >= (select max(version) from questions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Quiz> findByAggregateIdAndVersion(Integer aggregateId, Integer maxVersion);
 }

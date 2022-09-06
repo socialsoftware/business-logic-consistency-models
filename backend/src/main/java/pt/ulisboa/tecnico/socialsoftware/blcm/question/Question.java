@@ -1,14 +1,17 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE;
 
 @Entity
 @Table(name = "questions")
@@ -75,6 +78,17 @@ public class Question extends Aggregate {
     @Override
     public Aggregate merge(Aggregate other) {
         return this;
+    }
+
+    @Override
+    public Map<Integer, Dependency> getDependenciesMap() {
+        Map<Integer, Dependency> depMap = new HashMap<>();
+
+        depMap.put(this.course.getCourseAggregateId(), new Dependency(this.course.getCourseAggregateId(), COURSE, this.course.getVersion()));
+        this.topics.forEach(t -> {
+            depMap.put(t.getAggregateId(), new Dependency(t.getAggregateId(), COURSE, t.getVersion()));
+        });
+        return  depMap;
     }
 
     public void setPrev(Question prev) {

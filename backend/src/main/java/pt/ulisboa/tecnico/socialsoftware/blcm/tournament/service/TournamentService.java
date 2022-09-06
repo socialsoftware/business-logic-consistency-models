@@ -39,7 +39,7 @@ public class TournamentService {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWorkWorkService.getVersion()); /* should the skeleton creation be part of the functionality?? */
         tournamentRepository.save(tournament);
-        unitOfWorkWorkService.addUpdatedObject(tournament, "Tournament");
+        unitOfWorkWorkService.addUpdatedObject(tournament);
         unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
         return new TournamentDto(tournament);
     }
@@ -69,7 +69,7 @@ public class TournamentService {
         Tournament tournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournamentVersion = new Tournament(tournament);
         newTournamentVersion.addParticipant(tournamentParticipant);
-        unitOfWorkWorkService.addUpdatedObject(newTournamentVersion, "Tournament");
+        unitOfWorkWorkService.addUpdatedObject(newTournamentVersion);
     }
 
 
@@ -107,7 +107,7 @@ public class TournamentService {
             }
 
             if(update1 || update2) {
-                unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
+                unitOfWorkWorkService.addUpdatedObject(newTournament);
             }
         }
     }
@@ -146,7 +146,7 @@ public class TournamentService {
         newTournament.setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         newTournament.setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
         newTournament.setTopics(tournamentTopics);
-        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
+        unitOfWorkWorkService.addUpdatedObject(newTournament);
         return new TournamentDto(newTournament);
     }
 
@@ -189,7 +189,7 @@ public class TournamentService {
         Tournament newTournament = new Tournament(oldTournament);
         TournamentParticipant participantToRemove = newTournament.findParticipant(userAggregateId);
         newTournament.removeParticipant(participantToRemove);
-        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
+        unitOfWorkWorkService.addUpdatedObject(newTournament);
     }
 
     @Transactional
@@ -197,7 +197,7 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.findParticipant(userAggregateId).answerQuiz();
-        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
+        unitOfWorkWorkService.addUpdatedObject(newTournament);
     }
 
     @Transactional
@@ -205,7 +205,7 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.cancel();
-        unitOfWorkWorkService.addUpdatedObject(newTournament, "Tournament");
+        unitOfWorkWorkService.addUpdatedObject(newTournament);
     }
 
     public void remove(Integer tournamentAggregateId, UnitOfWork unitOfWorkWorkService) {

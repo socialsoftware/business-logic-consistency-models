@@ -21,6 +21,9 @@ public enum ErrorMessage {
 
     QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist"),
 
+    QUIZ_DELETED("Quiz with aggregate id %d already deleted."),
+    NOT_ENOUGH_QUESTIONS("Not enough questions to generate quiz."),
+
     COURSE_EXECUTION_NOT_FOUND("Course execution with aggregate id %d does not exist."),
     COURSE_EXECUTION_DELETED("Course execution with aggregate id %d already deleted."),
     COURSE_EXECUTION_MISSING_COURSE_ID("Course execution requires a course id."),

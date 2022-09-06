@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.topic.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.DeleteTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
@@ -17,12 +16,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 import javax.transaction.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.COURSE_EXECUTION_DELETED;
 
 @Service
 public class TopicService {
@@ -59,7 +55,7 @@ public class TopicService {
         Topic topic = new Topic(aggregateIdGeneratorService.getNewAggregateId(),
                 unitOfWorkWorkService.getVersion(), topicDto.getName(), course);
         topicRepository.save(topic);
-        unitOfWorkWorkService.addUpdatedObject(topic, "Topic");
+        unitOfWorkWorkService.addUpdatedObject(topic);
         return new TopicDto(topic);
     }
 
@@ -81,7 +77,7 @@ public class TopicService {
         Topic newTopic = new Topic(oldTopic);
         newTopic.setName(topicDto.getName());
         topicRepository.save(newTopic);
-        unitOfWork.addUpdatedObject(newTopic, "Topic");
+        unitOfWork.addUpdatedObject(newTopic);
         unitOfWork.addEvent(new UpdateTopicEvent(newTopic));
     }
 
@@ -90,7 +86,7 @@ public class TopicService {
         Topic newTopic = new Topic(oldTopic);
         newTopic.setState(DELETED);
         topicRepository.save(newTopic);
-        unitOfWork.addUpdatedObject(newTopic, "Topic");
+        unitOfWork.addUpdatedObject(newTopic);
         unitOfWork.addEvent(new DeleteTopicEvent(newTopic));
     }
 }

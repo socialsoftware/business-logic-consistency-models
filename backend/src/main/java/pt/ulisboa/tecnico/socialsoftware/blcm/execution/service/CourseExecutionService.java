@@ -65,7 +65,7 @@ public class CourseExecutionService {
                 courseExecutionDto.getAcademicTerm(), DateHandler.toLocalDateTime(courseExecutionDto.getEndDate()), executionCourse);
         //courseExecutionRepository.save(courseExecution);
 
-        unitOfWork.addUpdatedObject(courseExecution, "CourseExecution");
+        unitOfWork.addUpdatedObject(courseExecution);
         // TODO replace with UoW commit after fixing it
         /*courseExecution.setState(ACTIVE);
         courseExecution.setVersion(versionService.getVersionNumber());
@@ -101,7 +101,7 @@ public class CourseExecutionService {
         newCourseExecution.setState(DELETED);
         courseExecutionRepository.save(newCourseExecution);
 
-        unitOfWork.addUpdatedObject(newCourseExecution, "CourseExecution");
+        unitOfWork.addUpdatedObject(newCourseExecution);
         unitOfWork.addEvent(new RemoveCourseExecutionEvent(newCourseExecution.getAggregateId()));
 
     }

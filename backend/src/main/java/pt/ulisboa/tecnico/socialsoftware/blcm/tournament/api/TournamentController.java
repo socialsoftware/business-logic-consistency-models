@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -21,7 +22,7 @@ public class TournamentController {
     private TournamentFunctionalities tournamentFunctionalities;
 
     @PostMapping(value = "/tournaments/{executionId}")
-    public TournamentDto createTournament(@RequestParam Integer userId, @PathVariable int executionId, @RequestParam Set<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
+    public TournamentDto createTournament(@RequestParam Integer userId, @PathVariable int executionId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
         formatDates(tournamentDto);
         return tournamentFunctionalities.createTournament(userId, executionId, topicsId, tournamentDto);
     }

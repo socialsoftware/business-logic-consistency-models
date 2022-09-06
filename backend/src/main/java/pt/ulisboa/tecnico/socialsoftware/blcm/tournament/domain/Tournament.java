@@ -1,9 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import org.apache.commons.collections4.SetUtils;
+import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
@@ -52,7 +54,8 @@ public class Tournament extends Aggregate {
 
     @Embedded
     @Column(name = "tournament_quiz")
-    private TournamentQuiz tournamentQuiz;
+    private TournamentQuiz quiz;
+
 
 
     public Tournament() {
@@ -70,7 +73,7 @@ public class Tournament extends Aggregate {
         setCreator(creator);
         setCourseExecution(execution);
         setTopics(topics);
-        setTournamentQuiz(quiz);
+        setQuiz(quiz);
         setCreationTs(LocalDateTime.now());
     }
     /* used to update the tournament by creating new versions */
@@ -83,7 +86,7 @@ public class Tournament extends Aggregate {
         setCancelled(other.isCancelled());
         setCourseExecution(other.getCourseExecution());
         setTopics(other.getTopics());
-        setTournamentQuiz(other.getTournamentQuiz());
+        setQuiz(other.getQuiz());
         setCreator(other.getCreator()); /* change this to create new instances (maye this not)*/
         setParticipants(other.getParticipants()); /* change this to create new instances (maybe not needed) */
         setPrev(other);
@@ -273,6 +276,7 @@ public class Tournament extends Aggregate {
         return false;
     }
 
+
     public void cancel() {
         this.cancelled = true;
     }
@@ -286,6 +290,19 @@ public class Tournament extends Aggregate {
 
     public void setPrev(Tournament tournament) {
         this.prev = prev;
+    }
+
+    @Override
+    public Map<Integer, Dependency> getDependenciesMap() {
+        Map<Integer , Dependency> depMap = new HashMap<>();
+        depMap.put(this.courseExecution.getAggregateId(), new Dependency(this.courseExecution.getAggregateId(), AggregateType.COURSE_EXECUTION ,this.courseExecution.getVersion()));
+        this.participants.forEach(p -> {
+            depMap.put(p.getAggregateId(), new Dependency(this.courseExecution.getAggregateId(), AggregateType.USER, p.getVersion()));
+        });
+        depMap.put(this.creator.getAggregateId(), new Dependency(this.creator.getAggregateId(), AggregateType.USER ,this.creator.getVersion()));
+        depMap.put(this.quiz.getAggregateId(), new Dependency(this.quiz.getAggregateId(), AggregateType.QUIZ ,this.quiz.getVersion()));
+
+        return depMap;
     }
 
     public LocalDateTime getStartTime() {
@@ -356,12 +373,12 @@ public class Tournament extends Aggregate {
         this.topics = topics;
     }
 
-    public TournamentQuiz getTournamentQuiz() {
-        return tournamentQuiz;
+    public TournamentQuiz getQuiz() {
+        return quiz;
     }
 
-    public void setTournamentQuiz(TournamentQuiz tournamentQuiz) {
-        this.tournamentQuiz = tournamentQuiz;
+    public void setQuiz(TournamentQuiz tournamentQuiz) {
+        this.quiz = tournamentQuiz;
     }
 
     public TournamentParticipant findParticipant(Integer userAggregateId) {

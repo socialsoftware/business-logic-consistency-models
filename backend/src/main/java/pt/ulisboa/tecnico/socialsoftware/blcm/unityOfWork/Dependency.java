@@ -1,13 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
+
 public class Dependency {
     private Integer aggregateId;
 
-    private String type;
+    private AggregateType type;
 
     private Integer version;
 
-    public Dependency(Integer aggregateId, String type, Integer version) {
+    public Dependency(Integer aggregateId, AggregateType type, Integer version) {
         this.aggregateId = aggregateId;
         this.type = type;
         this.version = version;
@@ -21,11 +23,11 @@ public class Dependency {
         this.aggregateId = aggregateId;
     }
 
-    public String getType() {
+    public AggregateType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(AggregateType type) {
         this.type = type;
     }
 

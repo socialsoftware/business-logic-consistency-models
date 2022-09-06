@@ -49,7 +49,7 @@ public class CourseService {
         if(course == null) {
             Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
             course = new Course(aggregateId, unitOfWork.getVersion(), courseExecutionDto);
-            unitOfWork.addUpdatedObject(course, "Course");
+            unitOfWork.addUpdatedObject(course);
         }
         courseExecutionDto.setCourseAggregateId(course.getAggregateId());
         courseExecutionDto.setName(course.getName());

@@ -17,6 +17,10 @@ public class TournamentCourseExecution {
     @Column(name = "course_execution_status")
     private String status;
 
+
+    @Column(name = "course_execution_version")
+    private Integer version;
+
     public TournamentCourseExecution() { }
     public TournamentCourseExecution(Integer aggregateId, Integer courseId, String acronym, String status) {
         this.aggregateId = aggregateId;
@@ -55,5 +59,13 @@ public class TournamentCourseExecution {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer courseExecutionVersion) {
+        this.version = courseExecutionVersion;
     }
 }

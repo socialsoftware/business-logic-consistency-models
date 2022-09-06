@@ -2,10 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.AnonymizeUserEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -57,7 +55,7 @@ public class UserService {
     public UserDto createUser(UserDto userDto, UnitOfWork unitOfWorkWorkService) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         User user = new User(aggregateId, unitOfWorkWorkService.getVersion(), userDto);
-        unitOfWorkWorkService.addUpdatedObject(user, "User");
+        unitOfWorkWorkService.addUpdatedObject(user);
         return new UserDto(user);
     }
 
@@ -74,7 +72,7 @@ public class UserService {
         executionsUsers.forEach(oldUser -> {
             User newUser = new User(oldUser);
             newUser.anonymize();
-            unitOfWorkWorkService.addUpdatedObject(newUser, "User");
+            unitOfWorkWorkService.addUpdatedObject(newUser);
             unitOfWorkWorkService.addEvent(new AnonymizeUserEvent(newUser.getAggregateId()));
         });
     }
@@ -89,7 +87,7 @@ public class UserService {
 
         User newUser = new User(oldUser);
         newUser.addCourseExecution(userCourseExecution);
-        unitOfWork.addUpdatedObject(newUser, "User");
+        unitOfWork.addUpdatedObject(newUser);
     }
 
     @Transactional
@@ -100,7 +98,7 @@ public class UserService {
         }
         User newUser = new User(oldUser);
         newUser.setActive(true);
-        unitOfWork.addUpdatedObject(newUser, "User");
+        unitOfWork.addUpdatedObject(newUser);
     }
 
     @Transactional
@@ -117,7 +115,7 @@ public class UserService {
         User newUser = new User(oldUser);
         newUser.remove();
         userRepository.save(newUser);
-        unitOfWork.addUpdatedObject(newUser, "User");
+        unitOfWork.addUpdatedObject(newUser);
     }
 
     @Transactional
@@ -134,7 +132,7 @@ public class UserService {
 
         userRepository.save(newUser);
         unitOfWork.addEvent(new RemoveUserEvent(userAggregateId));
-        unitOfWork.addUpdatedObject(newUser,"User");
+        unitOfWork.addUpdatedObject(newUser);
     }
 
     @Transactional

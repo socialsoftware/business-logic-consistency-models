@@ -12,6 +12,8 @@ public class QuestionCourse {
 
     private String name;
 
+    private Integer version;
+
 
     public QuestionCourse() {
 
@@ -19,6 +21,7 @@ public class QuestionCourse {
     public QuestionCourse(CourseDto causalCourseRemote) {
         setCourseAggregateId(causalCourseRemote.getAggregateId());
         setName(causalCourseRemote.getName());
+        setVersion(causalCourseRemote.getVersion());
     }
 
     public Integer getCourseAggregateId() {
@@ -35,6 +38,14 @@ public class QuestionCourse {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public CourseDto buildDto() {

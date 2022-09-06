@@ -13,9 +13,10 @@ import java.util.Set;
 @Transactional
 @Repository
 public interface TopicRepository extends JpaRepository<Topic, Integer> {
-    @Query(value = "select * from topics t where t.aggregate_id = :aggregateId AND t.version <= :maxVersion AND t.state != 'INACTIVE'", nativeQuery = true)
+    @Query(value = "select * from topics t where t.aggregate_id = :aggregateId AND t.version < :maxVersion AND t.state != 'INACTIVE' AND t.version >= (select max(version) from topics where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
+
     Optional<Topic> findByAggregateIdAndVersion(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from topics t where t.aggregate_id = :aggregateId AND t.version > :version AND t.state != 'INACTIVE'", nativeQuery = true)
+    @Query(value = "select * from topics t where t.aggregate_id = :aggregateId AND t.version >= :version AND t.state != 'INACTIVE'", nativeQuery = true)
     Set<Topic> findConcurrentVersions(Integer aggregateId, Integer version);
 }

@@ -14,13 +14,17 @@ public class TournamentCreator {
     @Column(name = "creator_username")
     private String username;
 
+    @Column(name = "participant_version")
+    private Integer version;
+
     public TournamentCreator() {
 
     }
-    public TournamentCreator(Integer aggregateId, String name, String username) {
-        this.aggregateId = aggregateId;
-        this.name = name;
-        this.username = username;
+    public TournamentCreator(Integer aggregateId, String name, String username, Integer version) {
+        setAggregateId(aggregateId);
+        setName(name);
+        setUsername(username);
+        setVersion(version);
     }
 
 
@@ -47,5 +51,13 @@ public class TournamentCreator {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

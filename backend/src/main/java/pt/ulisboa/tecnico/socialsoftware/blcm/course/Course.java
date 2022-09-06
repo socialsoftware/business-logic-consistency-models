@@ -2,8 +2,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.course;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 
 import javax.persistence.*;
+import java.util.Map;
 
 @Entity
 @Table(name = "courses")
@@ -57,6 +59,11 @@ public class Course extends Aggregate {
     @Override
     public Aggregate merge(Aggregate other) {
         return this;
+    }
+
+    @Override
+    public Map<Integer, Dependency> getDependenciesMap() {
+        return null;
     }
 
     public void setPrev(Course prev) {

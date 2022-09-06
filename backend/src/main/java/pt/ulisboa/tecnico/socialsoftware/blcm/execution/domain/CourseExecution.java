@@ -1,11 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "course_executions")
@@ -64,6 +68,13 @@ public class CourseExecution extends Aggregate {
     @Override
     public Aggregate merge(Aggregate other) {
         return this;
+    }
+
+    @Override
+    public Map<Integer, Dependency> getDependenciesMap() {
+        Map<Integer, Dependency> depMap = new HashMap<>();
+        depMap.put(this.course.getAggregateId(), new Dependency(this.course.getAggregateId(), AggregateType.COURSE, this.course.getVersion()));
+        return depMap;
     }
 
     public void setPrev(CourseExecution prev) {
