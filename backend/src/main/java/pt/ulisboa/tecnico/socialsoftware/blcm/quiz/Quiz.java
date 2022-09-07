@@ -19,6 +19,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateT
 @Table(name = "quizzes")
 public class Quiz extends Aggregate {
 
+    @ManyToOne(fetch = FetchType.LAZY)
     private Aggregate prev;
     @Column(name = "number_of_questions")
     private Integer numberOfQuestions;

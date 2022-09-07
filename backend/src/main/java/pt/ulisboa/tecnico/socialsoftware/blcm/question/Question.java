@@ -5,10 +5,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE;
@@ -35,16 +32,15 @@ public class Question extends Aggregate {
     @ElementCollection
     private List<Option> options;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Aggregate prev;
 
     public Question() {
 
     }
 
-    // TODO is version really needed. no remove, version is assigned on commit
-    public Question(Integer aggregateId, Integer version, QuestionCourse course, QuestionDto questionDto) {
-        super(aggregateId, version);
+    public Question(Integer aggregateId, QuestionCourse course, QuestionDto questionDto) {
+        super(aggregateId);
         setTitle(questionDto.getTitle());
         setContent(questionDto.getTitle());
         setCreationDate(LocalDateTime.now());
@@ -61,13 +57,14 @@ public class Question extends Aggregate {
         setCreationDate(other.getCreationDate());
         setCourse(other.getCourse());
         setOptions(other.getOptions());
+        setTopics(new HashSet<>(other.getTopics()));
         setPrev(other);
     }
 
 
     @Override
     public boolean verifyInvariants() {
-        return false;
+        return true;
     }
 
     @Override
@@ -84,9 +81,9 @@ public class Question extends Aggregate {
     public Map<Integer, Dependency> getDependenciesMap() {
         Map<Integer, Dependency> depMap = new HashMap<>();
 
-        depMap.put(this.course.getCourseAggregateId(), new Dependency(this.course.getCourseAggregateId(), COURSE, this.course.getVersion()));
+        depMap.put(this.course.getAggregateId(), new Dependency(this.course.getAggregateId(), COURSE, this.course.getVersion()));
         this.topics.forEach(t -> {
-            depMap.put(t.getAggregateId(), new Dependency(t.getAggregateId(), COURSE, t.getVersion()));
+            depMap.put(t.getTopicAggregateId(), new Dependency(t.getTopicAggregateId(), COURSE, t.getVersion()));
         });
         return  depMap;
     }

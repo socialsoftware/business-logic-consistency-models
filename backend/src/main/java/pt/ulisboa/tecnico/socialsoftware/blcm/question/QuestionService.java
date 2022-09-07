@@ -48,7 +48,7 @@ public class QuestionService {
     @Transactional
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return questionRepository.findAll().stream()
-                .filter(q -> q.getCourse().getCourseAggregateId() == courseAggregateId)
+                .filter(q -> q.getCourse().getAggregateId() == courseAggregateId)
                 .map(Question::getAggregateId)
                 .distinct()
                 .map(id -> getCausalQuestionLocal(id, unitOfWork))
@@ -59,8 +59,8 @@ public class QuestionService {
     @Transactional
     public QuestionDto createQuestion(QuestionCourse course, QuestionDto questionDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-        Question question = new Question(aggregateId, unitOfWork.getVersion(), course, questionDto);
-        questionRepository.save(question);
+
+        Question question = new Question(aggregateId, course, questionDto);
         unitOfWork.addUpdatedObject(question);
         return new QuestionDto(question);
     }
@@ -101,7 +101,7 @@ public class QuestionService {
         Set<Integer> questionAggregateIds = questionRepository.findAll().stream()
                 .filter(q -> {
                     for(QuestionTopic qt : q.getTopics()) {
-                        if (topicIds.contains(qt.getAggregateId())) {
+                        if (topicIds.contains(qt.getTopicAggregateId())) {
                             return true;
                         }
                     }

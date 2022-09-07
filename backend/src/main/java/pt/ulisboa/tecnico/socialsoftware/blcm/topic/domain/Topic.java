@@ -26,7 +26,7 @@ public class Topic extends Aggregate {
     public Topic() {}
 
     public Topic(Integer aggregateId, Integer version, String name, TopicCourse course) {
-        super(aggregateId, version);
+        super(aggregateId);
         setName(name);
         setCourse(course);
     }

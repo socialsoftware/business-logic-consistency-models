@@ -2,12 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
@@ -62,7 +58,7 @@ public class User extends Aggregate {
     }
 
     public User(Integer aggregateId, Integer version, UserDto userDto) {
-        super(aggregateId, version);
+        super(aggregateId);
         setName(userDto.getName());
         setUsername(userDto.getUsername());
         setRole(Role.valueOf(userDto.getRole()));

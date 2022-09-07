@@ -114,7 +114,6 @@ public class UserService {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
         User newUser = new User(oldUser);
         newUser.remove();
-        userRepository.save(newUser);
         unitOfWork.addUpdatedObject(newUser);
     }
 
@@ -130,7 +129,6 @@ public class UserService {
             newUser.removeCourseExecution(userCourseExecution);
         }
 
-        userRepository.save(newUser);
         unitOfWork.addEvent(new RemoveUserEvent(userAggregateId));
         unitOfWork.addUpdatedObject(newUser);
     }

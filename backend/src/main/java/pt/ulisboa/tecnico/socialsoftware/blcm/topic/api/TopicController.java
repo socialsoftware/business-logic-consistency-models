@@ -2,11 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.topic.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.TopicFunctionalities;
-import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.TopicCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import java.util.List;
 

@@ -1,14 +1,10 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

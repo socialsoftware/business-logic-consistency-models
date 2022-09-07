@@ -61,16 +61,10 @@ public class CourseExecutionService {
     @Transactional
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto, ExecutionCourse executionCourse, UnitOfWork unitOfWork) {
         CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(),
-                unitOfWork.getVersion(), courseExecutionDto.getAcronym(),
+                courseExecutionDto.getAcronym(),
                 courseExecutionDto.getAcademicTerm(), DateHandler.toLocalDateTime(courseExecutionDto.getEndDate()), executionCourse);
-        //courseExecutionRepository.save(courseExecution);
 
         unitOfWork.addUpdatedObject(courseExecution);
-        // TODO replace with UoW commit after fixing it
-        /*courseExecution.setState(ACTIVE);
-        courseExecution.setVersion(versionService.getVersionNumber());
-        versionService.incrementVersionNumber();
-        courseExecutionRepository.save(courseExecution);*/
         return new CourseExecutionDto(courseExecution);
     }
 
@@ -98,9 +92,7 @@ public class CourseExecutionService {
             throw new TutorException(CANNOT_DELETE_COURSE_EXECUTION);
         }
 
-        newCourseExecution.setState(DELETED);
-        courseExecutionRepository.save(newCourseExecution);
-
+        newCourseExecution.remove();
         unitOfWork.addUpdatedObject(newCourseExecution);
         unitOfWork.addEvent(new RemoveCourseExecutionEvent(newCourseExecution.getAggregateId()));
 

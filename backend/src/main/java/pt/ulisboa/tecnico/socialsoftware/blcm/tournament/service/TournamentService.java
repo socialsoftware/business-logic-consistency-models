@@ -38,7 +38,6 @@ public class TournamentService {
         /* in the unit of work manage the dependencies on commit time*/
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWorkWorkService.getVersion()); /* should the skeleton creation be part of the functionality?? */
-        tournamentRepository.save(tournament);
         unitOfWorkWorkService.addUpdatedObject(tournament);
         unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
         return new TournamentDto(tournament);

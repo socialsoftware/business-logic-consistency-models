@@ -45,9 +45,10 @@ public class QuizFunctionalities {
                 .map(id -> questionService.getCausalQuestionRemote(id, unitOfWork))
                 .map(QuizQuestion::new)
                 .collect(Collectors.toList());
-        QuizDto quizDto1 = quizService.updateQuiz(quizDto, quizQuestions, unitOfWork);
+        //QuizDto quizDto1 = quizService.updateQuiz(quizDto, quizQuestions, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
-        return quizDto1;
+        //return quizDto1;
+        return null;
     }
     
 }

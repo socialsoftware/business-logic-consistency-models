@@ -1,4 +1,6 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.course;
+package pt.ulisboa.tecnico.socialsoftware.blcm.course.dto;
+
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 
 import java.io.Serializable;
 

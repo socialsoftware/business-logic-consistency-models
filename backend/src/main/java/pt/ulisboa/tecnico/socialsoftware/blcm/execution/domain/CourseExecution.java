@@ -2,8 +2,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 
 import javax.persistence.*;
@@ -39,8 +37,8 @@ public class CourseExecution extends Aggregate {
     }
 
 
-    public CourseExecution(Integer aggregateId, Integer version, String acronym, String academicTerm, LocalDateTime endDate, ExecutionCourse executionCourse) {
-        super(aggregateId, version);
+    public CourseExecution(Integer aggregateId, String acronym, String academicTerm, LocalDateTime endDate, ExecutionCourse executionCourse) {
+        super(aggregateId);
         setAcronym(acronym);
         setAcademicTerm(academicTerm);
         setEndDate(endDate);
@@ -117,5 +115,13 @@ public class CourseExecution extends Aggregate {
     @Override
     public boolean verifyInvariants() {
         return true;
+    }
+
+    @Override
+    public void setVersion(Integer version) {
+        if(this.course.getVersion() == getVersion()) {
+            this.course.setVersion(version);
+        }
+        super.setVersion(version);
     }
 }

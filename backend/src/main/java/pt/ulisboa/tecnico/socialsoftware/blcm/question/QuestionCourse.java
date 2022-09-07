@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -8,10 +8,12 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class QuestionCourse {
     @Column(name = "course_aggregate_id")
-    private Integer courseAggregateId;
+    private Integer aggregateId;
 
+    @Column(name = "course_name")
     private String name;
 
+    @Column(name = "course_version")
     private Integer version;
 
 
@@ -19,17 +21,17 @@ public class QuestionCourse {
 
     }
     public QuestionCourse(CourseDto causalCourseRemote) {
-        setCourseAggregateId(causalCourseRemote.getAggregateId());
+        setAggregateId(causalCourseRemote.getAggregateId());
         setName(causalCourseRemote.getName());
         setVersion(causalCourseRemote.getVersion());
     }
 
-    public Integer getCourseAggregateId() {
-        return courseAggregateId;
+    public Integer getAggregateId() {
+        return aggregateId;
     }
 
-    public void setCourseAggregateId(Integer aggregateId) {
-        this.courseAggregateId = aggregateId;
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
     }
 
     public String getName() {
@@ -50,7 +52,7 @@ public class QuestionCourse {
 
     public CourseDto buildDto() {
         CourseDto dto = new CourseDto();
-        dto.setAggregateId(this.courseAggregateId);
+        dto.setAggregateId(this.aggregateId);
         setName(this.name);
         return dto;
     }

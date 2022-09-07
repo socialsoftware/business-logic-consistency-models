@@ -9,6 +9,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.version.repository.VersionReposito
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
+import java.util.Optional;
+
 
 @Service
 public class VersionService {
@@ -19,10 +21,13 @@ public class VersionService {
     /* cannot allow two transactions to get the same version number*/
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Integer getVersionNumber() {
-        Version version = versionRepository.findAll().stream().findFirst().orElseThrow(() -> new TutorException(ErrorMessage.VERSION_MANAGER_DOES_NOT_EXIST));
-        if(version.getVersionNumber() == null) {
+        Optional<Version> versionOp = versionRepository.findAll().stream().findFirst();
+        Version version;
+        if(versionOp.isEmpty()) {
             version = new Version();
             versionRepository.save(version);
+        } else {
+            version = versionOp.get();
         }
         version.incrementVersion();
         return version.getVersionNumber();

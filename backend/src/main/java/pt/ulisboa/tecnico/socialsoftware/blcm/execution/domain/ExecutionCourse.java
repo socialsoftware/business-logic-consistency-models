@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseType;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.CourseType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.Column;

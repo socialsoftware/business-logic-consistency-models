@@ -1,9 +1,9 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.course;
+package pt.ulisboa.tecnico.socialsoftware.blcm.course.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 
 import javax.transaction.Transactional;
 import java.util.Optional;

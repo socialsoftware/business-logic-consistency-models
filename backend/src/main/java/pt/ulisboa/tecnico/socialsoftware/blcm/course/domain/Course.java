@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.course;
+package pt.ulisboa.tecnico.socialsoftware.blcm.course.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
@@ -25,7 +25,7 @@ public class Course extends Aggregate {
     }
 
     public Course(Integer aggregateId, Integer version, CourseExecutionDto courseExecutionDto) {
-        super(aggregateId, version);
+        super(aggregateId);
         setName(courseExecutionDto.getName());
         setType(CourseType.valueOf(courseExecutionDto.getType()));
     }

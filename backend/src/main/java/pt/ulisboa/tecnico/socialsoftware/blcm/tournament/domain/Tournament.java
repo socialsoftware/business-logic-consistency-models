@@ -6,7 +6,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
@@ -65,7 +64,7 @@ public class Tournament extends Aggregate {
     // TODO should the version be assigned on the functionality or service?
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz, Integer version) {
-        super(aggregateId, version);
+        super(aggregateId);
         setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
         setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
@@ -88,7 +87,7 @@ public class Tournament extends Aggregate {
         setTopics(other.getTopics());
         setQuiz(other.getQuiz());
         setCreator(other.getCreator()); /* change this to create new instances (maye this not)*/
-        setParticipants(other.getParticipants()); /* change this to create new instances (maybe not needed) */
+        setParticipants(new HashSet<>(other.getParticipants())); /* change this to create new instances (maybe not needed) */
         setPrev(other);
     }
 
@@ -199,13 +198,6 @@ public class Tournament extends Aggregate {
                     SetUtils.difference(prev.getParticipants(), v2.getParticipants())
             );
             mergedTournament.setParticipants(SetUtils.union(SetUtils.difference(prev.getParticipants(), removedParticipants), addedParticipants));
-
-            for(Aggregate dep : v2.getDependencies().values()){
-                if (!mergedTournament.getDependencies().containsKey(dep.getAggregateId()) && dep instanceof User) {
-                    // TODO: create method to allow adding individual dependencies
-                    mergedTournament.getDependencies().put(dep.getAggregateId(), dep);
-                }
-            }
 
         }
 
@@ -388,5 +380,13 @@ public class Tournament extends Aggregate {
 
     public void removeParticipant(TournamentParticipant participant) {
         this.participants.remove(participant);
+    }
+
+    @Override
+    public void setVersion(Integer version) {
+        if(this.quiz.getVersion() == getVersion()) {
+            this.quiz.setVersion(version);
+        }
+        super.setVersion(version);
     }
 }

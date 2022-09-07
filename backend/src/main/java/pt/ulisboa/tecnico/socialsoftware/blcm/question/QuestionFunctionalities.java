@@ -2,8 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.service.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWorkService;

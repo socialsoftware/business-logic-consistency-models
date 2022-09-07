@@ -21,7 +21,8 @@ public class CourseExecutionController {
     @PostMapping(value = "/executions/create")
     public CourseExecutionDto createTournament(@RequestBody CourseExecutionDto executionDto) {
         formatDates(executionDto);
-        return courseExecutionFunctionalities.createCourseExecution(executionDto);
+        CourseExecutionDto courseExecutionDto = courseExecutionFunctionalities.createCourseExecution(executionDto);
+        return courseExecutionDto;
     }
 
     private void formatDates(CourseExecutionDto courseExecutionDto) {

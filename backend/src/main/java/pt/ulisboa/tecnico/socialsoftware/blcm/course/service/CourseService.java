@@ -1,9 +1,12 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.course;
+package pt.ulisboa.tecnico.socialsoftware.blcm.course.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;

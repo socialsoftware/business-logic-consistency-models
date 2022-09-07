@@ -54,7 +54,6 @@ public class TopicService {
     public TopicDto createTopic(TopicDto topicDto, TopicCourse course, UnitOfWork unitOfWorkWorkService) {
         Topic topic = new Topic(aggregateIdGeneratorService.getNewAggregateId(),
                 unitOfWorkWorkService.getVersion(), topicDto.getName(), course);
-        topicRepository.save(topic);
         unitOfWorkWorkService.addUpdatedObject(topic);
         return new TopicDto(topic);
     }
@@ -76,7 +75,6 @@ public class TopicService {
         Topic oldTopic = getCausalTopicLocal(topicDto.getAggregateId(), unitOfWork);
         Topic newTopic = new Topic(oldTopic);
         newTopic.setName(topicDto.getName());
-        topicRepository.save(newTopic);
         unitOfWork.addUpdatedObject(newTopic);
         unitOfWork.addEvent(new UpdateTopicEvent(newTopic));
     }
@@ -84,8 +82,7 @@ public class TopicService {
     public void deleteTopic(Integer topicAggregateId, UnitOfWork unitOfWork) {
         Topic oldTopic = getCausalTopicLocal(topicAggregateId, unitOfWork);
         Topic newTopic = new Topic(oldTopic);
-        newTopic.setState(DELETED);
-        topicRepository.save(newTopic);
+        newTopic.remove();
         unitOfWork.addUpdatedObject(newTopic);
         unitOfWork.addEvent(new DeleteTopicEvent(newTopic));
     }

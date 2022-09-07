@@ -16,6 +16,7 @@ public class UserCourseExecution {
 
     private String academicTerm;
 
+    @Column(name = "course_execution_aggregate_version")
     private Integer version;
 
     public UserCourseExecution() {}

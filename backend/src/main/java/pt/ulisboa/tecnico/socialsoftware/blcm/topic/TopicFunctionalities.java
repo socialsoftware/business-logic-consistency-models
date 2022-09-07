@@ -2,8 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.CourseService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.TopicCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;

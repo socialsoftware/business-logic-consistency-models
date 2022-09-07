@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.course;
+package pt.ulisboa.tecnico.socialsoftware.blcm.course.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
