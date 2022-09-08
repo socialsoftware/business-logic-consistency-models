@@ -55,7 +55,7 @@ public class CourseExecutionFunctionalities {
     public void removeCourseExecution(Integer executionAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         courseExecutionService.removeCourseExecution(executionAggregateId, unitOfWork);
-
+        unitOfWorkService.commit(unitOfWork);
     }
 
     private void checkInput(CourseExecutionDto courseExecutionDto) {

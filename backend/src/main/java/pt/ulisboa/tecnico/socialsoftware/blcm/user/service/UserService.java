@@ -38,15 +38,16 @@ public class UserService {
     }
 
     // intended for requests from local functionalities
-    public User getCausalUserLocal(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
-        User user = userRepository.findByAggregateIdAndVersion(aggregateId, unitOfWorkWorkService.getVersion())
+    public User getCausalUserLocal(Integer aggregateId, UnitOfWork unitOfWork) {
+        User user = userRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(USER_NOT_FOUND, aggregateId));
 
         if(user.getState().equals(DELETED)) {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
-        user.checkDependencies(unitOfWorkWorkService);
+        user.checkDependencies(unitOfWork);
+        unitOfWork.addCurrentReadDependencies(user.getDependenciesMap());
         return user;
     }
 

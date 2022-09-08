@@ -9,6 +9,6 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface EventRepository extends JpaRepository<DomainEvent, Integer> {
-    @Query(value = "select * from events where type = :type and id > :minimumId" ,nativeQuery = true)
-    Set<AnonymizeUserEvent> getEvents(String type, Integer minimumId);
+    @Query(value = "select * from domain_events where type = :type and id > :minimumId" ,nativeQuery = true)
+    Set<DomainEvent> getEvents(String type, Integer minimumId);
 }

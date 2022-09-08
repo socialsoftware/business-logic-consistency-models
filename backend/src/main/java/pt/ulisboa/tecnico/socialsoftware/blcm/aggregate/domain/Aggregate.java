@@ -103,13 +103,13 @@ public abstract class Aggregate {
 
     public abstract Aggregate getPrev();
 
-    public void checkDependencies(UnitOfWork unitOfWorkWorkService) {
-        /*for(Dependency dep : this.getDependenciesMap().values()) {
+    public void checkDependencies(UnitOfWork unitOfWork) {
+        for(Dependency dep : this.getDependenciesMap().values()) {
             // TODO fetch new version of one aggregate
-            if (unitOfWorkWorkService.hasAggregateDep(dep.getAggregateId()) && unitOfWorkWorkService.getAggregateDep(dep.getAggregateId()).getVersion() > dep.getVersion()) {
+            if (unitOfWork.hasAggregateDep(dep.getAggregateId()) && unitOfWork.getAggregateDep(dep.getAggregateId()).getVersion() < dep.getVersion()) {
                 throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId());
             }
-        }*/
+        }
     }
 
     public abstract Aggregate merge(Aggregate other);

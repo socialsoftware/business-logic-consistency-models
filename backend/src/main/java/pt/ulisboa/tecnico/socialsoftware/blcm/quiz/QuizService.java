@@ -49,15 +49,16 @@ public class QuizService {
     }
 
     // intended for requests from local functionalities
-    public Quiz getCausalQuizLocal(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
-        Quiz quiz = quizRepository.findByAggregateIdAndVersion(aggregateId, unitOfWorkWorkService.getVersion())
+    public Quiz getCausalQuizLocal(Integer aggregateId, UnitOfWork unitOfWork) {
+        Quiz quiz = quizRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
 
         if(quiz.getState().equals(DELETED)) {
             throw new TutorException(TOURNAMENT_DELETED, quiz.getAggregateId());
         }
 
-        quiz.checkDependencies(unitOfWorkWorkService);
+        quiz.checkDependencies(unitOfWork);
+        unitOfWork.addCurrentReadDependencies(quiz.getDependenciesMap());
         return quiz;
     }
 

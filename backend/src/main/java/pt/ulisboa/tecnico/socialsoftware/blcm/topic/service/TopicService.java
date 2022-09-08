@@ -38,15 +38,16 @@ public class TopicService {
 
     // intended for requests from local functionalities
     @Transactional
-    public Topic getCausalTopicLocal(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
-        Topic topic = topicRepository.findByAggregateIdAndVersion(aggregateId, unitOfWorkWorkService.getVersion())
+    public Topic getCausalTopicLocal(Integer aggregateId, UnitOfWork unitOfWork) {
+        Topic topic = topicRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(ErrorMessage.TOPIC_NOT_FOUND, aggregateId));
 
         if(topic.getState().equals(DELETED)) {
             throw new TutorException(ErrorMessage.TOPIC_DELETED, topic.getAggregateId());
         }
 
-        topic.checkDependencies(unitOfWorkWorkService);
+        topic.checkDependencies(unitOfWork);
+        unitOfWork.addCurrentReadDependencies(topic.getDependenciesMap());
         return topic;
     }
 

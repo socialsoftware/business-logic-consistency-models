@@ -5,6 +5,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity
@@ -63,7 +64,7 @@ public class Course extends Aggregate {
 
     @Override
     public Map<Integer, Dependency> getDependenciesMap() {
-        return null;
+        return new HashMap<>();
     }
 
     public void setPrev(Course prev) {

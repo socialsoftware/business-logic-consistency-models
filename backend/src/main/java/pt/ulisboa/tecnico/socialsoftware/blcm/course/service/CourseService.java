@@ -41,6 +41,7 @@ public class CourseService {
         }
 
         course.checkDependencies(unitOfWork);
+        unitOfWork.addCurrentReadDependencies(course.getDependenciesMap());
         return course;
     }
 

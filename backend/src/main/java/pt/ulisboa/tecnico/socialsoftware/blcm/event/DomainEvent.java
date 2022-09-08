@@ -6,8 +6,10 @@ import javax.persistence.*;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="type",
         discriminatorType = DiscriminatorType.STRING)
+@Table(name = "domain_events")
 public abstract class DomainEvent {
     @Id
+    @GeneratedValue
     private Integer id;
 
     @Column

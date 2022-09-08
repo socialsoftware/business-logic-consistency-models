@@ -46,15 +46,16 @@ public class CourseExecutionService {
 
     // intended for requests from local functionalities
     @Transactional
-    public CourseExecution getCausalCourseExecutionLocal(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
-        CourseExecution execution = courseExecutionRepository.findByAggregateIdAndVersion(aggregateId, unitOfWorkWorkService.getVersion())
+    public CourseExecution getCausalCourseExecutionLocal(Integer aggregateId, UnitOfWork unitOfWork) {
+        CourseExecution execution = courseExecutionRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, aggregateId));
 
         if(execution.getState().equals(DELETED)) {
             throw new TutorException(COURSE_EXECUTION_DELETED, execution.getAggregateId());
         }
 
-        execution.checkDependencies(unitOfWorkWorkService);
+        execution.checkDependencies(unitOfWork);
+        unitOfWork.addCurrentReadDependencies(execution.getDependenciesMap());
         return execution;
     }
 

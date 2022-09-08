@@ -51,15 +51,16 @@ public class TournamentService {
 
     // intended for requests from local functionalities
     @Transactional
-    public Tournament getCausalTournamentLocal(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
-        Tournament tournament = tournamentRepository.findByAggregateIdAndVersion(aggregateId, unitOfWorkWorkService.getVersion())
+    public Tournament getCausalTournamentLocal(Integer aggregateId, UnitOfWork unitOfWork) {
+        Tournament tournament = tournamentRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
 
         if(tournament.getState().equals(DELETED)) {
             throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
-        tournament.checkDependencies(unitOfWorkWorkService);
+        tournament.checkDependencies(unitOfWork);
+        unitOfWork.addCurrentReadDependencies(tournament.getDependenciesMap());
         return tournament;
     }
 

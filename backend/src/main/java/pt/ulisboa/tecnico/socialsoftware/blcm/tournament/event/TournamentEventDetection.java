@@ -8,10 +8,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component
-public class EventDetection {
+public class TournamentEventDetection {
 
     @Autowired
     private EventRepository eventRepository;
@@ -24,11 +23,12 @@ public class EventDetection {
 
     @Scheduled(cron = "*/10 * * * * *")
     public void detectAnonymizeUserEvents() {
+        /*System.out.println("Processing anonymize user events");
         ProcessedAnonymizeUserEvents lastProcessedEvent = processedAnonymizeUserEventsRepository.findAll().stream().findFirst().get();
 
-        if(lastProcessedEvent == null) {
+        if(lastProcessedEvent == null) {*/
             /*creates the entry if it does not exist*/
-            lastProcessedEvent = new ProcessedAnonymizeUserEvents(0);
+         /*   lastProcessedEvent = new ProcessedAnonymizeUserEvents(0);
         }
 
         Set<AnonymizeUserEvent> events = eventRepository.getEvents("ANONYMIZE_USER", lastProcessedEvent.getLastProcessed());
@@ -40,7 +40,6 @@ public class EventDetection {
 
         lastProcessedEvent.setLastProcessed(newLastProcessedId);
         processedAnonymizeUserEventsRepository.save(lastProcessedEvent);
-
+*/
     }
-
 }

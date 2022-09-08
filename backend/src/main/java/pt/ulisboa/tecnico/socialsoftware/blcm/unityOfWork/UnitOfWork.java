@@ -16,11 +16,13 @@ public class UnitOfWork {
 
     // Cumulative dependencies of the functionality
     // Map type ensures only a version of an aggregate is written by transaction
-    private Map<Integer, Aggregate> currentReadDependencies;
+    // TODO since aggregate ids are unique amongst several aggregate types, perhaps only a pair <Integer, Integer> is enough ( second Integer being the version)
+    private Map<Integer, Dependency> currentReadDependencies;
 
     public UnitOfWork(Integer version) {
         this.updatedObjects = new HashMap<Integer, Aggregate>();
         this.eventsToEmit = new HashSet<>();
+        this.currentReadDependencies = new HashMap<>();
         setVersion(version);
     }
 
@@ -55,30 +57,25 @@ public class UnitOfWork {
         this.eventsToEmit.add(event);
     }
 
-    public Map<Integer, Aggregate> getCurrentReadDependencies() {
+    public Map<Integer, Dependency> getCurrentReadDependencies() {
         return currentReadDependencies;
     }
 
-    public void addCurrentReadDependency(Aggregate dep) {
-        if(!this.currentReadDependencies.containsKey(dep.getAggregateId())) {
-            this.currentReadDependencies.put(dep.getAggregateId(), dep);
-        }
+
+    public void addCurrentReadDependencies(Map<Integer, Dependency> deps) {
+        deps.values().forEach(dep -> {
+            if(!this.currentReadDependencies.containsKey(dep.getAggregateId())) {
+                this.currentReadDependencies.put(dep.getAggregateId(), dep);
+            }
+        });
     }
 
     public boolean hasAggregateDep(Integer aggregateId) {
         return this.currentReadDependencies.containsKey(aggregateId);
     }
 
-    public Aggregate getAggregateDep(Integer aggregateId) {
+    public Dependency getAggregateDep(Integer aggregateId) {
         return this.currentReadDependencies.get(aggregateId);
     }
-
-    /*public void addDependency(Integer objAggregateId, Dependency dep) {
-        if(this.updatedObjects.containsKey(objAggregateId)) {
-            AggregateIdTypePair pair = this.updatedObjects.get(objAggregateId);
-            pair.addDependency(dep);
-        }
-    }*/
-
 
 }
