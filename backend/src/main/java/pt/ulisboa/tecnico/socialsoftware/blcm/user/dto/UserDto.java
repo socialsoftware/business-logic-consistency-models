@@ -1,10 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.dto;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserDto implements Serializable {
     private Integer aggregateId;
@@ -19,7 +21,7 @@ public class UserDto implements Serializable {
 
     private Integer version;
 
-    private Set<UserCourseExecution> executions;
+    private Set<CourseExecutionDto> executions;
 
     public UserDto() {
 
@@ -32,7 +34,9 @@ public class UserDto implements Serializable {
         this.username = user.getUsername();
         this.version = user.getVersion();
         setActive(user.isActive());
-
+        setExecutions(user.getCourseExecutions().stream()
+                .map(UserCourseExecution::buildDto)
+                .collect(Collectors.toSet()));
     }
 
     public Integer getAggregateId() {
@@ -75,11 +79,11 @@ public class UserDto implements Serializable {
         this.version = version;
     }
 
-    public Set<UserCourseExecution> getExecutions() {
+    public Set<CourseExecutionDto> getExecutions() {
         return executions;
     }
 
-    public void setExecutions(Set<UserCourseExecution> executions) {
+    public void setExecutions(Set<CourseExecutionDto> executions) {
         this.executions = executions;
     }
 

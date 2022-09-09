@@ -38,6 +38,7 @@ public class UserService {
     }
 
     // intended for requests from local functionalities
+    @Transactional
     public User getCausalUserLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         User user = userRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(USER_NOT_FOUND, aggregateId));
@@ -121,17 +122,19 @@ public class UserService {
     @Transactional
     public void removeCourseExecutionsFromUser(Integer userAggregateId, List<Integer> courseExecutionsAggregateIds, UnitOfWork unitOfWork) {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
-        User newUser = new User(oldUser);
-        Set<UserCourseExecution> courseExecutionsToRemove = newUser.getCourseExecutions().stream()
-                .filter(uce -> courseExecutionsAggregateIds.contains(uce))
+        Set<UserCourseExecution> courseExecutionsToRemove = oldUser.getCourseExecutions().stream()
+                .filter(uce -> courseExecutionsAggregateIds.contains(uce.getAggregateId()))
                 .collect(Collectors.toSet());
 
-        for (UserCourseExecution userCourseExecution : courseExecutionsToRemove) {
-            newUser.removeCourseExecution(userCourseExecution);
+        if(!courseExecutionsToRemove.isEmpty()) {
+            User newUser = new User(oldUser);
+            for (UserCourseExecution userCourseExecution : courseExecutionsToRemove) {
+                newUser.removeCourseExecution(userCourseExecution);
+            }
+
+            unitOfWork.addUpdatedObject(newUser);
         }
 
-        unitOfWork.addEvent(new RemoveUserEvent(userAggregateId));
-        unitOfWork.addUpdatedObject(newUser);
     }
 
     @Transactional

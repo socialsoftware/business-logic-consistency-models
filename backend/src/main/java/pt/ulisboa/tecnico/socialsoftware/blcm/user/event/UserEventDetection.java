@@ -42,8 +42,6 @@ public class UserEventDetection {
 
     @Scheduled(cron = "*/10 * * * * *")
     public void detectRemoveCourseExecutionEvents() {
-        System.out.println("Processing remove course execution events");
-
         ProcessedCourseExecutionRemoveEvents lastProcessedEvent = processedCourseExecutionRemoveEventsRepository.findAll().stream().findFirst()
                 .orElse(new ProcessedCourseExecutionRemoveEvents(0));
 
@@ -57,18 +55,20 @@ public class UserEventDetection {
                 .distinct()
                 .collect(Collectors.toList());
 
-        Set<Integer> usersAggregateIds = userRepository.findAll().stream()
+        Set<Integer> usersAggregateIds = userRepository.findAllNonDeleted().stream()
                 .map(User::getAggregateId)
                 .collect(Collectors.toSet());
 
 
 
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-
-        for(Integer userAggregateId : usersAggregateIds) {
-            userService.removeCourseExecutionsFromUser(userAggregateId, executionsAggregateIds, unitOfWork);
+        if(!events.isEmpty()) {
+            UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+            for(Integer userAggregateId : usersAggregateIds) {
+                userService.removeCourseExecutionsFromUser(userAggregateId, executionsAggregateIds, unitOfWork);
+            }
+            unitOfWorkService.commit(unitOfWork);
         }
-         unitOfWorkService.commit(unitOfWork);
+
 
         Integer newLastProcessedId = events.stream().map(RemoveCourseExecutionEvent::getId).max(Integer::compareTo).orElse(lastProcessedEvent.getLastProcessed());
 

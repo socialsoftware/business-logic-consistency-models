@@ -101,6 +101,7 @@ public class UnitOfWorkService {
                 if(concurrentAggregate != null) {
                     concurrentAggregates = true;
                     Aggregate newAggregate = aggregateToWrite.merge(concurrentAggregate);
+                    //newAggregate.verifyInvariants();
                     newAggregate.setId(null);
                     aggregatesToCommit.put(aggregateId, newAggregate);
                 }

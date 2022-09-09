@@ -81,7 +81,7 @@ public class UserCourseExecution {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof UserCourseExecution) {
+        if(!(obj instanceof UserCourseExecution)) {
             return false;
         }
 

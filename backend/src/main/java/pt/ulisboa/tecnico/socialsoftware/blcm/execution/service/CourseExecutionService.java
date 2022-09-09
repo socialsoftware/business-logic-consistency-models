@@ -55,7 +55,6 @@ public class CourseExecutionService {
         }
 
         execution.checkDependencies(unitOfWork);
-        unitOfWork.addCurrentReadDependencies(execution.getDependenciesMap());
         return execution;
     }
 
@@ -71,16 +70,16 @@ public class CourseExecutionService {
 
     @Transactional
     public List<CourseExecutionDto> getAllCausalCourseExecutions(UnitOfWork unitOfWork) {
-        Set<Integer> executionsAggregateIds = courseExecutionRepository.findAll().stream()
+        return courseExecutionRepository.findAllNonDeleted().stream()
                 .map(CourseExecution::getAggregateId)
-                .collect(Collectors.toSet());
-        return executionsAggregateIds.stream()
+                .distinct()
+                // TODO change this into a query that retrieve multiple entries
                 .map(id -> getCausalCourseExecutionLocal(id, unitOfWork))
-                .filter(ce -> !ce.getState().equals(DELETED) && !ce.getState().equals(INACTIVE))
                 .map(CourseExecutionDto::new)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void removeCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
 
         CourseExecution oldCourseExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);

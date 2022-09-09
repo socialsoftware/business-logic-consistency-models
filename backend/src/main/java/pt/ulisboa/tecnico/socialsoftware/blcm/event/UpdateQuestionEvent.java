@@ -1,5 +1,10 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.event;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("UPDATE_QUESTION")
 public class UpdateQuestionEvent extends DomainEvent{
     private Integer aggregateId;
 
@@ -7,6 +12,9 @@ public class UpdateQuestionEvent extends DomainEvent{
 
     private String content;
 
+    public UpdateQuestionEvent() {
+
+    }
     public UpdateQuestionEvent(Integer aggregateId, String title, String content) {
         this.aggregateId = aggregateId;
         this.title = title;

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
@@ -22,4 +23,7 @@ public interface CourseExecutionRepository extends JpaRepository<CourseExecution
 
     @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version >= :version AND ce.state != 'INACTIVE'", nativeQuery = true)
     Set<CourseExecution> findConcurrentVersions(Integer aggregateId, Integer version);
+
+    @Query(value = "select * from course_executions ce where aggregate_id NOT IN (select aggregate_id from course_executions where state = 'DELETED')", nativeQuery = true)
+    Set<CourseExecution> findAllNonDeleted();
 }

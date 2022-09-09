@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /* EXISTS FOR EXAMPLE ONLY. MAY NEED TO DELETE LATER*/
 @Entity
-@DiscriminatorValue("TOURNAMENT_CREATION")
+@DiscriminatorValue("CREATE_TOURNAMENT")
 public class TournamentCreationEvent extends DomainEvent {
     private Integer tournamentId;
 
