@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.question;
+package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 

@@ -1,16 +1,24 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.question;
+package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
-public class OptionDto {
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
+
+import javax.persistence.Embeddable;
+
+@Embeddable
+public class Option {
     private Integer sequence;
 
     private boolean correct;
 
     private String content;
 
-    public OptionDto(Option option) {
-        setSequence(option.getSequence());
-        setCorrect(option.isCorrect());
-        setContent(option.getContent());
+    public Option(OptionDto optionDto) {
+        setSequence(optionDto.getSequence());
+        setCorrect(optionDto.isCorrect());
+        setContent(optionDto.getContent());
+    }
+
+    public Option() {
 
     }
 

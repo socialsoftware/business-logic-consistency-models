@@ -1,12 +1,11 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.question;
+package pt.ulisboa.tecnico.socialsoftware.blcm.question.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionFunctionalities;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 public class QuestionController {

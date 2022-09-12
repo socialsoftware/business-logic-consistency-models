@@ -6,5 +6,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface ProcessedCourseExecutionRemoveEventsRepository extends JpaRepository<ProcessedCourseExecutionRemoveEvents, Integer> {
+public interface UserProcessedEventsRepository extends JpaRepository<UserProcessedEvents, Integer> {
 }

@@ -1,9 +1,9 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
+package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 
 import javax.transaction.Transactional;
 import java.util.Optional;

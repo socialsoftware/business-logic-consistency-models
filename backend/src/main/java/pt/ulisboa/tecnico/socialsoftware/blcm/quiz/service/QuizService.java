@@ -1,15 +1,18 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
+package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizCourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import javax.transaction.Transactional;

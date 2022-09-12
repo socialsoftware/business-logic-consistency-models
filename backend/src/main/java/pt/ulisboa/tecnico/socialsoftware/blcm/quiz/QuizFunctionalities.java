@@ -3,12 +3,15 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizCourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWorkService;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

@@ -3,8 +3,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.event;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.event.EventType.ANONYMIZE_USER;
+
 @Entity
-@DiscriminatorValue("ANONYMIZE_USER")
+@DiscriminatorValue(ANONYMIZE_USER)
 public class AnonymizeUserEvent extends DomainEvent{
     private Integer userAggregateId;
 

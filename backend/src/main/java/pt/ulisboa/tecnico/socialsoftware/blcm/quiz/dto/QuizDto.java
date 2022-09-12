@@ -1,4 +1,6 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
+package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto;
+
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 
 import java.io.Serializable;
 import java.util.List;

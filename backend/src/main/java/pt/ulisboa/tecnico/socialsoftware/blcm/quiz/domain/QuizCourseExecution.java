@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
+package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 

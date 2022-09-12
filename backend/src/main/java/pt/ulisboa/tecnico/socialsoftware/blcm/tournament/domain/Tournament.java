@@ -384,7 +384,7 @@ public class Tournament extends Aggregate {
 
     @Override
     public void setVersion(Integer version) {
-        if(this.quiz.getVersion() == getVersion()) {
+        if(this.quiz.getVersion() == null) {
             this.quiz.setVersion(version);
         }
         super.setVersion(version);

@@ -58,6 +58,7 @@ public class CourseService {
         courseExecutionDto.setCourseAggregateId(course.getAggregateId());
         courseExecutionDto.setName(course.getName());
         courseExecutionDto.setType(course.getType().toString());
+        courseExecutionDto.setCourseVersion(course.getVersion());
         return courseExecutionDto;
     }
 

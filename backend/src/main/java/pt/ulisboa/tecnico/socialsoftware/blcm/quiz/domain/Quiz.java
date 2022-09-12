@@ -1,16 +1,13 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
+package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.Option;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE_EXECUTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.QUESTION;
@@ -101,7 +98,7 @@ public class Quiz extends Aggregate {
 
     @Override
     public boolean verifyInvariants() {
-        return false;
+        return true;
     }
 
 

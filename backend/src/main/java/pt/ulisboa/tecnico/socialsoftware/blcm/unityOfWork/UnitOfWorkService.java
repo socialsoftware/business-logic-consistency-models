@@ -11,11 +11,11 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.UserRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.version.service.VersionService;
 
 import javax.persistence.EntityManager;
@@ -101,7 +101,7 @@ public class UnitOfWorkService {
                 if(concurrentAggregate != null) {
                     concurrentAggregates = true;
                     Aggregate newAggregate = aggregateToWrite.merge(concurrentAggregate);
-                    //newAggregate.verifyInvariants();
+                    newAggregate.verifyInvariants();
                     newAggregate.setId(null);
                     aggregatesToCommit.put(aggregateId, newAggregate);
                 }
@@ -120,28 +120,6 @@ public class UnitOfWorkService {
         unitOfWork.getEventsToEmit().forEach(e -> eventRepository.save(e));
     }
 
-    /*@Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    // Must be serializable in order to ensure on
-    void commitAllObjects(UnitOfWork unitOfWork, Integer version) {
-        unitOfWork.getUpdatedObjects().forEach(aggregateToWrite -> {
-
-            Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite, version);
-
-            if(concurrentAggregate != null && concurrentAggregate.getState().equals(DELETED)) {
-                throw new TutorException(COURSE_DELETED, concurrentCourse.getAggregateId());
-            }
-            /* no need to commit again if as already been committed and no concurrent version exists*/
-            /*if(!obj.isCommitted() || concurrentAggregate != null) {
-                //cast necessary due to method signature returning Aggregate
-                Course prevCourse = ((Course)courseToWrite.getPrev());
-                commitCourse(prevCourse, courseToWrite, concurrentCourse, version);
-            }
-
-        });
-    }*/
 
     // Must be serializable in order to ensure no other commits are made between the checking of concurrent versions and the actual persist
     @Retryable(

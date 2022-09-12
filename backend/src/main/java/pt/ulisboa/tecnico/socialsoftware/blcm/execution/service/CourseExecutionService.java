@@ -55,6 +55,7 @@ public class CourseExecutionService {
         }
 
         execution.checkDependencies(unitOfWork);
+        unitOfWork.addCurrentReadDependencies(execution.getDependenciesMap());
         return execution;
     }
 

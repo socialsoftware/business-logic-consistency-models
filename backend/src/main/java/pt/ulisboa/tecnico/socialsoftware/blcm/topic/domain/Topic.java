@@ -49,7 +49,7 @@ public class Topic extends Aggregate {
     }
     @Override
     public boolean verifyInvariants() {
-        return false;
+        return true;
     }
 
     @Override

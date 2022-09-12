@@ -23,6 +23,8 @@ public class CourseExecutionDto implements Serializable {
 
     private Integer version;
 
+    private Integer courseVersion;
+
     public CourseExecutionDto() {
 
     }
@@ -112,5 +114,11 @@ public class CourseExecutionDto implements Serializable {
         this.version = version;
     }
 
+    public Integer getCourseVersion() {
+        return courseVersion;
+    }
 
+    public void setCourseVersion(Integer courseVersion) {
+        this.courseVersion = courseVersion;
+    }
 }

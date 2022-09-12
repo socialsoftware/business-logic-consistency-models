@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.question;
+package pt.ulisboa.tecnico.socialsoftware.blcm.question.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,6 +7,11 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.event.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionCourse;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import javax.transaction.Transactional;

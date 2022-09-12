@@ -106,7 +106,7 @@ public abstract class Aggregate {
     public void checkDependencies(UnitOfWork unitOfWork) {
         for(Dependency dep : this.getDependenciesMap().values()) {
             // TODO fetch new version of one aggregate
-            if (unitOfWork.hasAggregateDep(dep.getAggregateId()) && unitOfWork.getAggregateDep(dep.getAggregateId()).getVersion() < dep.getVersion()) {
+            if (unitOfWork.hasAggregateDep(dep.getAggregateId()) && unitOfWork.getAggregateDep(dep.getAggregateId()).getVersion() != dep.getVersion()) {
                 throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId());
             }
         }

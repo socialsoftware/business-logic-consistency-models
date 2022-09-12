@@ -28,7 +28,7 @@ public class ExecutionCourse {
         setAggregateId(courseExecutionDto.getCourseAggregateId());
         setName(courseExecutionDto.getName());
         setType(CourseType.valueOf(courseExecutionDto.getType()));
-        setVersion(courseExecutionDto.getVersion());
+        setVersion(courseExecutionDto.getCourseVersion());
     }
 
     public Integer getAggregateId() {
