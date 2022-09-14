@@ -1,14 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "tournament_processed_user_events")
 public class TournamentProcessedEvents {
     @Id
+    @GeneratedValue
     private Integer id;
 
     @Column

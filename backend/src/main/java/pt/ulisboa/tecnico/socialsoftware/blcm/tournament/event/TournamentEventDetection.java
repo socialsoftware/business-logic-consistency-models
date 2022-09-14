@@ -15,6 +15,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.UserProcessedEvents;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,25 +44,8 @@ public class TournamentEventDetection {
     private TournamentProcessedEventsRepository tournamentProcessedEventsRepository;
 
     @Scheduled(cron = "*/10 * * * * *")
-    public void detectAnonymizeUserEvents() {
-        /*System.out.println("Processing anonymize user events");
-        ProcessedAnonymizeUserEvents lastProcessedEvent = processedAnonymizeUserEventsRepository.findAll().stream().findFirst().get();
-
-        if(lastProcessedEvent == null) {*/
-            /*creates the entry if it does not exist*/
-         /*   lastProcessedEvent = new ProcessedAnonymizeUserEvents(0);
-        }
-
-        Set<AnonymizeUserEvent> events = eventRepository.getEvents("ANONYMIZE_USER", lastProcessedEvent.getLastProcessed());
-        Integer newLastProcessedId = 0;
-        for(AnonymizeUserEvent e : events) {
-            tournamentFunctionalities.anonymizeUser(e.getUserAggregateId());
-            newLastProcessedId = e.getId();
-        }
-
-        lastProcessedEvent.setLastProcessed(newLastProcessedId);
-        processedAnonymizeUserEventsRepository.save(lastProcessedEvent);
-*/
+    @Transactional
+    public void detectTournamentEvents() {
         TournamentProcessedEvents lastProcessedEvent = tournamentProcessedEventsRepository.findAll().stream()
                 .findFirst()
                 .orElse(new TournamentProcessedEvents(0));
