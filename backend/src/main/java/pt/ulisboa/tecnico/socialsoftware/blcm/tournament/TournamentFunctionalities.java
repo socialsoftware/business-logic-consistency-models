@@ -120,13 +120,12 @@ public class TournamentFunctionalities {
 
         TournamentDto newTournamentDto = tournamentService.updateTournament(tournamentDto, tournamentTopics, unitOfWork);
 
-        List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(new ArrayList<>(topicsAggregateIds), unitOfWork);
         QuizDto quizDto = new QuizDto();
         quizDto.setAvailableDate(newTournamentDto.getStartTime());
         quizDto.setConclusionDate(newTournamentDto.getEndTime());
         quizDto.setResultsDate(newTournamentDto.getEndTime());
 
-        quizService.updateQuiz(new QuizDto(), questionDtos, unitOfWork);
+        quizService.updateQuiz(quizDto, topicsAggregateIds, unitOfWork);
 
 
         unitOfWorkService.commit(unitOfWork);
@@ -179,11 +178,6 @@ public class TournamentFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public void anonymizeUser(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        tournamentService.anonymizeUser(userAggregateId, unitOfWork);
-        unitOfWorkService.commit(unitOfWork);
-    }
 
     private void checkInput(Integer userId, List<Integer> topicsId, TournamentDto tournamentDto) {
         if (userId == null) {

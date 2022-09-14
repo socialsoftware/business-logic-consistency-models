@@ -62,7 +62,7 @@ public class UserFunctionalities {
 
     public UserDto findByAggregateId(Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        return new UserDto(userService.getCausalUserLocal(userAggregateId, unitOfWork));
+        return userService.getCausalUserRemote(userAggregateId, unitOfWork);
     }
 
     public void activateUser(Integer userAggregateId) {

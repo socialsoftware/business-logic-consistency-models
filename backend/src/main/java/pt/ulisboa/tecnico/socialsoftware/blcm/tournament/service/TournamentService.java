@@ -50,7 +50,7 @@ public class TournamentService {
     }
 
     // intended for requests from local functionalities
-    @Transactional
+
     public Tournament getCausalTournamentLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         Tournament tournament = tournamentRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
@@ -59,8 +59,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
-        tournament.checkDependencies(unitOfWork);
-        unitOfWork.addCurrentReadDependencies(tournament.getDependenciesMap());
+        unitOfWork.checkDependencies(tournament);
         return tournament;
     }
 
@@ -76,8 +75,8 @@ public class TournamentService {
 
     /* discuss if the processing for all tournaments should be done at the same time */
     @Transactional
-    public void anonymizeUser(Integer userAggregateId, UnitOfWork unitOfWorkWorkService) {
-        Set<Tournament> allTournaments = findAllTournamentByVersion(unitOfWorkWorkService);
+    public void anonymizeUser(Integer userAggregateId, String name, String username, UnitOfWork unitOfWork) {
+        Set<Tournament> allTournaments = findAllTournamentByVersion(unitOfWork);
         boolean update1 = false;
         boolean update2 = false;
         for(Tournament t : allTournaments) {
@@ -86,8 +85,8 @@ public class TournamentService {
             Tournament newTournament = new Tournament(t);
             TournamentCreator creator = t.getCreator();
             if(creator.getAggregateId() == userAggregateId) {
-                creator.setName("ANONYMOUS");
-                creator.setName("ANONYMOUS");
+                creator.setName(name);
+                creator.setName(username);
                 update1 = true;
                 newTournament.setCreator(creator);
             }
@@ -97,8 +96,8 @@ public class TournamentService {
             for(TournamentParticipant tp : participants) {
                 if(tp.getAggregateId() == userAggregateId) {
                     update2 = true;
-                    tp.setName("ANONYMOUS");
-                    tp.setName("ANONYMOUS");
+                    tp.setName(name);
+                    tp.setName(username);
                 }
             }
 
@@ -107,15 +106,15 @@ public class TournamentService {
             }
 
             if(update1 || update2) {
-                unitOfWorkWorkService.addUpdatedObject(newTournament);
+                unitOfWork.addUpdatedObject(newTournament);
             }
         }
     }
 
-    private Set<Tournament> findAllTournamentByVersion(UnitOfWork unitOfWorkWorkService) {
+    private Set<Tournament> findAllTournamentByVersion(UnitOfWork unitOfWork) {
         Set<Tournament> tournaments = tournamentRepository.findAll()
                 .stream()
-                .filter(t -> t.getVersion() <= unitOfWorkWorkService.getVersion())
+                .filter(t -> t.getVersion() <= unitOfWork.getVersion())
                 .collect(Collectors.toSet());
 
         Map<Integer, Tournament> tournamentPerAggregateId = new HashMap<>();
@@ -123,7 +122,7 @@ public class TournamentService {
             if(t.getState().equals(DELETED)) {
                 throw new TutorException(TOURNAMENT_DELETED, t.getAggregateId());
             }
-             t.checkDependencies(unitOfWorkWorkService);
+            unitOfWork.checkDependencies(t);
 
             if (!tournamentPerAggregateId.containsKey(t.getAggregateId())) {
                 tournamentPerAggregateId.put(t.getAggregateId(), t);

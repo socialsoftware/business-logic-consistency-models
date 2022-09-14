@@ -37,7 +37,7 @@ public class QuestionService {
         return new QuestionDto(getCausalQuestionLocal(aggregateId, unitOfWork));
     }
 
-    @Transactional
+
     public Question getCausalQuestionLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         Question question = questionRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, aggregateId));
@@ -46,8 +46,7 @@ public class QuestionService {
             throw new TutorException(ErrorMessage.QUESTION_DELETED, question.getAggregateId());
         }
 
-        question.checkDependencies(unitOfWork);
-        unitOfWork.addCurrentReadDependencies(question.getDependenciesMap());
+        unitOfWork.checkDependencies(question);
         return question;
     }
 

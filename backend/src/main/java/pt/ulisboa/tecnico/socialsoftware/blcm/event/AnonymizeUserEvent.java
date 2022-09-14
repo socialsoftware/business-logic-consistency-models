@@ -10,12 +10,18 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.event.EventType.ANONYMIZE_U
 public class AnonymizeUserEvent extends DomainEvent{
     private Integer userAggregateId;
 
+    private String name;
+
+    private String username;
+
     public AnonymizeUserEvent() {
 
     }
 
-    public AnonymizeUserEvent(Integer userAggregateId) {
-        this.userAggregateId = userAggregateId;
+    public AnonymizeUserEvent(Integer userAggregateId, String name, String username) {
+        setUserAggregateId(userAggregateId);
+        setName(name);
+        setUsername(username);
     }
 
     public Integer getUserAggregateId() {
@@ -24,5 +30,21 @@ public class AnonymizeUserEvent extends DomainEvent{
 
     public void setUserAggregateId(Integer userAggregateId) {
         this.userAggregateId = userAggregateId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

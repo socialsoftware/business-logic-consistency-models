@@ -1,22 +1,24 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.user.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "user_processed_events")
-public class UserProcessedEvents {
+@Table(name = "tournament_processed_user_events")
+public class TournamentProcessedEvents {
     @Id
-    @GeneratedValue
     private Integer id;
 
     @Column
     private Integer lastProcessedEventId;
 
-    public UserProcessedEvents() {
+    public TournamentProcessedEvents() {
 
     }
 
-    public UserProcessedEvents(Integer lastProcessedEventId) {
+    public TournamentProcessedEvents(Integer lastProcessedEventId) {
         this.lastProcessedEventId = lastProcessedEventId;
     }
 
@@ -35,5 +37,4 @@ public class UserProcessedEvents {
     public void setLastProcessedEventId(Integer lastProcessed) {
         this.lastProcessedEventId = lastProcessed;
     }
-
 }

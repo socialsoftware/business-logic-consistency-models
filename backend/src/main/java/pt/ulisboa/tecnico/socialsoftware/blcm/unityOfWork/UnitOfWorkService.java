@@ -6,6 +6,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
@@ -83,21 +84,18 @@ public class UnitOfWorkService {
     @Transactional
     public void commit(UnitOfWork unitOfWork) {
         boolean concurrentAggregates = true;
-        Integer commitVersion = unitOfWork.getVersion();
 
         // TODO STEP 1 check whether any of the aggregates to write have concurrent versions
         // TODO STEP 2 if so perform any merges necessary
         // TODO STEP 3 performs steps 1 and 2 until step 1 stops holding
         // TODO STEP 4 perform a commit of the aggregates under SERIALIZABLE isolation
 
-
         Map<Integer, Aggregate> aggregatesToCommit = new HashMap<>(unitOfWork.getUpdatedObjectsMap());
         while (concurrentAggregates) {
-            commitVersion = unitOfWork.getVersion();
             concurrentAggregates = false;
             for (Integer aggregateId : aggregatesToCommit.keySet()) {
                 Aggregate aggregateToWrite = aggregatesToCommit.get(aggregateId);
-                Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite, commitVersion);
+                Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite, unitOfWork.getVersion());
                 if(concurrentAggregate != null) {
                     concurrentAggregates = true;
                     Aggregate newAggregate = aggregateToWrite.merge(concurrentAggregate);
@@ -116,7 +114,7 @@ public class UnitOfWorkService {
         }
 
 
-        commitAllObjects(unitOfWork, aggregatesToCommit, commitVersion);
+        commitAllObjects(unitOfWork.getVersion(), aggregatesToCommit);
         unitOfWork.getEventsToEmit().forEach(e -> eventRepository.save(e));
     }
 
@@ -126,9 +124,9 @@ public class UnitOfWorkService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    void commitAllObjects(UnitOfWork unitOfWork, Map<Integer, Aggregate> aggregateMap, Integer version) {
+    void commitAllObjects(Integer commitVersion, Map<Integer, Aggregate> aggregateMap) {
         aggregateMap.values().forEach(aggregateToWrite -> {
-            aggregateToWrite.setVersion(unitOfWork.getVersion());
+            aggregateToWrite.setVersion(commitVersion);
             aggregateToWrite.setCreationTs(LocalDateTime.now());
             entityManager.persist(aggregateToWrite);
         });

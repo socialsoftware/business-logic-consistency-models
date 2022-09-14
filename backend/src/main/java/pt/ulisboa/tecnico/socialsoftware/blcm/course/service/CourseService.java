@@ -31,7 +31,7 @@ public class CourseService {
     }
 
     // intended for requests from local functionalities
-    @Transactional
+
     public Course getCausalCourseLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         Course course = courseRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND, aggregateId));
@@ -40,8 +40,7 @@ public class CourseService {
             throw new TutorException(ErrorMessage.COURSE_DELETED, course.getAggregateId());
         }
 
-        course.checkDependencies(unitOfWork);
-        unitOfWork.addCurrentReadDependencies(course.getDependenciesMap());
+        unitOfWork.checkDependencies(course);
         return course;
     }
 
@@ -66,7 +65,7 @@ public class CourseService {
         Course course = courseRepository.findByAggregateNameAndVersion(courseName, unitOfWork.getVersion())
                 .orElse(null);
         if(course != null) {
-            course.checkDependencies(unitOfWork);
+            unitOfWork.checkDependencies(course);
 
         }
         return course;

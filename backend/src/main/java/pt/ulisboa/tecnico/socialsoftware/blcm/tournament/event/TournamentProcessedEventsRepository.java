@@ -6,5 +6,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface ProcessedAnonymizeUserEventsRepository extends JpaRepository<ProcessedAnonymizeUserEvents, Integer> {
+public interface TournamentProcessedEventsRepository extends JpaRepository<TournamentProcessedEvents, Integer> {
 }

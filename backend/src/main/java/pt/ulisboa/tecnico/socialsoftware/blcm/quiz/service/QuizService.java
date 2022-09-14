@@ -16,6 +16,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,8 +48,8 @@ public class QuizService {
     }
 
     @Transactional
-    public QuizDto getCausalQuizRemote(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
-        return new QuizDto(getCausalQuizLocal(aggregateId, unitOfWorkWorkService));
+    public QuizDto getCausalQuizRemote(Integer aggregateId, UnitOfWork unitOfWork) {
+        return new QuizDto(getCausalQuizLocal(aggregateId, unitOfWork));
     }
 
     // intended for requests from local functionalities
@@ -60,8 +61,7 @@ public class QuizService {
             throw new TutorException(TOURNAMENT_DELETED, quiz.getAggregateId());
         }
 
-        quiz.checkDependencies(unitOfWork);
-        unitOfWork.addCurrentReadDependencies(quiz.getDependenciesMap());
+        unitOfWork.checkDependencies(quiz);
         return quiz;
     }
 
@@ -115,10 +115,13 @@ public class QuizService {
     }
 
     @Transactional
-    public QuizDto updateQuiz(QuizDto quizDto, List<QuestionDto> questionDtos, UnitOfWork unitOfWork) {
+    public QuizDto updateQuiz(QuizDto quizDto, Set<Integer> topicsAggregateIds, UnitOfWork unitOfWork) {
         Quiz oldQuiz = getCausalQuizLocal(quizDto.getAggregateId(), unitOfWork);
         Quiz newQuiz = new Quiz(oldQuiz);
         newQuiz.update(quizDto);
+
+        List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(new ArrayList<>(topicsAggregateIds), unitOfWork);
+
 
         List<QuizQuestion> quizQuestions = questionDtos.stream()
                 .map(QuizQuestion::new)

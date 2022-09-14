@@ -63,6 +63,15 @@ public enum ErrorMessage {
 
     QUESTION_DELETED("Question with aggregate id %d already deleted."),
 
+    QUIZ_ANSWER_NOT_FOUND("Answer with aggregate id %d not found."),
+
+    NO_USER_ANSWER_FOR_QUIZ("Answer for user aggregate id %d and quiz aggregate id %d not found."),
+
+
+    QUIZ_ANSWER_DELETED("Answer with aggregate id %d already deleted."),
+
+    QUESTION_ALREADY_ANSWERED("Question %d of quiz %d already answered."),
+
     CANNOT_PERFORM_CAUSAL_READ("Cannot causally read object with aggregate id %d"),
     INVALID_PREV("Prev does not match the type of the aggregate.");
 

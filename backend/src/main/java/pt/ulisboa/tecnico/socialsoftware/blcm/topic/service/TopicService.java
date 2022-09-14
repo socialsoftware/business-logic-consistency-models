@@ -37,7 +37,6 @@ public class TopicService {
 
 
     // intended for requests from local functionalities
-    @Transactional
     public Topic getCausalTopicLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         Topic topic = topicRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(ErrorMessage.TOPIC_NOT_FOUND, aggregateId));
@@ -46,8 +45,7 @@ public class TopicService {
             throw new TutorException(ErrorMessage.TOPIC_DELETED, topic.getAggregateId());
         }
 
-        topic.checkDependencies(unitOfWork);
-        unitOfWork.addCurrentReadDependencies(topic.getDependenciesMap());
+        unitOfWork.checkDependencies(topic);
         return topic;
     }
 

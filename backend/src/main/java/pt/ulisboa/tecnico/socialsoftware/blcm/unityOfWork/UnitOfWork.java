@@ -2,8 +2,11 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.event.DomainEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import java.util.*;
+
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
 
 
 public class UnitOfWork {
@@ -62,12 +65,22 @@ public class UnitOfWork {
     }
 
 
-    public void addCurrentReadDependencies(Map<Integer, Dependency> deps) {
+    private void addCurrentReadDependencies(Map<Integer, Dependency> deps) {
         deps.values().forEach(dep -> {
             if(!this.currentReadDependencies.containsKey(dep.getAggregateId())) {
                 this.currentReadDependencies.put(dep.getAggregateId(), dep);
             }
         });
+    }
+
+    public void checkDependencies(Aggregate aggregate) {
+        for(Dependency dep : aggregate.getDependenciesMap().values()) {
+            // TODO fetch new version of one aggregate
+            if (this.hasAggregateDep(dep.getAggregateId()) && this.getAggregateDep(dep.getAggregateId()).getVersion() != dep.getVersion()) {
+                throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId());
+            }
+        }
+        addCurrentReadDependencies(aggregate.getDependenciesMap());
     }
 
     public boolean hasAggregateDep(Integer aggregateId) {

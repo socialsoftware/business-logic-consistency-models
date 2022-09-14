@@ -3,8 +3,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.event;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.event.EventType.REMOVE_COURSE_EXECUTION;
+
 @Entity
-@DiscriminatorValue("COURSE_EXECUTION_REMOVE")
+@DiscriminatorValue(REMOVE_COURSE_EXECUTION)
 public class RemoveCourseExecutionEvent extends DomainEvent {
     private Integer courseExecutionAggregateId;
 

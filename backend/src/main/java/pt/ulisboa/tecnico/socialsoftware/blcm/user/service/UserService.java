@@ -32,12 +32,11 @@ public class UserService {
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
     @Transactional
-    public UserDto getCausalUserRemote(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
-        return new UserDto(getCausalUserLocal(aggregateId, unitOfWorkWorkService));
+    public UserDto getCausalUserRemote(Integer aggregateId, UnitOfWork unitOfWork) {
+        return new UserDto(getCausalUserLocal(aggregateId, unitOfWork));
     }
 
     // intended for requests from local functionalities
-    @Transactional
     public User getCausalUserLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         User user = userRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(USER_NOT_FOUND, aggregateId));
@@ -46,8 +45,7 @@ public class UserService {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
-        user.checkDependencies(unitOfWork);
-        unitOfWork.addCurrentReadDependencies(user.getDependenciesMap());
+        unitOfWork.checkDependencies(user);
         return user;
     }
 
@@ -74,7 +72,7 @@ public class UserService {
             User newUser = new User(oldUser);
             newUser.anonymize();
             unitOfWorkWorkService.addUpdatedObject(newUser);
-            unitOfWorkWorkService.addEvent(new AnonymizeUserEvent(newUser.getAggregateId()));
+            unitOfWorkWorkService.addEvent(new AnonymizeUserEvent(newUser.getAggregateId(), "ANONYMOUS", "ANONYMOUS"));
         });
     }
 

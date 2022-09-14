@@ -15,6 +15,9 @@ public abstract class DomainEvent {
     @Column
     private boolean processed;
 
+    @Column(name = "type", insertable = false, updatable = false)
+    private String type;
+
     public DomainEvent() {
 
     }
@@ -33,5 +36,13 @@ public abstract class DomainEvent {
 
     public void setProcessed(boolean processed) {
         this.processed = processed;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
