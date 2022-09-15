@@ -2,12 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.AnonymizeUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.Role;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -45,25 +45,19 @@ public class UserService {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
-        unitOfWork.checkDependencies(user);
+        unitOfWork.addToCausalSnapshot(user);
         return user;
     }
 
     /*simple user creation*/
     @Transactional
-    public UserDto createUser(UserDto userDto, UnitOfWork unitOfWorkWorkService) {
+    public UserDto createUser(UserDto userDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-        User user = new User(aggregateId, unitOfWorkWorkService.getVersion(), userDto);
-        unitOfWorkWorkService.addUpdatedObject(user);
+        User user = new User(aggregateId, userDto);
+        unitOfWork.addUpdatedObject(user);
         return new UserDto(user);
     }
 
-
-
-    @Transactional
-    public UserDto getUserById(Integer userId, UnitOfWork unitOfWorkWorkService) {
-        return new UserDto();
-    }
 
     @Transactional
     public void anonymizeCourseExecutionUsers(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {

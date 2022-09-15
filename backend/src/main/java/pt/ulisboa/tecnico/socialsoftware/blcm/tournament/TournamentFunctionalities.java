@@ -13,14 +13,13 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service.TournamentService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.version.service.VersionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,7 +60,7 @@ public class TournamentFunctionalities {
 
         checkInput(userId, topicsId, tournamentDto);
 
-        UserDto userDto = userService.getUserById(userId, unitOfWork);
+        UserDto userDto = userService.getCausalUserRemote(userId, unitOfWork);
         TournamentCreator creator = new TournamentCreator(userDto.getAggregateId(), userDto.getName(), userDto.getUsername(), userDto.getVersion());
 
         CourseExecutionDto courseExecutionDto = courseExecutionService.getCausalCourseExecutionRemote(executionId, unitOfWork);
@@ -101,7 +100,7 @@ public class TournamentFunctionalities {
 
     public void joinTournament(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        UserDto userDto = userService.getUserById(userAggregateId, unitOfWork);
+        UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
         TournamentParticipant participant = new TournamentParticipant(userDto.getAggregateId(), userDto.getName(), userDto.getUsername(), userDto.getVersion());
         tournamentService.joinTournament(tournamentAggregateId, participant, unitOfWork);
         unitOfWorkService.commit(unitOfWork);

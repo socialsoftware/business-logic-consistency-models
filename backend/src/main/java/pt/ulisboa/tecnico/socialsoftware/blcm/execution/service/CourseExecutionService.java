@@ -2,25 +2,24 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
-import pt.ulisboa.tecnico.socialsoftware.blcm.version.service.VersionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 
 import javax.transaction.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.*;
+import static org.hibernate.event.internal.EntityState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -53,7 +52,7 @@ public class CourseExecutionService {
             throw new TutorException(COURSE_EXECUTION_DELETED, execution.getAggregateId());
         }
 
-        unitOfWork.checkDependencies(execution);
+        unitOfWork.addToCausalSnapshot(execution);
         return execution;
     }
 

@@ -1,16 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE_EXECUTION;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.QUESTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.*;
 
 @Entity
 @Table(name = "quizzes")
@@ -22,16 +21,16 @@ public class Quiz extends Aggregate {
     private Integer numberOfQuestions;
 
     @Column(name = "creation_date")
-    private LocalDateTime creationDate;
+    private LocalDateTime creationDate; // changes
 
     @Column(name = "available_date")
-    private LocalDateTime availableDate;
+    private LocalDateTime availableDate; // changes
 
     @Column(name = "conclusion_date")
-    private LocalDateTime conclusionDate;
+    private LocalDateTime conclusionDate; // changes
 
     @Column(name = "results_date")
-    private LocalDateTime resultsDate;
+    private LocalDateTime resultsDate; // changes
 
     @Column(nullable = false)
     private String title = "Title";
@@ -48,7 +47,7 @@ public class Quiz extends Aggregate {
 
 
     public Quiz(Integer aggregateId, QuizCourseExecution courseExecution, List<QuizQuestion> quizQuestions, QuizDto quizDto) {
-        super(aggregateId);
+        super(aggregateId, QUIZ);
         setCourseExecution(courseExecution);
         setQuizQuestions(quizQuestions);
         setTitle(quizDto.getTitle());
@@ -60,7 +59,7 @@ public class Quiz extends Aggregate {
     }
 
     public Quiz(Quiz other) {
-        super(other.getAggregateId());
+        super(other.getAggregateId(), QUIZ);
         setId(null);
         setQuizQuestions(quizQuestions);
         setTitle(other.getTitle());

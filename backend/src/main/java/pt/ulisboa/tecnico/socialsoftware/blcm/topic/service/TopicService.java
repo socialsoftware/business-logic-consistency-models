@@ -2,23 +2,23 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.topic.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.UpdateTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.TopicCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import javax.transaction.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 
 @Service
 public class TopicService {
@@ -45,7 +45,7 @@ public class TopicService {
             throw new TutorException(ErrorMessage.TOPIC_DELETED, topic.getAggregateId());
         }
 
-        unitOfWork.checkDependencies(topic);
+        unitOfWork.addToCausalSnapshot(topic);
         return topic;
     }
 

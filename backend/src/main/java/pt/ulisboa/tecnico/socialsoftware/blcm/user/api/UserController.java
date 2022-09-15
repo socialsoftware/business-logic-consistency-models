@@ -4,10 +4,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user.api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.UserFunctionalities;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.util.List;

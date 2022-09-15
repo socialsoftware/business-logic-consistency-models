@@ -5,22 +5,24 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import java.io.Serializable;
 
 public class QuestionAnswerDto implements Serializable {
-    private OptionDto option;
+    private Integer sequence;
 
     private Integer questionAggregateId;
 
     private Integer timeTaken;
 
+    private Integer optionKey;
+
     public QuestionAnswerDto() {
 
     }
 
-    public OptionDto getOption() {
-        return option;
+    public Integer getSequence() {
+        return sequence;
     }
 
-    public void setOption(OptionDto option) {
-        this.option = option;
+    public void setSequence(Integer sequence) {
+        this.sequence = sequence;
     }
 
     public Integer getQuestionAggregateId() {
@@ -37,5 +39,13 @@ public class QuestionAnswerDto implements Serializable {
 
     public void setTimeTaken(Integer timeTaken) {
         this.timeTaken = timeTaken;
+    }
+
+    public Integer getOptionKey() {
+        return optionKey;
+    }
+
+    public void setOptionKey(Integer optionKey) {
+        this.optionKey = optionKey;
     }
 }

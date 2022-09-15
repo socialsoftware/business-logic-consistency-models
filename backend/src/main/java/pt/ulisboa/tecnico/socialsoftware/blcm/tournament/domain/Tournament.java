@@ -1,18 +1,19 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import org.apache.commons.collections4.SetUtils;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOURNAMENT;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /* each version of the tournament is a new instance of the tournament*/
@@ -64,7 +65,7 @@ public class Tournament extends Aggregate {
     // TODO should the version be assigned on the functionality or service?
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz, Integer version) {
-        super(aggregateId);
+        super(aggregateId, TOURNAMENT);
         setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
         setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
@@ -77,7 +78,7 @@ public class Tournament extends Aggregate {
     }
     /* used to update the tournament by creating new versions */
     public Tournament(Tournament other) {
-        super(other.getAggregateId());
+        super(other.getAggregateId(), TOURNAMENT);
         setId(null); /* to force a new database entry when saving to be able to distinguish between versions of the same aggregate*/
         setStartTime(other.getStartTime());
         setEndTime(other.getEndTime());
@@ -126,10 +127,13 @@ public class Tournament extends Aggregate {
 
     @Override
     public boolean verifyInvariants() {
-        return invariantAnswerBeforeStart()
+        if(!(invariantAnswerBeforeStart()
                 && invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
-                && invariantStartTimeBeforeEndTime();
+                && invariantStartTimeBeforeEndTime())) {
+            throw new TutorException(INVARIANT_BREAK, getAggregateId());
+        }
+        return true;
     }
 
 

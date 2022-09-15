@@ -3,24 +3,21 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.AnonymizeUserEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.DomainEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service.TournamentService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.UserProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.event.EventType.*;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.*;
 
 @Component
 public class TournamentEventDetection {

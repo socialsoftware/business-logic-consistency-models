@@ -2,18 +2,35 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Option;
 
-public class OptionDto {
+import java.io.Serializable;
+
+public class OptionDto implements Serializable {
+
+    private Integer key;
     private Integer sequence;
 
     private boolean correct;
 
     private String content;
 
+    public OptionDto() {
+
+    }
+
     public OptionDto(Option option) {
+        setKey(option.getKey());
         setSequence(option.getSequence());
         setCorrect(option.isCorrect());
         setContent(option.getContent());
 
+    }
+
+    public Integer getKey() {
+        return key;
+    }
+
+    public void setKey(Integer key) {
+        this.key = key;
     }
 
     public Integer getSequence() {

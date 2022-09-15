@@ -2,13 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.event.TournamentCreationEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.TournamentCreationEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.transaction.Transactional;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.TOURNAMENT_DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.TOURNAMENT_NOT_FOUND;
 
@@ -38,8 +38,9 @@ public class TournamentService {
         /* in the unit of work manage the dependencies on commit time*/
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWorkWorkService.getVersion()); /* should the skeleton creation be part of the functionality?? */
+        tournament.setPrimary(true);
         unitOfWorkWorkService.addUpdatedObject(tournament);
-        unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
+        //unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
         return new TournamentDto(tournament);
     }
 
@@ -59,7 +60,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
-        unitOfWork.checkDependencies(tournament);
+        unitOfWork.addToCausalSnapshot(tournament);
         return tournament;
     }
 
@@ -122,7 +123,7 @@ public class TournamentService {
             if(t.getState().equals(DELETED)) {
                 throw new TutorException(TOURNAMENT_DELETED, t.getAggregateId());
             }
-            unitOfWork.checkDependencies(t);
+            unitOfWork.addToCausalSnapshot(t);
 
             if (!tournamentPerAggregateId.containsKey(t.getAggregateId())) {
                 tournamentPerAggregateId.put(t.getAggregateId(), t);

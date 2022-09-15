@@ -2,10 +2,16 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.GeneratedValue;
 
 @Embeddable
 public class Option {
+
+    @Column(unique = true)
+    @GeneratedValue
+    private Integer key;
     private Integer sequence;
 
     private boolean correct;
@@ -20,6 +26,14 @@ public class Option {
 
     public Option() {
 
+    }
+
+    public Integer getKey() {
+        return key;
+    }
+
+    public void setKey(Integer key) {
+        this.key = key;
     }
 
     public Integer getSequence() {

@@ -1,13 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
 
 @Entity
 @Table(name = "course_executions")
@@ -38,7 +40,7 @@ public class CourseExecution extends Aggregate {
 
 
     public CourseExecution(Integer aggregateId, String acronym, String academicTerm, LocalDateTime endDate, ExecutionCourse executionCourse) {
-        super(aggregateId);
+        super(aggregateId, COURSE_EXECUTION);
         setAcronym(acronym);
         setAcademicTerm(academicTerm);
         setEndDate(endDate);
@@ -48,7 +50,7 @@ public class CourseExecution extends Aggregate {
 
 
     public CourseExecution(CourseExecution other) {
-        super(other.getAggregateId());
+        super(other.getAggregateId(), COURSE_EXECUTION);
         setAcronym(other.getAcronym());
         setAcademicTerm(other.getAcademicTerm());
         setEndDate(other.getEndDate());

@@ -1,9 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuizDto implements Serializable {
     private Integer aggregateId;
@@ -26,6 +30,15 @@ public class QuizDto implements Serializable {
     }
 
     public QuizDto(Quiz quiz) {
+        setAggregateId(quiz.getAggregateId());
+        setTitle(quiz.getTitle());
+        setAvailableDate(DateHandler.toISOString(quiz.getAvailableDate()));
+        setConclusionDate(DateHandler.toISOString(quiz.getConclusionDate()));
+        setResultsDate(DateHandler.toISOString(quiz.getResultsDate()));
+        setVersion(quiz.getVersion());
+        setQuestionsAggregateIds(quiz.getQuizQuestions().stream()
+                .map(QuizQuestion::getAggregateId)
+                .collect(Collectors.toList()));
 
     }
 
@@ -78,7 +91,7 @@ public class QuizDto implements Serializable {
     }
 
     public List<Integer> getQuestionsAggregateIds() {
-        return questionsAggregateIds;
+        return this.questionsAggregateIds;
     }
 
     public void setQuestionsAggregateIds(List<Integer> questionsAggregateIds) {

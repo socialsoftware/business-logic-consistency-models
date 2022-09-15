@@ -3,14 +3,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 public class CourseExecutionController {

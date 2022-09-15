@@ -9,28 +9,31 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class QuestionAnswer {
 
-    private Option option;
+    private Integer optionSequenceChoice;
 
     private Integer questionAggregateId;
 
     private Integer timeTaken;
+
+    private Integer optionKey;
 
     public  QuestionAnswer() {
 
     }
 
     public QuestionAnswer(QuestionAnswerDto questionAnswerDto) {
-        setOption(new Option(questionAnswerDto.getOption()));
+        setOptionSequenceChoice(questionAnswerDto.getSequence());
         setQuestionAggregateId(questionAnswerDto.getQuestionAggregateId());
         setTimeTaken(questionAnswerDto.getTimeTaken());
+        setOptionKey(questionAnswerDto.getOptionKey());
     }
 
-    public Option getOption() {
-        return option;
+    public Integer getOptionSequenceChoice() {
+        return optionSequenceChoice;
     }
 
-    public void setOption(Option option) {
-        this.option = option;
+    public void setOptionSequenceChoice(Integer optionSequence) {
+        this.optionSequenceChoice = optionSequence;
     }
 
     public Integer getQuestionAggregateId() {
@@ -47,5 +50,13 @@ public class QuestionAnswer {
 
     public void setTimeTaken(Integer timeTaken) {
         this.timeTaken = timeTaken;
+    }
+
+    public Integer getOptionKey() {
+        return optionKey;
+    }
+
+    public void setOptionKey(Integer optionKey) {
+        this.optionKey = optionKey;
     }
 }

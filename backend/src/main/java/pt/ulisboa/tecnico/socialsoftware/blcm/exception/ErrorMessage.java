@@ -73,7 +73,10 @@ public enum ErrorMessage {
     QUESTION_ALREADY_ANSWERED("Question %d of quiz %d already answered."),
 
     CANNOT_PERFORM_CAUSAL_READ("Cannot causally read object with aggregate id %d"),
-    INVALID_PREV("Prev does not match the type of the aggregate.");
+    INVALID_PREV("Prev does not match the type of the aggregate."),
+    NO_PRIMARY_AGGREGATE_FOUND("No primary aggregate was found within the transactional context."),
+    TOO_MANY_PRIMARY_AGGREGATE_FOUND("More than one primary aggregates were found within the transactional context"),
+    INVARIANT_BREAK("Aggregate %d breaks invariants");
 
     public final String label;
 

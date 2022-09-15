@@ -1,9 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Embeddable
 public class QuizQuestion {
@@ -71,5 +76,16 @@ public class QuizQuestion {
 
     public void setSequence(Integer sequence) {
         this.sequence = sequence;
+    }
+
+    public QuestionDto buildDto() {
+        QuestionDto questionDto = new QuestionDto();
+        questionDto.setAggregateId(getAggregateId());
+        questionDto.setVersion(getVersion());
+        questionDto.setTitle(getTitle());
+        questionDto.setContent(getContent());
+
+
+        return questionDto;
     }
 }

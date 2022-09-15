@@ -1,15 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.QUESTION;
 
 @Entity
 @Table(name = "questions")
@@ -41,17 +42,17 @@ public class Question extends Aggregate {
     }
 
     public Question(Integer aggregateId, QuestionCourse course, QuestionDto questionDto) {
-        super(aggregateId);
+        super(aggregateId, QUESTION);
         setTitle(questionDto.getTitle());
         setContent(questionDto.getTitle());
         setCreationDate(LocalDateTime.now());
         setCourse(course);
-        setOptions(questionDto.getOptionDto().stream().map(Option::new).collect(Collectors.toList()));
+        setOptions(questionDto.getOptionDtos().stream().map(Option::new).collect(Collectors.toList()));
         setPrev(null);
     }
 
     public Question(Question other) {
-        super(other.getAggregateId());
+        super(other.getAggregateId(), QUESTION);
         setId(null);
         setTitle(other.getTitle());
         setContent(other.getContent());
@@ -144,6 +145,6 @@ public class Question extends Aggregate {
     public void update(QuestionDto questionDto) {
         setTitle(questionDto.getTitle());
         setContent(questionDto.getContent());
-        setOptions(questionDto.getOptionDto().stream().map(Option::new).collect(Collectors.toList()));
+        setOptions(questionDto.getOptionDtos().stream().map(Option::new).collect(Collectors.toList()));
     }
 }

@@ -1,19 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.QUIZ_ANSWER;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
 @Entity
@@ -42,14 +39,14 @@ public class QuizAnswer extends Aggregate {
     public QuizAnswer() { }
 
     public QuizAnswer(Integer aggregateId, AnswerUser answerUser, AnswerQuiz answerQuiz) {
-        setAggregateId(aggregateId);
+        super(aggregateId, QUIZ_ANSWER);
         setUser(answerUser);
         setQuiz(answerQuiz);
     }
 
     public QuizAnswer(QuizAnswer other) {
+        super(other.getAggregateId(), QUIZ_ANSWER);
         setId(null);
-        setAggregateId(other.getAggregateId());
         setUser(other.getUser());
         setQuiz(other.getQuiz());
         setAnswerDate(other.getAnswerDate());

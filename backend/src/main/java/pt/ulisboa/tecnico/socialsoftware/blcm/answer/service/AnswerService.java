@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.answer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerQuiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerUser;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
@@ -12,16 +12,15 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
 import javax.transaction.Transactional;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.NO_USER_ANSWER_FOR_QUIZ;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUIZ_ANSWER_NOT_FOUND;
 
@@ -53,7 +52,7 @@ public class AnswerService {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, quizAnswer.getAggregateId());
         }
 
-        unitOfWork.checkDependencies(quizAnswer);
+        unitOfWork.addToCausalSnapshot(quizAnswer);
         return quizAnswer;
     }
 
@@ -65,7 +64,7 @@ public class AnswerService {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, quizAnswer.getAggregateId());
         }
 
-        unitOfWork.checkDependencies(quizAnswer);
+        unitOfWork.addToCausalSnapshot(quizAnswer);
         return quizAnswer;
     }
 
@@ -99,6 +98,9 @@ public class AnswerService {
         QuizAnswer newQuizAnswer = new QuizAnswer(oldQuizAnswer);
 
         newQuizAnswer.setCompleted(true);
+        newQuizAnswer.getQuestionAnswers().forEach(qa -> {
+            // TODO check whether answers are correct or wrong by making a request to each question
+        });
         unitOfWork.addUpdatedObject(newQuizAnswer);
     }
 }

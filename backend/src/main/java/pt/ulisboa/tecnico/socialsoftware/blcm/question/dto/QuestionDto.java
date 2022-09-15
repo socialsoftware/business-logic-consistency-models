@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Option;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
@@ -26,9 +27,11 @@ public class QuestionDto implements Serializable {
 
     private Set<TopicDto> topicDto;
 
-    private List<OptionDto> optionDto;
+    private List<OptionDto> optionDtos;
 
     private Integer sequence;
+
+    public QuestionDto() {}
 
    public QuestionDto(Question question) {
        setAggregateId(question.getAggregateId());
@@ -40,7 +43,7 @@ public class QuestionDto implements Serializable {
        setTopicDto(question.getTopics().stream()
                .map(QuestionTopic::buildDto)
                .collect(Collectors.toSet()));
-       setOptionDto(question.getOptions().stream()
+       setOptionDtos(question.getOptions().stream()
                .map(OptionDto::new)
                .collect(Collectors.toList()));
    }
@@ -103,12 +106,12 @@ public class QuestionDto implements Serializable {
         this.topicDto = topicDto;
     }
 
-    public List<OptionDto> getOptionDto() {
-        return optionDto;
+    public List<OptionDto> getOptionDtos() {
+        return optionDtos;
     }
 
-    public void setOptionDto(List<OptionDto> optionDto) {
-        this.optionDto = optionDto;
+    public void setOptionDtos(List<OptionDto> optionDtos) {
+        this.optionDtos = optionDtos;
     }
 
     public Integer getSequence() {

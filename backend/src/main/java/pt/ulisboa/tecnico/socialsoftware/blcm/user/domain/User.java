@@ -1,10 +1,10 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import org.apache.commons.collections4.SetUtils;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.*;
@@ -13,8 +13,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE_EXECUTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.USER;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Entity
@@ -45,7 +46,7 @@ public class User extends Aggregate {
     }
 
     public User(User otherUser) {
-        super(otherUser.getAggregateId());
+        super(otherUser.getAggregateId(), USER);
         setId(null);
         setName(otherUser.getName());
         setUsername(otherUser.getUsername());
@@ -57,8 +58,8 @@ public class User extends Aggregate {
 
     }
 
-    public User(Integer aggregateId, Integer version, UserDto userDto) {
-        super(aggregateId);
+    public User(Integer aggregateId, UserDto userDto) {
+        super(aggregateId, USER);
         setName(userDto.getName());
         setUsername(userDto.getUsername());
         setRole(Role.valueOf(userDto.getRole()));

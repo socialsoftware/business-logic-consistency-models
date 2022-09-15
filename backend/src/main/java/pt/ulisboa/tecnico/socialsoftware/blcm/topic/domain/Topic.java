@@ -1,13 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
 
 import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.AggregateType.COURSE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOPIC;
 
 @Entity
 @Table(name = "topics")
@@ -26,13 +27,13 @@ public class Topic extends Aggregate {
     public Topic() {}
 
     public Topic(Integer aggregateId, Integer version, String name, TopicCourse course) {
-        super(aggregateId);
+        super(aggregateId, TOPIC);
         setName(name);
         setCourse(course);
     }
 
     public Topic(Topic other) {
-        super(other.getAggregateId());
+        super(other.getAggregateId(), TOPIC);
         setName(other.getName());
         setCourse(other.getCourse());
     }

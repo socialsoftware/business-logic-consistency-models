@@ -3,18 +3,18 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.course.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import javax.transaction.Transactional;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 
 @Service
 public class CourseService {
@@ -40,7 +40,7 @@ public class CourseService {
             throw new TutorException(ErrorMessage.COURSE_DELETED, course.getAggregateId());
         }
 
-        unitOfWork.checkDependencies(course);
+        unitOfWork.addToCausalSnapshot(course);
         return course;
     }
 
@@ -65,7 +65,7 @@ public class CourseService {
         Course course = courseRepository.findByAggregateNameAndVersion(courseName, unitOfWork.getVersion())
                 .orElse(null);
         if(course != null) {
-            unitOfWork.checkDependencies(course);
+            unitOfWork.addToCausalSnapshot(course);
 
         }
         return course;
