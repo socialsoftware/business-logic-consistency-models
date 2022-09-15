@@ -38,7 +38,7 @@ public class UserService {
 
     // intended for requests from local functionalities
     public User getCausalUserLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        User user = userRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+        User user = userRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(USER_NOT_FOUND, aggregateId));
 
         if(user.getState().equals(DELETED)) {
@@ -61,7 +61,7 @@ public class UserService {
 
     @Transactional
     public void anonymizeCourseExecutionUsers(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
-        Set<User> executionsUsers = userRepository.findByExecutionAggregateIdAndVersion(executionAggregateId, unitOfWorkWorkService.getVersion());
+        Set<User> executionsUsers = userRepository.findCausalByExecution(executionAggregateId, unitOfWorkWorkService.getVersion());
         executionsUsers.forEach(oldUser -> {
             User newUser = new User(oldUser);
             newUser.anonymize();

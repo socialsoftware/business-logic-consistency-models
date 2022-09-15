@@ -21,7 +21,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Table(name = "tournaments")
 public class Tournament extends Aggregate {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Tournament prev;
 
     @Column(name = "start_time")
@@ -175,6 +175,10 @@ public class Tournament extends Aggregate {
             throw new TutorException(TOURNAMENT_DELETED, v1.getAggregateId());
         }
 
+        if(v2.getState().equals(DELETED)) {
+            throw new TutorException(TOURNAMENT_DELETED, v2.getAggregateId());
+        }
+
         Set<String> v1ChangedFields = getChangedFields(prev, v1);
         Set<String> v2ChangedFields = getChangedFields(prev, v2);
 
@@ -204,7 +208,7 @@ public class Tournament extends Aggregate {
             mergedTournament.setParticipants(SetUtils.union(SetUtils.difference(prev.getParticipants(), removedParticipants), addedParticipants));
 
         }
-
+        // TODO see explanation for prev assignment in Quiz
         return mergedTournament;
     }
 
@@ -278,17 +282,6 @@ public class Tournament extends Aggregate {
     }
 
     @Override
-    public Aggregate getPrev() {
-        return this.prev;
-    }
-
-
-
-    public void setPrev(Tournament tournament) {
-        this.prev = prev;
-    }
-
-    @Override
     public Map<Integer, Dependency> getDependenciesMap() {
         Map<Integer , Dependency> depMap = new HashMap<>();
         depMap.put(this.courseExecution.getAggregateId(), new Dependency(this.courseExecution.getAggregateId(), AggregateType.COURSE_EXECUTION ,this.courseExecution.getVersion()));
@@ -299,6 +292,15 @@ public class Tournament extends Aggregate {
         depMap.put(this.quiz.getAggregateId(), new Dependency(this.quiz.getAggregateId(), AggregateType.QUIZ ,this.quiz.getVersion()));
 
         return depMap;
+    }
+
+    @Override
+    public Aggregate getPrev() {
+        return prev;
+    }
+
+    public void setPrev(Tournament prev) {
+        this.prev = prev;
     }
 
     public LocalDateTime getStartTime() {

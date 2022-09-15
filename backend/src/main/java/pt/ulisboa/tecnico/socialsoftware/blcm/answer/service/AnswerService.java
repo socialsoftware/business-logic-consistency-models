@@ -6,7 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.servic
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerQuiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerUser;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuizAnswer;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
@@ -44,28 +44,28 @@ public class AnswerService {
         return new QuizAnswerDto(getCausalQuizAnswerLocal(aggregateId, unitOfWork));
     }
 
-    public QuizAnswer getCausalQuizAnswerLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        QuizAnswer quizAnswer = answerRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+    public Answer getCausalQuizAnswerLocal(Integer aggregateId, UnitOfWork unitOfWork) {
+        Answer answer = answerRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUIZ_ANSWER_NOT_FOUND, aggregateId));
 
-        if(quizAnswer.getState().equals(DELETED)) {
-            throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, quizAnswer.getAggregateId());
+        if(answer.getState().equals(DELETED)) {
+            throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(quizAnswer);
-        return quizAnswer;
+        unitOfWork.addToCausalSnapshot(answer);
+        return answer;
     }
 
-    public QuizAnswer getCausalQuizAnswerLocalByQuizAndUser(Integer quizAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        QuizAnswer quizAnswer = answerRepository.findByQuizUserAndVersion(quizAggregateId, userAggregateId, unitOfWork.getVersion())
+    public Answer getCausalQuizAnswerLocalByQuizAndUser(Integer quizAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+        Answer answer = answerRepository.findCausalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(NO_USER_ANSWER_FOR_QUIZ, quizAggregateId, userAggregateId));
 
-        if(quizAnswer.getState().equals(DELETED)) {
-            throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, quizAnswer.getAggregateId());
+        if(answer.getState().equals(DELETED)) {
+            throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(quizAnswer);
-        return quizAnswer;
+        unitOfWork.addToCausalSnapshot(answer);
+        return answer;
     }
 
 
@@ -76,31 +76,31 @@ public class AnswerService {
         QuizDto quizDto = quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
 
-        QuizAnswer quizAnswer = new QuizAnswer(aggregateId, new AnswerUser(userDto), new AnswerQuiz(quizDto));
+        Answer answer = new Answer(aggregateId, new AnswerUser(userDto), new AnswerQuiz(quizDto));
 
-        unitOfWork.addUpdatedObject(quizAnswer);
+        unitOfWork.addUpdatedObject(answer);
     }
 
     @Transactional
     public void answerQuestion(Integer quizAggregateId, Integer userAggregateId, QuestionAnswerDto questionAnswerDto, UnitOfWork unitOfWork) {
-        QuizAnswer oldQuizAnswer = getCausalQuizAnswerLocalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork);
-        QuizAnswer newQuizAnswer = new QuizAnswer(oldQuizAnswer);
+        Answer oldAnswer = getCausalQuizAnswerLocalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork);
+        Answer newAnswer = new Answer(oldAnswer);
 
         QuestionAnswer questionAnswer = new QuestionAnswer(questionAnswerDto);
-        newQuizAnswer.addQuestionAnswer(questionAnswer);
-        unitOfWork.addUpdatedObject(newQuizAnswer);
+        newAnswer.addQuestionAnswer(questionAnswer);
+        unitOfWork.addUpdatedObject(newAnswer);
     }
 
 
     @Transactional
     public void concludeQuiz(Integer quizAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        QuizAnswer oldQuizAnswer = getCausalQuizAnswerLocalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork);
-        QuizAnswer newQuizAnswer = new QuizAnswer(oldQuizAnswer);
+        Answer oldAnswer = getCausalQuizAnswerLocalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork);
+        Answer newAnswer = new Answer(oldAnswer);
 
-        newQuizAnswer.setCompleted(true);
-        newQuizAnswer.getQuestionAnswers().forEach(qa -> {
+        newAnswer.setCompleted(true);
+        newAnswer.getQuestionAnswers().forEach(qa -> {
             // TODO check whether answers are correct or wrong by making a request to each question
         });
-        unitOfWork.addUpdatedObject(newQuizAnswer);
+        unitOfWork.addUpdatedObject(newAnswer);
     }
 }

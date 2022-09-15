@@ -36,7 +36,8 @@ public abstract class Aggregate {
     private AggregateType aggregateType;
 
     // during a transaction we only want to have one primary aggregate and so by default all aggregates are secondary
-    private boolean primary = false;
+    @Column(columnDefinition = "boolean default false")
+    private boolean primaryAggregate;
 
     public void remove() {
         setState(DELETED);
@@ -57,6 +58,7 @@ public abstract class Aggregate {
     public Aggregate(Integer aggregateId, AggregateType aggregateType) {
         setAggregateId(aggregateId);
         setState(AggregateState.ACTIVE);
+        setAggregateType(aggregateType);
     }
 
 
@@ -104,7 +106,6 @@ public abstract class Aggregate {
         this.state = state;
     }
 
-
     public abstract Aggregate getPrev();
 
     public abstract Aggregate merge(Aggregate other);
@@ -119,11 +120,12 @@ public abstract class Aggregate {
         this.aggregateType = aggregateType;
     }
 
-    public boolean isPrimary() {
-        return primary;
+    public boolean isPrimaryAggregate() {
+        return primaryAggregate;
     }
 
-    public void setPrimary(boolean primary) {
-        this.primary = primary;
+    public void setPrimaryAggregate(boolean primary) {
+        this.primaryAggregate = primary;
     }
+
 }

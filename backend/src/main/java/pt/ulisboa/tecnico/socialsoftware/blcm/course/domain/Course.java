@@ -14,7 +14,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 @Table(name = "courses")
 public class Course extends Aggregate {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Course prev;
 
     @Enumerated(EnumType.STRING)
@@ -46,20 +46,6 @@ public class Course extends Aggregate {
         return true;
     }
 
-    public static Course merge(Course prev, Course v1, Course v2) {
-        // choose the object with lowest ts
-        if(v2.getCreationTs().isBefore(v1.getCreationTs())) {
-            return v2;
-        } else {
-            return v1;
-        }
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return this.prev;
-    }
-
     @Override
     public Aggregate merge(Aggregate other) {
         return this;
@@ -68,6 +54,11 @@ public class Course extends Aggregate {
     @Override
     public Map<Integer, Dependency> getDependenciesMap() {
         return new HashMap<>();
+    }
+
+    @Override
+    public Aggregate getPrev() {
+        return prev;
     }
 
     public void setPrev(Course prev) {

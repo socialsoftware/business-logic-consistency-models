@@ -39,7 +39,7 @@ public class QuestionService {
 
 
     public Question getCausalQuestionLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        Question question = questionRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+        Question question = questionRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, aggregateId));
 
         if(question.getState().equals(DELETED)) {

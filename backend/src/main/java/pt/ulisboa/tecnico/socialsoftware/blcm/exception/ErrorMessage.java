@@ -23,6 +23,7 @@ public enum ErrorMessage {
 
     QUIZ_DELETED("Quiz with aggregate id %d already deleted."),
     NOT_ENOUGH_QUESTIONS("Not enough questions to generate quiz."),
+    QUIZ_MERGE_FAILURE("Two versions of a quiz with aggregate id %d cannot be merged."),
 
     COURSE_EXECUTION_NOT_FOUND("Course execution with aggregate id %d does not exist."),
     COURSE_EXECUTION_DELETED("Course execution with aggregate id %d already deleted."),

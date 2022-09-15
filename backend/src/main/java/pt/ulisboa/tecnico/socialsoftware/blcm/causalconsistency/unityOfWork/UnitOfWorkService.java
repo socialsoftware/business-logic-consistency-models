@@ -137,44 +137,44 @@ public class UnitOfWorkService {
 
     private Aggregate getConcurrentAggregate(Aggregate aggregate, Integer version) {
         Aggregate concurrentAggregate;
-        switch (aggregate.getClass().getSimpleName()) {
-            case "Course":
+        switch (aggregate.getAggregateType()) {
+            case COURSE:
                 concurrentAggregate = courseRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()
                         .orElse(null);
                 break;
-            case "CourseExecution":
+            case COURSE_EXECUTION:
                 concurrentAggregate = courseExecutionRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()
                         .orElse(null);
                 break;
-            case "User":
+            case USER:
                 concurrentAggregate = userRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()
                         .orElse(null);
                 break;
-            case "Topic":
+            case TOPIC:
                 concurrentAggregate = topicRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()
                         .orElse(null);
                 break;
-            case "Question":
+            case QUESTION:
                 concurrentAggregate = questionRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()
                         .orElse(null);
                 break;
-            case "Quiz":
+            case QUIZ:
                 concurrentAggregate = quizRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()
                         .orElse(null);
                 break;
-            case "Tournament":
+            case TOURNAMENT:
                 concurrentAggregate = tournamentRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()

@@ -38,7 +38,7 @@ public class TopicService {
 
     // intended for requests from local functionalities
     public Topic getCausalTopicLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        Topic topic = topicRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+        Topic topic = topicRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(ErrorMessage.TOPIC_NOT_FOUND, aggregateId));
 
         if(topic.getState().equals(DELETED)) {

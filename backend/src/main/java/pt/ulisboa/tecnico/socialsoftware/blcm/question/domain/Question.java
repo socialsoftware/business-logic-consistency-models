@@ -16,6 +16,9 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 @Table(name = "questions")
 public class Question extends Aggregate {
 
+    @ManyToOne
+    private Question prev;
+
     @Column
     private String title;
 
@@ -33,9 +36,6 @@ public class Question extends Aggregate {
 
     @ElementCollection
     private List<Option> options;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Aggregate prev;
 
     public Question() {
 
@@ -70,11 +70,6 @@ public class Question extends Aggregate {
     }
 
     @Override
-    public Aggregate getPrev() {
-        return prev;
-    }
-
-    @Override
     public Aggregate merge(Aggregate other) {
         return this;
     }
@@ -88,6 +83,11 @@ public class Question extends Aggregate {
             depMap.put(t.getTopicAggregateId(), new Dependency(t.getTopicAggregateId(), COURSE, t.getVersion()));
         });
         return  depMap;
+    }
+
+    @Override
+    public Aggregate getPrev() {
+        return prev;
     }
 
     public void setPrev(Question prev) {

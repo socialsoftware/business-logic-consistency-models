@@ -13,13 +13,11 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 @Entity
 @Table(name = "topics")
 public class Topic extends Aggregate {
-
     @ManyToOne(fetch = FetchType.LAZY)
-    private Topic prev;
+    private Aggregate prev;
 
     @Column
     private String name;
-
 
     @Embedded
     private TopicCourse course;
@@ -54,11 +52,6 @@ public class Topic extends Aggregate {
     }
 
     @Override
-    public Aggregate getPrev() {
-        return this.prev;
-    }
-
-    @Override
     public Aggregate merge(Aggregate other) {
         return this;
     }
@@ -68,6 +61,11 @@ public class Topic extends Aggregate {
         Map<Integer, Dependency> depMap = new HashMap<>();
         depMap.put(this.course.getAggregateId(), new Dependency(this.course.getAggregateId(), COURSE ,this.course.getVersion()));
         return depMap;
+    }
+
+    @Override
+    public Aggregate getPrev() {
+        return prev;
     }
 
     public void setPrev(Topic prev) {

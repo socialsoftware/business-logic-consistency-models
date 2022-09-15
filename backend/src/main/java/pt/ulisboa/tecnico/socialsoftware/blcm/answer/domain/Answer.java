@@ -14,10 +14,11 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
 @Entity
-public class QuizAnswer extends Aggregate {
+@Table(name = "answers")
+public class Answer extends Aggregate {
 
     @ManyToOne
-    private QuizAnswer prev;
+    private Answer prev;
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
@@ -36,15 +37,15 @@ public class QuizAnswer extends Aggregate {
     @ElementCollection
     private List<QuestionAnswer> questionAnswers;
 
-    public QuizAnswer() { }
+    public Answer() { }
 
-    public QuizAnswer(Integer aggregateId, AnswerUser answerUser, AnswerQuiz answerQuiz) {
+    public Answer(Integer aggregateId, AnswerUser answerUser, AnswerQuiz answerQuiz) {
         super(aggregateId, QUIZ_ANSWER);
         setUser(answerUser);
         setQuiz(answerQuiz);
     }
 
-    public QuizAnswer(QuizAnswer other) {
+    public Answer(Answer other) {
         super(other.getAggregateId(), QUIZ_ANSWER);
         setId(null);
         setUser(other.getUser());
@@ -63,7 +64,11 @@ public class QuizAnswer extends Aggregate {
 
     @Override
     public Aggregate getPrev() {
-        return null;
+        return this.prev;
+    }
+
+    public void setPrev(Answer answer) {
+        this.prev = answer;
     }
 
     @Override
@@ -74,10 +79,6 @@ public class QuizAnswer extends Aggregate {
     @Override
     public Map<Integer, Dependency> getDependenciesMap() {
         return null;
-    }
-
-    public void setPrev(QuizAnswer prev) {
-        this.prev = prev;
     }
 
     public LocalDateTime getCreationDate() {

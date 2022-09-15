@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizType.GENERATED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizType.IN_CLASS;
 
 @Service
 public class QuizService {
@@ -54,7 +56,7 @@ public class QuizService {
 
     // intended for requests from local functionalities
     public Quiz getCausalQuizLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        Quiz quiz = quizRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+        Quiz quiz = quizRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
 
         if(quiz.getState().equals(DELETED)) {
@@ -87,7 +89,7 @@ public class QuizService {
                 .collect(Collectors.toList());
 
 
-        Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto);
+        Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, GENERATED);
         unitOfWork.addUpdatedObject(quiz);
         return new QuizDto(quiz);
     }
@@ -95,7 +97,7 @@ public class QuizService {
     @Transactional
     public QuizDto startTournamentQuiz(Integer userAggregateId, Integer quizAggregateId, UnitOfWork unitOfWork) {
         /* must add more verifications */
-        Quiz oldQuiz = quizRepository.findByAggregateIdAndVersion(quizAggregateId, unitOfWork.getVersion())
+        Quiz oldQuiz = quizRepository.findCausal(quizAggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUIZ_NOT_FOUND, quizAggregateId));
 
         Quiz newQuiz = new Quiz(oldQuiz);
@@ -109,7 +111,7 @@ public class QuizService {
     @Transactional
     public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, List<QuizQuestion> quizQuestions, QuizDto quizDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-        Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto);
+        Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, IN_CLASS);
         unitOfWork.addUpdatedObject(quiz);
         return new QuizDto(quiz);
     }

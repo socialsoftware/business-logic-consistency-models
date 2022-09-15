@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.TournamentCreationEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
@@ -38,7 +37,7 @@ public class TournamentService {
         /* in the unit of work manage the dependencies on commit time*/
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWorkWorkService.getVersion()); /* should the skeleton creation be part of the functionality?? */
-        tournament.setPrimary(true);
+        tournament.setPrimaryAggregate(true);
         unitOfWorkWorkService.addUpdatedObject(tournament);
         //unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
         return new TournamentDto(tournament);
@@ -53,7 +52,7 @@ public class TournamentService {
     // intended for requests from local functionalities
 
     public Tournament getCausalTournamentLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        Tournament tournament = tournamentRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+        Tournament tournament = tournamentRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
 
         if(tournament.getState().equals(DELETED)) {

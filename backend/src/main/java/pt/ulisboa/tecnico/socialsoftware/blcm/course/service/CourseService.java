@@ -33,7 +33,7 @@ public class CourseService {
     // intended for requests from local functionalities
 
     public Course getCausalCourseLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        Course course = courseRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+        Course course = courseRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND, aggregateId));
 
         if(course.getState().equals(DELETED)) {
@@ -62,7 +62,7 @@ public class CourseService {
     }
 
     private Course getCausalCourseLocalByName(String courseName, UnitOfWork unitOfWork) {
-        Course course = courseRepository.findByAggregateNameAndVersion(courseName, unitOfWork.getVersion())
+        Course course = courseRepository.findCausalByName(courseName, unitOfWork.getVersion())
                 .orElse(null);
         if(course != null) {
             unitOfWork.addToCausalSnapshot(course);

@@ -1,18 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerQuiz;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerUser;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuizAnswer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class QuizAnswerDto implements Serializable {
     private Integer aggregateId;
@@ -29,13 +20,13 @@ public class QuizAnswerDto implements Serializable {
 
     //private List<QuestionAnswer> questionAnswers;
 
-    public QuizAnswerDto(QuizAnswer quizAnswer) {
-        setAggregateId(quizAnswer.getAggregateId());
-        setVersion(quizAnswer.getVersion());
-        setAnswerDate(DateHandler.toISOString(quizAnswer.getCreationDate()));
-        setCompleted(quizAnswer.isCompleted());
-        setUserAggregateId(quizAnswer.getUser().getAggregateId());
-        setQuizAggregateId(quizAnswer.getQuiz().getAggregateId());
+    public QuizAnswerDto(Answer answer) {
+        setAggregateId(answer.getAggregateId());
+        setVersion(answer.getVersion());
+        setAnswerDate(DateHandler.toISOString(answer.getCreationDate()));
+        setCompleted(answer.isCompleted());
+        setUserAggregateId(answer.getUser().getAggregateId());
+        setQuizAggregateId(answer.getQuiz().getAggregateId());
     }
 
     public Integer getAggregateId() {

@@ -45,7 +45,7 @@ public class CourseExecutionService {
 
     // intended for requests from local functionalities
     public CourseExecution getCausalCourseExecutionLocal(Integer aggregateId, UnitOfWork unitOfWork) {
-        CourseExecution execution = courseExecutionRepository.findByAggregateIdAndVersion(aggregateId, unitOfWork.getVersion())
+        CourseExecution execution = courseExecutionRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, aggregateId));
 
         if(execution.getState().equals(DELETED)) {

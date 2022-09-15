@@ -22,7 +22,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Table(name = "users")
 public class User extends Aggregate {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private User prev;
 
     @Column
@@ -85,6 +85,15 @@ public class User extends Aggregate {
         this.courseExecutions.remove(userCourseExecution);
     }
 
+    @Override
+    public Aggregate getPrev() {
+        return prev;
+    }
+
+    public void setPrev(User prev) {
+        this.prev = prev;
+    }
+
     public String getName() {
         return name;
     }
@@ -138,19 +147,10 @@ public class User extends Aggregate {
     }
 
     @Override
-    public Aggregate getPrev() {
-        return this.prev;
-    }
-
-    public void setPrev(User prev) {
-        this.prev = prev;
-    }
-
-    @Override
     public Aggregate merge(Aggregate other) {
         User v1 = this;
         if(!(other instanceof User)) {
-            throw new TutorException(ErrorMessage.USER_MERGE_FAILURE, prev.getAggregateId());
+            throw new TutorException(ErrorMessage.USER_MERGE_FAILURE, getPrev().getAggregateId());
         }
         User v2 = (User)other;
         User prev = (User)(this.getPrev());
