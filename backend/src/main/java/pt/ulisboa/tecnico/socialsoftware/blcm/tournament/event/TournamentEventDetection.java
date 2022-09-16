@@ -29,9 +29,6 @@ public class TournamentEventDetection {
     private TournamentFunctionalities tournamentFunctionalities;
 
     @Autowired
-    private TournamentRepository tournamentRepository;
-
-    @Autowired
     private TournamentService tournamentService;
 
     @Autowired
@@ -41,40 +38,28 @@ public class TournamentEventDetection {
     private TournamentProcessedEventsRepository tournamentProcessedEventsRepository;
 
     @Scheduled(cron = "*/10 * * * * *")
-    @Transactional
-    public void detectTournamentEvents() {
-        TournamentProcessedEvents lastProcessedEvent = tournamentProcessedEventsRepository.findAll().stream()
+    public void detectAnonymizeUserEvents() {
+        TournamentProcessedEvents tournamentProcessedEvents = tournamentProcessedEventsRepository.findAll().stream()
+                .filter(e -> ANONYMIZE_USER.equals(e.getEventType()))
                 .findFirst()
-                .orElse(new TournamentProcessedEvents(0));
+                .orElse(new TournamentProcessedEvents(ANONYMIZE_USER));
 
-        Set<DomainEvent> events = eventRepository.findAll()
+        Set<AnonymizeUserEvent> events = eventRepository.findAll()
                 .stream()
-                .filter(e -> e.getId() > lastProcessedEvent.getLastProcessedEventId())
-                .filter(e ->
-                        e.getType().equals(ANONYMIZE_USER) ||
-                                e.getType().equals(REMOVE_COURSE_EXECUTION) ||
-                                e.getType().equals(UPDATE_COURSE_EXECUTION) ||
-                        e.getType().equals(REMOVE_USER))
-                .map(e -> (RemoveCourseExecutionEvent) e)
+                .filter(e -> ANONYMIZE_USER.equals(e.getType()))
+                .filter(e -> !(tournamentProcessedEvents.containsEvent(e.getId())))
+                .map(e -> (AnonymizeUserEvent) e)
                 .collect(Collectors.toSet());
 
-        for(DomainEvent e : events) {
-            switch (e.getType()) {
-                case ANONYMIZE_USER:
-                    handleAnonymizeUser((AnonymizeUserEvent) e);
-                    break;
-                case REMOVE_COURSE_EXECUTION:
-                    break;
-                case REMOVE_USER:
-                    break;
-                case UPDATE_COURSE_EXECUTION:
-                    break;
-            }
+        for(AnonymizeUserEvent e : events) {
+            handleAnonymizeUser(e);
         }
 
-        Integer newLastProcessedId = events.stream().map(DomainEvent::getId).max(Integer::compareTo).orElse(lastProcessedEvent.getLastProcessedEventId());
-        lastProcessedEvent.setLastProcessedEventId(newLastProcessedId);
-        tournamentProcessedEventsRepository.save(lastProcessedEvent);
+        Set<Integer> processedEventsIds = events.stream()
+                .map(DomainEvent::getId)
+                .collect(Collectors.toSet());
+        tournamentProcessedEvents.addProcessedEventsIds(processedEventsIds);
+        tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
     }
 
     private void handleAnonymizeUser(AnonymizeUserEvent e) {
@@ -86,3 +71,9 @@ public class TournamentEventDetection {
         unitOfWorkService.commit(unitOfWork);
     }
 }
+
+// TODO implement handlers for these events
+/*e.getType().equals(ANONYMIZE_USER) ||
+        e.getType().equals(REMOVE_COURSE_EXECUTION) ||
+        e.getType().equals(UPDATE_COURSE_EXECUTION) ||
+        e.getType().equals(REMOVE_USER))*/

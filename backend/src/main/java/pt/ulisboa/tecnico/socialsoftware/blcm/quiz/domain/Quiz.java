@@ -4,8 +4,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
@@ -189,11 +188,11 @@ public class Quiz extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Dependency> getDependenciesMap() {
-        Map<Integer, Dependency> depMap = new HashMap<>();
-        depMap.put(this.courseExecution.getAggregateId(), new Dependency(this.courseExecution.getAggregateId(), COURSE_EXECUTION, this.courseExecution.getVersion()));
+    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
+        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
+        depMap.put(this.courseExecution.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), COURSE_EXECUTION, this.courseExecution.getVersion()));
         quizQuestions.forEach(q -> {
-            depMap.put(q.getAggregateId(), new Dependency(q.getAggregateId(), QUESTION, q.getVersion()));
+            depMap.put(q.getAggregateId(), new EventualConsistencyDependency(q.getAggregateId(), QUESTION, q.getVersion()));
         });
         return depMap;
     }

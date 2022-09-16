@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -64,7 +64,7 @@ public class Answer extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Dependency> getDependenciesMap() {
+    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
         return null;
     }
 

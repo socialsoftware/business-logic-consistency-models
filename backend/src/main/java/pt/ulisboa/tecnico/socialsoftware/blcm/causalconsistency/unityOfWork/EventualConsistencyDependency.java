@@ -2,14 +2,14 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
 
-public class Dependency {
+public class EventualConsistencyDependency {
     private Integer aggregateId;
 
     private AggregateType type;
 
     private Integer version;
 
-    public Dependency(Integer aggregateId, AggregateType type, Integer version) {
+    public EventualConsistencyDependency(Integer aggregateId, AggregateType type, Integer version) {
         this.aggregateId = aggregateId;
         this.type = type;
         this.version = version;

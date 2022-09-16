@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -72,12 +72,12 @@ public class Question extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Dependency> getDependenciesMap() {
-        Map<Integer, Dependency> depMap = new HashMap<>();
+    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
+        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
 
-        depMap.put(this.course.getAggregateId(), new Dependency(this.course.getAggregateId(), COURSE, this.course.getVersion()));
+        depMap.put(this.course.getAggregateId(), new EventualConsistencyDependency(this.course.getAggregateId(), COURSE, this.course.getVersion()));
         this.topics.forEach(t -> {
-            depMap.put(t.getTopicAggregateId(), new Dependency(t.getTopicAggregateId(), COURSE, t.getVersion()));
+            depMap.put(t.getTopicAggregateId(), new EventualConsistencyDependency(t.getTopicAggregateId(), COURSE, t.getVersion()));
         });
         return  depMap;
     }

@@ -12,7 +12,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,29 +36,28 @@ public class UserEventDetection {
     @Autowired
     private UserProcessedEventsRepository userProcessedEventsRepository;
 
-    @Transactional
+
     @Scheduled(cron = "*/10 * * * * *")
     public void detectRemoveCourseExecutionEvents() {
-        UserProcessedEvents lastProcessedEvent = userProcessedEventsRepository.findAll().stream()
+        UserProcessedEvents userProcessedEvents = userProcessedEventsRepository.findAll().stream()
+                .filter(upe -> REMOVE_COURSE_EXECUTION.equals(upe.getEventType()))
                 .findFirst()
-                .orElse(new UserProcessedEvents(0));
+                .orElse(new UserProcessedEvents(REMOVE_COURSE_EXECUTION));
 
-        Set<DomainEvent> events = eventRepository.findAll()
-                .stream()
-                .filter(e -> e.getId() > lastProcessedEvent.getLastProcessedEventId())
-                .map(e -> (RemoveCourseExecutionEvent) e)
+        Set<DomainEvent> events = eventRepository.findAll().stream()
+                .filter(e -> e.getType().equals(REMOVE_COURSE_EXECUTION))
+                .filter(e -> !(userProcessedEvents.containsEvent(e.getId())))
                 .collect(Collectors.toSet());
 
         for(DomainEvent e : events) {
-            switch (e.getType()) {
-                case REMOVE_COURSE_EXECUTION:
-            }
             handleRemoveCourseExecution((RemoveCourseExecutionEvent) e);
         }
 
-        Integer newLastProcessedId = events.stream().map(DomainEvent::getId).max(Integer::compareTo).orElse(lastProcessedEvent.getLastProcessedEventId());
-        lastProcessedEvent.setLastProcessedEventId(newLastProcessedId);
-        userProcessedEventsRepository.save(lastProcessedEvent);
+        Set<Integer> processedEventsIds = events.stream()
+                .map(DomainEvent::getId)
+                .collect(Collectors.toSet());
+        userProcessedEvents.addProcessedEventsIds(processedEventsIds);
+        userProcessedEventsRepository.save(userProcessedEvents);
 
     }
 

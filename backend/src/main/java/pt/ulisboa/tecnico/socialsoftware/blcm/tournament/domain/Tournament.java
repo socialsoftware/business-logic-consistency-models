@@ -5,7 +5,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
@@ -279,14 +279,14 @@ public class Tournament extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Dependency> getDependenciesMap() {
-        Map<Integer , Dependency> depMap = new HashMap<>();
-        depMap.put(this.courseExecution.getAggregateId(), new Dependency(this.courseExecution.getAggregateId(), AggregateType.COURSE_EXECUTION ,this.courseExecution.getVersion()));
+    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
+        Map<Integer , EventualConsistencyDependency> depMap = new HashMap<>();
+        depMap.put(this.courseExecution.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), AggregateType.COURSE_EXECUTION ,this.courseExecution.getVersion()));
         this.participants.forEach(p -> {
-            depMap.put(p.getAggregateId(), new Dependency(this.courseExecution.getAggregateId(), AggregateType.USER, p.getVersion()));
+            depMap.put(p.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), AggregateType.USER, p.getVersion()));
         });
-        depMap.put(this.creator.getAggregateId(), new Dependency(this.creator.getAggregateId(), AggregateType.USER ,this.creator.getVersion()));
-        depMap.put(this.quiz.getAggregateId(), new Dependency(this.quiz.getAggregateId(), AggregateType.QUIZ ,this.quiz.getVersion()));
+        depMap.put(this.creator.getAggregateId(), new EventualConsistencyDependency(this.creator.getAggregateId(), AggregateType.USER ,this.creator.getVersion()));
+        depMap.put(this.quiz.getAggregateId(), new EventualConsistencyDependency(this.quiz.getAggregateId(), AggregateType.QUIZ ,this.quiz.getVersion()));
 
         return depMap;
     }

@@ -20,7 +20,7 @@ public class UnitOfWork {
     // Cumulative dependencies of the functionality
     // Map type ensures only a version of an aggregate is written by transaction
     // TODO since aggregate ids are unique amongst several aggregate types, perhaps only a pair <Integer, Integer> is enough ( second Integer being the version)
-    private Map<Integer, Dependency> currentReadDependencies;
+    private Map<Integer, EventualConsistencyDependency> currentReadDependencies;
 
     public UnitOfWork(Integer version) {
         this.updatedObjects = new HashMap<Integer, Aggregate>();
@@ -60,27 +60,27 @@ public class UnitOfWork {
         this.eventsToEmit.add(event);
     }
 
-    public Map<Integer, Dependency> getCurrentReadDependencies() {
+    public Map<Integer, EventualConsistencyDependency> getCurrentReadDependencies() {
         return currentReadDependencies;
     }
 
 
     public void addToCausalSnapshot(Aggregate aggregate) {
         verifyEventualConsistency(aggregate);
-        addCurrentReadDependencies(aggregate.getDependenciesMap());
+        addEventDependencies(aggregate);
     }
 
-    private void addCurrentReadDependencies(Map<Integer, Dependency> deps) {
-        deps.values().forEach(dep -> {
-            if(!this.currentReadDependencies.containsKey(dep.getAggregateId())) {
+    private void addEventDependencies(Aggregate aggregate) {
+        aggregate.getDependenciesMap().values().forEach(dep -> {
+            if(!hasAggregateDep(dep.getAggregateId())) {
                 this.currentReadDependencies.put(dep.getAggregateId(), dep);
             }
         });
     }
 
     private void verifyEventualConsistency(Aggregate aggregate) {
-        for(Dependency dep : aggregate.getDependenciesMap().values()) {
-            if (this.hasAggregateDep(dep.getAggregateId()) && this.getAggregateDep(dep.getAggregateId()).getVersion() != dep.getVersion()) {
+        for(EventualConsistencyDependency dep : aggregate.getDependenciesMap().values()) {
+            if (hasAggregateDep(dep.getAggregateId()) && this.getAggregateDep(dep.getAggregateId()).getVersion() != dep.getVersion()) {
                 throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId());
             }
         }
@@ -90,7 +90,7 @@ public class UnitOfWork {
         return this.currentReadDependencies.containsKey(aggregateId);
     }
 
-    public Dependency getAggregateDep(Integer aggregateId) {
+    public EventualConsistencyDependency getAggregateDep(Integer aggregateId) {
         return this.currentReadDependencies.get(aggregateId);
     }
 

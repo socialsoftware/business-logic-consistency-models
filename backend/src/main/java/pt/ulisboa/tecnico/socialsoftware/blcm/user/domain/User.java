@@ -4,7 +4,7 @@ import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.*;
@@ -217,10 +217,10 @@ public class User extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Dependency> getDependenciesMap() {
-        Map<Integer, Dependency> depMap = new HashMap<>();
+    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
+        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
         this.courseExecutions.forEach(ce -> {
-            depMap.put(ce.getAggregateId(), new Dependency(ce.getAggregateId(), COURSE_EXECUTION, ce.getVersion()));
+            depMap.put(ce.getAggregateId(), new EventualConsistencyDependency(ce.getAggregateId(), COURSE_EXECUTION, ce.getVersion()));
         });
         return depMap;
     }

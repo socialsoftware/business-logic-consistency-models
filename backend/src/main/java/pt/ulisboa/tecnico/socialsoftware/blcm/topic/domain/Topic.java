@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Dependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.util.HashMap;
@@ -55,9 +55,9 @@ public class Topic extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Dependency> getDependenciesMap() {
-        Map<Integer, Dependency> depMap = new HashMap<>();
-        depMap.put(this.course.getAggregateId(), new Dependency(this.course.getAggregateId(), COURSE ,this.course.getVersion()));
+    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
+        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
+        depMap.put(this.course.getAggregateId(), new EventualConsistencyDependency(this.course.getAggregateId(), COURSE ,this.course.getVersion()));
         return depMap;
     }
 

@@ -11,7 +11,7 @@ public class AggregateIdTypePair {
 
     private boolean isCommitted;
 
-    private Map<Integer, Dependency> dependencies;
+    private Map<Integer, EventualConsistencyDependency> dependencies;
 
     public AggregateIdTypePair(Integer objectId, String type) {
         this.objectId = objectId;
@@ -44,17 +44,17 @@ public class AggregateIdTypePair {
         isCommitted = committed;
     }
 
-    public Map<Integer, Dependency> getDependencies() {
+    public Map<Integer, EventualConsistencyDependency> getDependencies() {
         return dependencies;
     }
 
-    public void addDependencies(Set<Dependency> dependencies) {
+    public void addDependencies(Set<EventualConsistencyDependency> dependencies) {
         dependencies.forEach(dep -> {
             this.dependencies.put(dep.getAggregateId(), dep);
         });
     }
 
-    public void addDependency(Dependency dep) {
+    public void addDependency(EventualConsistencyDependency dep) {
         this.dependencies.put(dep.getAggregateId(), dep);
     }
 }
