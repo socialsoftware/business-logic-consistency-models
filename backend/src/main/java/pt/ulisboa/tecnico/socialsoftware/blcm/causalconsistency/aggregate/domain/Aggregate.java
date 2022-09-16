@@ -39,6 +39,9 @@ public abstract class Aggregate {
     @Column(columnDefinition = "boolean default false")
     private boolean primaryAggregate;
 
+    @ManyToOne
+    private Aggregate prev;
+
     public void remove() {
         setState(DELETED);
     }
@@ -106,8 +109,6 @@ public abstract class Aggregate {
         this.state = state;
     }
 
-    public abstract Aggregate getPrev();
-
     public abstract Aggregate merge(Aggregate other);
 
     public abstract Map<Integer, Dependency> getDependenciesMap();
@@ -126,6 +127,14 @@ public abstract class Aggregate {
 
     public void setPrimaryAggregate(boolean primary) {
         this.primaryAggregate = primary;
+    }
+
+    public Aggregate getPrev() {
+        return this.prev;
+    }
+
+    public void setPrev(Aggregate prev) {
+        this.prev = prev;
     }
 
 }

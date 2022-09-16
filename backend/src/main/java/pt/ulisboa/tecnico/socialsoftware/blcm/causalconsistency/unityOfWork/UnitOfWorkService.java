@@ -62,15 +62,6 @@ public class UnitOfWorkService {
     private EventRepository eventRepository;
 
 
-
-
-    /* executes after all services have been instantiated and all fields have been injected*/
-    /*@PostLoad
-    public void init() {
-        setVersion(versionService.getVersionNumber());
-    }
-    */
-
     @Transactional
     public UnitOfWork createUnitOfWork() {
         return new UnitOfWork(versionService.getVersionNumber());
@@ -78,7 +69,6 @@ public class UnitOfWorkService {
 
 
     // TODO store type in aggregate
-
 
 
     @Retryable(
@@ -98,6 +88,7 @@ public class UnitOfWorkService {
             concurrentAggregates = false;
             for (Integer aggregateId : aggregatesToCommit.keySet()) {
                 Aggregate aggregateToWrite = aggregatesToCommit.get(aggregateId);
+                aggregateToWrite.verifyInvariants();
                 Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite, unitOfWork.getVersion());
                 if(concurrentAggregate != null) {
                     concurrentAggregates = true;

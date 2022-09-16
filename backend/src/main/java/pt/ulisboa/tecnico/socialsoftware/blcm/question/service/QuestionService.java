@@ -1,7 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
@@ -14,8 +18,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
-import javax.transaction.Transactional;
-
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +35,10 @@ public class QuestionService {
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuestionDto getCausalQuestionRemote(Integer aggregateId, UnitOfWork unitOfWork) {
         return new QuestionDto(getCausalQuestionLocal(aggregateId, unitOfWork));
     }
@@ -50,7 +56,10 @@ public class QuestionService {
         return question;
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return questionRepository.findAll().stream()
                 .filter(q -> q.getCourse().getAggregateId() == courseAggregateId)
@@ -61,7 +70,10 @@ public class QuestionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuestionDto createQuestion(QuestionCourse course, QuestionDto questionDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
 
@@ -74,7 +86,10 @@ public class QuestionService {
         // TODO
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateQuestion(QuestionDto questionDto, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(questionDto.getAggregateId(), unitOfWork);
         Question newQuestion = new Question(oldQuestion);
@@ -83,7 +98,10 @@ public class QuestionService {
         unitOfWork.addEvent(new UpdateQuestionEvent(newQuestion.getAggregateId(), newQuestion.getTitle(), newQuestion.getContent()));
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeQuestion(Integer courseAggregateId, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
@@ -93,7 +111,10 @@ public class QuestionService {
         unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion.getAggregateId()));
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateQuestionTopics(Integer courseAggregateId, Set<QuestionTopic> topics, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
@@ -101,7 +122,10 @@ public class QuestionService {
         unitOfWork.addUpdatedObject(newQuestion);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<QuestionDto> findQuestionsByTopics(List<Integer> topicIds, UnitOfWork unitOfWork) {
         Set<Integer> questionAggregateIds = questionRepository.findAll().stream()
                 .filter(q -> {

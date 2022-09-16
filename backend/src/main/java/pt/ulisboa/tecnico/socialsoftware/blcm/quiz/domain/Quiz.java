@@ -20,9 +20,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Table(name = "quizzes")
 public class Quiz extends Aggregate {
 
-    @ManyToOne
-    private Quiz prev;
-
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
@@ -204,15 +201,6 @@ public class Quiz extends Aggregate {
     @Override
     public boolean verifyInvariants() {
         return true;
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return prev;
-    }
-
-    public void setPrev(Quiz prev) {
-        this.prev = prev;
     }
 
     public LocalDateTime getCreationDate() {

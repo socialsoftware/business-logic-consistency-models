@@ -16,10 +16,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUES
 @Entity
 @Table(name = "answers")
 public class Answer extends Aggregate {
-
-    @ManyToOne
-    private Answer prev;
-
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
@@ -60,15 +56,6 @@ public class Answer extends Aggregate {
     @Override
     public boolean verifyInvariants() {
         return true;
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return this.prev;
-    }
-
-    public void setPrev(Answer answer) {
-        this.prev = answer;
     }
 
     @Override

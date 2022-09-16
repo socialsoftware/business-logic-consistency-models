@@ -22,9 +22,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Table(name = "users")
 public class User extends Aggregate {
 
-    @ManyToOne
-    private User prev;
-
     @Column
     private String name;
 
@@ -83,15 +80,6 @@ public class User extends Aggregate {
 
     public void removeCourseExecution(UserCourseExecution userCourseExecution) {
         this.courseExecutions.remove(userCourseExecution);
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return prev;
-    }
-
-    public void setPrev(User prev) {
-        this.prev = prev;
     }
 
     public String getName() {

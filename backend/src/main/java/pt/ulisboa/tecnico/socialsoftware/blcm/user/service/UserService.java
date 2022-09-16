@@ -1,7 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
@@ -14,7 +18,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-import javax.transaction.Transactional;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +35,10 @@ public class UserService {
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public UserDto getCausalUserRemote(Integer aggregateId, UnitOfWork unitOfWork) {
         return new UserDto(getCausalUserLocal(aggregateId, unitOfWork));
     }
@@ -50,7 +57,10 @@ public class UserService {
     }
 
     /*simple user creation*/
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public UserDto createUser(UserDto userDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         User user = new User(aggregateId, userDto);
@@ -59,7 +69,10 @@ public class UserService {
     }
 
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void anonymizeCourseExecutionUsers(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
         Set<User> executionsUsers = userRepository.findCausalByExecution(executionAggregateId, unitOfWorkWorkService.getVersion());
         executionsUsers.forEach(oldUser -> {
@@ -70,7 +83,10 @@ public class UserService {
         });
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void addCourseExecution(Integer userAggregateId, UserCourseExecution userCourseExecution, UnitOfWork unitOfWork) {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
 
@@ -83,7 +99,10 @@ public class UserService {
         unitOfWork.addUpdatedObject(newUser);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void activateUser(Integer userAggregateId, UnitOfWork unitOfWork) {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
         if(oldUser.isActive()) {
@@ -94,7 +113,10 @@ public class UserService {
         unitOfWork.addUpdatedObject(newUser);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Set<CourseExecutionDto> getUserCourseExecutions(Integer userAggregateId, UnitOfWork unitOfWork) {
         User user = getCausalUserLocal(userAggregateId, unitOfWork);
         return user.getCourseExecutions().stream()
@@ -102,7 +124,10 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteUser(Integer userAggregateId, UnitOfWork unitOfWork) {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
         User newUser = new User(oldUser);
@@ -110,7 +135,10 @@ public class UserService {
         unitOfWork.addUpdatedObject(newUser);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeCourseExecutionsFromUser(Integer userAggregateId, List<Integer> courseExecutionsAggregateIds, UnitOfWork unitOfWork) {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
         Set<UserCourseExecution> courseExecutionsToRemove = oldUser.getCourseExecutions().stream()
@@ -128,7 +156,10 @@ public class UserService {
 
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<UserDto> getStudents(UnitOfWork unitOfWork) {
         Set<Integer> studentsIds = userRepository.findAll().stream()
                 .filter(u -> u.getRole().equals(Role.STUDENT))
@@ -140,7 +171,10 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<UserDto> getTeachers(UnitOfWork unitOfWork) {
         Set<Integer> teacherIds = userRepository.findAll().stream()
                 .filter(u -> u.getRole().equals(Role.TEACHER))

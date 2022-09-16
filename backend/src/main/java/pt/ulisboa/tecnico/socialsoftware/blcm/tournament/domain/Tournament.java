@@ -21,9 +21,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Table(name = "tournaments")
 public class Tournament extends Aggregate {
 
-    @ManyToOne
-    private Tournament prev;
-
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
@@ -292,15 +289,6 @@ public class Tournament extends Aggregate {
         depMap.put(this.quiz.getAggregateId(), new Dependency(this.quiz.getAggregateId(), AggregateType.QUIZ ,this.quiz.getVersion()));
 
         return depMap;
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return prev;
-    }
-
-    public void setPrev(Tournament prev) {
-        this.prev = prev;
     }
 
     public LocalDateTime getStartTime() {

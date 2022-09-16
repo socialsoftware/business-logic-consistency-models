@@ -1,24 +1,28 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerQuiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerUser;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
-import javax.transaction.Transactional;
+import java.sql.SQLException;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.NO_USER_ANSWER_FOR_QUIZ;
@@ -39,7 +43,10 @@ public class AnswerService {
     @Autowired
     private UserService userService;
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuizAnswerDto getCausalQuizAnswerRemove(Integer aggregateId, UnitOfWork unitOfWork) {
         return new QuizAnswerDto(getCausalQuizAnswerLocal(aggregateId, unitOfWork));
     }
@@ -70,7 +77,10 @@ public class AnswerService {
 
 
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void startQuiz(Integer quizAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         QuizDto quizDto = quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
@@ -81,7 +91,10 @@ public class AnswerService {
         unitOfWork.addUpdatedObject(answer);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void answerQuestion(Integer quizAggregateId, Integer userAggregateId, QuestionAnswerDto questionAnswerDto, UnitOfWork unitOfWork) {
         Answer oldAnswer = getCausalQuizAnswerLocalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork);
         Answer newAnswer = new Answer(oldAnswer);
@@ -92,7 +105,10 @@ public class AnswerService {
     }
 
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void concludeQuiz(Integer quizAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
         Answer oldAnswer = getCausalQuizAnswerLocalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork);
         Answer newAnswer = new Answer(oldAnswer);

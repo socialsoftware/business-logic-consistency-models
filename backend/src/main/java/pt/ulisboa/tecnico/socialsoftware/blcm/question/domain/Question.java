@@ -16,9 +16,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 @Table(name = "questions")
 public class Question extends Aggregate {
 
-    @ManyToOne
-    private Question prev;
-
     @Column
     private String title;
 
@@ -83,15 +80,6 @@ public class Question extends Aggregate {
             depMap.put(t.getTopicAggregateId(), new Dependency(t.getTopicAggregateId(), COURSE, t.getVersion()));
         });
         return  depMap;
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return prev;
-    }
-
-    public void setPrev(Question prev) {
-        this.prev = prev;
     }
 
     public String getTitle() {

@@ -2,7 +2,11 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.course.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
@@ -12,7 +16,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
-import javax.transaction.Transactional;
+import java.sql.SQLException;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 
@@ -25,7 +29,10 @@ public class CourseService {
     @Autowired
     private CourseRepository courseRepository;
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public CourseDto getCausalCourseRemote(Integer aggregateId, UnitOfWork unitOfWorkWorkService) {
         return new CourseDto(getCausalCourseLocal(aggregateId, unitOfWorkWorkService));
     }
@@ -46,7 +53,10 @@ public class CourseService {
 
 
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public CourseExecutionDto getAndOrCreateCourseRemote(CourseExecutionDto courseExecutionDto, UnitOfWork unitOfWork) {
         Course course = getCausalCourseLocalByName(courseExecutionDto.getName(), unitOfWork);
         if(course == null) {

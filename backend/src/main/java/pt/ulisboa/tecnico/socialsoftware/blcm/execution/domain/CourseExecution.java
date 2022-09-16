@@ -16,9 +16,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 public class CourseExecution extends Aggregate {
     // TODO add course type??
 
-    @ManyToOne
-    private CourseExecution prev;
-
     @Column
     private String acronym;
 
@@ -67,15 +64,6 @@ public class CourseExecution extends Aggregate {
         Map<Integer, Dependency> depMap = new HashMap<>();
         depMap.put(this.course.getAggregateId(), new Dependency(this.course.getAggregateId(), AggregateType.COURSE, this.course.getVersion()));
         return depMap;
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return prev;
-    }
-
-    public void setPrev(CourseExecution prev) {
-        this.prev = prev;
     }
 
     public String getAcronym() {

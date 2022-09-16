@@ -14,9 +14,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 @Table(name = "courses")
 public class Course extends Aggregate {
 
-    @ManyToOne
-    private Course prev;
-
     @Enumerated(EnumType.STRING)
     private CourseType type;
 
@@ -54,15 +51,6 @@ public class Course extends Aggregate {
     @Override
     public Map<Integer, Dependency> getDependenciesMap() {
         return new HashMap<>();
-    }
-
-    @Override
-    public Aggregate getPrev() {
-        return prev;
-    }
-
-    public void setPrev(Course prev) {
-        this.prev = prev;
     }
 
     public CourseType getType() {

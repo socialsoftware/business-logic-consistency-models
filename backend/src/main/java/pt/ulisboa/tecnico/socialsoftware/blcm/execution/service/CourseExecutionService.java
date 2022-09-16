@@ -1,7 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -14,8 +18,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 
-import javax.transaction.Transactional;
-
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,10 @@ public class CourseExecutionService {
     @Autowired
     private UnitOfWorkService unitOfWorkService;
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public CourseExecutionDto getCausalCourseExecutionRemote(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
         return new CourseExecutionDto(getCausalCourseExecutionLocal(executionAggregateId, unitOfWorkWorkService));
     }
@@ -56,7 +62,10 @@ public class CourseExecutionService {
         return execution;
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto, ExecutionCourse executionCourse, UnitOfWork unitOfWork) {
         CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(),
                 courseExecutionDto.getAcronym(),
@@ -66,7 +75,10 @@ public class CourseExecutionService {
         return new CourseExecutionDto(courseExecution);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<CourseExecutionDto> getAllCausalCourseExecutions(UnitOfWork unitOfWork) {
         return courseExecutionRepository.findAllNonDeleted().stream()
                 .map(CourseExecution::getAggregateId)
@@ -77,7 +89,10 @@ public class CourseExecutionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
 
         CourseExecution oldCourseExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);

@@ -1,7 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
@@ -13,8 +17,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
-import javax.transaction.Transactional;
-
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,10 @@ public class TopicService {
     @Autowired
     private TopicRepository topicRepository;
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TopicDto getCausalTopicRemote(Integer topicAggregateId, UnitOfWork unitOfWorkWorkService) {
         return new TopicDto(getCausalTopicLocal(topicAggregateId, unitOfWorkWorkService));
     }
@@ -49,7 +55,10 @@ public class TopicService {
         return topic;
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TopicDto createTopic(TopicDto topicDto, TopicCourse course, UnitOfWork unitOfWorkWorkService) {
         Topic topic = new Topic(aggregateIdGeneratorService.getNewAggregateId(),
                 unitOfWorkWorkService.getVersion(), topicDto.getName(), course);
@@ -57,7 +66,10 @@ public class TopicService {
         return new TopicDto(topic);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TopicDto> findCourseByTopicId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return topicRepository.findAll().stream()
                 .filter(t -> courseAggregateId == t.getCourse().getAggregateId())
@@ -69,7 +81,10 @@ public class TopicService {
 
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateTopic(TopicDto topicDto, UnitOfWork unitOfWork) {
         Topic oldTopic = getCausalTopicLocal(topicDto.getAggregateId(), unitOfWork);
         Topic newTopic = new Topic(oldTopic);
@@ -78,6 +93,10 @@ public class TopicService {
         unitOfWork.addEvent(new UpdateTopicEvent(newTopic));
     }
 
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteTopic(Integer topicAggregateId, UnitOfWork unitOfWork) {
         Topic oldTopic = getCausalTopicLocal(topicAggregateId, unitOfWork);
         Topic newTopic = new Topic(oldTopic);

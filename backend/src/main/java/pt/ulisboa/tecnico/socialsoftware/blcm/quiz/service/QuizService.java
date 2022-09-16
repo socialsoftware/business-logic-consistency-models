@@ -1,7 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -15,7 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
-import javax.transaction.Transactional;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +53,10 @@ public class QuizService {
         return new QuizDto(new Quiz());
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuizDto getCausalQuizRemote(Integer aggregateId, UnitOfWork unitOfWork) {
         return new QuizDto(getCausalQuizLocal(aggregateId, unitOfWork));
     }
@@ -68,7 +75,10 @@ public class QuizService {
     }
 
     // TODO discuss this implementation
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuizDto generateQuiz(Integer courseExecutionAggregateId, QuizDto quizDto, List<QuestionDto> questionDtos, Integer numberOfQuestions, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
 
@@ -94,7 +104,10 @@ public class QuizService {
         return new QuizDto(quiz);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuizDto startTournamentQuiz(Integer userAggregateId, Integer quizAggregateId, UnitOfWork unitOfWork) {
         /* must add more verifications */
         Quiz oldQuiz = quizRepository.findCausal(quizAggregateId, unitOfWork.getVersion())
@@ -108,7 +121,10 @@ public class QuizService {
         return new QuizDto(oldQuiz);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, List<QuizQuestion> quizQuestions, QuizDto quizDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, IN_CLASS);
@@ -116,7 +132,10 @@ public class QuizService {
         return new QuizDto(quiz);
     }
 
-    @Transactional
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuizDto updateQuiz(QuizDto quizDto, Set<Integer> topicsAggregateIds, UnitOfWork unitOfWork) {
         Quiz oldQuiz = getCausalQuizLocal(quizDto.getAggregateId(), unitOfWork);
         Quiz newQuiz = new Quiz(oldQuiz);
