@@ -8,11 +8,12 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -30,25 +31,6 @@ public class TournamentService {
 
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    public TournamentDto createTournament(TournamentDto tournamentDto, TournamentCreator creator,
-                                          TournamentCourseExecution courseExecution, Set<TournamentTopic> topics,
-                                          TournamentQuiz quiz, UnitOfWork unitOfWorkWorkService) {
-
-
-        /* add the dependencies to the tournament here */
-        /* in the unit of work manage the dependencies on commit time*/
-        Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-        Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWorkWorkService.getVersion()); /* should the skeleton creation be part of the functionality?? */
-        tournament.setPrimaryAggregate(true);
-        unitOfWorkWorkService.addUpdatedObject(tournament);
-        //unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
-        return new TournamentDto(tournament);
-    }
 
     // intended for requests from external functionalities
     @Retryable(
@@ -77,51 +59,66 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void joinTournament(Integer tournamentAggregateId, TournamentParticipant tournamentParticipant, UnitOfWork unitOfWorkWorkService) {
+    public List<TournamentDto> getAllCausalCourseExecutions(UnitOfWork unitOfWork) {
+        return tournamentRepository.findAllNonDeleted().stream()
+                .map(Tournament::getAggregateId)
+                .distinct()
+                .map(id -> getCausalTournamentLocal(id, unitOfWork))
+                .map(TournamentDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public TournamentDto createTournament(TournamentDto tournamentDto, TournamentCreator creator,
+                                          TournamentCourseExecution courseExecution, Set<TournamentTopic> topics,
+                                          TournamentQuiz quiz, UnitOfWork unitOfWorkWorkService) {
+        Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
+        Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz, unitOfWorkWorkService.getVersion()); /* should the skeleton creation be part of the functionality?? */
+        tournament.setPrimaryAggregate(true);
+        unitOfWorkWorkService.addUpdatedObject(tournament);
+        //unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
+        return new TournamentDto(tournament);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void addParticipant(Integer tournamentAggregateId, TournamentParticipant tournamentParticipant, UnitOfWork unitOfWorkWorkService) {
         Tournament tournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournamentVersion = new Tournament(tournament);
         newTournamentVersion.addParticipant(tournamentParticipant);
         unitOfWorkWorkService.addUpdatedObject(newTournamentVersion);
     }
 
-
+    /*TODO refactor this*/
 
     /* discuss if the processing for all tournaments should be done at the same time */
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void anonymizeUser(Integer userAggregateId, String name, String username, UnitOfWork unitOfWork) {
-        Set<Tournament> allTournaments = findAllTournamentByVersion(unitOfWork);
-        boolean update1 = false;
-        boolean update2 = false;
-        for(Tournament t : allTournaments) {
-            update1 = false;
-            update2 = false;
-            Tournament newTournament = new Tournament(t);
-            TournamentCreator creator = t.getCreator();
-            if(creator.getAggregateId() == userAggregateId) {
-                creator.setName(name);
-                creator.setName(username);
-                update1 = true;
-                newTournament.setCreator(creator);
-            }
+    public void anonymizeUser(Integer tournamentAggregateId, Integer userAggregateId, String name, String username, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new Tournament(oldTournament);
 
-            /*maybe not needed to create new hashset*/
-            Set<TournamentParticipant> participants = new HashSet<>(t.getParticipants());
-            for(TournamentParticipant tp : participants) {
-                if(tp.getAggregateId() == userAggregateId) {
-                    update2 = true;
-                    tp.setName(name);
-                    tp.setName(username);
-                }
-            }
+        if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
+            newTournament.getCreator().setName(name);
+            newTournament.getCreator().setUsername(username);
+            unitOfWork.addUpdatedObject(newTournament);
+        }
 
-            if(update2) {
-                newTournament.setParticipants(participants);
-            }
+        /*TournamentParticipant participantToAnonymize = newTournament.findParticipant(userAggregateId);
+        participantToAnonymize.setName(name);
+        participantToAnonymize.setUsername(name);*/
 
-            if(update1 || update2) {
+        for(TournamentParticipant tp : newTournament.getParticipants()) {
+            if(tp.getAggregateId().equals(userAggregateId)) {
+                tp.setName(name);
+                tp.setUsername(username);
                 unitOfWork.addUpdatedObject(newTournament);
             }
         }
@@ -160,8 +157,8 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentDto.getAggregateId(), unitOfWorkWorkService);
 
         Tournament newTournament = new Tournament(oldTournament);
-        newTournament.setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
-        newTournament.setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
+        //newTournament.setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
+        //newTournament.setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         newTournament.setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
         newTournament.setTopics(tournamentTopics);
         unitOfWorkWorkService.addUpdatedObject(newTournament);
@@ -248,9 +245,38 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void remove(Integer tournamentAggregateId, UnitOfWork unitOfWorkWorkService) {
-        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
+    public void remove(Integer tournamentAggregateId, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.remove();
+        unitOfWork.addUpdatedObject(newTournament);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void removeCourseExecution(Integer tournamentAggregateId, Integer courseExecutionId, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new Tournament(oldTournament);
+        if(newTournament.getCourseExecution().getAggregateId().equals(courseExecutionId)) {
+            newTournament.remove();
+            unitOfWork.addUpdatedObject(newTournament);
+        }
+
+    }
+
+    public void removeUser(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new Tournament(oldTournament);
+        if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
+            newTournament.remove();
+            unitOfWork.addUpdatedObject(newTournament);
+        }
+
+        if(newTournament.removeParticipant(newTournament.findParticipant(userAggregateId))) {
+            unitOfWork.addUpdatedObject(newTournament);
+        }
+
     }
 }

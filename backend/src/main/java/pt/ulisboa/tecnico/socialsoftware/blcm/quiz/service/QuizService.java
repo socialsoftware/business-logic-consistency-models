@@ -64,10 +64,10 @@ public class QuizService {
     // intended for requests from local functionalities
     public Quiz getCausalQuizLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         Quiz quiz = quizRepository.findCausal(aggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
+                .orElseThrow(() -> new TutorException(QUIZ_NOT_FOUND, aggregateId));
 
         if(quiz.getState().equals(DELETED)) {
-            throw new TutorException(TOURNAMENT_DELETED, quiz.getAggregateId());
+            throw new TutorException(QUIZ_DELETED, quiz.getAggregateId());
         }
 
         unitOfWork.addToCausalSnapshot(quiz);
@@ -100,6 +100,8 @@ public class QuizService {
 
 
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, GENERATED);
+        quiz.setTitle("Generated Quiz Title");
+        quiz.setCourseExecution(quizCourseExecution);
         unitOfWork.addUpdatedObject(quiz);
         return new QuizDto(quiz);
     }
@@ -136,13 +138,16 @@ public class QuizService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuizDto updateQuiz(QuizDto quizDto, Set<Integer> topicsAggregateIds, UnitOfWork unitOfWork) {
+    public QuizDto updateGeneratedQuiz(QuizDto quizDto, Set<Integer> topicsAggregateIds, Integer numberOfQuestions, UnitOfWork unitOfWork) {
         Quiz oldQuiz = getCausalQuizLocal(quizDto.getAggregateId(), unitOfWork);
         Quiz newQuiz = new Quiz(oldQuiz);
         newQuiz.update(quizDto);
 
         List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(new ArrayList<>(topicsAggregateIds), unitOfWork);
 
+        if(questionDtos.size() < numberOfQuestions) {
+            throw new TutorException(ErrorMessage.NOT_ENOUGH_QUESTIONS);
+        }
 
         List<QuizQuestion> quizQuestions = questionDtos.stream()
                 .map(QuizQuestion::new)
@@ -152,6 +157,7 @@ public class QuizService {
             newQuiz.setQuizQuestions(quizQuestions);
         }
 
+        newQuiz.setTitle("Generated Quiz Title");
         unitOfWork.addUpdatedObject(newQuiz);
         return new QuizDto(newQuiz);
     }

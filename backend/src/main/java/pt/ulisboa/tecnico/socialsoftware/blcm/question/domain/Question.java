@@ -45,6 +45,7 @@ public class Question extends Aggregate {
         setCreationDate(LocalDateTime.now());
         setCourse(course);
         setOptions(questionDto.getOptionDtos().stream().map(Option::new).collect(Collectors.toList()));
+        setTopics(questionDto.getTopicDto().stream().map(QuestionTopic::new).collect(Collectors.toSet()));
         setPrev(null);
     }
 

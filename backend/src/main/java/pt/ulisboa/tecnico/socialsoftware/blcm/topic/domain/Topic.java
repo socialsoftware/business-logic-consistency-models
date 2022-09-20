@@ -22,7 +22,7 @@ public class Topic extends Aggregate {
 
     public Topic() {}
 
-    public Topic(Integer aggregateId, Integer version, String name, TopicCourse course) {
+    public Topic(Integer aggregateId, String name, TopicCourse course) {
         super(aggregateId, TOPIC);
         setName(name);
         setCourse(course);
@@ -76,4 +76,5 @@ public class Topic extends Aggregate {
     public void setCourse(TopicCourse course) {
         this.course = course;
     }
+
 }

@@ -88,4 +88,17 @@ public class QuizQuestion {
 
         return questionDto;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof QuizQuestion)) {
+            return false;
+        }
+        QuizQuestion other = (QuizQuestion) obj;
+        if(getAggregateId() != null && getAggregateId().equals(other.getAggregateId()) && getVersion() != null && getVersion().equals(other.getVersion())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

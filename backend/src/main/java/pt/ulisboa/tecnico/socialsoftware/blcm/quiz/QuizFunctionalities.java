@@ -53,5 +53,9 @@ public class QuizFunctionalities {
         //return quizDto1;
         return null;
     }
-    
+
+    public QuizDto findQuiz(Integer quizAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        return quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
+    }
 }

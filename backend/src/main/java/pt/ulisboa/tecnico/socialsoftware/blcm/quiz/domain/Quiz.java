@@ -64,7 +64,8 @@ public class Quiz extends Aggregate {
     public Quiz(Quiz other) {
         super(other.getAggregateId(), QUIZ);
         setId(null);
-        setQuizQuestions(quizQuestions);
+        setQuizQuestions(other.getQuizQuestions());
+        setCourseExecution(other.getCourseExecution());
         setTitle(other.getTitle());
         setCreationDate(other.getCreationDate());
         setAvailableDate(other.getAvailableDate());
@@ -116,7 +117,7 @@ public class Quiz extends Aggregate {
 
 
         // TODO refer in thesis we assign the prev of the current aggregate because we want to preserve it case another merge round is executed
-        // TODO once it's commited the prev is no longer relevant, because it will be other version will try to merge with this and that version contains its own prev
+        // TODO once it's committed the prev is no longer relevant, because it will be other version will try to merge with this and that version contains its own prev
         mergedQuiz.setPrev((Quiz)getPrev());
 
         return mergedQuiz;
@@ -124,21 +125,21 @@ public class Quiz extends Aggregate {
 
     private Set<String> getChangedFields(Quiz prev, Quiz v) {
         Set<String> v1ChangedFields = new HashSet<>();
-        if(prev.getAvailableDate() != v.getAvailableDate()) {
+        /*if(!prev.getAvailableDate().equals(v.getAvailableDate())) {
             v1ChangedFields.add("availableDate");
         }
 
-        if(prev.getConclusionDate() != v.getConclusionDate()) {
+        if(!prev.getConclusionDate().equals(v.getConclusionDate())) {
             v1ChangedFields.add("conclusionDate");
         }
 
         if(!prev.getResultsDate().equals(v.getResultsDate())) {
             v1ChangedFields.add("resultsDate");
-        }
+        }*/
 
-        if(!prev.getQuizQuestions().equals(v.getQuizQuestions())) {
+        /*if(!prev.getQuizQuestions().equals(v.getQuizQuestions())) {
             v1ChangedFields.add("quizQuestions");
-        }
+        }*/
 
         if(!prev.getTitle().equals(v.getTitle())) {
             v1ChangedFields.add("title");
@@ -172,11 +173,14 @@ public class Quiz extends Aggregate {
             return true;
         }
 
+        // TODO verify what to do with this
+        // TODO verify equals in tournament aggregate components
         if(v1ChangedFields.contains("quizQuestions")
                 && (v2ChangedFields.contains("quizQuestions"))) {
 
             return true;
         }
+
 
         if(v1ChangedFields.contains("title")
                 && (v2ChangedFields.contains("title"))) {

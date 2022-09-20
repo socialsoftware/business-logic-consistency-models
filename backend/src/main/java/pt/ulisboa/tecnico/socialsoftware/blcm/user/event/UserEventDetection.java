@@ -67,11 +67,11 @@ public class UserEventDetection {
         Set<Integer> usersAggregateIds = userRepository.findAllNonDeleted().stream()
                 .map(User::getAggregateId)
                 .collect(Collectors.toSet());
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         for(Integer userAggregateId : usersAggregateIds) {
+            UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
             userService.removeCourseExecutionsFromUser(userAggregateId, executionsAggregateIds, unitOfWork);
+            unitOfWorkService.commit(unitOfWork);
         }
-        unitOfWorkService.commit(unitOfWork);
     }
 
 }

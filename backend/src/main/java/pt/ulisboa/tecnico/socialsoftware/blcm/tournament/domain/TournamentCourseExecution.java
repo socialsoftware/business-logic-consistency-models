@@ -1,5 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -22,11 +25,12 @@ public class TournamentCourseExecution {
     private Integer version;
 
     public TournamentCourseExecution() { }
-    public TournamentCourseExecution(Integer aggregateId, Integer courseId, String acronym, String status) {
-        this.aggregateId = aggregateId;
-        this.courseId = courseId;
-        this.acronym = acronym;
-        this.status = status;
+    public TournamentCourseExecution(CourseExecutionDto courseExecutionDto) {
+        setAggregateId(courseExecutionDto.getAggregateId());
+        setVersion(courseExecutionDto.getVersion());
+        setCourseId(courseExecutionDto.getCourseAggregateId());
+        setAcronym(courseExecutionDto.getAcronym());
+        setStatus(courseExecutionDto.getStatus());
     }
 
     public Integer getAggregateId() {
@@ -67,5 +71,15 @@ public class TournamentCourseExecution {
 
     public void setVersion(Integer courseExecutionVersion) {
         this.version = courseExecutionVersion;
+    }
+
+    public CourseExecutionDto buildDto() {
+        CourseExecutionDto courseExecutionDto = new CourseExecutionDto();
+        courseExecutionDto.setAggregateId(getAggregateId());
+        courseExecutionDto.setVersion(getVersion());
+        courseExecutionDto.setAcronym(getAcronym());
+        courseExecutionDto.setStatus(getStatus());
+
+        return courseExecutionDto;
     }
 }

@@ -6,7 +6,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -63,26 +62,26 @@ public class Tournament extends Aggregate {
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz, Integer version) {
         super(aggregateId, TOURNAMENT);
-        setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
-        setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
+        //setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
+        //setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
         setCancelled(tournamentDto.isCancelled());
         setCreator(creator);
+        setParticipants(new HashSet<>());
         setCourseExecution(execution);
         setTopics(topics);
         setQuiz(quiz);
-        setCreationTs(LocalDateTime.now());
     }
     /* used to update the tournament by creating new versions */
     public Tournament(Tournament other) {
         super(other.getAggregateId(), TOURNAMENT);
         setId(null); /* to force a new database entry when saving to be able to distinguish between versions of the same aggregate*/
-        setStartTime(other.getStartTime());
-        setEndTime(other.getEndTime());
+        //setStartTime(other.getStartTime());
+        //setEndTime(other.getEndTime());
         setNumberOfQuestions(other.getNumberOfQuestions());
         setCancelled(other.isCancelled());
         setCourseExecution(other.getCourseExecution());
-        setTopics(other.getTopics());
+        setTopics(new HashSet<>(other.getTopics()));
         setQuiz(other.getQuiz());
         setCreator(other.getCreator()); /* change this to create new instances (maye this not)*/
         setParticipants(new HashSet<>(other.getParticipants())); /* change this to create new instances (maybe not needed) */
@@ -124,12 +123,12 @@ public class Tournament extends Aggregate {
 
     @Override
     public boolean verifyInvariants() {
-        if(!(invariantAnswerBeforeStart()
+        /*if(!(invariantAnswerBeforeStart()
                 && invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
                 && invariantStartTimeBeforeEndTime())) {
             throw new TutorException(INVARIANT_BREAK, getAggregateId());
-        }
+        }*/
         return true;
     }
 
@@ -202,10 +201,20 @@ public class Tournament extends Aggregate {
                     SetUtils.difference(prev.getParticipants(), v1.getParticipants()),
                     SetUtils.difference(prev.getParticipants(), v2.getParticipants())
             );
+
             mergedTournament.setParticipants(SetUtils.union(SetUtils.difference(prev.getParticipants(), removedParticipants), addedParticipants));
+
+            if(v2ChangedFields.contains("startTime") || v2ChangedFields.contains("endTime") || v2ChangedFields.contains("topics") || v2ChangedFields.contains("numberOfQuestions")) {
+                mergedTournament.setStartTime(v2.getStartTime());
+                mergedTournament.setEndTime(v2.getEndTime());
+                mergedTournament.setTopics(new HashSet<>(v2.getTopics()));
+                mergedTournament.setNumberOfQuestions(v2.getNumberOfQuestions());
+                mergedTournament.setQuiz(v2.getQuiz());
+            }
 
         }
         // TODO see explanation for prev assignment in Quiz
+        mergedTournament.setPrev(getPrev());
         return mergedTournament;
     }
 
@@ -227,7 +236,7 @@ public class Tournament extends Aggregate {
             v1ChangedFields.add("topics");
         }
 
-        if(!prev.getTopics().equals(v.getNumberOfQuestions())) {
+        if(!prev.getNumberOfQuestions().equals(v.getNumberOfQuestions())) {
             v1ChangedFields.add("numberOfQuestions");
         }
 
@@ -367,13 +376,14 @@ public class Tournament extends Aggregate {
         this.quiz = tournamentQuiz;
     }
 
+    /*TODO should this throw exception??*/
     public TournamentParticipant findParticipant(Integer userAggregateId) {
         return this.participants.stream().filter(p -> p.getAggregateId() == userAggregateId).findFirst()
                 .orElseThrow(() -> new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, getAggregateId()));
     }
 
-    public void removeParticipant(TournamentParticipant participant) {
-        this.participants.remove(participant);
+    public boolean removeParticipant(TournamentParticipant participant) {
+        return this.participants.remove(participant);
     }
 
     @Override

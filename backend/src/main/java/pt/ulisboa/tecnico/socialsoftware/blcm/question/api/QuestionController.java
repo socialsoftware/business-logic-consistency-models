@@ -22,7 +22,7 @@ public class QuestionController {
         return questionFunctionalities.findQuestionsByCourseAggregateId(courseAggregateId);
     }
 
-    @PostMapping("/courses/{courseAggregateId}")
+    @PostMapping("/courses/{courseAggregateId}/questions/create")
     public QuestionDto createQuestion(@PathVariable Integer courseAggregateId, @RequestBody QuestionDto questionDto) {
         return questionFunctionalities.createQuestion(courseAggregateId, questionDto);
     }

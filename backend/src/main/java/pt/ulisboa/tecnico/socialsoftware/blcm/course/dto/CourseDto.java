@@ -21,7 +21,7 @@ public class CourseDto implements Serializable {
         setAggregateId(course.getAggregateId());
         setType(course.getType().toString());
         setName(course.getName());
-
+        setVersion(course.getVersion());
     }
 
     public Integer getAggregateId() {
@@ -55,4 +55,5 @@ public class CourseDto implements Serializable {
     public void setVersion(Integer version) {
         this.version = version;
     }
+
 }

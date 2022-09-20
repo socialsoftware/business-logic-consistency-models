@@ -23,6 +23,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
@@ -64,14 +65,13 @@ public class TournamentFunctionalities {
         TournamentCreator creator = new TournamentCreator(userDto.getAggregateId(), userDto.getName(), userDto.getUsername(), userDto.getVersion());
 
         CourseExecutionDto courseExecutionDto = courseExecutionService.getCausalCourseExecutionRemote(executionId, unitOfWork);
-        TournamentCourseExecution tournamentCourseExecution = new TournamentCourseExecution(courseExecutionDto.getAggregateId(),
-                courseExecutionDto.getCourseAggregateId(), courseExecutionDto.getAcronym(), courseExecutionDto.getStatus());
+        TournamentCourseExecution tournamentCourseExecution = new TournamentCourseExecution(courseExecutionDto);
 
 
         Set<TournamentTopic> tournamentTopics = new HashSet<>();
         topicsId.forEach(topicId -> {
             TopicDto topicDto = topicService.getCausalTopicRemote(topicId, unitOfWork);
-            tournamentTopics.add(new TournamentTopic(topicDto.getAggregateId(), topicDto.getName(), topicDto.getCourseId()));
+            tournamentTopics.add(new TournamentTopic(topicDto));
 
         });
 
@@ -98,11 +98,11 @@ public class TournamentFunctionalities {
         return tournamentService.getCausalTournamentRemote(aggregateId, unitOfWork);
     }
 
-    public void joinTournament(Integer tournamentAggregateId, Integer userAggregateId) {
+    public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
-        TournamentParticipant participant = new TournamentParticipant(userDto.getAggregateId(), userDto.getName(), userDto.getUsername(), userDto.getVersion());
-        tournamentService.joinTournament(tournamentAggregateId, participant, unitOfWork);
+        TournamentParticipant participant = new TournamentParticipant(userDto);
+        tournamentService.addParticipant(tournamentAggregateId, participant, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
@@ -114,17 +114,27 @@ public class TournamentFunctionalities {
         Set<TournamentTopic> tournamentTopics = new HashSet<>();
         topicsAggregateIds.forEach(topicAggregateId -> {
             TopicDto topicDto = topicService.getCausalTopicRemote(topicAggregateId, unitOfWork);
-            tournamentTopics.add(new TournamentTopic(topicDto.getAggregateId(), topicDto.getName(), topicDto.getCourseId()));
+            tournamentTopics.add(new TournamentTopic(topicDto
+            ));
         });
 
         TournamentDto newTournamentDto = tournamentService.updateTournament(tournamentDto, tournamentTopics, unitOfWork);
 
         QuizDto quizDto = new QuizDto();
+        quizDto.setAggregateId(newTournamentDto.getQuiz().getAggregateId());
         quizDto.setAvailableDate(newTournamentDto.getStartTime());
         quizDto.setConclusionDate(newTournamentDto.getEndTime());
         quizDto.setResultsDate(newTournamentDto.getEndTime());
 
-        quizService.updateQuiz(quizDto, topicsAggregateIds, unitOfWork);
+        /*this if is required for the case of updating a quiz and not altering neither the number of questions neither the topics */
+        if(topicsAggregateIds != null || tournamentDto.getNumberOfQuestions() != null) {
+            if(topicsAggregateIds == null) {
+                quizService.updateGeneratedQuiz(quizDto, newTournamentDto.getTopics().stream().map(TopicDto::getAggregateId).collect(Collectors.toSet()), newTournamentDto.getNumberOfQuestions(), unitOfWork);
+            } else {
+                quizService.updateGeneratedQuiz(quizDto, topicsAggregateIds, newTournamentDto.getNumberOfQuestions(), unitOfWork);
+            }
+        }
+        //quizService.updateGeneratedQuiz(quizDto, topicsAggregateIds, newTournamentDto.getNumberOfQuestions(), unitOfWork);
 
 
         unitOfWorkService.commit(unitOfWork);
@@ -177,6 +187,11 @@ public class TournamentFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
+    public TournamentDto findTournament(Integer tournamentAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        return tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
+    }
+
 
     private void checkInput(Integer userId, List<Integer> topicsId, TournamentDto tournamentDto) {
         if (userId == null) {
@@ -210,4 +225,6 @@ public class TournamentFunctionalities {
             throw new TutorException(TOURNAMENT_MISSING_NUMBER_OF_QUESTIONS);
         }
     }
+
+
 }

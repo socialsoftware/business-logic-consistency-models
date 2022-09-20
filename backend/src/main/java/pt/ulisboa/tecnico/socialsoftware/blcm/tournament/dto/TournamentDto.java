@@ -1,10 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TournamentDto implements Serializable {
     private Integer aggregateId;
@@ -19,15 +25,15 @@ public class TournamentDto implements Serializable {
 
     private boolean isCancelled;
 
-    private TournamentCreator creator;
+    private UserDto creator;
 
-    private Set<TournamentParticipant> participants;
+    private Set<UserDto> participants;
 
-    private TournamentCourseExecution courseExecution;
+    private CourseExecutionDto courseExecution;
 
-    private Set<TournamentTopic> topics;
+    private Set<TopicDto> topics;
 
-    private TournamentQuiz quiz;
+    private QuizDto quiz;
 
     public TournamentDto() {
 
@@ -40,11 +46,11 @@ public class TournamentDto implements Serializable {
         setEndTime(DateHandler.toISOString(tournament.getEndTime()));
         setNumberOfQuestions(tournament.getNumberOfQuestions());
         setCancelled(tournament.isCancelled());
-        setCreator(tournament.getCreator());
-        setParticipants(tournament.getParticipants());
-        setCourseExecution(tournament.getCourseExecution());
-        setTopics(tournament.getTopics());
-        setQuiz(tournament.getQuiz());
+        setCreator(tournament.getCreator().buildDto());
+        setParticipants(tournament.getParticipants().stream().map(TournamentParticipant::buildDto).collect(Collectors.toSet()));
+        setCourseExecution(tournament.getCourseExecution().buildDto());
+        setTopics(tournament.getTopics().stream().map(TournamentTopic::buildDto).collect(Collectors.toSet()));
+        setQuiz(tournament.getQuiz().buidlDto());
     }
 
     public Integer getAggregateId() {
@@ -95,43 +101,43 @@ public class TournamentDto implements Serializable {
         isCancelled = cancelled;
     }
 
-    public TournamentCreator getCreator() {
+    public UserDto getCreator() {
         return creator;
     }
 
-    public void setCreator(TournamentCreator creator) {
+    public void setCreator(UserDto creator) {
         this.creator = creator;
     }
 
-    public Set<TournamentParticipant> getParticipants() {
+    public Set<UserDto> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(Set<TournamentParticipant> participants) {
+    public void setParticipants(Set<UserDto> participants) {
         this.participants = participants;
     }
 
-    public TournamentCourseExecution getCourseExecution() {
+    public CourseExecutionDto getCourseExecution() {
         return courseExecution;
     }
 
-    public void setCourseExecution(TournamentCourseExecution courseExecution) {
+    public void setCourseExecution(CourseExecutionDto courseExecution) {
         this.courseExecution = courseExecution;
     }
 
-    public Set<TournamentTopic> getTopics() {
+    public Set<TopicDto> getTopics() {
         return topics;
     }
 
-    public void setTopics(Set<TournamentTopic> topics) {
+    public void setTopics(Set<TopicDto> topics) {
         this.topics = topics;
     }
 
-    public TournamentQuiz getQuiz() {
+    public QuizDto getQuiz() {
         return quiz;
     }
 
-    public void setQuiz(TournamentQuiz quiz) {
+    public void setQuiz(QuizDto quiz) {
         this.quiz = quiz;
     }
 }

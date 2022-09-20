@@ -61,7 +61,7 @@ public class TopicService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public TopicDto createTopic(TopicDto topicDto, TopicCourse course, UnitOfWork unitOfWorkWorkService) {
         Topic topic = new Topic(aggregateIdGeneratorService.getNewAggregateId(),
-                unitOfWorkWorkService.getVersion(), topicDto.getName(), course);
+                topicDto.getName(), course);
         unitOfWorkWorkService.addUpdatedObject(topic);
         return new TopicDto(topic);
     }

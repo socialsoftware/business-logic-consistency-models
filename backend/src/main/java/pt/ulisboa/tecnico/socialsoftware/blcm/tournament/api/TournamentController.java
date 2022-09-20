@@ -8,7 +8,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionaliti
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 
@@ -21,17 +20,35 @@ public class TournamentController {
     @Autowired
     private TournamentFunctionalities tournamentFunctionalities;
 
-    @PostMapping(value = "/tournaments/{executionId}")
+    @PostMapping(value = "/executions/{executionId}/tournaments/create")
     public TournamentDto createTournament(@RequestParam Integer userId, @PathVariable int executionId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
         formatDates(tournamentDto);
         return tournamentFunctionalities.createTournament(userId, executionId, topicsId, tournamentDto);
+    }
+
+    @PostMapping(value = "/tournaments/update")
+    public void updateTournament(@RequestParam Set<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
+        formatDates(tournamentDto);
+        tournamentFunctionalities.updateTournament(tournamentDto, topicsId);
+    }
+
+    @PostMapping(value="/tournaments/{tournamentAggregateId}/join")
+    public void joinTournament(@PathVariable Integer tournamentAggregateId, @RequestParam Integer userAggregateId) {
+        tournamentFunctionalities.addParticipant(tournamentAggregateId, userAggregateId);
+    }
+
+    @GetMapping(value="/tournaments/{tournamentAggregateId}")
+    public TournamentDto findTournament(@PathVariable Integer tournamentAggregateId) {
+        return tournamentFunctionalities.findTournament(tournamentAggregateId);
     }
 
     private void formatDates(TournamentDto tournamentDto) {
         if (tournamentDto.getStartTime() != null && !DateHandler.isValidDateFormat(tournamentDto.getStartTime()))
             tournamentDto.setStartTime(DateHandler.toISOString(DateHandler.toLocalDateTime(tournamentDto.getStartTime())));
 
-        if (tournamentDto.getEndTime() !=null && !DateHandler.isValidDateFormat(tournamentDto.getEndTime()))
+        if (tournamentDto.getEndTime() != null && !DateHandler.isValidDateFormat(tournamentDto.getEndTime()))
             tournamentDto.setEndTime(DateHandler.toISOString(DateHandler.toLocalDateTime(tournamentDto.getEndTime())));
     }
+
+
 }

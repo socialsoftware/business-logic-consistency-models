@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -59,5 +61,15 @@ public class TournamentCreator {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public UserDto buildDto() {
+        UserDto userDto = new UserDto();
+        userDto.setAggregateId(getAggregateId());
+        userDto.setVersion(getVersion());
+        userDto.setName(getName());
+        userDto.setUsername(getUsername());
+
+        return userDto;
     }
 }

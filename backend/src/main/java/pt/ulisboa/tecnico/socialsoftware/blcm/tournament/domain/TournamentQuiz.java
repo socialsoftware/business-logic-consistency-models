@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -34,5 +36,13 @@ public class TournamentQuiz {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public QuizDto buidlDto() {
+        QuizDto quizDto = new QuizDto();
+        quizDto.setAggregateId(getAggregateId());
+        quizDto.setVersion(quizDto.getVersion());
+
+        return  quizDto;
     }
 }
