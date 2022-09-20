@@ -109,7 +109,7 @@ public class TournamentFunctionalities {
     public void updateTournament(TournamentDto tournamentDto, Set<Integer> topicsAggregateIds) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
 
-        checkInput(topicsAggregateIds, tournamentDto);
+        //checkInput(topicsAggregateIds, tournamentDto);
 
         Set<TournamentTopic> tournamentTopics = new HashSet<>();
         topicsAggregateIds.forEach(topicAggregateId -> {

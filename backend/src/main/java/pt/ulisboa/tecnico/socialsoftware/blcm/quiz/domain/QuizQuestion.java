@@ -94,11 +94,16 @@ public class QuizQuestion {
         if(!(obj instanceof QuizQuestion)) {
             return false;
         }
-        QuizQuestion other = (QuizQuestion) obj;
-        if(getAggregateId() != null && getAggregateId().equals(other.getAggregateId()) && getVersion() != null && getVersion().equals(other.getVersion())) {
-            return true;
-        } else {
-            return false;
-        }
+        QuizQuestion quizQuestion = (QuizQuestion) obj;
+        return getAggregateId() != null && getAggregateId().equals(quizQuestion.getAggregateId()) &&
+                getVersion() != null && getVersion().equals(quizQuestion.getVersion());
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + getAggregateId();
+        hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
+        return hash;
     }
 }

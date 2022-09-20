@@ -32,9 +32,9 @@ public class QuizDto implements Serializable {
     public QuizDto(Quiz quiz) {
         setAggregateId(quiz.getAggregateId());
         setTitle(quiz.getTitle());
-        setAvailableDate(DateHandler.toISOString(quiz.getAvailableDate()));
-        setConclusionDate(DateHandler.toISOString(quiz.getConclusionDate()));
-        setResultsDate(DateHandler.toISOString(quiz.getResultsDate()));
+        setAvailableDate(quiz.getAvailableDate().toString());
+        setConclusionDate(quiz.getConclusionDate().toString());
+        setResultsDate(quiz.getResultsDate().toString());
         setVersion(quiz.getVersion());
         setQuestionsAggregateIds(quiz.getQuizQuestions().stream()
                 .map(QuizQuestion::getAggregateId)

@@ -87,7 +87,7 @@ public class TournamentTopic {
     public int hashCode() {
         int hash = 7;
         hash = 31 * hash + getAggregateId();
-        hash = 31 * hash + (version == null ? 0 : version.hashCode());
+        hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
         return hash;
     }
 }

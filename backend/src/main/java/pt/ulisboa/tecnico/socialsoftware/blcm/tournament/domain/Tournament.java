@@ -62,8 +62,8 @@ public class Tournament extends Aggregate {
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz, Integer version) {
         super(aggregateId, TOURNAMENT);
-        //setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
-        //setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
+        setStartTime(LocalDateTime.parse(tournamentDto.getStartTime()));
+        setEndTime(LocalDateTime.parse(tournamentDto.getEndTime()));
         setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
         setCancelled(tournamentDto.isCancelled());
         setCreator(creator);
@@ -76,8 +76,8 @@ public class Tournament extends Aggregate {
     public Tournament(Tournament other) {
         super(other.getAggregateId(), TOURNAMENT);
         setId(null); /* to force a new database entry when saving to be able to distinguish between versions of the same aggregate*/
-        //setStartTime(other.getStartTime());
-        //setEndTime(other.getEndTime());
+        setStartTime(other.getStartTime());
+        setEndTime(other.getEndTime());
         setNumberOfQuestions(other.getNumberOfQuestions());
         setCancelled(other.isCancelled());
         setCourseExecution(other.getCourseExecution());
@@ -111,7 +111,7 @@ public class Tournament extends Aggregate {
     public boolean invariantAnswerBeforeStart() {
         if(LocalDateTime.now().isBefore(this.startTime)) {
             for(TournamentParticipant t : this.participants) {
-                if(t.getAnswer() != null) {
+                if(t.getAnswer().getAggregateId() != null) {
                     return false;
                 }
             }
@@ -123,12 +123,12 @@ public class Tournament extends Aggregate {
 
     @Override
     public boolean verifyInvariants() {
-        /*if(!(invariantAnswerBeforeStart()
+        if(!(invariantAnswerBeforeStart()
                 && invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
                 && invariantStartTimeBeforeEndTime())) {
             throw new TutorException(INVARIANT_BREAK, getAggregateId());
-        }*/
+        }
         return true;
     }
 
@@ -220,11 +220,11 @@ public class Tournament extends Aggregate {
 
     private static Set<String> getChangedFields(Tournament prev, Tournament v) {
         Set<String> v1ChangedFields = new HashSet<>();
-        if(prev.getStartTime() != v.getStartTime()) {
+        if(!prev.getStartTime().equals(v.getStartTime())) {
             v1ChangedFields.add("startTime");
         }
 
-        if(prev.getStartTime() != v.getEndTime()) {
+        if(prev.getStartTime().equals(v.getEndTime())) {
             v1ChangedFields.add("endTime");
         }
 

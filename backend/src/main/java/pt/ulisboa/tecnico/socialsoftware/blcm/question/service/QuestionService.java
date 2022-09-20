@@ -130,7 +130,7 @@ public class QuestionService {
         Set<Integer> questionAggregateIds = questionRepository.findAll().stream()
                 .filter(q -> {
                     for(QuestionTopic qt : q.getTopics()) {
-                        if (topicIds.contains(qt.getTopicAggregateId())) {
+                        if (topicIds.contains(qt.getAggregateId())) {
                             return true;
                         }
                     }

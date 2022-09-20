@@ -28,7 +28,7 @@ public class TournamentParticipant {
     private Integer version;
 
     public TournamentParticipant() {
-
+        setEnrollTime(LocalDateTime.now());
     }
     public TournamentParticipant(UserDto userDto) {
         setAggregateId(userDto.getAggregateId());
@@ -36,6 +36,7 @@ public class TournamentParticipant {
         setUsername(userDto.getUsername());
         setVersion(userDto.getVersion());
         setAnswer(new TournamentParticipantAnswer());
+        setEnrollTime(LocalDateTime.now());
     }
 
 

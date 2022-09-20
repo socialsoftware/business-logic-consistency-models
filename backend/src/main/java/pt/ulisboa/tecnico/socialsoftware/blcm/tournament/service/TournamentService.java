@@ -153,15 +153,29 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public TournamentDto updateTournament(TournamentDto tournamentDto, Set<TournamentTopic> tournamentTopics, UnitOfWork unitOfWorkWorkService) {
-        /* check how the update is actually done */
         Tournament oldTournament = getCausalTournamentLocal(tournamentDto.getAggregateId(), unitOfWorkWorkService);
-
         Tournament newTournament = new Tournament(oldTournament);
-        //newTournament.setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
-        //newTournament.setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
-        newTournament.setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
-        newTournament.setTopics(tournamentTopics);
-        unitOfWorkWorkService.addUpdatedObject(newTournament);
+
+        if(tournamentDto.getStartTime() != null ) {
+            newTournament.setStartTime(LocalDateTime.parse(tournamentDto.getStartTime()));
+            unitOfWorkWorkService.addUpdatedObject(newTournament);
+        }
+
+        if(tournamentDto.getEndTime() != null ) {
+            newTournament.setEndTime(LocalDateTime.parse(tournamentDto.getEndTime()));
+            unitOfWorkWorkService.addUpdatedObject(newTournament);
+        }
+
+        if(tournamentDto.getNumberOfQuestions() != null ) {
+            newTournament.setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
+            unitOfWorkWorkService.addUpdatedObject(newTournament);
+        }
+
+        if(tournamentDto.getTopics() != null ) {
+            newTournament.setTopics(tournamentTopics);
+            unitOfWorkWorkService.addUpdatedObject(newTournament);
+        }
+
         return new TournamentDto(newTournament);
     }
 

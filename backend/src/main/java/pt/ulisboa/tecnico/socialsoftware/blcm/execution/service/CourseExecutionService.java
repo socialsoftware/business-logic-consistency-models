@@ -19,6 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,9 +68,7 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto, ExecutionCourse executionCourse, UnitOfWork unitOfWork) {
-        CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(),
-                courseExecutionDto.getAcronym(),
-                courseExecutionDto.getAcademicTerm(), DateHandler.toLocalDateTime(courseExecutionDto.getEndDate()), executionCourse);
+        CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(), courseExecutionDto, executionCourse);
 
         unitOfWork.addUpdatedObject(courseExecution);
         return new CourseExecutionDto(courseExecution);

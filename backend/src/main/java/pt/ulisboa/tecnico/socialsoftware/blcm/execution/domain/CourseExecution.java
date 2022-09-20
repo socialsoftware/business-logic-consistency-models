@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -35,11 +36,11 @@ public class CourseExecution extends Aggregate {
     }
 
 
-    public CourseExecution(Integer aggregateId, String acronym, String academicTerm, LocalDateTime endDate, ExecutionCourse executionCourse) {
+    public CourseExecution(Integer aggregateId, CourseExecutionDto courseExecutionDto, ExecutionCourse executionCourse) {
         super(aggregateId, COURSE_EXECUTION);
-        setAcronym(acronym);
-        setAcademicTerm(academicTerm);
-        setEndDate(endDate);
+        setAcronym(courseExecutionDto.getAcronym());
+        setAcademicTerm(courseExecutionDto.getAcademicTerm());
+        setEndDate(LocalDateTime.parse(courseExecutionDto.getEndDate()));
         setCourse(executionCourse);
 
     }

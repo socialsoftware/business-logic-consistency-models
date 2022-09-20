@@ -12,6 +12,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,10 +32,10 @@ public class QuizFunctionalities {
     public QuizDto createQuiz(Integer courseExecutionId, QuizDto quizDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.getCausalCourseExecutionRemote(courseExecutionId, unitOfWork));
-        List<QuizQuestion> quizQuestions = quizDto.getQuestionsAggregateIds().stream()
+        Set<QuizQuestion> quizQuestions = quizDto.getQuestionsAggregateIds().stream()
                 .map(id -> questionService.getCausalQuestionRemote(id, unitOfWork))
                 .map(QuizQuestion::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         QuizDto quizDto1 = quizService.createQuiz(quizCourseExecution, quizQuestions, quizDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);

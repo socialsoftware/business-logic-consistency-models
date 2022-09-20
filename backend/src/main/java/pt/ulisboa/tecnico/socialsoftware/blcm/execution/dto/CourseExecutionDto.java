@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 public class CourseExecutionDto implements Serializable {
     private Integer aggregateId;
@@ -39,7 +40,9 @@ public class CourseExecutionDto implements Serializable {
         setAcademicTerm(courseExecution.getAcademicTerm());
         setStatus(courseExecution.getState().toString());
         setVersion(courseExecution.getVersion());
-        //setEndDate(courseExecution.getEndDate().toString());
+        setEndDate(courseExecution.getEndDate().toString());
+
+        LocalDateTime a = LocalDateTime.now();
     }
 
     public Integer getAggregateId() {

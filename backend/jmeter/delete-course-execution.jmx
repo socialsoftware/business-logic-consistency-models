@@ -147,7 +147,7 @@
     &quot;type&quot;: &quot;TECNICO&quot;,&#xd;
     &quot;acronym&quot;: &quot;TESTBLCM${course_execution_counter}&quot;,&#xd;
     &quot;academicTerm&quot;: &quot;2022/2023&quot;,&#xd;
-    &quot;endDate&quot;: &quot;2023-08-24T20:30:08:00+01:00&quot;&#xd;
+    &quot;endDate&quot;: &quot;2023-08-24T20:30:08.00&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -342,7 +342,7 @@
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
             </JSONPostProcessor>
             <hashTree/>
-            <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="BeanShell Assertion" enabled="true">
+            <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="Export User Aggregate Id" enabled="true">
               <stringProp name="BeanShellAssertion.query"> ${__setProperty(user_aggregate_id,${user_aggregate_id})}</stringProp>
               <stringProp name="BeanShellAssertion.filename"></stringProp>
               <stringProp name="BeanShellAssertion.parameters"></stringProp>

@@ -35,7 +35,7 @@ public class Quiz extends Aggregate {
     private String title = "Title";
 
     @ElementCollection
-    private List<QuizQuestion> quizQuestions = new ArrayList<>();
+    private Set<QuizQuestion> quizQuestions = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private QuizType quizType;
@@ -48,15 +48,15 @@ public class Quiz extends Aggregate {
     }
 
 
-    public Quiz(Integer aggregateId, QuizCourseExecution courseExecution, List<QuizQuestion> quizQuestions, QuizDto quizDto, QuizType quizType) {
+    public Quiz(Integer aggregateId, QuizCourseExecution courseExecution, Set<QuizQuestion> quizQuestions, QuizDto quizDto, QuizType quizType) {
         super(aggregateId, QUIZ);
         setCourseExecution(courseExecution);
         setQuizQuestions(quizQuestions);
         setTitle(quizDto.getTitle());
         setCreationDate(LocalDateTime.now());
-        setAvailableDate(DateHandler.toLocalDateTime(quizDto.getAvailableDate()));
-        setConclusionDate(DateHandler.toLocalDateTime(quizDto.getConclusionDate()));
-        setResultsDate(DateHandler.toLocalDateTime(quizDto.getResultsDate()));
+        setAvailableDate(LocalDateTime.parse(quizDto.getAvailableDate()));
+        setConclusionDate(LocalDateTime.parse(quizDto.getConclusionDate()));
+        setResultsDate(LocalDateTime.parse(quizDto.getResultsDate()));
         setQuizType(quizType);
         setPrev(null);
     }
@@ -73,7 +73,7 @@ public class Quiz extends Aggregate {
         setResultsDate(other.getResultsDate());
         setQuizType(other.getQuizType());
         setPrev(other);
-        setQuizQuestions(new ArrayList<>(other.getQuizQuestions()));
+        setQuizQuestions(new HashSet<>(other.getQuizQuestions()));
     }
 
     @Override
@@ -246,12 +246,12 @@ public class Quiz extends Aggregate {
         this.title = title;
     }
 
-    public List<QuizQuestion> getQuizQuestions() {
+    public Set<QuizQuestion> getQuizQuestions() {
         return quizQuestions;
     }
 
 
-    public void setQuizQuestions(List<QuizQuestion> quizQuestions) {
+    public void setQuizQuestions(Set<QuizQuestion> quizQuestions) {
         this.quizQuestions = quizQuestions;
     }
 
@@ -274,8 +274,8 @@ public class Quiz extends Aggregate {
     public void update(QuizDto quizDto) {
         setTitle(quizDto.getTitle());
         setCreationDate(LocalDateTime.now());
-        setAvailableDate(DateHandler.toLocalDateTime(quizDto.getAvailableDate()));
-        setConclusionDate(DateHandler.toLocalDateTime(quizDto.getConclusionDate()));
-        setResultsDate(DateHandler.toLocalDateTime(quizDto.getResultsDate()));
+        setAvailableDate(LocalDateTime.parse(quizDto.getAvailableDate()));
+        setConclusionDate(LocalDateTime.parse(quizDto.getConclusionDate()));
+        setResultsDate(LocalDateTime.parse(quizDto.getResultsDate()));
     }
 }

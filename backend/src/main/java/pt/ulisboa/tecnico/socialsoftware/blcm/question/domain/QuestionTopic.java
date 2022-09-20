@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -8,7 +9,7 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class QuestionTopic {
     @Column(name = "topic_aggregate_id")
-    private Integer topicAggregateId;
+    private Integer aggregateId;
 
     @Column(name = "topic_name")
     private String name;
@@ -16,7 +17,7 @@ public class QuestionTopic {
     private Integer version;
 
     public QuestionTopic (TopicDto topicDto) {
-        setTopicAggregateId(topicDto.getAggregateId());
+        setAggregateId(topicDto.getAggregateId());
         setName(topicDto.getName());
         setVersion(topicDto.getVersion());
     }
@@ -25,12 +26,12 @@ public class QuestionTopic {
 
     }
 
-    public Integer getTopicAggregateId() {
-        return topicAggregateId;
+    public Integer getAggregateId() {
+        return aggregateId;
     }
 
-    public void setTopicAggregateId(Integer aggregateId) {
-        this.topicAggregateId = aggregateId;
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
     }
 
     public String getName() {
@@ -51,8 +52,27 @@ public class QuestionTopic {
 
     public TopicDto buildDto() {
         TopicDto dto = new TopicDto();
-        dto.setAggregateId(this.topicAggregateId);
+        dto.setAggregateId(this.aggregateId);
         dto.setName(this.name);
         return dto;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + getAggregateId();
+        hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof QuestionTopic)) {
+            return false;
+        }
+        QuestionTopic tournamentTopic = (QuestionTopic) obj;
+
+        return getAggregateId() != null && getAggregateId().equals(tournamentTopic.getAggregateId()) &&
+                getVersion() != null && getVersion().equals(tournamentTopic.getVersion());
     }
 }

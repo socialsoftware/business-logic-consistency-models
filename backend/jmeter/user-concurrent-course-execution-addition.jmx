@@ -141,7 +141,7 @@
     &quot;type&quot;: &quot;TECNICO&quot;,&#xd;
     &quot;acronym&quot;: &quot;TESTBLCM${course_execution_counter}&quot;,&#xd;
     &quot;academicTerm&quot;: &quot;2022/2023&quot;,&#xd;
-    &quot;endDate&quot;: &quot;2023-08-24T20:30:08:00+01:00&quot;&#xd;
+    &quot;endDate&quot;: &quot;2023-08-24T20:30:08.00&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -291,25 +291,6 @@ vars.put(&quot;questions&quot;, result.toString());</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="User Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>

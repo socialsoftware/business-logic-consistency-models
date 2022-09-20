@@ -78,7 +78,7 @@ public class Question extends Aggregate {
 
         depMap.put(this.course.getAggregateId(), new EventualConsistencyDependency(this.course.getAggregateId(), COURSE, this.course.getVersion()));
         this.topics.forEach(t -> {
-            depMap.put(t.getTopicAggregateId(), new EventualConsistencyDependency(t.getTopicAggregateId(), COURSE, t.getVersion()));
+            depMap.put(t.getAggregateId(), new EventualConsistencyDependency(t.getAggregateId(), COURSE, t.getVersion()));
         });
         return  depMap;
     }

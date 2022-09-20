@@ -16,14 +16,8 @@ public class CourseExecutionController {
 
     @PostMapping(value = "/executions/create")
     public CourseExecutionDto createTournament(@RequestBody CourseExecutionDto executionDto) {
-        formatDates(executionDto);
         CourseExecutionDto courseExecutionDto = courseExecutionFunctionalities.createCourseExecution(executionDto);
         return courseExecutionDto;
-    }
-
-    private void formatDates(CourseExecutionDto courseExecutionDto) {
-        if (courseExecutionDto.getEndDate() != null && !DateHandler.isValidDateFormat(courseExecutionDto.getEndDate()))
-            courseExecutionDto.setEndDate(DateHandler.toISOString(DateHandler.toLocalDateTime(courseExecutionDto.getEndDate())));
     }
 
     @GetMapping(value = "/executions/{executionAggregateId}")

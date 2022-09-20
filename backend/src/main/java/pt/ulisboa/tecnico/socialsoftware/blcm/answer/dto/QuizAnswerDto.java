@@ -23,7 +23,7 @@ public class QuizAnswerDto implements Serializable {
     public QuizAnswerDto(Answer answer) {
         setAggregateId(answer.getAggregateId());
         setVersion(answer.getVersion());
-        setAnswerDate(DateHandler.toISOString(answer.getCreationDate()));
+        setAnswerDate(answer.getCreationDate().toString());
         setCompleted(answer.isCompleted());
         setUserAggregateId(answer.getUser().getAggregateId());
         setQuizAggregateId(answer.getQuiz().getAggregateId());

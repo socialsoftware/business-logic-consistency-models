@@ -37,7 +37,7 @@ public class UserEventDetection {
     private UserProcessedEventsRepository userProcessedEventsRepository;
 
 
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(fixedDelay = 10000)
     public void detectRemoveCourseExecutionEvents() {
         UserProcessedEvents userProcessedEvents = userProcessedEventsRepository.findAll().stream()
                 .filter(upe -> REMOVE_COURSE_EXECUTION.equals(upe.getEventType()))
@@ -62,8 +62,7 @@ public class UserEventDetection {
     }
 
     private void handleRemoveCourseExecution(RemoveCourseExecutionEvent e) {
-        RemoveCourseExecutionEvent removeCourseExecutionEvent = e;
-        List<Integer> executionsAggregateIds = List.of(removeCourseExecutionEvent.getCourseExecutionId());
+        List<Integer> executionsAggregateIds = List.of(e.getCourseExecutionId());
         Set<Integer> usersAggregateIds = userRepository.findAllNonDeleted().stream()
                 .map(User::getAggregateId)
                 .collect(Collectors.toSet());

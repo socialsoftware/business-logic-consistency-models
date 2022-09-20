@@ -93,10 +93,10 @@ public class QuizService {
             questionPositions.add(ThreadLocalRandom.current().nextInt(0, questionDtos.size()));
         }
 
-        List<QuizQuestion> quizQuestions = questionPositions.stream()
+        Set<QuizQuestion> quizQuestions = questionPositions.stream()
                 .map(pos -> questionDtos.get(pos))
                 .map(QuizQuestion::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
 
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, GENERATED);
@@ -127,7 +127,7 @@ public class QuizService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, List<QuizQuestion> quizQuestions, QuizDto quizDto, UnitOfWork unitOfWork) {
+    public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, Set<QuizQuestion> quizQuestions, QuizDto quizDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, IN_CLASS);
         unitOfWork.addUpdatedObject(quiz);
@@ -149,9 +149,9 @@ public class QuizService {
             throw new TutorException(ErrorMessage.NOT_ENOUGH_QUESTIONS);
         }
 
-        List<QuizQuestion> quizQuestions = questionDtos.stream()
+        Set<QuizQuestion> quizQuestions = questionDtos.stream()
                 .map(QuizQuestion::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         if(quizQuestions != null) {
             newQuiz.setQuizQuestions(quizQuestions);

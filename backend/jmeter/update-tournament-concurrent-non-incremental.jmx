@@ -131,7 +131,7 @@
     &quot;type&quot;: &quot;TECNICO&quot;,&#xd;
     &quot;acronym&quot;: &quot;TESTBLCM&quot;,&#xd;
     &quot;academicTerm&quot;: &quot;2022/2023&quot;,&#xd;
-    &quot;endDate&quot;: &quot;2023-08-24T20:30:08:00+01:00&quot;&#xd;
+    &quot;endDate&quot;: &quot;2023-08-24T20:30:08.00&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -263,25 +263,6 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
@@ -488,25 +469,6 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">2</stringProp>
@@ -682,25 +644,6 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="User Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">2</stringProp>
@@ -882,25 +825,6 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
@@ -942,8 +866,8 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
-	&quot;startTime&quot;: &quot;2023-08-24T20:30:08:00+01:00&quot;,&#xd;
-	&quot;endTime&quot;: &quot;2023-08-24T21:00:08:00+01:00&quot;,&#xd;
+	&quot;startTime&quot;: &quot;2023-08-24T20:30:08.00&quot;,&#xd;
+	&quot;endTime&quot;: &quot;2023-08-24T21:00:08.00&quot;,&#xd;
 	&quot;numberOfQuestions&quot;: 2&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -1083,25 +1007,6 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
@@ -1136,7 +1041,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Tournament" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Tournament Topic and Number of questions" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -1144,8 +1049,6 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
 	&quot;aggregateId&quot;: ${__property(tournament_aggregate_id)},&#xd;
-	&quot;startTime&quot;: &quot;2023-08-24T20:30:08:00+01:00&quot;,&#xd;
-	&quot;endTime&quot;: &quot;2023-08-24T21:00:08:00+01:00&quot;,&#xd;
 	&quot;numberOfQuestions&quot;: 1 &#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -1387,25 +1290,6 @@ END;</stringProp>
         <stringProp name="TestPlan.comments">This update is supposed to because it simulates a concurrent execution with the update above which changes non-incremental fields</stringProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
@@ -1440,7 +1324,7 @@ END;</stringProp>
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Tournament (second time)" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Tournament topics and number of questions (second time)" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -1448,8 +1332,6 @@ END;</stringProp>
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
 	&quot;aggregateId&quot;: ${__property(tournament_aggregate_id)},&#xd;
-	&quot;startTime&quot;: &quot;2023-08-24T20:30:08:00+01:00&quot;,&#xd;
-	&quot;endTime&quot;: &quot;2023-08-24T21:00:08:00+01:00&quot;,&#xd;
 	&quot;numberOfQuestions&quot;: 1&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -1573,25 +1455,6 @@ END;</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="blcmdb configuration" enabled="true">
-          <boolProp name="autocommit">true</boolProp>
-          <stringProp name="checkQuery"></stringProp>
-          <stringProp name="connectionAge">5000</stringProp>
-          <stringProp name="connectionProperties"></stringProp>
-          <stringProp name="dataSource">blcm_config</stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/blcmdb</stringProp>
-          <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="initQuery"></stringProp>
-          <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">123456</stringProp>
-          <stringProp name="poolMax">10</stringProp>
-          <boolProp name="preinit">false</boolProp>
-          <stringProp name="timeout">10000</stringProp>
-          <stringProp name="transactionIsolation">DEFAULT</stringProp>
-          <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">pedro</stringProp>
-        </JDBCDataSource>
-        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>

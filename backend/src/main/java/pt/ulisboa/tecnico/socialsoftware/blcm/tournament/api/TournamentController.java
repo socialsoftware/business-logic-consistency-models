@@ -22,13 +22,11 @@ public class TournamentController {
 
     @PostMapping(value = "/executions/{executionId}/tournaments/create")
     public TournamentDto createTournament(@RequestParam Integer userId, @PathVariable int executionId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
-        formatDates(tournamentDto);
         return tournamentFunctionalities.createTournament(userId, executionId, topicsId, tournamentDto);
     }
 
     @PostMapping(value = "/tournaments/update")
     public void updateTournament(@RequestParam Set<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
-        formatDates(tournamentDto);
         tournamentFunctionalities.updateTournament(tournamentDto, topicsId);
     }
 
@@ -41,14 +39,5 @@ public class TournamentController {
     public TournamentDto findTournament(@PathVariable Integer tournamentAggregateId) {
         return tournamentFunctionalities.findTournament(tournamentAggregateId);
     }
-
-    private void formatDates(TournamentDto tournamentDto) {
-        if (tournamentDto.getStartTime() != null && !DateHandler.isValidDateFormat(tournamentDto.getStartTime()))
-            tournamentDto.setStartTime(DateHandler.toISOString(DateHandler.toLocalDateTime(tournamentDto.getStartTime())));
-
-        if (tournamentDto.getEndTime() != null && !DateHandler.isValidDateFormat(tournamentDto.getEndTime()))
-            tournamentDto.setEndTime(DateHandler.toISOString(DateHandler.toLocalDateTime(tournamentDto.getEndTime())));
-    }
-
 
 }

@@ -42,8 +42,8 @@ public class TournamentDto implements Serializable {
     public TournamentDto(Tournament tournament) {
         setAggregateId(tournament.getAggregateId());
         setVersion(tournament.getVersion());
-        setStartTime(DateHandler.toISOString(tournament.getStartTime()));
-        setEndTime(DateHandler.toISOString(tournament.getEndTime()));
+        setStartTime(tournament.getStartTime().toString());
+        setEndTime(tournament.getEndTime().toString());
         setNumberOfQuestions(tournament.getNumberOfQuestions());
         setCancelled(tournament.isCancelled());
         setCreator(tournament.getCreator().buildDto());
