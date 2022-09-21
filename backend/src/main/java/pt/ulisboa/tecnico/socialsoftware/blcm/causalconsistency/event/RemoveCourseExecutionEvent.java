@@ -18,7 +18,7 @@ public class RemoveCourseExecutionEvent extends DomainEvent {
 
 
 
-    public Integer getCourseExecutionId() {
+    public Integer getCourseExecutionAggregateId() {
         return courseExecutionAggregateId;
     }
 

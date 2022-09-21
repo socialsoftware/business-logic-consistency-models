@@ -88,9 +88,32 @@ public class Tournament extends Aggregate {
         setPrev(other);
     }
 
+    /* ----------------------------------------- INTRA-AGGREGATE INVARIANTS ----------------------------------------- */
+    /*
+    CREATOR_IS_FINAL
+        final this.creator.id
+    */
+    /*
+    COURSE_EXECUTION_IS_FINAL
+        final this.courseExecution.id
+    /*
+    QUIZ_IS_FINAL
+        final this.tournamentQuiz.id
+    */
+
+
+    /*
+    START_BEFORE_END_TIME
+		this.startTime < this.endTime
+     */
     public boolean invariantStartTimeBeforeEndTime() {
         return this.startTime.isBefore(this.endTime);
     }
+
+    /*
+    UNIQUE_AS_PARTICIPANT
+		p1, p2: this.participants | p1.id != p2.id
+     */
     public boolean invariantUniqueParticipant() {
         return this.participants.size()
                 ==
@@ -100,6 +123,10 @@ public class Tournament extends Aggregate {
                 .count();
     }
 
+    /*
+    ENROLL_UNTIL_START_TIME
+		p : this.participants | p.enrollTime < this.startTime
+     */
     public boolean invariantParticipantsEnrolledBeforeStarTime() {
         for(TournamentParticipant p : this.participants) {
             if(p.getEnrollTime().isAfter(this.startTime)) {
@@ -108,6 +135,11 @@ public class Tournament extends Aggregate {
         }
         return true;
     }
+
+    /*
+    ANSWER_BEFORE_START
+		now < this.startTime => p: this.participant | p.answer.isEmpty
+     */
     public boolean invariantAnswerBeforeStart() {
         if(LocalDateTime.now().isBefore(this.startTime)) {
             for(TournamentParticipant t : this.participants) {
@@ -119,14 +151,43 @@ public class Tournament extends Aggregate {
         return true;
     }
 
-    /* ---------- INSERT MORE INVARIANTS ---------- */
+    /*
+    FINAL_AFTER_START
+		now > this.startTime => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final canceled
+     */
+
+    /*
+    LEAVE_TOURNAMENT
+		p: this.participants | p.state == DELETED => p.answer.isEmpty
+     */
+
+    /*
+    AFTER_END
+		now > this.endTime => p: this.participant | final p.answer
+     */
+    /*
+    IS_CANCELED
+		this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
+     */
+
+    /*
+    DELETE
+		this.state == DELETED => this.participants.empty
+     */
+    private boolean deleteCondition() {
+        if(getState().equals(DELETED)) {
+            return getParticipants().size() == 0;
+        }
+        return true;
+    }
 
     @Override
     public boolean verifyInvariants() {
         if(!(invariantAnswerBeforeStart()
                 && invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
-                && invariantStartTimeBeforeEndTime())) {
+                && invariantStartTimeBeforeEndTime()
+                && deleteCondition())) {
             throw new TutorException(INVARIANT_BREAK, getAggregateId());
         }
         return true;

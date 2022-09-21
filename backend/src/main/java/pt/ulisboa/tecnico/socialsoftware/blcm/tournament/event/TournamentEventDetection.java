@@ -1,17 +1,22 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service.TournamentService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 
-import javax.transaction.Transactional;
+import java.sql.SQLException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,6 +44,10 @@ public class TournamentEventDetection {
     private TournamentProcessedEventsRepository tournamentProcessedEventsRepository;
 
     /* fixed delay guarantees this task only runs 10 seconds after the previous finished. With fixed dealy concurrent executions are not possible.*/
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Scheduled(fixedDelay = 10000)
     public void detectAnonymizeUserEvents() {
         TournamentProcessedEvents tournamentProcessedEvents = tournamentProcessedEventsRepository.findAll().stream()
@@ -54,8 +63,16 @@ public class TournamentEventDetection {
                 .collect(Collectors.toSet());
 
         for(AnonymizeUserEvent e : events) {
-            handleAnonymizeUser(e);
+            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
+                    .filter(t -> e.getUserAggregateId().equals(t.getCreator().getAggregateId()) || t.getParticipants().stream().map(TournamentParticipant::getAggregateId).collect(Collectors.toSet()).contains(e.getUserAggregateId()))
+                    .map(Tournament::getAggregateId)
+                    .collect(Collectors.toSet());
 
+            for (Integer tournamentsId : tournamentsAggregateIds) {
+                UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+                tournamentService.anonymizeUser(e.getUserAggregateId(), tournamentsId, e.getName(), e.getUsername(), unitOfWork);
+                unitOfWorkService.commit(unitOfWork);
+            }
         }
 
         Set<Integer> processedEventsIds = events.stream()
@@ -65,21 +82,11 @@ public class TournamentEventDetection {
         tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
     }
 
-    private void handleAnonymizeUser(AnonymizeUserEvent e) {
-        Set<Integer> tournamentsIds = tournamentRepository.findAllNonDeleted().stream()
-                .map(Tournament::getAggregateId)
-                .collect(Collectors.toSet());
 
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        for (Integer tournamentsId : tournamentsIds) {
-            tournamentService.anonymizeUser(e.getUserAggregateId(), tournamentsId, e.getName(), e.getUsername(), unitOfWork);
-        }
-
-        unitOfWorkService.commit(unitOfWork);
-    }
-
-
-
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Scheduled(fixedDelay = 10000)
     public void detectRemoveCourseExecutionEvents() {
         TournamentProcessedEvents tournamentProcessedEvents = tournamentProcessedEventsRepository.findAll().stream()
@@ -94,8 +101,21 @@ public class TournamentEventDetection {
                 .map(e -> (RemoveCourseExecutionEvent) e)
                 .collect(Collectors.toSet());
 
+
+
         for(RemoveCourseExecutionEvent e : events) {
-            handleRemoveCourseExecution(e);
+            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
+                    .filter(t -> e.getCourseExecutionAggregateId().equals(t.getCourseExecution().getAggregateId()))
+                    .map(Tournament::getAggregateId)
+                    .collect(Collectors.toSet());
+
+            for (Integer tournamentAggregateId : tournamentsAggregateIds) {
+                UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+                tournamentService.removeCourseExecution(tournamentAggregateId, e.getCourseExecutionAggregateId(), unitOfWork);
+                unitOfWorkService.commit(unitOfWork);
+            }
+
+
         }
 
         Set<Integer> processedEventsIds = events.stream()
@@ -105,18 +125,10 @@ public class TournamentEventDetection {
         tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
     }
 
-    private void handleRemoveCourseExecution(RemoveCourseExecutionEvent e) {
-        Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
-                        .map(Tournament::getAggregateId)
-                        .collect(Collectors.toSet());
-
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        tournamentsAggregateIds.forEach(id -> {
-            tournamentService.removeCourseExecution(id, e.getCourseExecutionId(), unitOfWork);
-        });
-        unitOfWorkService.commit(unitOfWork);
-    }
-
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Scheduled(fixedDelay = 10000)
     public void detectRemoveUserEvents() {
         TournamentProcessedEvents tournamentProcessedEvents = tournamentProcessedEventsRepository.findAll().stream()
@@ -132,7 +144,16 @@ public class TournamentEventDetection {
                 .collect(Collectors.toSet());
 
         for(RemoveUserEvent e : events) {
-            handleRemoveUser(e);
+            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
+                    .filter(t -> e.getUserAggregateId().equals(t.getCreator().getAggregateId()) || t.getParticipants().stream().map(TournamentParticipant::getAggregateId).collect(Collectors.toSet()).contains(e.getUserAggregateId()))
+                    .map(Tournament::getAggregateId)
+                    .collect(Collectors.toSet());
+
+            tournamentsAggregateIds.forEach(aggregateId -> {
+                UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+                tournamentService.removeUser(aggregateId, e.getUserAggregateId(), unitOfWork);
+                unitOfWorkService.commit(unitOfWork);
+            });
         }
 
         Set<Integer> processedEventsIds = events.stream()
@@ -142,21 +163,6 @@ public class TournamentEventDetection {
         tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
     }
 
-    private void handleRemoveUser(RemoveUserEvent e) {
-        Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
-                .map(Tournament::getAggregateId)
-                .collect(Collectors.toSet());
 
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        tournamentsAggregateIds.forEach(aggregateId -> {
-            tournamentService.removeUser(aggregateId, e.getAggregateId(), unitOfWork);
-        });
-        unitOfWorkService.commit(unitOfWork);
-    }
 
 }
-
-// TODO implement handlers for these events
-/*
-    e.getType().equals(REMOVE_USER))
-*/

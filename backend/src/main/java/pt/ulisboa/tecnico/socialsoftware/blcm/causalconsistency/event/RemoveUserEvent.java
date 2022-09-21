@@ -6,23 +6,23 @@ import javax.persistence.Entity;
 @Entity
 @DiscriminatorValue("REMOVE_USER")
 public class RemoveUserEvent extends DomainEvent {
-    private Integer aggregateId;
+    private Integer userAggregateId;
 
     public RemoveUserEvent() {
 
     }
 
-    public RemoveUserEvent(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+    public RemoveUserEvent(Integer userAggregateId) {
+        this.userAggregateId = userAggregateId;
     }
 
 
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getUserAggregateId() {
+        return userAggregateId;
     }
 
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+    public void setUserAggregateId(Integer aggregateId) {
+        this.userAggregateId = aggregateId;
     }
 }

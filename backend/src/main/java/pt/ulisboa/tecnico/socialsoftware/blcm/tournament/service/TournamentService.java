@@ -157,7 +157,8 @@ public class TournamentService {
         Tournament newTournament = new Tournament(oldTournament);
 
         if(tournamentDto.getStartTime() != null ) {
-            newTournament.setStartTime(LocalDateTime.parse(tournamentDto.getStartTime()));
+            newTournament.setStartTime(LocalDateTime.
+                    parse(tournamentDto.getStartTime()));
             unitOfWorkWorkService.addUpdatedObject(newTournament);
         }
 
