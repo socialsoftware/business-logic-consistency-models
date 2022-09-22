@@ -21,6 +21,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "select * from users u where u.aggregate_id = :aggregateId AND u.version >= :version", nativeQuery = true)
     Set<User> findConcurrentVersions(Integer aggregateId, Integer version);
 
-    @Query(value = "select * from users u where aggregate_id NOT IN (select aggregate_id from users where state = 'DELETED')", nativeQuery = true)
-    Set<User> findAllNonDeleted();
+    @Query(value = "select * from users u where aggregate_id NOT IN (select aggregate_id from users where state = 'DELETED' OR state = 'INACTIVE')", nativeQuery = true)
+    Set<User> findAllActive();
+
+    @Query(value = "select u.aggregate_id from users u, user_course_executions uce where u.aggregate_id NOT IN (select aggregate_id from users where state = 'DELETED' OR state = 'INACTIVE') AND (uce.course_execution_aggregate_id = :courseExecutionAggregateId AND u.id = uce.user_id)", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByCourseExecution(Integer courseExecutionAggregateId);
 }

@@ -1,11 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_UPDATE_TOURNAMENT;
+
 @Embeddable
 public class TournamentParticipant {
     @Column(name = "participant_aggregate_id")
@@ -26,6 +29,9 @@ public class TournamentParticipant {
 
     @Column(name = "participant_version")
     private Integer version;
+
+    @Enumerated(EnumType.STRING)
+    private Aggregate.AggregateState state;
 
     public TournamentParticipant() {
         setEnrollTime(LocalDateTime.now());
@@ -81,6 +87,17 @@ public class TournamentParticipant {
     }
 
     public void setAnswer(TournamentParticipantAnswer answer) {
+        /*
+        AFTER_END
+		    now > this.endTime => p: this.participant | final p.answer
+		IS_CANCELED
+		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
+
+        */
+        // TODO cant access tournament fields
+        /*if(LocalDateTime.now().isAfter(getEndTime())) {
+            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+        }*/
         this.answer = answer;
     }
 
@@ -90,6 +107,14 @@ public class TournamentParticipant {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Aggregate.AggregateState getState() {
+        return state;
+    }
+
+    public void setState(Aggregate.AggregateState state) {
+        this.state = state;
     }
 
     public UserDto buildDto() {

@@ -6,7 +6,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.io.Serializable;
 import java.util.Set;

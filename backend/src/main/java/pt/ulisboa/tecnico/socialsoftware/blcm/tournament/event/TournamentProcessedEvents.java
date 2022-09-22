@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tournament_processed_user_events")
+@Table(name = "tournament_processed_events")
 public class TournamentProcessedEvents {
     @Id
     @GeneratedValue

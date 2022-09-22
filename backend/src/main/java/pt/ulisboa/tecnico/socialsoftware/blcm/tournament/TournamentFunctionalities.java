@@ -83,6 +83,17 @@ public class TournamentFunctionalities {
         List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(topicsId, unitOfWork);
 
 
+        /*
+        NUMBER_OF_QUESTIONS
+            this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
+            Quiz(this.tournamentQuiz.id) DEPENDS ON this.numberOfQuestions
+        QUIZ_TOPICS
+            Quiz(this.tournamentQuiz.id) DEPENDS ON this.topics // the topics of the quiz questions are related to the tournament topics
+        START_TIME_AVAILABLE_DATE
+            this.startTime == Quiz(tournamentQuiz.id).availableDate
+        END_TIME_CONCLUSION_DATE
+            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
+         */
         QuizDto quizDto1 = quizService.generateQuiz(executionId, quizDto, questionDtos, tournamentDto.getNumberOfQuestions(), unitOfWork);
 
         TournamentDto tournamentDto2 = tournamentService.createTournament(tournamentDto, creator, tournamentCourseExecution, tournamentTopics, new TournamentQuiz(quizDto1.getAggregateId(), quizDto1.getVersion()), unitOfWork);
@@ -125,6 +136,18 @@ public class TournamentFunctionalities {
         quizDto.setAvailableDate(newTournamentDto.getStartTime());
         quizDto.setConclusionDate(newTournamentDto.getEndTime());
         quizDto.setResultsDate(newTournamentDto.getEndTime());
+
+        /*
+        NUMBER_OF_QUESTIONS
+		    this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
+		    Quiz(this.tournamentQuiz.id) DEPENDS ON this.numberOfQuestions
+        QUIZ_TOPICS
+            Quiz(this.tournamentQuiz.id) DEPENDS ON this.topics // the topics of the quiz questions are related to the tournament topics
+        START_TIME_AVAILABLE_DATE
+            this.startTime == Quiz(tournamentQuiz.id).availableDate
+        END_TIME_CONCLUSION_DATE
+            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
+         */
 
         /*this if is required for the case of updating a quiz and not altering neither the number of questions neither the topics */
         if(topicsAggregateIds != null || tournamentDto.getNumberOfQuestions() != null) {
@@ -182,7 +205,7 @@ public class TournamentFunctionalities {
 
     public void removeTournament(Integer tournamentAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        tournamentService.remove(tournamentAggregateId, unitOfWork);
+        tournamentService.removeTournament(tournamentAggregateId, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
     }

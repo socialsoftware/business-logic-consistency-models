@@ -1,23 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.event;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,10 +36,6 @@ public class UserEventDetection {
     private UserProcessedEventsRepository userProcessedEventsRepository;
 
 
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Scheduled(fixedDelay = 10000)
     public void detectRemoveCourseExecutionEvents() {
         UserProcessedEvents userProcessedEvents = userProcessedEventsRepository.findAll().stream()
@@ -61,10 +50,7 @@ public class UserEventDetection {
                 .collect(Collectors.toSet());
 
         for(RemoveCourseExecutionEvent e : events) {
-            Set<Integer> usersAggregateIds = userRepository.findAllNonDeleted().stream()
-                    .filter(u ->  u.getCourseExecutions().stream().map(UserCourseExecution::getAggregateId).collect(Collectors.toSet()).contains(e.getCourseExecutionAggregateId()))
-                    .map(User::getAggregateId)
-                    .collect(Collectors.toSet());
+            Set<Integer> usersAggregateIds = userRepository.findAllAggregateIdsByCourseExecution(e.getCourseExecutionAggregateId());
 
             for(Integer userAggregateId : usersAggregateIds) {
                 UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();

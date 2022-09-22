@@ -5,7 +5,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Option;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.io.Serializable;
 import java.util.List;

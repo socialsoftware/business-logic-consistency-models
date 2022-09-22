@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.io.Serializable;
 

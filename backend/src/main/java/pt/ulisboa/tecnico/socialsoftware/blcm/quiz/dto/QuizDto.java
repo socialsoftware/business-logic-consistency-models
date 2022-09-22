@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.io.Serializable;
 import java.util.List;

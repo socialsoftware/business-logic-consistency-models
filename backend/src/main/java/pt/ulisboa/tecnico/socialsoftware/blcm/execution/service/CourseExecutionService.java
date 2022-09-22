@@ -15,7 +15,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 
 import java.sql.SQLException;

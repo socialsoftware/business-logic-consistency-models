@@ -43,11 +43,21 @@ public class TournamentEventDetection {
     @Autowired
     private TournamentProcessedEventsRepository tournamentProcessedEventsRepository;
 
-    /* fixed delay guarantees this task only runs 10 seconds after the previous finished. With fixed dealy concurrent executions are not possible.*/
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    /* fixed delay guarantees this task only runs 10 seconds after the previous finished. With fixed delay concurrent executions are not possible.*/
+    /*
+    CREATOR_EXISTS
+		this.creator.state != INACTIVE => EXISTS User(this.creator.id) && this.creator.username == User(this.creator.id).username && this.creator.name == User(this.creator.id).name
+    PARTICIPANT_EXISTS
+		Rule:
+			forall p : this.tournamentParticipants | p.state != INACTIVE => EXISTS User(p.id) && p.username == User(p.id).username && p.name == User(p.id).name
+		Events Subscribed:
+			anonymizeUser(user: User) {
+				p in this.participants | p.id == user.id
+					p.username = user.username
+					p.name = user.name
+					p.state = INACTIVE
+	*/
+
     @Scheduled(fixedDelay = 10000)
     public void detectAnonymizeUserEvents() {
         TournamentProcessedEvents tournamentProcessedEvents = tournamentProcessedEventsRepository.findAll().stream()
@@ -63,10 +73,8 @@ public class TournamentEventDetection {
                 .collect(Collectors.toSet());
 
         for(AnonymizeUserEvent e : events) {
-            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
-                    .filter(t -> e.getUserAggregateId().equals(t.getCreator().getAggregateId()) || t.getParticipants().stream().map(TournamentParticipant::getAggregateId).collect(Collectors.toSet()).contains(e.getUserAggregateId()))
-                    .map(Tournament::getAggregateId)
-                    .collect(Collectors.toSet());
+            System.out.println("Processing anonymize user events in tournament.");
+            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllAggregateIdsByUser(e.getUserAggregateId());
 
             for (Integer tournamentsId : tournamentsAggregateIds) {
                 UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
@@ -82,17 +90,19 @@ public class TournamentEventDetection {
         tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
     }
 
+    /*
+    COURSE_EXECUTION_EXISTS
+		this.tournamentCourseExecution.state != INACTIVE => EXISTS CourseExecution(this.tournamentCourseExecution.id) // change do DELETED???
+		&& this.courseExecution.courseId == CourseExecution(this.courseExecution.id).Course.id && this.courseExecution.status == CourseExecution(this.courseExecution.id).status
+		&& this.courseExecution.acronym == CourseExecution(this.courseExecution.id).acronym
+     */
 
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Scheduled(fixedDelay = 10000)
     public void detectRemoveCourseExecutionEvents() {
         TournamentProcessedEvents tournamentProcessedEvents = tournamentProcessedEventsRepository.findAll().stream()
                 .filter(e -> REMOVE_COURSE_EXECUTION.equals(e.getEventType()))
                 .findFirst()
-                .orElse(new TournamentProcessedEvents(ANONYMIZE_USER));
+                .orElse(new TournamentProcessedEvents(REMOVE_COURSE_EXECUTION));
 
         Set<RemoveCourseExecutionEvent> events = eventRepository.findAll()
                 .stream()
@@ -104,10 +114,7 @@ public class TournamentEventDetection {
 
 
         for(RemoveCourseExecutionEvent e : events) {
-            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
-                    .filter(t -> e.getCourseExecutionAggregateId().equals(t.getCourseExecution().getAggregateId()))
-                    .map(Tournament::getAggregateId)
-                    .collect(Collectors.toSet());
+            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllAggregateIdsByCourseExecution(e.getCourseExecutionAggregateId());
 
             for (Integer tournamentAggregateId : tournamentsAggregateIds) {
                 UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
@@ -125,16 +132,26 @@ public class TournamentEventDetection {
         tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
     }
 
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    /*
+    CREATOR_EXISTS
+		this.creator.state != INACTIVE => EXISTS User(this.creator.id) && this.creator.username == User(this.creator.id).username && this.creator.name == User(this.creator.id).name
+    PARTICIPANT_EXISTS
+		Rule:
+			forall p : this.tournamentParticipants | p.state != INACTIVE => EXISTS User(p.id) && p.username == User(p.id).username && p.name == User(p.id).name
+		Events Subscribed:
+			anonymizeUser(user: User) {
+				p in this.participants | p.id == user.id
+					p.username = user.username
+					p.name = user.name
+					p.state = INACTIVE
+	*/
+
     @Scheduled(fixedDelay = 10000)
     public void detectRemoveUserEvents() {
         TournamentProcessedEvents tournamentProcessedEvents = tournamentProcessedEventsRepository.findAll().stream()
                 .filter(e -> REMOVE_USER.equals(e.getEventType()))
                 .findFirst()
-                .orElse(new TournamentProcessedEvents(ANONYMIZE_USER));
+                .orElse(new TournamentProcessedEvents(REMOVE_USER));
 
         Set<RemoveUserEvent> events = eventRepository.findAll()
                 .stream()
@@ -144,10 +161,7 @@ public class TournamentEventDetection {
                 .collect(Collectors.toSet());
 
         for(RemoveUserEvent e : events) {
-            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllNonDeleted().stream()
-                    .filter(t -> e.getUserAggregateId().equals(t.getCreator().getAggregateId()) || t.getParticipants().stream().map(TournamentParticipant::getAggregateId).collect(Collectors.toSet()).contains(e.getUserAggregateId()))
-                    .map(Tournament::getAggregateId)
-                    .collect(Collectors.toSet());
+            Set<Integer> tournamentsAggregateIds = tournamentRepository.findAllAggregateIdsByUser(e.getUserAggregateId());
 
             tournamentsAggregateIds.forEach(aggregateId -> {
                 UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
@@ -163,6 +177,15 @@ public class TournamentEventDetection {
         tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
     }
 
+
+    /*
+        TOPIC_EXISTS
+            t: this.tournamentTopics | t.state != INACTIVE => EXISTS Topic(t.id) && t.name == Topic(t.id).name
+        QUIZ_EXISTS
+            this.tournamentQuiz.state != INACTIVE => EXISTS Quiz(this.tournamentQuiz.id)
+        QUIZ_ANSWER_EXISTS
+            p: this.participants | (!p.answer.isEmpty && p.answer.state != INACTIVE) => EXISTS QuizAnswer(p.answer.id)
+     */
 
 
 }

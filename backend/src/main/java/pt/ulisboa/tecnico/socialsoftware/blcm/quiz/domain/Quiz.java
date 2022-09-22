@@ -5,7 +5,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
-import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

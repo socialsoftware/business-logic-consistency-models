@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import org.apache.commons.collections4.SetUtils;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -35,7 +37,7 @@ public class User extends Aggregate {
     @Column(columnDefinition = "boolean default false")
     private Boolean active;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<UserCourseExecution> courseExecutions;
 
     public User() {
