@@ -9,8 +9,6 @@ import javax.persistence.GeneratedValue;
 @Embeddable
 public class Option {
 
-    @Column(unique = true)
-    @GeneratedValue
     private Integer key;
     private Integer sequence;
 

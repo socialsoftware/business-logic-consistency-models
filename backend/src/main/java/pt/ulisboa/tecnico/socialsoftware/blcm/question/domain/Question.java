@@ -41,10 +41,16 @@ public class Question extends Aggregate {
     public Question(Integer aggregateId, QuestionCourse course, QuestionDto questionDto) {
         super(aggregateId, QUESTION);
         setTitle(questionDto.getTitle());
-        setContent(questionDto.getTitle());
+        setContent(questionDto.getContent());
         setCreationDate(LocalDateTime.now());
         setCourse(course);
         setOptions(questionDto.getOptionDtos().stream().map(Option::new).collect(Collectors.toList()));
+
+        Integer optionKeyGenerator = 1;
+        for(Option o : getOptions()) {
+            o.setKey(optionKeyGenerator++);
+        }
+
         setTopics(questionDto.getTopicDto().stream().map(QuestionTopic::new).collect(Collectors.toSet()));
         setPrev(null);
     }

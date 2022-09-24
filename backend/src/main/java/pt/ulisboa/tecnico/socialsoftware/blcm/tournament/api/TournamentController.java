@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 
@@ -29,14 +30,19 @@ public class TournamentController {
         tournamentFunctionalities.updateTournament(tournamentDto, topicsId);
     }
 
-    @PostMapping(value="/tournaments/{tournamentAggregateId}/join")
+    @PostMapping(value = "/tournaments/{tournamentAggregateId}/join")
     public void joinTournament(@PathVariable Integer tournamentAggregateId, @RequestParam Integer userAggregateId) {
         tournamentFunctionalities.addParticipant(tournamentAggregateId, userAggregateId);
     }
 
-    @GetMapping(value="/tournaments/{tournamentAggregateId}")
+    @GetMapping(value = "/tournaments/{tournamentAggregateId}")
     public TournamentDto findTournament(@PathVariable Integer tournamentAggregateId) {
         return tournamentFunctionalities.findTournament(tournamentAggregateId);
+    }
+
+    @PostMapping(value = "/tournaments/{tournamentAggregateId}/solveQuiz")
+    public QuizDto solveQuiz(@PathVariable Integer tournamentAggregateId, @RequestParam Integer userAggregateId) {
+        return tournamentFunctionalities.solveQuiz(tournamentAggregateId, userAggregateId);
     }
 
 }

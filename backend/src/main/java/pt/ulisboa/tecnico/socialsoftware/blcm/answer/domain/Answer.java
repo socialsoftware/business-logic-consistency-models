@@ -6,11 +6,13 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Even
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.QUIZ_ANSWER;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.ANSWER;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
 @Entity
@@ -36,18 +38,19 @@ public class Answer extends Aggregate {
     public Answer() { }
 
     public Answer(Integer aggregateId, AnswerUser answerUser, AnswerQuiz answerQuiz) {
-        super(aggregateId, QUIZ_ANSWER);
+        super(aggregateId, ANSWER);
         setUser(answerUser);
         setQuiz(answerQuiz);
     }
 
     public Answer(Answer other) {
-        super(other.getAggregateId(), QUIZ_ANSWER);
+        super(other.getAggregateId(), ANSWER);
         setId(null);
         setUser(other.getUser());
         setQuiz(other.getQuiz());
         setAnswerDate(other.getAnswerDate());
         setCreationDate(other.getCreationDate());
+        setQuestionAnswers(new ArrayList<>());
         setPrev(other);
     }
 
@@ -65,7 +68,7 @@ public class Answer extends Aggregate {
 
     @Override
     public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        return null;
+        return new HashMap<>();
     }
 
     public LocalDateTime getCreationDate() {

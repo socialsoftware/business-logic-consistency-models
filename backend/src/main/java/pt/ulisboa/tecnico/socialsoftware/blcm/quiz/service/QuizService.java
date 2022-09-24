@@ -10,6 +10,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.servic
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
@@ -112,15 +113,19 @@ public class QuizService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuizDto startTournamentQuiz(Integer userAggregateId, Integer quizAggregateId, UnitOfWork unitOfWork) {
         /* must add more verifications */
-        Quiz oldQuiz = quizRepository.findCausal(quizAggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(QUIZ_NOT_FOUND, quizAggregateId));
-
-        Quiz newQuiz = new Quiz(oldQuiz);
-
-        /*do stuff to the new quiz*/
-
-        unitOfWork.addUpdatedObject(newQuiz);
-        return new QuizDto(oldQuiz);
+        Quiz oldQuiz = getCausalQuizLocal(quizAggregateId, unitOfWork);
+        QuizDto quizDto = new QuizDto(oldQuiz);
+        List<QuestionDto> questionDtoList = new ArrayList<>();
+        // TODO if I have time change the quiz to only store references to the questions (its easier)
+        oldQuiz.getQuizQuestions().forEach(qq -> {
+            QuestionDto questionDto = questionService.getCausalQuestionRemote(qq.getAggregateId(), unitOfWork);
+            questionDto.getOptionDtos().forEach(o -> {
+                o.setCorrect(false); // by setting all to false frontend doesn't know which is correct
+            });
+            questionDtoList.add(questionDto);
+        });
+        quizDto.setQuestionDtos(questionDtoList);
+        return quizDto;
     }
 
     @Retryable(

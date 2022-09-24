@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
@@ -31,7 +31,7 @@ public class TournamentParticipant {
     private Integer version;
 
     @Enumerated(EnumType.STRING)
-    private Aggregate.AggregateState state;
+    private AggregateState state;
 
     public TournamentParticipant() {
         setEnrollTime(LocalDateTime.now());
@@ -43,6 +43,7 @@ public class TournamentParticipant {
         setVersion(userDto.getVersion());
         setAnswer(new TournamentParticipantAnswer());
         setEnrollTime(LocalDateTime.now());
+        setState(AggregateState.ACTIVE);
     }
 
 
@@ -109,12 +110,20 @@ public class TournamentParticipant {
         this.version = version;
     }
 
-    public Aggregate.AggregateState getState() {
+    public AggregateState getState() {
         return state;
     }
 
-    public void setState(Aggregate.AggregateState state) {
+    public void setState(AggregateState state) {
         this.state = state;
+    }
+
+    public void updateAnswerWithQuestion(Integer answerAggregateId, boolean isCorrect) {
+        getAnswer().setAggregateId(answerAggregateId);
+        getAnswer().incrementAnswered();
+        if(isCorrect) {
+            getAnswer().incrementCorrect();
+        }
     }
 
     public UserDto buildDto() {
@@ -123,7 +132,8 @@ public class TournamentParticipant {
         userDto.setVersion(getVersion());
         userDto.setName(getName());
         userDto.setUsername(getUsername());
-
+        userDto.setNumberAnswered(getAnswer().getNumberOfAnswered());
+        userDto.setNumberCorrect(getAnswer().getNumberOfCorrect());
         return userDto;
     }
 }

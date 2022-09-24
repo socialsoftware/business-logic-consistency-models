@@ -1,6 +1,10 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
 import javax.persistence.Embeddable;
 
@@ -17,6 +21,8 @@ public class QuestionAnswer {
 
     private Integer optionKey;
 
+    private boolean correct;
+
     public  QuestionAnswer() {
 
     }
@@ -24,8 +30,25 @@ public class QuestionAnswer {
     public QuestionAnswer(QuestionAnswerDto questionAnswerDto) {
         setOptionSequenceChoice(questionAnswerDto.getSequence());
         setQuestionAggregateId(questionAnswerDto.getQuestionAggregateId());
-        setTimeTaken(questionAnswerDto.getTimeTaken());
+        //setTimeTaken(questionAnswerDto.getTimeTaken());
         setOptionKey(questionAnswerDto.getOptionKey());
+    }
+
+    public QuestionAnswer(QuestionAnswerDto questionAnswerDto, QuestionDto questionDto) {
+        setOptionSequenceChoice(questionAnswerDto.getSequence());
+        setQuestionAggregateId(questionAnswerDto.getQuestionAggregateId());
+        //setTimeTaken(questionAnswerDto.getTimeTaken());
+        setOptionKey(questionAnswerDto.getOptionKey());
+
+        if(getOptionKey() < 1 || getOptionKey() > questionDto.getOptionDtos().size()) {
+            throw new TutorException(ErrorMessage.INVALID_OPTION_SELECTED, getOptionKey(), getQuestionAggregateId());
+        }
+
+        for(OptionDto o : questionDto.getOptionDtos()) {
+            if(o.getKey().equals(questionAnswerDto.getOptionKey())) {
+                setCorrect(o.isCorrect());
+            }
+        }
     }
 
     public Integer getOptionSequenceChoice() {
@@ -58,5 +81,13 @@ public class QuestionAnswer {
 
     public void setOptionKey(Integer optionKey) {
         this.optionKey = optionKey;
+    }
+
+    public boolean isCorrect() {
+        return correct;
+    }
+
+    public void setCorrect(boolean correct) {
+        this.correct = correct;
     }
 }

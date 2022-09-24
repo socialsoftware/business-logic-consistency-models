@@ -178,8 +178,8 @@ public class Tournament extends Aggregate {
 
     @Override
     public boolean verifyInvariants() {
-        if(!(invariantAnswerBeforeStart()
-                && invariantUniqueParticipant()
+        if(!(/*invariantAnswerBeforeStart()
+                &&*/ invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
                 && invariantStartTimeBeforeEndTime()
                 && deleteCondition())) {
@@ -355,7 +355,7 @@ public class Tournament extends Aggregate {
         Map<Integer , EventualConsistencyDependency> depMap = new HashMap<>();
         depMap.put(this.courseExecution.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), AggregateType.COURSE_EXECUTION ,this.courseExecution.getVersion()));
         this.participants.forEach(p -> {
-            depMap.put(p.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), AggregateType.USER, p.getVersion()));
+            depMap.put(p.getAggregateId(), new EventualConsistencyDependency(p.getAggregateId(), AggregateType.USER, p.getVersion()));
         });
         depMap.put(this.creator.getAggregateId(), new EventualConsistencyDependency(this.creator.getAggregateId(), AggregateType.USER ,this.creator.getVersion()));
         depMap.put(this.quiz.getAggregateId(), new EventualConsistencyDependency(this.quiz.getAggregateId(), AggregateType.QUIZ ,this.quiz.getVersion()));
@@ -375,7 +375,7 @@ public class Tournament extends Aggregate {
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
 
-        if(LocalDateTime.now().isAfter(getStartTime()) || isCancelled()) {
+        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }
         this.startTime = startTime;
@@ -393,7 +393,7 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if(LocalDateTime.now().isAfter(getStartTime()) || isCancelled()) {
+        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }
         this.endTime = endTime;
@@ -410,7 +410,7 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if(LocalDateTime.now().isAfter(getStartTime()) || isCancelled()) {
+        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }
         this.numberOfQuestions = numberOfQuestions;
@@ -427,7 +427,7 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if(LocalDateTime.now().isAfter(getStartTime()) || isCancelled()) {
+        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }
         this.cancelled = cancelled;
@@ -480,7 +480,7 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if(LocalDateTime.now().isAfter(getStartTime()) || isCancelled()) {
+        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }
         this.topics = topics;
@@ -492,7 +492,7 @@ public class Tournament extends Aggregate {
 
     /*TODO should this throw exception??*/
     public TournamentParticipant findParticipant(Integer userAggregateId) {
-        return this.participants.stream().filter(p -> p.getAggregateId() == userAggregateId).findFirst()
+        return this.participants.stream().filter(p -> p.getAggregateId().equals(userAggregateId)).findFirst()
                 .orElse(null);
     }
 
@@ -517,5 +517,12 @@ public class Tournament extends Aggregate {
             this.quiz.setVersion(version);
         }
         super.setVersion(version);
+    }
+
+    public TournamentTopic findTopic(Integer topicAggregateId) {
+        return getTopics().stream()
+                .filter(t -> topicAggregateId.equals(t.getAggregateId()))
+                .findFirst()
+                .orElse(null);
     }
 }

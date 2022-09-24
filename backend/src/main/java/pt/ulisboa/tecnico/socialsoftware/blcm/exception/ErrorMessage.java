@@ -17,7 +17,8 @@ public enum ErrorMessage {
     TOURNAMENT_MISSING_END_TIME("Tournament requires an end time."),
     TOURNAMENT_MISSING_NUMBER_OF_QUESTIONS("Tournament requires a number of questions."),
     TOURNAMENT_DELETED("Tournament with aggregate id %d already deleted."),
-    TOURNAMENT_PARTICIPANT_NOT_FOUND("Tournament participant %d is not enrolled in tournament %d"),
+    TOURNAMENT_PARTICIPANT_NOT_FOUND("User %d is not enrolled in tournament %d"),
+    TOURNAMENT_TOPIC_NOT_FOUND("Topic %d is not part of tournament %d."),
     CANNOT_UPDATE_TOURNAMENT("Tournament %d cannot be updated."),
     CANNOT_DELETE_TOURNAMENT("Tournament %d cannot be deleted."),
     QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist"),
@@ -74,7 +75,9 @@ public enum ErrorMessage {
 
     QUESTION_ALREADY_ANSWERED("Question %d of quiz %d already answered."),
 
-    CANNOT_PERFORM_CAUSAL_READ("Cannot causally read object with aggregate id %d"),
+    INVALID_OPTION_SELECTED("Invalid option %d for question %d."),
+
+    CANNOT_PERFORM_CAUSAL_READ("Cannot causally read object with aggregate id %d."),
     INVALID_PREV("Prev does not match the type of the aggregate."),
     NO_PRIMARY_AGGREGATE_FOUND("No primary aggregate was found within the transactional context."),
     TOO_MANY_PRIMARY_AGGREGATE_FOUND("More than one primary aggregates were found within the transactional context"),

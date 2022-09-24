@@ -1,12 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Embeddable
 public class AnswerQuiz {
@@ -26,7 +27,9 @@ public class AnswerQuiz {
     public AnswerQuiz(QuizDto quizDto) {
         setAggregateId(quizDto.getAggregateId());
         setVersion(quizDto.getVersion());
-        setQuizQuestionsAggregateIds(quizDto.getQuestionsAggregateIds());
+        setQuizQuestionsAggregateIds(quizDto.getQuestionDtos().stream()
+                .map(QuestionDto::getAggregateId)
+                .collect(Collectors.toList()));
     }
 
     public Integer getAggregateId() {

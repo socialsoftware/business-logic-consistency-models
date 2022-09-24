@@ -12,7 +12,7 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface TournamentRepository extends JpaRepository<Tournament, Integer> {
-    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND t.version < :maxVersion AND t.version >= (select max(version) from tournaments where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND state != 'INACTIVE' AND t.version < :maxVersion AND t.version >= (select max(version) from tournaments where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Tournament> findCausal(Integer aggregateId, Integer maxVersion);
 
     @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND t.version >= :version", nativeQuery = true)
@@ -24,6 +24,12 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     @Query(value = "select t.aggregate_id from tournaments t, tournament_participants tp where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND ((t.id = tp.tournament_id AND tp.participant_aggregate_id = :userAggregateId)  OR (t.creator_aggregate_id = :userAggregateId))", nativeQuery = true)
     Set<Integer> findAllAggregateIdsByUser(Integer userAggregateId);
 
-    @Query(value = "select t.aggregate_id from tournaments t, tournament_participants tp where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (t.id = tp.tournament_id AND t.course_execution_aggregate_id = :courseExecutionAggregateId)", nativeQuery = true)
+    @Query(value = "select t.aggregate_id from tournaments t where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (t.course_execution_aggregate_id = :courseExecutionAggregateId)", nativeQuery = true)
     Set<Integer> findAllAggregateIdsByCourseExecution(Integer courseExecutionAggregateId);
+
+    @Query(value = "select t.aggregate_id from tournaments t, tournament_topics tt where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (t.id = tt.tournament_id AND tt.topic_aggregate_id = :topicAggregateId)", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByTopic(Integer topicAggregateId);
+
+    @Query(value = "select t.aggregate_id from tournaments t where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (t.quiz_aggregate_id = :quizAggregateId)", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByQuiz(Integer quizAggregateId);
 }

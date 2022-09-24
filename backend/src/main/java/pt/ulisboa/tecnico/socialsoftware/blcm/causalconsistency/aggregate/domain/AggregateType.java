@@ -7,7 +7,7 @@ public enum AggregateType {
     QUESTION,
     QUIZ,
     TOURNAMENT,
-    QUIZ_ANSWER,
+    ANSWER,
 
     TOPIC
 }

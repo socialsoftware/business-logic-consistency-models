@@ -85,7 +85,6 @@ public class QuizQuestion {
         questionDto.setTitle(getTitle());
         questionDto.setContent(getContent());
 
-
         return questionDto;
     }
 

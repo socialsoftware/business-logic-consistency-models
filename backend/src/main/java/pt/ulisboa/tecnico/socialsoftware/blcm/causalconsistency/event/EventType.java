@@ -11,4 +11,12 @@ public class EventType {
 
     public final static String ANSWER_QUIZ = "ANSWER_QUIZ";
 
+    public final static String UPDATE_TOPIC = "UPDATE_TOPIC";
+
+    public final static String DELETE_TOPIC = "DELETE_TOPIC";
+
+    public final static String ANSWER_QUESTION = "ANSWER_QUESTION";
+
+
+
 }

@@ -73,13 +73,13 @@ public class UserService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void anonymizeCourseExecutionUsers(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
-        Set<User> executionsUsers = userRepository.findCausalByExecution(executionAggregateId, unitOfWorkWorkService.getVersion());
+    public void anonymizeCourseExecutionUsers(Integer executionAggregateId, UnitOfWork unitOfWork) {
+        Set<User> executionsUsers = userRepository.findCausalByExecution(executionAggregateId, unitOfWork.getVersion());
         executionsUsers.forEach(oldUser -> {
             User newUser = new User(oldUser);
             newUser.anonymize();
-            unitOfWorkWorkService.addUpdatedObject(newUser);
-            unitOfWorkWorkService.addEvent(new AnonymizeUserEvent(newUser.getAggregateId(), "ANONYMOUS", "ANONYMOUS"));
+            unitOfWork.addUpdatedObject(newUser);
+            unitOfWork.addEvent(new AnonymizeUserEvent(newUser.getAggregateId(), "ANONYMOUS", "ANONYMOUS"));
         });
     }
 

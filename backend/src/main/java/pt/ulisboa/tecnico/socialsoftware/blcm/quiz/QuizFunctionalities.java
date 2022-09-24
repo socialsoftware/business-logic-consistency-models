@@ -32,8 +32,8 @@ public class QuizFunctionalities {
     public QuizDto createQuiz(Integer courseExecutionId, QuizDto quizDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.getCausalCourseExecutionRemote(courseExecutionId, unitOfWork));
-        Set<QuizQuestion> quizQuestions = quizDto.getQuestionsAggregateIds().stream()
-                .map(id -> questionService.getCausalQuestionRemote(id, unitOfWork))
+        Set<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream()
+                .map(qq -> questionService.getCausalQuestionRemote(qq.getAggregateId(), unitOfWork))
                 .map(QuizQuestion::new)
                 .collect(Collectors.toSet());
 
@@ -45,8 +45,8 @@ public class QuizFunctionalities {
 
     public QuizDto updateQuiz(QuizDto quizDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        List<QuizQuestion> quizQuestions = quizDto.getQuestionsAggregateIds().stream()
-                .map(id -> questionService.getCausalQuestionRemote(id, unitOfWork))
+        List<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream()
+                .map(qq -> questionService.getCausalQuestionRemote(qq.getAggregateId(), unitOfWork))
                 .map(QuizQuestion::new)
                 .collect(Collectors.toList());
         //QuizDto quizDto1 = quizService.updateQuiz(quizDto, quizQuestions, unitOfWork);

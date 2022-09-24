@@ -80,8 +80,8 @@ public class UnitOfWork {
 
     private void verifyEventualConsistency(Aggregate aggregate) {
         for(EventualConsistencyDependency dep : aggregate.getDependenciesMap().values()) {
-            if (hasAggregateDep(dep.getAggregateId()) && this.getAggregateDep(dep.getAggregateId()).getVersion() != dep.getVersion()) {
-                throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId());
+            if (hasAggregateDep(dep.getAggregateId()) && !getAggregateDep(dep.getAggregateId()).getVersion().equals(dep.getVersion())) {
+                throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId(), dep.getVersion());
             }
         }
     }

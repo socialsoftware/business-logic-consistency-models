@@ -50,7 +50,9 @@ public class Course extends Aggregate {
 
     @Override
     public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        return new HashMap<>();
+        Map deps = new HashMap<>();
+        deps.put(getAggregateId(), new EventualConsistencyDependency(getAggregateId(), getAggregateType(), getVersion()));
+        return deps;
     }
 
     public CourseType getType() {

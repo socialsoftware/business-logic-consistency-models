@@ -14,9 +14,11 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnswerQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
@@ -95,13 +97,14 @@ public class AnswerService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void answerQuestion(Integer quizAggregateId, Integer userAggregateId, QuestionAnswerDto questionAnswerDto, UnitOfWork unitOfWork) {
+    public void answerQuestion(Integer quizAggregateId, Integer userAggregateId, QuestionAnswerDto userAnswerDto, QuestionDto questionDto, UnitOfWork unitOfWork) {
         Answer oldAnswer = getCausalQuizAnswerLocalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork);
         Answer newAnswer = new Answer(oldAnswer);
 
-        QuestionAnswer questionAnswer = new QuestionAnswer(questionAnswerDto);
+        QuestionAnswer questionAnswer = new QuestionAnswer(userAnswerDto, questionDto);
         newAnswer.addQuestionAnswer(questionAnswer);
         unitOfWork.addUpdatedObject(newAnswer);
+        unitOfWork.addEvent(new AnswerQuestionEvent(questionAnswer, newAnswer, quizAggregateId));
     }
 
 
@@ -114,9 +117,6 @@ public class AnswerService {
         Answer newAnswer = new Answer(oldAnswer);
 
         newAnswer.setCompleted(true);
-        newAnswer.getQuestionAnswers().forEach(qa -> {
-            // TODO check whether answers are correct or wrong by making a request to each question
-        });
         unitOfWork.addUpdatedObject(newAnswer);
     }
 }

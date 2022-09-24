@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
@@ -18,14 +20,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class TournamentService {
     @Autowired
     private TournamentRepository tournamentRepository;
+
+    @Autowired
+    private QuizService quizService;
 
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
@@ -170,7 +174,7 @@ public class TournamentService {
             unitOfWorkWorkService.addUpdatedObject(newTournament);
         }
 
-        if(tournamentDto.getTopics() != null ) {
+        if(tournamentTopics != null && !tournamentTopics.isEmpty() ) {
             newTournament.setTopics(tournamentTopics);
             unitOfWorkWorkService.addUpdatedObject(newTournament);
         }
@@ -239,15 +243,15 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWorkWorkService) {
-        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
+    public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         TournamentParticipant participant = newTournament.findParticipant(userAggregateId);
         if(participant == null) {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
         participant.answerQuiz();
-        unitOfWorkWorkService.addUpdatedObject(newTournament);
+        unitOfWork.addUpdatedObject(newTournament);
     }
 
     @Retryable(
@@ -299,9 +303,60 @@ public class TournamentService {
         }
         TournamentParticipant tournamentParticipant  = newTournament.findParticipant(userAggregateId);
         if(tournamentParticipant == null) {
-            throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
+            throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
         tournamentParticipant.setState(DELETED);
+        unitOfWork.addUpdatedObject(newTournament);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void updateTopic(Integer tournamentAggregateId, Integer topicAggregateId, String topicName, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new Tournament(oldTournament);
+        TournamentTopic topic = newTournament.findTopic(topicAggregateId);
+        if(topic == null) {
+            throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, topicAggregateId, tournamentAggregateId);
+        }
+        topic.setName(topicName);
+        unitOfWork.addUpdatedObject(newTournament);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void updateParticipantAnswer(Integer tournamentAggregateId, Integer userAggregateId, Integer answerAggregateId, boolean isCorrect, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new Tournament(oldTournament);
+        TournamentParticipant tournamentParticipant  = newTournament.findParticipant(userAggregateId);
+        if(tournamentParticipant == null) {
+            throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
+        }
+        tournamentParticipant.updateAnswerWithQuestion(answerAggregateId, isCorrect);
+        unitOfWork.addUpdatedObject(newTournament);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void removeTopic(Integer tournamentAggregateId, Integer topicAggregateId, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new Tournament(oldTournament);
+        TournamentTopic tournamentTopic  = newTournament.findTopic(topicAggregateId);
+        if(tournamentTopic == null) {
+            throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, topicAggregateId, tournamentAggregateId);
+        }
+        tournamentTopic.setState(INACTIVE);
+        QuizDto quizDto = new QuizDto();
+        quizDto.setAggregateId(newTournament.getQuiz().getAggregateId());
+        quizDto.setAvailableDate(newTournament.getStartTime().toString());
+        quizDto.setConclusionDate(newTournament.getEndTime().toString());
+        quizDto.setResultsDate(newTournament.getEndTime().toString());
+        quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState().equals(ACTIVE)).map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(),unitOfWork);
         unitOfWork.addUpdatedObject(newTournament);
     }
 }

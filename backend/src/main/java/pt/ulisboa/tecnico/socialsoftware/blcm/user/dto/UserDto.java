@@ -23,6 +23,12 @@ public class UserDto implements Serializable {
 
     private Set<CourseExecutionDto> executions;
 
+
+
+    private Integer numberAnswered;
+
+    private Integer numberCorrect;
+
     public UserDto() {
 
     }
@@ -93,5 +99,21 @@ public class UserDto implements Serializable {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public Integer getNumberAnswered() {
+        return numberAnswered;
+    }
+
+    public void setNumberAnswered(Integer numberAnswered) {
+        this.numberAnswered = numberAnswered;
+    }
+
+    public Integer getNumberCorrect() {
+        return numberCorrect;
+    }
+
+    public void setNumberCorrect(Integer numberCorrect) {
+        this.numberCorrect = numberCorrect;
     }
 }

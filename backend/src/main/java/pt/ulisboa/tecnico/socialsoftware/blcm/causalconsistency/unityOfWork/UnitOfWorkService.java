@@ -5,6 +5,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
@@ -54,6 +55,9 @@ public class UnitOfWorkService {
 
     @Autowired
     private QuestionRepository questionRepository;
+
+    @Autowired
+    private AnswerRepository answerRepository;
 
     @Autowired
     private VersionService versionService;
@@ -167,6 +171,12 @@ public class UnitOfWorkService {
                 break;
             case TOURNAMENT:
                 concurrentAggregate = tournamentRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+                break;
+            case ANSWER:
+                concurrentAggregate = answerRepository.findConcurrentVersions(aggregate.getAggregateId(), version)
                         .stream()
                         .findFirst()
                         .orElse(null);

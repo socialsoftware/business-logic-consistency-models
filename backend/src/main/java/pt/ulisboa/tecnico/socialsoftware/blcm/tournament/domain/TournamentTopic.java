@@ -1,9 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 @Embeddable
 public class TournamentTopic {
@@ -19,6 +22,9 @@ public class TournamentTopic {
     @Column(name = "topic_version")
     private Integer version;
 
+    @Enumerated(EnumType.STRING)
+    private Aggregate.AggregateState state;
+
     public TournamentTopic() {
 
     }
@@ -27,6 +33,7 @@ public class TournamentTopic {
         setVersion(topicDto.getVersion());
         setName(topicDto.getName());
         setCourseAggregateId(topicDto.getCourseId());
+        setState(Aggregate.AggregateState.ACTIVE);
     }
 
 
@@ -63,12 +70,20 @@ public class TournamentTopic {
         this.version = version;
     }
 
+    public Aggregate.AggregateState getState() {
+        return state;
+    }
+
+    public void setState(Aggregate.AggregateState state) {
+        this.state = state;
+    }
+
     public TopicDto buildDto() {
         TopicDto topicDto = new TopicDto();
         topicDto.setAggregateId(getAggregateId());
         topicDto.setVersion(getVersion());
         topicDto.setName(getName());
-
+        topicDto.setState(getState().toString());
         return topicDto;
     }
 

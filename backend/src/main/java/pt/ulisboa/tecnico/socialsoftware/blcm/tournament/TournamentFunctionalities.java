@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.AnswerService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -50,6 +52,9 @@ public class TournamentFunctionalities {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private AnswerService answerService;
 
     @Autowired
     private UnitOfWorkService unitOfWorkService;
@@ -152,7 +157,7 @@ public class TournamentFunctionalities {
         /*this if is required for the case of updating a quiz and not altering neither the number of questions neither the topics */
         if(topicsAggregateIds != null || tournamentDto.getNumberOfQuestions() != null) {
             if(topicsAggregateIds == null) {
-                quizService.updateGeneratedQuiz(quizDto, newTournamentDto.getTopics().stream().map(TopicDto::getAggregateId).collect(Collectors.toSet()), newTournamentDto.getNumberOfQuestions(), unitOfWork);
+                quizService.updateGeneratedQuiz(quizDto, newTournamentDto.getTopics().stream().filter(t -> t.getState().equals(ACTIVE.toString())).map(TopicDto::getAggregateId).collect(Collectors.toSet()), newTournamentDto.getNumberOfQuestions(), unitOfWork);
             } else {
                 quizService.updateGeneratedQuiz(quizDto, topicsAggregateIds, newTournamentDto.getNumberOfQuestions(), unitOfWork);
             }
@@ -185,16 +190,14 @@ public class TournamentFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId) {
+    public QuizDto solveQuiz(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
         tournamentService.solveQuiz(tournamentAggregateId, userAggregateId, unitOfWork);
         QuizDto quizDto = quizService.startTournamentQuiz(userAggregateId, tournamentDto.getQuiz().getAggregateId(), unitOfWork);
-
-        //unitOfWork.addDependency(tournamentAggregateId, new Dependency(quizDto.getAggregateId(), "Quiz", unitOfWork.getVersion()));
-        //unitOfWork.addDependency(quizDto.getAggregateId(), new Dependency(tournamentAggregateId, "Tournament", unitOfWork.getVersion()));
-
+        answerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
+        return quizDto;
     }
 
     public void cancelTournament(Integer tournamentAggregateId) {

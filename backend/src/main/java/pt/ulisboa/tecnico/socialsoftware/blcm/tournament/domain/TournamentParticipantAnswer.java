@@ -17,6 +17,12 @@ public class TournamentParticipantAnswer {
     @Column
     private boolean answered;
 
+    public TournamentParticipantAnswer() {
+        setNumberOfAnswered(0);
+        setNumberOfCorrect(0);
+        setAnswered(false);
+    }
+
 
     public Integer getAggregateId() {
         return aggregateId;
@@ -48,5 +54,13 @@ public class TournamentParticipantAnswer {
 
     public void setAnswered(boolean answered) {
         this.answered = answered;
+    }
+
+    public void incrementAnswered() {
+        this.numberOfAnswered++;
+    }
+
+    public void incrementCorrect() {
+        this.numberOfCorrect++;
     }
 }
