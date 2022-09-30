@@ -17,8 +17,8 @@ public interface CourseExecutionRepository extends JpaRepository<CourseExecution
     @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version < :maxVersion AND ce.state != 'INACTIVE' AND ce.version >= (select max(version) from course_executions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<CourseExecution> findCausal(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version >= :version AND ce.state != 'INACTIVE'", nativeQuery = true)
-    Set<CourseExecution> findConcurrentVersions(Integer aggregateId, Integer version);
+    @Query(value = "select * from course_executions where id = (select max(id) from course_executions where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
+    Optional<CourseExecution> findConcurrentVersions(Integer aggregateId, Integer version);
 
     @Query(value = "select * from course_executions ce where aggregate_id NOT IN (select aggregate_id from course_executions where state = 'DELETED')", nativeQuery = true)
     Set<CourseExecution> findAllNonDeleted();

@@ -1509,7 +1509,7 @@ END;</stringProp>
           </HTTPSamplerProxy>
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check only one question 1" enabled="true">
-              <stringProp name="JSON_PATH">$..questionsAggregateIds[0]</stringProp>
+              <stringProp name="JSON_PATH">$..questionDtos[0]</stringProp>
               <stringProp name="EXPECTED_VALUE"></stringProp>
               <boolProp name="JSONVALIDATION">false</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -1517,12 +1517,12 @@ END;</stringProp>
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
             <hashTree/>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check only one question 2" enabled="true">
-              <stringProp name="JSON_PATH">$..questionsAggregateIds[1]</stringProp>
-              <stringProp name="EXPECTED_VALUE"></stringProp>
-              <boolProp name="JSONVALIDATION">false</boolProp>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check second question doesnt exist" enabled="true">
+              <stringProp name="JSON_PATH">$..questionDtos[1]</stringProp>
+              <stringProp name="EXPECTED_VALUE">[]</stringProp>
+              <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">true</boolProp>
+              <boolProp name="INVERT">false</boolProp>
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
             <hashTree/>

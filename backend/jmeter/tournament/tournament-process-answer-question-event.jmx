@@ -1569,22 +1569,13 @@ ${__setProperty(question_aggregate_id_2,${question_aggregate_id_2})}</stringProp
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check participant number of answered questions" enabled="true">
-              <stringProp name="JSON_PATH">$..participants[0].numberAnswered</stringProp>
-              <stringProp name="EXPECTED_VALUE">1</stringProp>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check participant number of answered questions and number of correct" enabled="true">
+              <stringProp name="JSON_PATH">$..participants</stringProp>
+              <stringProp name="EXPECTED_VALUE">(.*)\&quot;numberAnswered\&quot;:1(.*)\&quot;numberCorrect\&quot;:1(.*)</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
-            </JSONPathAssertion>
-            <hashTree/>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check participant number of correct answers" enabled="true">
-              <stringProp name="JSON_PATH">$..participants[0].numberCorrect</stringProp>
-              <stringProp name="EXPECTED_VALUE">1</stringProp>
-              <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
+              <boolProp name="ISREGEX">true</boolProp>
             </JSONPathAssertion>
             <hashTree/>
           </hashTree>

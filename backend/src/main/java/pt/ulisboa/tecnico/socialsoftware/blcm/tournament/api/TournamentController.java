@@ -45,4 +45,8 @@ public class TournamentController {
         return tournamentFunctionalities.solveQuiz(tournamentAggregateId, userAggregateId);
     }
 
+
+    /*********************************** ONLY FOR EVENT PROCESSING TESTING PURPOSES ***********************************/
+
+
 }

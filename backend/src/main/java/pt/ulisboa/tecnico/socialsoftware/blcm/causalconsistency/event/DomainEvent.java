@@ -13,7 +13,8 @@ public abstract class DomainEvent {
     private Integer id;
 
     @Column
-    private boolean processed;
+    private Integer  aggregateVersion;
+
 
     @Column(name = "type", insertable = false, updatable = false)
     private String type;
@@ -30,12 +31,12 @@ public abstract class DomainEvent {
         this.id = id;
     }
 
-    public boolean isProcessed() {
-        return processed;
+    public Integer getAggregateVersion() {
+        return aggregateVersion;
     }
 
-    public void setProcessed(boolean processed) {
-        this.processed = processed;
+    public void setAggregateVersion(Integer aggregateVersion) {
+        this.aggregateVersion = aggregateVersion;
     }
 
     public String getType() {

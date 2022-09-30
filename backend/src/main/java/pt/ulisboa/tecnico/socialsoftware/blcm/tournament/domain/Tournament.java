@@ -226,6 +226,7 @@ public class Tournament extends Aggregate {
         if(v1.getState().equals(DELETED)) {
             throw new TutorException(TOURNAMENT_DELETED, v1.getAggregateId());
         }
+        /* take the state into account because we don't want to override a deleted object*/
 
         if(v2.getState().equals(DELETED)) {
             throw new TutorException(TOURNAMENT_DELETED, v2.getAggregateId());
@@ -234,7 +235,6 @@ public class Tournament extends Aggregate {
         Set<String> v1ChangedFields = getChangedFields(prev, v1);
         Set<String> v2ChangedFields = getChangedFields(prev, v2);
 
-        /* take the state into account because we don't want to override a deleted object*/
         /* if updates occur in both versions that change any of the fields in the non-incremental set we stay with
         * concurrent version which was committed first (v2) by throwing an exception on this merge.
         * This implementation does not allow versions to be merged if there are any non-incremental changes it may also

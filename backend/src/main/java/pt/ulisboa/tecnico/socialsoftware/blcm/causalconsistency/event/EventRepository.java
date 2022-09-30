@@ -11,4 +11,5 @@ import java.util.Set;
 public interface EventRepository extends JpaRepository<DomainEvent, Integer> {
     @Query(value = "select * from domain_events where type = :type and id > :minimumId" ,nativeQuery = true)
     Set<DomainEvent> getEvents(String type, Integer minimumId);
+
 }

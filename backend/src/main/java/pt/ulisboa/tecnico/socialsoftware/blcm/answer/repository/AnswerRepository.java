@@ -21,6 +21,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     Optional<Answer> findCausalByQuizAndUser(Integer quizAggregateId, Integer userAggregateId, Integer maxVersion);
 
 
-    @Query(value = "select * from answers a where a.aggregate_id = :aggregateId AND a.version >= :version", nativeQuery = true)
-    Set<Answer> findConcurrentVersions(Integer aggregateId, Integer version);
+    @Query(value = "select * from answers where id = (select max(id) from answers where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
+    Optional<Answer> findConcurrentVersions(Integer aggregateId, Integer version);
 }

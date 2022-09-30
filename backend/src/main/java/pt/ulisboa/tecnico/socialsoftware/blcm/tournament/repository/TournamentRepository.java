@@ -15,8 +15,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND state != 'INACTIVE' AND t.version < :maxVersion AND t.version >= (select max(version) from tournaments where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Tournament> findCausal(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND t.version >= :version", nativeQuery = true)
-    Set<Tournament> findConcurrentVersions(Integer aggregateId, Integer version);
+    @Query(value = "select * from tournaments where id = (select max(id) from tournaments where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
+    Optional<Tournament> findConcurrentVersions(Integer aggregateId, Integer version);
 
     @Query(value = "select * from tournaments t where aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE')", nativeQuery = true)
     Set<Tournament> findAllActive();

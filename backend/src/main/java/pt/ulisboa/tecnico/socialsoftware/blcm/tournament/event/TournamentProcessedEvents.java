@@ -11,6 +11,8 @@ public class TournamentProcessedEvents {
     @GeneratedValue
     private Integer id;
 
+    private Integer aggregateId;
+
     @Column
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Integer> processedEventsIds;
@@ -22,8 +24,9 @@ public class TournamentProcessedEvents {
 
     }
 
-    public TournamentProcessedEvents(String eventType) {
+    public TournamentProcessedEvents(String eventType, Integer aggregateId) {
         this.processedEventsIds = new HashSet<>();
+        setAggregateId(aggregateId);
         setEventType(eventType);
     }
 
@@ -35,12 +38,20 @@ public class TournamentProcessedEvents {
         this.id = id;
     }
 
+    public Integer getAggregateId() {
+        return aggregateId;
+    }
+
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
+    }
+
     public Set<Integer> getProcessedEventsIds() {
         return processedEventsIds;
     }
 
-    public void addProcessedEventsIds(Set<Integer> processedEventsIds) {
-        this.processedEventsIds.addAll(processedEventsIds);
+    public void addProcessedEventsIds(Integer processedEventsIds) {
+        this.processedEventsIds.add(processedEventsIds);
     }
 
     public boolean containsEvent(Integer eventId) {

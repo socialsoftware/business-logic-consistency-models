@@ -4,29 +4,60 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEven
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
+import javax.persistence.*;
 import java.util.*;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
 
 
+@Entity
+@Table(name = "unit_of_works")
 public class UnitOfWork {
+    @Id
+    @GeneratedValue
+    private Integer id;
 
     private Integer version;
 
+    @ElementCollection
+    private Set<Integer> aggregateIds;
+
+
+    private boolean running;
+
+    @Transient
     private Map<Integer, Aggregate> updatedObjects;
 
+    @Transient
     private Set<DomainEvent> eventsToEmit;
 
     // Cumulative dependencies of the functionality
     // Map type ensures only a version of an aggregate is written by transaction
     // TODO since aggregate ids are unique amongst several aggregate types, perhaps only a pair <Integer, Integer> is enough ( second Integer being the version)
+
+    @Transient
     private Map<Integer, EventualConsistencyDependency> currentReadDependencies;
+
+    public UnitOfWork() {
+
+    }
 
     public UnitOfWork(Integer version) {
         this.updatedObjects = new HashMap<Integer, Aggregate>();
         this.eventsToEmit = new HashSet<>();
+        this.aggregateIds = new HashSet<>();
+        this.running = true;
         this.currentReadDependencies = new HashMap<>();
         setVersion(version);
+    }
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getVersion() {
@@ -49,6 +80,7 @@ public class UnitOfWork {
     public void addUpdatedObject(Aggregate aggregate) {
         // the id to null is to force a new entry in the db
         aggregate.setId(null);
+        this.aggregateIds.add(aggregate.getAggregateId());
         this.updatedObjects.put(aggregate.getAggregateId(), aggregate);
     }
 
@@ -94,4 +126,11 @@ public class UnitOfWork {
         return this.currentReadDependencies.get(aggregateId);
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 }

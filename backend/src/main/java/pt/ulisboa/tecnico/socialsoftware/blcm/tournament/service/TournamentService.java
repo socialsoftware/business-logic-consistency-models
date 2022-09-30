@@ -331,7 +331,7 @@ public class TournamentService {
     public void updateParticipantAnswer(Integer tournamentAggregateId, Integer userAggregateId, Integer answerAggregateId, boolean isCorrect, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
-        TournamentParticipant tournamentParticipant  = newTournament.findParticipant(userAggregateId);
+        TournamentParticipant tournamentParticipant = newTournament.findParticipant(userAggregateId);
         if(tournamentParticipant == null) {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }

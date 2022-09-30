@@ -9,9 +9,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Eve
 @DiscriminatorValue(ANONYMIZE_USER)
 public class AnonymizeUserEvent extends DomainEvent{
     private Integer userAggregateId;
-
     private String name;
-
     private String username;
 
     public AnonymizeUserEvent() {

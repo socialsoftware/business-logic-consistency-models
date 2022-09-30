@@ -20,8 +20,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "select u.* from users u, user_course_executions uce where u.id = uce.user_id AND uce.course_execution_aggregate_id = :executionAggregateId AND u.id IN (select max(id) from users where version < :maxVersion AND aggregate_id NOT IN (" + NON_ACTIVE_USERS + ") group by aggregate_id)", nativeQuery = true)
     Set<User> findCausalByExecution(Integer executionAggregateId, Integer maxVersion);
 
-    @Query(value = "select * from users u where u.aggregate_id = :aggregateId AND u.version >= :version", nativeQuery = true)
-    Set<User> findConcurrentVersions(Integer aggregateId, Integer version);
+    @Query(value = "select * from users u where u.id = (SELECT max(id) from users where u.aggregate_id = :aggregateId AND u.version > :version)", nativeQuery = true)
+    Optional<User> findConcurrentVersions(Integer aggregateId, Integer version);
 
     @Query(value = "select * from users u where aggregate_id NOT IN (select aggregate_id from users where state = 'DELETED' OR state = 'INACTIVE')", nativeQuery = true)
     Set<User> findAllActive();

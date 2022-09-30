@@ -9,21 +9,23 @@ import javax.persistence.Entity;
 @DiscriminatorValue("DELETE_TOPIC")
 public class DeleteTopicEvent extends DomainEvent {
 
-    private Integer aggregateId;
+    private Integer topicAggregateId;
+
 
     public DeleteTopicEvent() {
 
     }
 
     public DeleteTopicEvent(Topic topic) {
-       setAggregateId(topic.getAggregateId());
+       setTopicAggregateId(topic.getAggregateId());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getTopicAggregateId() {
+        return topicAggregateId;
     }
 
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+    public void setTopicAggregateId(Integer aggregateId) {
+        this.topicAggregateId = aggregateId;
     }
+
 }

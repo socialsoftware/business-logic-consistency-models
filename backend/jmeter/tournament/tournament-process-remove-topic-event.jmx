@@ -1224,22 +1224,13 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check topic 2 is inactive" enabled="false">
-              <stringProp name="JSON_PATH">$..topics[0].state</stringProp>
-              <stringProp name="EXPECTED_VALUE">INACTIVE</stringProp>
-              <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
-            </JSONPathAssertion>
-            <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check topic 2 is inactive" enabled="true">
-              <stringProp name="JSON_PATH">$..topics[1].state</stringProp>
-              <stringProp name="EXPECTED_VALUE">INACTIVE</stringProp>
+              <stringProp name="JSON_PATH">$..topics</stringProp>
+              <stringProp name="EXPECTED_VALUE">(.*)\&quot;name\&quot;:\&quot;TOPIC2\&quot;,\&quot;state\&quot;:\&quot;INACTIVE\&quot;(.*)</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
+              <boolProp name="ISREGEX">true</boolProp>
             </JSONPathAssertion>
             <hashTree/>
           </hashTree>
