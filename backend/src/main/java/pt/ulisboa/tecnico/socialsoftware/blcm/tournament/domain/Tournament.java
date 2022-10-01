@@ -374,9 +374,11 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-
-        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
-            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null) {
+            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+                throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+            }
         }
         this.startTime = startTime;
     }
@@ -393,8 +395,11 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
-            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null) {
+            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+                throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+            }
         }
         this.endTime = endTime;
     }
@@ -410,8 +415,11 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
-            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null) {
+            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+                throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+            }
         }
         this.numberOfQuestions = numberOfQuestions;
     }
@@ -427,8 +435,11 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
-            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null) {
+            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+                throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+            }
         }
         this.cancelled = cancelled;
     }
@@ -446,9 +457,9 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if(isCancelled()) {
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null && prev.isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
-
         }
         this.participants = participants;
     }
@@ -458,9 +469,9 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if(isCancelled()) {
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null && prev.isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
-
         }
         this.participants.add(participant);
     }
@@ -480,8 +491,11 @@ public class Tournament extends Aggregate {
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if((getStartTime() != null && LocalDateTime.now().isAfter(getStartTime())) || isCancelled()) {
-            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null) {
+            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+                throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+            }
         }
         this.topics = topics;
     }
@@ -505,8 +519,11 @@ public class Tournament extends Aggregate {
 		IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        if(participant.getAnswer().getAggregateId() == null || LocalDateTime.now().isAfter(getEndTime()) || isCancelled()) {
-            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+        Tournament prev = (Tournament) getPrev();
+        if(prev != null) {
+            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+                throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
+            }
         }
         return this.participants.remove(participant);
     }

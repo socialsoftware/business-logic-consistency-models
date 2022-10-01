@@ -131,7 +131,7 @@ public class UnitOfWorkService {
         });
 
         unitOfWork.setRunning(false);
-        unitOfWorkRepository.save(unitOfWork);
+        unitOfWorkRepository.delete(unitOfWork);
     }
 
 

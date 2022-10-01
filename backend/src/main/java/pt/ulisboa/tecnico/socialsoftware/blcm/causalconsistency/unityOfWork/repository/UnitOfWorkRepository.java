@@ -13,7 +13,7 @@ import java.util.Set;
 @Transactional
 public interface UnitOfWorkRepository extends JpaRepository<UnitOfWork, Integer> {
 
-    @Query(value = "SELECT * FROM unit_of_works uow, unit_of_work_aggregate_ids uowi WHERE uow.id = uowi.unit_of_work_id AND uowi.aggregate_ids = :aggregateId AND  uow.running = 'true' AND uow.version < :version", nativeQuery = true)
+    @Query(value = "SELECT * FROM unit_of_works uow, unit_of_work_aggregate_ids uowi WHERE uow.id = uowi.unit_of_work_id AND uowi.aggregate_ids = :aggregateId AND uow.version < :version", nativeQuery = true)
     Set<UnitOfWork> findRunningTransactions(Integer aggregateId, Integer version);
 
 }
