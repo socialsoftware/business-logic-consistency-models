@@ -8,6 +8,8 @@ public class TournamentParticipantAnswer {
     @Column(name = "answer_aggregate_id")
     private Integer aggregateId;
 
+    private Integer version;
+
     @Column(name = "answer_number_of_answered")
     private Integer numberOfAnswered;
 
@@ -30,6 +32,14 @@ public class TournamentParticipantAnswer {
 
     public void setAggregateId(Integer id) {
         this.aggregateId = id;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public Integer getNumberOfAnswered() {

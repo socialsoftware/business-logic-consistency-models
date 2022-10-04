@@ -22,11 +22,8 @@ public class UnitOfWork {
     @ElementCollection
     private Set<Integer> aggregateIds;
 
-
-    private boolean running;
-
     @Transient
-    private Map<Integer, Aggregate> updatedObjects;
+    private Map<Integer, Aggregate> aggregateToCommit;
 
     @Transient
     private Set<DomainEvent> eventsToEmit;
@@ -43,10 +40,9 @@ public class UnitOfWork {
     }
 
     public UnitOfWork(Integer version) {
-        this.updatedObjects = new HashMap<Integer, Aggregate>();
+        this.aggregateToCommit = new HashMap<Integer, Aggregate>();
         this.eventsToEmit = new HashSet<>();
         this.aggregateIds = new HashSet<>();
-        this.running = true;
         this.currentReadDependencies = new HashMap<>();
         setVersion(version);
     }
@@ -68,12 +64,12 @@ public class UnitOfWork {
         this.version = version;
     }
 
-    public Collection<Aggregate> getUpdatedObjects() {
-        return updatedObjects.values();
+    public Collection<Aggregate> getAggregateToCommit() {
+        return aggregateToCommit.values();
     }
 
     public Map<Integer, Aggregate> getUpdatedObjectsMap() {
-        return updatedObjects;
+        return aggregateToCommit;
     }
 
 
@@ -81,7 +77,7 @@ public class UnitOfWork {
         // the id to null is to force a new entry in the db
         aggregate.setId(null);
         this.aggregateIds.add(aggregate.getAggregateId());
-        this.updatedObjects.put(aggregate.getAggregateId(), aggregate);
+        this.aggregateToCommit.put(aggregate.getAggregateId(), aggregate);
     }
 
     public Set<DomainEvent> getEventsToEmit() {
@@ -126,11 +122,4 @@ public class UnitOfWork {
         return this.currentReadDependencies.get(aggregateId);
     }
 
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
 }

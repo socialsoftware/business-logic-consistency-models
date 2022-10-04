@@ -13,10 +13,11 @@ public class DeleteTopicEvent extends DomainEvent {
 
 
     public DeleteTopicEvent() {
-
+        super();
     }
 
     public DeleteTopicEvent(Topic topic) {
+        super();
        setTopicAggregateId(topic.getAggregateId());
     }
 

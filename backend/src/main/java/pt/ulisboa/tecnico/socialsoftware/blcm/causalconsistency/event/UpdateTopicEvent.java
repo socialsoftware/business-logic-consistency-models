@@ -19,6 +19,7 @@ public class UpdateTopicEvent extends DomainEvent {
     }
 
     public UpdateTopicEvent(Topic topic) {
+        super();
         setTopicAggregateId(topic.getAggregateId());
         setTopicName(topic.getName());
     }

@@ -22,9 +22,11 @@ public class AnswerQuestionEvent extends DomainEvent {
     private boolean correct;
 
     public AnswerQuestionEvent() {
+        super();
     }
 
     public AnswerQuestionEvent(QuestionAnswer questionAnswer, Answer answer, Integer quizAggregateId) {
+        super();
         setQuestionAggregateId(questionAnswer.getQuestionAggregateId());
         setQuizAggregateId(quizAggregateId);
         setCorrect(questionAnswer.isCorrect());

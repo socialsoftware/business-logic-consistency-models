@@ -9,10 +9,11 @@ public class RemoveUserEvent extends DomainEvent {
     private Integer userAggregateId;
 
     public RemoveUserEvent() {
-
+        super();
     }
 
     public RemoveUserEvent(Integer userAggregateId) {
+        super();
         this.userAggregateId = userAggregateId;
     }
 

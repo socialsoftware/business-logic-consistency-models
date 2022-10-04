@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -15,12 +16,14 @@ public abstract class DomainEvent {
     @Column
     private Integer  aggregateVersion;
 
+    private LocalDateTime ts;
+
 
     @Column(name = "type", insertable = false, updatable = false)
     private String type;
 
     public DomainEvent() {
-
+        setTs(LocalDateTime.now());
     }
 
     public Integer getId() {
@@ -37,6 +40,14 @@ public abstract class DomainEvent {
 
     public void setAggregateVersion(Integer aggregateVersion) {
         this.aggregateVersion = aggregateVersion;
+    }
+
+    public LocalDateTime getTs() {
+        return ts;
+    }
+
+    public void setTs(LocalDateTime ts) {
+        this.ts = ts;
     }
 
     public String getType() {

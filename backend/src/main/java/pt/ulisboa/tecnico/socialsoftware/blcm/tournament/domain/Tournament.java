@@ -353,6 +353,7 @@ public class Tournament extends Aggregate {
     @Override
     public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
         Map<Integer , EventualConsistencyDependency> depMap = new HashMap<>();
+        depMap.put(getAggregateId(), new EventualConsistencyDependency(getAggregateId(), TOURNAMENT, getVersion()));
         depMap.put(this.courseExecution.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), AggregateType.COURSE_EXECUTION ,this.courseExecution.getVersion()));
         this.participants.forEach(p -> {
             depMap.put(p.getAggregateId(), new EventualConsistencyDependency(p.getAggregateId(), AggregateType.USER, p.getVersion()));

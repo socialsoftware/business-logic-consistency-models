@@ -8,6 +8,5 @@ public enum AggregateType {
     QUIZ,
     TOURNAMENT,
     ANSWER,
-
     TOPIC
 }

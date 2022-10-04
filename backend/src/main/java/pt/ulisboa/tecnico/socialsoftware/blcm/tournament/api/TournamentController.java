@@ -49,4 +49,11 @@ public class TournamentController {
     /*********************************** ONLY FOR EVENT PROCESSING TESTING PURPOSES ***********************************/
 
 
+    @GetMapping(value = "/tournaments/{tournamentAggregateId}/user/{userAggregateId}")
+    public void getTournamentAndUser(@PathVariable Integer tournamentAggregateId, @PathVariable Integer userAggregateId) {
+        tournamentFunctionalities.getTournamentAndUser(tournamentAggregateId, userAggregateId);
+    }
+
+
+
 }

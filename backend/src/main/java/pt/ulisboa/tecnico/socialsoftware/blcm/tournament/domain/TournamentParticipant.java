@@ -118,12 +118,13 @@ public class TournamentParticipant {
         this.state = state;
     }
 
-    public void updateAnswerWithQuestion(Integer answerAggregateId, boolean isCorrect) {
+    public void updateAnswerWithQuestion(Integer answerAggregateId, boolean isCorrect, Integer eventVersion) {
         getAnswer().setAggregateId(answerAggregateId);
         getAnswer().incrementAnswered();
         if(isCorrect) {
             getAnswer().incrementCorrect();
         }
+        getAnswer().setVersion(eventVersion);
     }
 
     public UserDto buildDto() {

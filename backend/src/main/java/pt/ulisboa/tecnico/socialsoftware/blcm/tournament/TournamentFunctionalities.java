@@ -218,6 +218,13 @@ public class TournamentFunctionalities {
         return tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
     }
 
+    public void getTournamentAndUser(Integer tournamentAggregateId, Integer userAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
+        UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
+        return;
+    }
+
 
     private void checkInput(Integer userId, List<Integer> topicsId, TournamentDto tournamentDto) {
         if (userId == null) {

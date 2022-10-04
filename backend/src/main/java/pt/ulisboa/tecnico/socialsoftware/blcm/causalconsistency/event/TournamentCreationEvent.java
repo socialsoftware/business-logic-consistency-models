@@ -19,9 +19,10 @@ public class TournamentCreationEvent extends DomainEvent {
     private Integer numberOfQuestions;
 
     public TournamentCreationEvent() {
-
+        super();
     }
     public TournamentCreationEvent(Tournament tournament) {
+        super();
         this.tournamentId = tournament.getId();
         this.startTime = tournament.getStartTime();
         this.endTime = tournament.getEndTime();

@@ -96,11 +96,17 @@ public class UnitOfWorkService {
         // TODO STEP 3 performs steps 1 and 2 until step 1 stops holding
         // TODO STEP 4 perform a commit of the aggregates under SERIALIZABLE isolation
 
-        Map<Integer, Aggregate> aggregatesToCommit = new HashMap<>(unitOfWork.getUpdatedObjectsMap());
+        Map<Integer, Aggregate> originalAggregatesToCommit = new HashMap<>(unitOfWork.getUpdatedObjectsMap());
+
+        // may contains merged aggregates
+        // we do not want to compare intermediate merged aggregates with concurrent aggregate so we separate
+        // the comparison is always between the original written by the functionality and the concurrent
+        Map<Integer, Aggregate> modifiedAggregatesToCommit = new HashMap<>(unitOfWork.getUpdatedObjectsMap());
+
         while (concurrentAggregates) {
             concurrentAggregates = false;
-            for (Integer aggregateId : aggregatesToCommit.keySet()) {
-                Aggregate aggregateToWrite = aggregatesToCommit.get(aggregateId);
+            for (Integer aggregateId : originalAggregatesToCommit.keySet()) {
+                Aggregate aggregateToWrite = originalAggregatesToCommit.get(aggregateId);
                 aggregateToWrite.verifyInvariants();
                 Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite, unitOfWork.getVersion());
                 // second condition is necessary for when a concurrent version is detected at first and then in the following detections it will have to do
@@ -110,7 +116,7 @@ public class UnitOfWorkService {
                     Aggregate newAggregate = aggregateToWrite.merge(concurrentAggregate);
                     newAggregate.verifyInvariants();
                     newAggregate.setId(null);
-                    aggregatesToCommit.put(aggregateId, newAggregate);
+                    modifiedAggregatesToCommit.put(aggregateId, newAggregate);
                 }
             }
 
@@ -123,14 +129,13 @@ public class UnitOfWorkService {
             }
         }
 
-        commitAllObjects(unitOfWork.getVersion(), aggregatesToCommit);
+        commitAllObjects(unitOfWork.getVersion(), modifiedAggregatesToCommit);
         unitOfWork.getEventsToEmit().forEach(e -> {
             /* this is so event detectors can compare this version to those of running transactions */
             e.setAggregateVersion(unitOfWork.getVersion());
             eventRepository.save(e);
         });
 
-        unitOfWork.setRunning(false);
         unitOfWorkRepository.delete(unitOfWork);
     }
 

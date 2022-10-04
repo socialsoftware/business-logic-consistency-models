@@ -13,12 +13,13 @@ public class UpdateQuestionEvent extends DomainEvent{
     private String content;
 
     public UpdateQuestionEvent() {
-
+        super();
     }
     public UpdateQuestionEvent(Integer aggregateId, String title, String content) {
-        this.aggregateId = aggregateId;
-        this.title = title;
-        this.content = content;
+        super();
+        setAggregateId(aggregateId);
+        setTitle(title);
+        setContent(content);
     }
 
     public Integer getAggregateId() {

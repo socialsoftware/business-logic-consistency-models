@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
@@ -78,6 +79,9 @@ public class TournamentService {
                                           TournamentCourseExecution courseExecution, Set<TournamentTopic> topics,
                                           TournamentQuiz quiz, UnitOfWork unitOfWorkWorkService) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
+        if(creator.getName().equals("ANONYMOUS") || creator.getUsername().equals("ANONYMOUS")) {
+            throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, creator.getAggregateId());
+        }
         Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz); /* should the skeleton creation be part of the functionality?? */
         tournament.setPrimaryAggregate(true);
         unitOfWorkWorkService.addUpdatedObject(tournament);
@@ -90,6 +94,9 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void addParticipant(Integer tournamentAggregateId, TournamentParticipant tournamentParticipant, UnitOfWork unitOfWorkWorkService) {
+        if(tournamentParticipant.getName().equals("ANONYMOUS") || tournamentParticipant.getUsername().equals("ANONYMOUS")) {
+            throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, tournamentParticipant.getAggregateId());
+        }
         Tournament tournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournamentVersion = new Tournament(tournament);
         newTournamentVersion.addParticipant(tournamentParticipant);
@@ -103,13 +110,14 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void anonymizeUser(Integer tournamentAggregateId, Integer userAggregateId, String name, String username, UnitOfWork unitOfWork) {
+    public void anonymizeUser(Integer tournamentAggregateId, Integer userAggregateId, String name, String username, Integer version, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
 
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
+            newTournament.getCreator().setVersion(version);
             unitOfWork.addUpdatedObject(newTournament);
         }
 
@@ -121,6 +129,7 @@ public class TournamentService {
             if(tp.getAggregateId().equals(userAggregateId)) {
                 tp.setName(name);
                 tp.setUsername(username);
+                tp.setVersion(version);
                 unitOfWork.addUpdatedObject(newTournament);
             }
         }
@@ -294,7 +303,7 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void removeUser(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+    public void removeUser(Integer tournamentAggregateId, Integer userAggregateId, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
@@ -306,6 +315,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
         tournamentParticipant.setState(DELETED);
+        tournamentParticipant.setVersion(eventVersion);
         unitOfWork.addUpdatedObject(newTournament);
     }
 
@@ -313,7 +323,7 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void updateTopic(Integer tournamentAggregateId, Integer topicAggregateId, String topicName, UnitOfWork unitOfWork) {
+    public void updateTopic(Integer tournamentAggregateId, Integer topicAggregateId, String topicName, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         TournamentTopic topic = newTournament.findTopic(topicAggregateId);
@@ -321,6 +331,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, topicAggregateId, tournamentAggregateId);
         }
         topic.setName(topicName);
+        topic.setVersion(eventVersion);
         unitOfWork.addUpdatedObject(newTournament);
     }
 
@@ -328,14 +339,14 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void updateParticipantAnswer(Integer tournamentAggregateId, Integer userAggregateId, Integer answerAggregateId, boolean isCorrect, UnitOfWork unitOfWork) {
+    public void updateParticipantAnswer(Integer tournamentAggregateId, Integer userAggregateId, Integer answerAggregateId, boolean isCorrect, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         TournamentParticipant tournamentParticipant = newTournament.findParticipant(userAggregateId);
         if(tournamentParticipant == null) {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
-        tournamentParticipant.updateAnswerWithQuestion(answerAggregateId, isCorrect);
+        tournamentParticipant.updateAnswerWithQuestion(answerAggregateId, isCorrect, eventVersion);
         unitOfWork.addUpdatedObject(newTournament);
     }
 
@@ -343,7 +354,7 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void removeTopic(Integer tournamentAggregateId, Integer topicAggregateId, UnitOfWork unitOfWork) {
+    public void removeTopic(Integer tournamentAggregateId, Integer topicAggregateId, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         TournamentTopic tournamentTopic  = newTournament.findTopic(topicAggregateId);
@@ -351,6 +362,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, topicAggregateId, tournamentAggregateId);
         }
         tournamentTopic.setState(INACTIVE);
+        tournamentTopic.setVersion(eventVersion);
         QuizDto quizDto = new QuizDto();
         quizDto.setAggregateId(newTournament.getQuiz().getAggregateId());
         quizDto.setAvailableDate(newTournament.getStartTime().toString());

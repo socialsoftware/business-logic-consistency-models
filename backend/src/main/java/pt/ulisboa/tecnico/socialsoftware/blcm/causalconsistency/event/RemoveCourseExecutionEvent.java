@@ -9,10 +9,11 @@ public class RemoveCourseExecutionEvent extends DomainEvent {
     private Integer courseExecutionAggregateId;
 
     public RemoveCourseExecutionEvent() {
-
+        super();
     }
 
     public RemoveCourseExecutionEvent(Integer courseExecutionAggregateId) {
+        super();
         this.courseExecutionAggregateId = courseExecutionAggregateId;
     }
 

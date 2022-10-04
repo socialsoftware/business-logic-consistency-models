@@ -8,14 +8,13 @@ import javax.persistence.Entity;
 public class RemoveQuestionEvent extends DomainEvent{
     private Integer aggregateId;
 
-
     public RemoveQuestionEvent() {
-
+        super();
     }
 
     public RemoveQuestionEvent(Integer aggregateId) {
-        this.aggregateId = aggregateId;
-
+        super();
+        setAggregateId(aggregateId);
     }
 
 
@@ -27,4 +26,5 @@ public class RemoveQuestionEvent extends DomainEvent{
     public void setAggregateId(Integer aggregateId) {
         this.aggregateId = aggregateId;
     }
+
 }

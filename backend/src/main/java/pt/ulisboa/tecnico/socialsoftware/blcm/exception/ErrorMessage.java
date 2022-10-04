@@ -21,7 +21,9 @@ public enum ErrorMessage {
     TOURNAMENT_TOPIC_NOT_FOUND("Topic %d is not part of tournament %d."),
     CANNOT_UPDATE_TOURNAMENT("Tournament %d cannot be updated."),
     CANNOT_DELETE_TOURNAMENT("Tournament %d cannot be deleted."),
-    QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist"),
+    QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist."),
+
+    USER_IS_ANONYMOUS("Cant add anonymous user %d."),
 
     QUIZ_DELETED("Quiz with aggregate id %d already deleted."),
     NOT_ENOUGH_QUESTIONS("Not enough questions to generate quiz."),
@@ -81,7 +83,8 @@ public enum ErrorMessage {
     INVALID_PREV("Prev does not match the type of the aggregate."),
     NO_PRIMARY_AGGREGATE_FOUND("No primary aggregate was found within the transactional context."),
     TOO_MANY_PRIMARY_AGGREGATE_FOUND("More than one primary aggregates were found within the transactional context"),
-    INVARIANT_BREAK("Aggregate %d breaks invariants");
+    INVARIANT_BREAK("Aggregate %d breaks invariants"),
+    INVALID_EVENT_TYPE("Invalid event type %s.");
 
     public final String label;
 

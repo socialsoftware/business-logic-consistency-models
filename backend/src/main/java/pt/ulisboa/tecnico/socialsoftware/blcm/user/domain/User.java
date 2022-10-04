@@ -221,6 +221,7 @@ public class User extends Aggregate {
     @Override
     public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
         Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
+        depMap.put(getAggregateId(), new EventualConsistencyDependency(getAggregateId(), USER, getVersion()));
         this.courseExecutions.forEach(ce -> {
             depMap.put(ce.getAggregateId(), new EventualConsistencyDependency(ce.getAggregateId(), COURSE_EXECUTION, ce.getVersion()));
         });

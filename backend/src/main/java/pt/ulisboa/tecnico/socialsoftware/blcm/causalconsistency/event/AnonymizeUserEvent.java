@@ -13,10 +13,11 @@ public class AnonymizeUserEvent extends DomainEvent{
     private String username;
 
     public AnonymizeUserEvent() {
-
+        super();
     }
 
     public AnonymizeUserEvent(Integer userAggregateId, String name, String username) {
+        super();
         setUserAggregateId(userAggregateId);
         setName(name);
         setUsername(username);
