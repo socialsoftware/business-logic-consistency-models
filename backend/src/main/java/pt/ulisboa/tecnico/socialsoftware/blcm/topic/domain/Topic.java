@@ -1,13 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOPIC;
 
 @Entity
@@ -55,9 +53,9 @@ public class Topic extends Aggregate {
     }
 
     @Override
-    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
-        depMap.put(this.course.getAggregateId(), new EventualConsistencyDependency(this.course.getAggregateId(), COURSE ,this.course.getVersion()));
+    public Map<Integer, Integer> getSnapshotElements() {
+        Map<Integer, Integer> depMap = new HashMap<>();
+        depMap.put(this.course.getAggregateId(), this.course.getVersion());
         return depMap;
     }
 

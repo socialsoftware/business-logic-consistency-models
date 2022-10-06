@@ -1,11 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import org.apache.commons.collections4.SetUtils;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -170,7 +168,7 @@ public class Tournament extends Aggregate {
 		this.state == DELETED => this.participants.empty
      */
     private boolean deleteCondition() {
-        if(getState().equals(DELETED)) {
+        if(getState() == DELETED) {
             return getParticipants().size() == 0;
         }
         return true;
@@ -223,12 +221,12 @@ public class Tournament extends Aggregate {
         Tournament v2 = (Tournament)other;
 
 
-        if(v1.getState().equals(DELETED)) {
+        if(v1.getState() == DELETED) {
             throw new TutorException(TOURNAMENT_DELETED, v1.getAggregateId());
         }
         /* take the state into account because we don't want to override a deleted object*/
 
-        if(v2.getState().equals(DELETED)) {
+        if(v2.getState() == DELETED) {
             throw new TutorException(TOURNAMENT_DELETED, v2.getAggregateId());
         }
 
@@ -351,16 +349,14 @@ public class Tournament extends Aggregate {
     }
 
     @Override
-    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        Map<Integer , EventualConsistencyDependency> depMap = new HashMap<>();
-        depMap.put(getAggregateId(), new EventualConsistencyDependency(getAggregateId(), TOURNAMENT, getVersion()));
-        depMap.put(this.courseExecution.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), AggregateType.COURSE_EXECUTION ,this.courseExecution.getVersion()));
+    public Map<Integer, Integer> getSnapshotElements() {
+        Map<Integer , Integer> depMap = new HashMap<>();
+        depMap.put(this.courseExecution.getAggregateId(), this.courseExecution.getVersion());
+        depMap.put(this.creator.getAggregateId(), this.creator.getVersion());
         this.participants.forEach(p -> {
-            depMap.put(p.getAggregateId(), new EventualConsistencyDependency(p.getAggregateId(), AggregateType.USER, p.getVersion()));
+            depMap.put(p.getAggregateId(), p.getVersion());
         });
-        depMap.put(this.creator.getAggregateId(), new EventualConsistencyDependency(this.creator.getAggregateId(), AggregateType.USER ,this.creator.getVersion()));
-        depMap.put(this.quiz.getAggregateId(), new EventualConsistencyDependency(this.quiz.getAggregateId(), AggregateType.QUIZ ,this.quiz.getVersion()));
-
+        depMap.put(this.quiz.getAggregateId(), this.quiz.getVersion());
         return depMap;
     }
 

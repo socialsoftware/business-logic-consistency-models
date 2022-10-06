@@ -57,7 +57,7 @@ public class AnswerService {
         Answer answer = answerRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUIZ_ANSWER_NOT_FOUND, aggregateId));
 
-        if(answer.getState().equals(DELETED)) {
+        if(answer.getState() == DELETED) {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
@@ -69,7 +69,7 @@ public class AnswerService {
         Answer answer = answerRepository.findCausalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(NO_USER_ANSWER_FOR_QUIZ, quizAggregateId, userAggregateId));
 
-        if(answer.getState().equals(DELETED)) {
+        if(answer.getState() == DELETED) {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
@@ -90,7 +90,7 @@ public class AnswerService {
 
         Answer answer = new Answer(aggregateId, new AnswerUser(userDto), new AnswerQuiz(quizDto));
 
-        unitOfWork.addUpdatedObject(answer);
+        unitOfWork.addAggregateToCommit(answer);
     }
 
     @Retryable(
@@ -103,7 +103,7 @@ public class AnswerService {
 
         QuestionAnswer questionAnswer = new QuestionAnswer(userAnswerDto, questionDto);
         newAnswer.addQuestionAnswer(questionAnswer);
-        unitOfWork.addUpdatedObject(newAnswer);
+        unitOfWork.addAggregateToCommit(newAnswer);
         unitOfWork.addEvent(new AnswerQuestionEvent(questionAnswer, newAnswer, quizAggregateId));
     }
 
@@ -117,6 +117,6 @@ public class AnswerService {
         Answer newAnswer = new Answer(oldAnswer);
 
         newAnswer.setCompleted(true);
-        unitOfWork.addUpdatedObject(newAnswer);
+        unitOfWork.addAggregateToCommit(newAnswer);
     }
 }

@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 
+import org.apache.commons.collections4.map.SingletonMap;
+import org.springframework.data.util.Pair;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -33,17 +35,17 @@ public class UnitOfWork {
     // TODO since aggregate ids are unique amongst several aggregate types, perhaps only a pair <Integer, Integer> is enough ( second Integer being the version)
 
     @Transient
-    private Map<Integer, EventualConsistencyDependency> currentReadDependencies;
+    private Map<Integer, Integer> causalSnapshot;
 
     public UnitOfWork() {
 
     }
 
     public UnitOfWork(Integer version) {
-        this.aggregateToCommit = new HashMap<Integer, Aggregate>();
+        this.aggregateToCommit = new HashMap<>();
         this.eventsToEmit = new HashSet<>();
         this.aggregateIds = new HashSet<>();
-        this.currentReadDependencies = new HashMap<>();
+        this.causalSnapshot = new HashMap<>();
         setVersion(version);
     }
 
@@ -68,12 +70,12 @@ public class UnitOfWork {
         return aggregateToCommit.values();
     }
 
-    public Map<Integer, Aggregate> getUpdatedObjectsMap() {
+    public Map<Integer, Aggregate> getAggregatesToCommit() {
         return aggregateToCommit;
     }
 
 
-    public void addUpdatedObject(Aggregate aggregate) {
+    public void addAggregateToCommit(Aggregate aggregate) {
         // the id to null is to force a new entry in the db
         aggregate.setId(null);
         this.aggregateIds.add(aggregate.getAggregateId());
@@ -88,38 +90,37 @@ public class UnitOfWork {
         this.eventsToEmit.add(event);
     }
 
-    public Map<Integer, EventualConsistencyDependency> getCurrentReadDependencies() {
-        return currentReadDependencies;
-    }
-
-
     public void addToCausalSnapshot(Aggregate aggregate) {
-        verifyEventualConsistency(aggregate);
-        addEventDependencies(aggregate);
+        verifySnapshotConsistency(aggregate.getSnapshotElements());
+        verifySnapshotElementConsistency(aggregate.getAggregateId(), aggregate.getVersion());
+        addSnapshotElements(aggregate.getSnapshotElements());
+        addSnapshotElements(new SingletonMap<>(aggregate.getAggregateId(), aggregate.getVersion()));
     }
 
-    private void addEventDependencies(Aggregate aggregate) {
-        aggregate.getDependenciesMap().values().forEach(dep -> {
-            if(!hasAggregateDep(dep.getAggregateId())) {
-                this.currentReadDependencies.put(dep.getAggregateId(), dep);
+    private void verifySnapshotConsistency(Map<Integer, Integer> aggregateSnapshotElements) {
+        aggregateSnapshotElements.forEach((aggregateId, version) -> verifySnapshotElementConsistency(aggregateId, version));
+    }
+
+    private void verifySnapshotElementConsistency(Integer aggregateId, Integer version) {
+        if (hasSnapshotElement(aggregateId) && !getSnapshotElementVersion(aggregateId).equals(version)) {
+            throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregateId, version);
+        }
+    }
+
+    private void addSnapshotElements(Map<Integer, Integer> aggregateSnapshotElements) {
+        aggregateSnapshotElements.keySet().forEach(aggregateId -> {
+            if(!hasSnapshotElement(aggregateId)) {
+                this.causalSnapshot.put(aggregateId, aggregateSnapshotElements.get(aggregateId));
             }
         });
     }
 
-    private void verifyEventualConsistency(Aggregate aggregate) {
-        for(EventualConsistencyDependency dep : aggregate.getDependenciesMap().values()) {
-            if (hasAggregateDep(dep.getAggregateId()) && !getAggregateDep(dep.getAggregateId()).getVersion().equals(dep.getVersion())) {
-                throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, dep.getAggregateId(), dep.getVersion());
-            }
-        }
+    public boolean hasSnapshotElement(Integer aggregateId) {
+        return this.causalSnapshot.containsKey(aggregateId);
     }
 
-    public boolean hasAggregateDep(Integer aggregateId) {
-        return this.currentReadDependencies.containsKey(aggregateId);
-    }
-
-    public EventualConsistencyDependency getAggregateDep(Integer aggregateId) {
-        return this.currentReadDependencies.get(aggregateId);
+    public Integer getSnapshotElementVersion(Integer aggregateId) {
+        return this.causalSnapshot.get(aggregateId);
     }
 
 }

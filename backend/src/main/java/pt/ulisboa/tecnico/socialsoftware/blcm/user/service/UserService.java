@@ -48,7 +48,7 @@ public class UserService {
         User user = userRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(USER_NOT_FOUND, aggregateId));
 
-        if(user.getState().equals(DELETED)) {
+        if(user.getState() == DELETED) {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
@@ -64,7 +64,7 @@ public class UserService {
     public UserDto createUser(UserDto userDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         User user = new User(aggregateId, userDto);
-        unitOfWork.addUpdatedObject(user);
+        unitOfWork.addAggregateToCommit(user);
         return new UserDto(user);
     }
 
@@ -78,7 +78,7 @@ public class UserService {
         executionsUsers.forEach(oldUser -> {
             User newUser = new User(oldUser);
             newUser.anonymize();
-            unitOfWork.addUpdatedObject(newUser);
+            unitOfWork.addAggregateToCommit(newUser);
             unitOfWork.addEvent(new AnonymizeUserEvent(newUser.getAggregateId(), "ANONYMOUS", "ANONYMOUS"));
         });
     }
@@ -96,7 +96,7 @@ public class UserService {
 
         User newUser = new User(oldUser);
         newUser.addCourseExecution(userCourseExecution);
-        unitOfWork.addUpdatedObject(newUser);
+        unitOfWork.addAggregateToCommit(newUser);
     }
 
     @Retryable(
@@ -110,7 +110,7 @@ public class UserService {
         }
         User newUser = new User(oldUser);
         newUser.setActive(true);
-        unitOfWork.addUpdatedObject(newUser);
+        unitOfWork.addAggregateToCommit(newUser);
     }
 
     @Retryable(
@@ -132,7 +132,7 @@ public class UserService {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
         User newUser = new User(oldUser);
         newUser.remove();
-        unitOfWork.addUpdatedObject(newUser);
+        unitOfWork.addAggregateToCommit(newUser);
     }
 
     @Retryable(
@@ -151,7 +151,7 @@ public class UserService {
                 newUser.removeCourseExecution(userCourseExecution);
             }
 
-            unitOfWork.addUpdatedObject(newUser);
+            unitOfWork.addAggregateToCommit(newUser);
         }
 
     }

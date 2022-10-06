@@ -23,7 +23,6 @@ public class TopicDto implements Serializable {
         setVersion(topic.getVersion());
         setCourseId(topic.getCourse().getAggregateId());
         setName(topic.getName());
-
     }
 
     public Integer getAggregateId() {

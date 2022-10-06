@@ -11,6 +11,8 @@ public class UserProcessedEvents {
     @GeneratedValue
     private Integer id;
 
+    private Integer aggregateId;
+
     @Column(name = "processed_events_ids")
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Integer> processedEventsIds;
@@ -22,8 +24,9 @@ public class UserProcessedEvents {
 
     }
 
-    public UserProcessedEvents(String eventType) {
+    public UserProcessedEvents(String eventType, Integer aggregateId) {
         this.processedEventsIds = new HashSet<>();
+        setAggregateId(aggregateId);
         setEventType(eventType);
     }
 
@@ -35,12 +38,20 @@ public class UserProcessedEvents {
         this.id = id;
     }
 
+    public Integer getAggregateId() {
+        return aggregateId;
+    }
+
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
+    }
+
     public Set<Integer> getProcessedEventsIds() {
         return processedEventsIds;
     }
 
-    public void addProcessedEventsIds(Set<Integer> processedEventsIds) {
-        this.processedEventsIds.addAll(processedEventsIds);
+    public void addProcessedEventsId(Integer processedEventsId) {
+        this.processedEventsIds.add(processedEventsId);
     }
 
     public boolean containsEvent(Integer eventId) {

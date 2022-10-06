@@ -43,7 +43,7 @@ public class CourseService {
         Course course = courseRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND, aggregateId));
 
-        if(course.getState().equals(DELETED)) {
+        if(course.getState() == DELETED) {
             throw new TutorException(ErrorMessage.COURSE_DELETED, course.getAggregateId());
         }
 
@@ -62,7 +62,7 @@ public class CourseService {
         if(course == null) {
             Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
             course = new Course(aggregateId, unitOfWork.getVersion(), courseExecutionDto);
-            unitOfWork.addUpdatedObject(course);
+            unitOfWork.addAggregateToCommit(course);
         }
         courseExecutionDto.setCourseAggregateId(course.getAggregateId());
         courseExecutionDto.setName(course.getName());

@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
@@ -96,12 +95,12 @@ public class UnitOfWorkService {
         // TODO STEP 3 performs steps 1 and 2 until step 1 stops holding
         // TODO STEP 4 perform a commit of the aggregates under SERIALIZABLE isolation
 
-        Map<Integer, Aggregate> originalAggregatesToCommit = new HashMap<>(unitOfWork.getUpdatedObjectsMap());
+        Map<Integer, Aggregate> originalAggregatesToCommit = new HashMap<>(unitOfWork.getAggregatesToCommit());
 
         // may contains merged aggregates
         // we do not want to compare intermediate merged aggregates with concurrent aggregate so we separate
         // the comparison is always between the original written by the functionality and the concurrent
-        Map<Integer, Aggregate> modifiedAggregatesToCommit = new HashMap<>(unitOfWork.getUpdatedObjectsMap());
+        Map<Integer, Aggregate> modifiedAggregatesToCommit = new HashMap<>(unitOfWork.getAggregatesToCommit());
 
         while (concurrentAggregates) {
             concurrentAggregates = false;
@@ -199,7 +198,7 @@ public class UnitOfWorkService {
         }
 
         // if a concurrent version is deleted it means the object has been deleted in the meanwhile
-        if(concurrentAggregate != null && (concurrentAggregate.getState().equals(DELETED) || concurrentAggregate.getState().equals(INACTIVE))) {
+        if(concurrentAggregate != null && (concurrentAggregate.getState() == DELETED || concurrentAggregate.getState() == INACTIVE)) {
             throw new TutorException(ErrorMessage.AGGREGATE_DELETED, concurrentAggregate.getAggregateId());
         }
 

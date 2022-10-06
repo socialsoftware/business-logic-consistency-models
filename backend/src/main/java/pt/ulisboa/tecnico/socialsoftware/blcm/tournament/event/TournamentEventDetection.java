@@ -84,7 +84,7 @@ public class TournamentEventDetection {
             tournamentService.anonymizeUser(tournamentAggregateId, e.getUserAggregateId(), e.getName(), e.getUsername(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsIds(e.getId());
+            tournamentProcessedEvents.addProcessedEventsId(e.getId());
         }
     }
 
@@ -120,7 +120,7 @@ public class TournamentEventDetection {
             tournamentService.removeCourseExecution(tournamentAggregateId, e.getCourseExecutionAggregateId(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsIds(e.getId());
+            tournamentProcessedEvents.addProcessedEventsId(e.getId());
         }
     }
 
@@ -163,7 +163,7 @@ public class TournamentEventDetection {
             tournamentService.removeUser(tournamentAggregateId, e.getUserAggregateId(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsIds(e.getId());
+            tournamentProcessedEvents.addProcessedEventsId(e.getId());
         }
     }
 
@@ -196,7 +196,7 @@ public class TournamentEventDetection {
             tournamentService.updateTopic(tournamentAggregateId, e.getTopicAggregateId(), e.getTopicName(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsIds(e.getId());
+            tournamentProcessedEvents.addProcessedEventsId(e.getId());
         }
     }
 
@@ -228,7 +228,7 @@ public class TournamentEventDetection {
             tournamentService.removeTopic(tournamentAggregateId, e.getTopicAggregateId(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsIds(e.getId());
+            tournamentProcessedEvents.addProcessedEventsId(e.getId());
         }
     }
 
@@ -260,7 +260,7 @@ public class TournamentEventDetection {
             tournamentService.updateParticipantAnswer(tournamentAggregateId, e.getUserAggregateId(), e.getAnswerAggregateId(), e.isCorrect(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsIds(e.getId());
+            tournamentProcessedEvents.addProcessedEventsId(e.getId());
         }
     }
 

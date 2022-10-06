@@ -556,7 +556,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             </JSONPostProcessor>
             <hashTree/>
             <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="BeanShell Assertion" enabled="true">
-              <stringProp name="BeanShellAssertion.query"> ${__setProperty(topic_aggregate_id_${topic_counter},${topic_aggregate_id})}</stringProp>
+              <stringProp name="BeanShellAssertion.query"> ${__setProperty(topic_aggregate_id, ${topic_aggregate_id})}</stringProp>
               <stringProp name="BeanShellAssertion.filename"></stringProp>
               <stringProp name="BeanShellAssertion.parameters"></stringProp>
               <boolProp name="BeanShellAssertion.resetInterpreter">false</boolProp>
@@ -708,7 +708,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
     &quot;content&quot;: &quot;question content ${question_counter}&quot;,&#xd;
 	&quot;topicDto&quot;: [&#xd;
 		{&#xd;
-			&quot;aggregateId&quot;: ${__property(topic_aggregate_id_${question_counter})}&#xd;
+			&quot;aggregateId&quot;: ${__property(topic_aggregate_id)}&#xd;
 		}&#xd;
 	],&#xd;
 	&#xd;
@@ -887,7 +887,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-            <stringProp name="HTTPSampler.path">${prefix}/executions/${__property(course_execution_aggregate_id)}/tournaments/create/?userId=${__property(user_aggregate_id_1)}&amp;executionId=${__property(course_execution_aggregate_id)}&amp;topicsId=${__property(topic_aggregate_id_1)}</stringProp>
+            <stringProp name="HTTPSampler.path">${prefix}/executions/${__property(course_execution_aggregate_id)}/tournaments/create/?userId=${__property(user_aggregate_id_1)}&amp;executionId=${__property(course_execution_aggregate_id)}&amp;topicsId=${__property(topic_aggregate_id)}</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1056,7 +1056,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
-	&quot;aggregateId&quot;: ${__property(topic_aggregate_id_1)},&#xd;
+	&quot;aggregateId&quot;: ${__property(topic_aggregate_id)},&#xd;
 	&quot;name&quot;: &quot;Updated topic name&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -1225,7 +1225,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check participant" enabled="true">
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check topic" enabled="true">
               <stringProp name="JSON_PATH">$..topics[0].name</stringProp>
               <stringProp name="EXPECTED_VALUE">Updated topic name</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>

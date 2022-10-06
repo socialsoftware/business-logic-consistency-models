@@ -36,8 +36,8 @@ public class TopicService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public TopicDto getCausalTopicRemote(Integer topicAggregateId, UnitOfWork unitOfWorkWorkService) {
-        return new TopicDto(getCausalTopicLocal(topicAggregateId, unitOfWorkWorkService));
+    public TopicDto getCausalTopicRemote(Integer topicAggregateId, UnitOfWork unitOfWork) {
+        return new TopicDto(getCausalTopicLocal(topicAggregateId, unitOfWork));
     }
 
 
@@ -47,7 +47,7 @@ public class TopicService {
         Topic topic = topicRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(ErrorMessage.TOPIC_NOT_FOUND, aggregateId));
 
-        if(topic.getState().equals(DELETED)) {
+        if(topic.getState() == DELETED) {
             throw new TutorException(ErrorMessage.TOPIC_DELETED, topic.getAggregateId());
         }
 
@@ -62,7 +62,7 @@ public class TopicService {
     public TopicDto createTopic(TopicDto topicDto, TopicCourse course, UnitOfWork unitOfWorkWorkService) {
         Topic topic = new Topic(aggregateIdGeneratorService.getNewAggregateId(),
                 topicDto.getName(), course);
-        unitOfWorkWorkService.addUpdatedObject(topic);
+        unitOfWorkWorkService.addAggregateToCommit(topic);
         return new TopicDto(topic);
     }
 
@@ -89,7 +89,7 @@ public class TopicService {
         Topic oldTopic = getCausalTopicLocal(topicDto.getAggregateId(), unitOfWork);
         Topic newTopic = new Topic(oldTopic);
         newTopic.setName(topicDto.getName());
-        unitOfWork.addUpdatedObject(newTopic);
+        unitOfWork.addAggregateToCommit(newTopic);
         unitOfWork.addEvent(new UpdateTopicEvent(newTopic));
     }
 
@@ -101,7 +101,7 @@ public class TopicService {
         Topic oldTopic = getCausalTopicLocal(topicAggregateId, unitOfWork);
         Topic newTopic = new Topic(oldTopic);
         newTopic.remove();
-        unitOfWork.addUpdatedObject(newTopic);
+        unitOfWork.addAggregateToCommit(newTopic);
         unitOfWork.addEvent(new DeleteTopicEvent(newTopic));
     }
 }

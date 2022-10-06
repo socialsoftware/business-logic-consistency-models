@@ -50,7 +50,7 @@ public class TournamentService {
         Tournament tournament = tournamentRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
 
-        if(tournament.getState().equals(DELETED)) {
+        if(tournament.getState() == DELETED) {
             throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
@@ -84,7 +84,7 @@ public class TournamentService {
         }
         Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz); /* should the skeleton creation be part of the functionality?? */
         tournament.setPrimaryAggregate(true);
-        unitOfWorkWorkService.addUpdatedObject(tournament);
+        unitOfWorkWorkService.addAggregateToCommit(tournament);
         //unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
         return new TournamentDto(tournament);
     }
@@ -100,7 +100,7 @@ public class TournamentService {
         Tournament tournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournamentVersion = new Tournament(tournament);
         newTournamentVersion.addParticipant(tournamentParticipant);
-        unitOfWorkWorkService.addUpdatedObject(newTournamentVersion);
+        unitOfWorkWorkService.addAggregateToCommit(newTournamentVersion);
     }
 
     /*TODO refactor this*/
@@ -118,7 +118,7 @@ public class TournamentService {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
             newTournament.getCreator().setVersion(version);
-            unitOfWork.addUpdatedObject(newTournament);
+            unitOfWork.addAggregateToCommit(newTournament);
         }
 
         /*TournamentParticipant participantToAnonymize = newTournament.findParticipant(userAggregateId);
@@ -130,7 +130,7 @@ public class TournamentService {
                 tp.setName(name);
                 tp.setUsername(username);
                 tp.setVersion(version);
-                unitOfWork.addUpdatedObject(newTournament);
+                unitOfWork.addAggregateToCommit(newTournament);
             }
         }
     }
@@ -143,7 +143,7 @@ public class TournamentService {
 
         Map<Integer, Tournament> tournamentPerAggregateId = new HashMap<>();
         for(Tournament t : tournaments) {
-            if(t.getState().equals(DELETED)) {
+            if(t.getState() == DELETED) {
                 throw new TutorException(TOURNAMENT_DELETED, t.getAggregateId());
             }
             unitOfWork.addToCausalSnapshot(t);
@@ -170,22 +170,22 @@ public class TournamentService {
         if(tournamentDto.getStartTime() != null ) {
             newTournament.setStartTime(LocalDateTime.
                     parse(tournamentDto.getStartTime()));
-            unitOfWorkWorkService.addUpdatedObject(newTournament);
+            unitOfWorkWorkService.addAggregateToCommit(newTournament);
         }
 
         if(tournamentDto.getEndTime() != null ) {
             newTournament.setEndTime(LocalDateTime.parse(tournamentDto.getEndTime()));
-            unitOfWorkWorkService.addUpdatedObject(newTournament);
+            unitOfWorkWorkService.addAggregateToCommit(newTournament);
         }
 
         if(tournamentDto.getNumberOfQuestions() != null ) {
             newTournament.setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
-            unitOfWorkWorkService.addUpdatedObject(newTournament);
+            unitOfWorkWorkService.addAggregateToCommit(newTournament);
         }
 
         if(tournamentTopics != null && !tournamentTopics.isEmpty() ) {
             newTournament.setTopics(tournamentTopics);
-            unitOfWorkWorkService.addUpdatedObject(newTournament);
+            unitOfWorkWorkService.addAggregateToCommit(newTournament);
         }
 
         return new TournamentDto(newTournament);
@@ -245,7 +245,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
         newTournament.removeParticipant(participantToRemove);
-        unitOfWorkWorkService.addUpdatedObject(newTournament);
+        unitOfWorkWorkService.addAggregateToCommit(newTournament);
     }
 
     @Retryable(
@@ -260,7 +260,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
         participant.answerQuiz();
-        unitOfWork.addUpdatedObject(newTournament);
+        unitOfWork.addAggregateToCommit(newTournament);
     }
 
     @Retryable(
@@ -271,7 +271,7 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWorkWorkService);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.cancel();
-        unitOfWorkWorkService.addUpdatedObject(newTournament);
+        unitOfWorkWorkService.addAggregateToCommit(newTournament);
     }
 
     @Retryable(
@@ -282,7 +282,7 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.remove();
-        unitOfWork.addUpdatedObject(newTournament);
+        unitOfWork.addAggregateToCommit(newTournament);
     }
 
     @Retryable(
@@ -294,7 +294,7 @@ public class TournamentService {
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCourseExecution().getAggregateId().equals(courseExecutionId)) {
             newTournament.remove();
-            unitOfWork.addUpdatedObject(newTournament);
+            unitOfWork.addAggregateToCommit(newTournament);
         }
 
     }
@@ -308,7 +308,7 @@ public class TournamentService {
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.setState(INACTIVE);
-            unitOfWork.addUpdatedObject(newTournament);
+            unitOfWork.addAggregateToCommit(newTournament);
         }
         TournamentParticipant tournamentParticipant  = newTournament.findParticipant(userAggregateId);
         if(tournamentParticipant == null) {
@@ -316,7 +316,7 @@ public class TournamentService {
         }
         tournamentParticipant.setState(DELETED);
         tournamentParticipant.setVersion(eventVersion);
-        unitOfWork.addUpdatedObject(newTournament);
+        unitOfWork.addAggregateToCommit(newTournament);
     }
 
     @Retryable(
@@ -332,7 +332,7 @@ public class TournamentService {
         }
         topic.setName(topicName);
         topic.setVersion(eventVersion);
-        unitOfWork.addUpdatedObject(newTournament);
+        unitOfWork.addAggregateToCommit(newTournament);
     }
 
     @Retryable(
@@ -347,7 +347,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
         tournamentParticipant.updateAnswerWithQuestion(answerAggregateId, isCorrect, eventVersion);
-        unitOfWork.addUpdatedObject(newTournament);
+        unitOfWork.addAggregateToCommit(newTournament);
     }
 
     @Retryable(
@@ -368,7 +368,7 @@ public class TournamentService {
         quizDto.setAvailableDate(newTournament.getStartTime().toString());
         quizDto.setConclusionDate(newTournament.getEndTime().toString());
         quizDto.setResultsDate(newTournament.getEndTime().toString());
-        quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState().equals(ACTIVE)).map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(),unitOfWork);
-        unitOfWork.addUpdatedObject(newTournament);
+        quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState() == ACTIVE).map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(),unitOfWork);
+        unitOfWork.addAggregateToCommit(newTournament);
     }
 }

@@ -1,7 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -111,7 +109,7 @@ public abstract class Aggregate {
 
     public abstract Aggregate merge(Aggregate other);
 
-    public abstract Map<Integer, EventualConsistencyDependency> getDependenciesMap();
+    public abstract Map<Integer, Integer> getSnapshotElements();
 
     public AggregateType getAggregateType() {
         return aggregateType;

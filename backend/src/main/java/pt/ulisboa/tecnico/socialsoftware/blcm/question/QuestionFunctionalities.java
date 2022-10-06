@@ -7,6 +7,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.service.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
@@ -47,8 +48,12 @@ public class QuestionFunctionalities {
     public QuestionDto createQuestion(Integer questionAggregateId, QuestionDto questionDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         QuestionCourse course = new QuestionCourse(courseService.getCausalCourseRemote(questionAggregateId, unitOfWork));
+        List<QuestionTopic> questionTopics = questionDto.getTopicDto().stream()
+                .map(topicDto -> topicService.getCausalTopicRemote(topicDto.getAggregateId(), unitOfWork))
+                .map(QuestionTopic::new)
+                .collect(Collectors.toList());
 
-        QuestionDto questionDto1 = questionService.createQuestion(course, questionDto, unitOfWork);
+        QuestionDto questionDto1 = questionService.createQuestion(course, questionDto, questionTopics, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
         return questionDto1;

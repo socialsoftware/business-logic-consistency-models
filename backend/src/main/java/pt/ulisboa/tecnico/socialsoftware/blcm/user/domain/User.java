@@ -1,12 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import org.apache.commons.collections4.SetUtils;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.*;
@@ -16,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.USER;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
@@ -146,7 +142,7 @@ public class User extends Aggregate {
         User prev = (User)(this.getPrev());
 
         /* if there is an already concurrent version which is deleted this should not execute*/
-        if(v1.getState().equals(DELETED)) {
+        if(v1.getState() == DELETED) {
             throw new TutorException(USER_DELETED, v1.getAggregateId());
         }
 
@@ -219,12 +215,9 @@ public class User extends Aggregate {
     }
 
     @Override
-    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
-        depMap.put(getAggregateId(), new EventualConsistencyDependency(getAggregateId(), USER, getVersion()));
-        this.courseExecutions.forEach(ce -> {
-            depMap.put(ce.getAggregateId(), new EventualConsistencyDependency(ce.getAggregateId(), COURSE_EXECUTION, ce.getVersion()));
-        });
+    public Map<Integer, Integer> getSnapshotElements() {
+        Map<Integer, Integer> depMap = new HashMap<>();
+        this.courseExecutions.forEach(ce -> depMap.put(ce.getAggregateId(), ce.getVersion()));
         return depMap;
     }
 

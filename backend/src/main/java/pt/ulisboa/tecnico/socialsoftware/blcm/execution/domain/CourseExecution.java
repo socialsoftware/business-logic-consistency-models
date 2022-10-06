@@ -1,8 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.*;
@@ -61,9 +59,9 @@ public class CourseExecution extends Aggregate {
     }
 
     @Override
-    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
-        depMap.put(this.course.getAggregateId(), new EventualConsistencyDependency(this.course.getAggregateId(), AggregateType.COURSE, this.course.getVersion()));
+    public Map<Integer, Integer> getSnapshotElements() {
+        Map<Integer, Integer> depMap = new HashMap<>();
+        depMap.put(this.course.getAggregateId(), this.course.getVersion());
         return depMap;
     }
 

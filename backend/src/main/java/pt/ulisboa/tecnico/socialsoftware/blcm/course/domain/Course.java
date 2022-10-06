@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.course.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.util.HashMap;
@@ -49,10 +48,8 @@ public class Course extends Aggregate {
     }
 
     @Override
-    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        Map deps = new HashMap<>();
-        deps.put(getAggregateId(), new EventualConsistencyDependency(getAggregateId(), getAggregateType(), getVersion()));
-        return deps;
+    public Map<Integer, Integer> getSnapshotElements() {
+        return new HashMap<>();
     }
 
     public CourseType getType() {

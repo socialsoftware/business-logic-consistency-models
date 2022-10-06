@@ -14,7 +14,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
@@ -49,7 +48,7 @@ public class QuestionService {
         Question question = questionRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, aggregateId));
 
-        if(question.getState().equals(DELETED)) {
+        if(question.getState() == DELETED) {
             throw new TutorException(ErrorMessage.QUESTION_DELETED, question.getAggregateId());
         }
 
@@ -75,11 +74,11 @@ public class QuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuestionDto createQuestion(QuestionCourse course, QuestionDto questionDto, UnitOfWork unitOfWork) {
+    public QuestionDto createQuestion(QuestionCourse course, QuestionDto questionDto, List<QuestionTopic> questionTopics, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
 
-        Question question = new Question(aggregateId, course, questionDto);
-        unitOfWork.addUpdatedObject(question);
+        Question question = new Question(aggregateId, course, questionDto, questionTopics);
+        unitOfWork.addAggregateToCommit(question);
         return new QuestionDto(question);
     }
 
@@ -95,7 +94,7 @@ public class QuestionService {
         Question oldQuestion = getCausalQuestionLocal(questionDto.getAggregateId(), unitOfWork);
         Question newQuestion = new Question(oldQuestion);
         newQuestion.update(questionDto);
-        unitOfWork.addUpdatedObject(newQuestion);
+        unitOfWork.addAggregateToCommit(newQuestion);
         unitOfWork.addEvent(new UpdateQuestionEvent(newQuestion.getAggregateId(), newQuestion.getTitle(), newQuestion.getContent()));
     }
 
@@ -108,7 +107,7 @@ public class QuestionService {
         Question newQuestion = new Question(oldQuestion);
         // TODO check remove conditions, maybe not needed because they are written based on info from downstream aggregates
         newQuestion.remove();
-        unitOfWork.addUpdatedObject(newQuestion);
+        unitOfWork.addAggregateToCommit(newQuestion);
         unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion.getAggregateId()));
     }
 
@@ -120,7 +119,7 @@ public class QuestionService {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
         newQuestion.setTopics(topics);
-        unitOfWork.addUpdatedObject(newQuestion);
+        unitOfWork.addAggregateToCommit(newQuestion);
     }
 
     @Retryable(

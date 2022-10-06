@@ -10,7 +10,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.servic
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
@@ -67,7 +66,7 @@ public class QuizService {
         Quiz quiz = quizRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUIZ_NOT_FOUND, aggregateId));
 
-        if(quiz.getState().equals(DELETED)) {
+        if(quiz.getState() == DELETED) {
             throw new TutorException(QUIZ_DELETED, quiz.getAggregateId());
         }
 
@@ -103,7 +102,7 @@ public class QuizService {
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, GENERATED);
         quiz.setTitle("Generated Quiz Title");
         quiz.setCourseExecution(quizCourseExecution);
-        unitOfWork.addUpdatedObject(quiz);
+        unitOfWork.addAggregateToCommit(quiz);
         return new QuizDto(quiz);
     }
 
@@ -135,7 +134,7 @@ public class QuizService {
     public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, Set<QuizQuestion> quizQuestions, QuizDto quizDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, IN_CLASS);
-        unitOfWork.addUpdatedObject(quiz);
+        unitOfWork.addAggregateToCommit(quiz);
         return new QuizDto(quiz);
     }
 
@@ -163,7 +162,7 @@ public class QuizService {
         }
 
         newQuiz.setTitle("Generated Quiz Title");
-        unitOfWork.addUpdatedObject(newQuiz);
+        unitOfWork.addAggregateToCommit(newQuiz);
         return new QuizDto(newQuiz);
     }
 }

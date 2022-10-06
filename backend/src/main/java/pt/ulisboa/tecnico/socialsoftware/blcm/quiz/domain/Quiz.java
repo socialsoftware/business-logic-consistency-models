@@ -4,7 +4,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -97,11 +96,11 @@ public class Quiz extends Aggregate {
         }
         Quiz v2 = (Quiz)other;
 
-        if(getState().equals(DELETED)) {
+        if(getState() == DELETED) {
             throw new TutorException(QUIZ_DELETED, getAggregateId());
         }
 
-        if(v2.getState().equals(DELETED)) {
+        if(v2.getState() == DELETED) {
             throw new TutorException(QUIZ_DELETED, v2.getAggregateId());
         }
 
@@ -191,11 +190,11 @@ public class Quiz extends Aggregate {
     }
 
     @Override
-    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
-        depMap.put(this.courseExecution.getAggregateId(), new EventualConsistencyDependency(this.courseExecution.getAggregateId(), COURSE_EXECUTION, this.courseExecution.getVersion()));
+    public Map<Integer, Integer> getSnapshotElements() {
+        Map<Integer, Integer> depMap = new HashMap<>();
+        depMap.put(this.courseExecution.getAggregateId(), this.courseExecution.getVersion());
         quizQuestions.forEach(q -> {
-            depMap.put(q.getAggregateId(), new EventualConsistencyDependency(q.getAggregateId(), QUESTION, q.getVersion()));
+            depMap.put(q.getAggregateId(), q.getVersion());
         });
         return depMap;
     }

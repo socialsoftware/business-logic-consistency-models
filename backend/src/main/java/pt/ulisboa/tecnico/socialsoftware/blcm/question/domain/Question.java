@@ -2,14 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.EventualConsistencyDependency;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.QUESTION;
 
 @Entity
@@ -38,7 +36,7 @@ public class Question extends Aggregate {
 
     }
 
-    public Question(Integer aggregateId, QuestionCourse course, QuestionDto questionDto) {
+    public Question(Integer aggregateId, QuestionCourse course, QuestionDto questionDto, List<QuestionTopic> questionTopics) {
         super(aggregateId, QUESTION);
         setTitle(questionDto.getTitle());
         setContent(questionDto.getContent());
@@ -51,7 +49,7 @@ public class Question extends Aggregate {
             o.setKey(optionKeyGenerator++);
         }
 
-        setTopics(questionDto.getTopicDto().stream().map(QuestionTopic::new).collect(Collectors.toSet()));
+        setTopics(new HashSet<>(questionTopics));
         setPrev(null);
     }
 
@@ -79,12 +77,11 @@ public class Question extends Aggregate {
     }
 
     @Override
-    public Map<Integer, EventualConsistencyDependency> getDependenciesMap() {
-        Map<Integer, EventualConsistencyDependency> depMap = new HashMap<>();
-
-        depMap.put(this.course.getAggregateId(), new EventualConsistencyDependency(this.course.getAggregateId(), COURSE, this.course.getVersion()));
+    public Map<Integer, Integer> getSnapshotElements() {
+        Map<Integer, Integer> depMap = new HashMap<>();
+        depMap.put(this.course.getAggregateId(), this.course.getVersion());
         this.topics.forEach(t -> {
-            depMap.put(t.getAggregateId(), new EventualConsistencyDependency(t.getAggregateId(), COURSE, t.getVersion()));
+            depMap.put(t.getAggregateId(), t.getVersion());
         });
         return  depMap;
     }

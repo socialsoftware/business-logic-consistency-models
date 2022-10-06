@@ -54,6 +54,7 @@ public class QuestionTopic {
         TopicDto dto = new TopicDto();
         dto.setAggregateId(this.aggregateId);
         dto.setName(this.name);
+        dto.setVersion(this.version);
         return dto;
     }
 

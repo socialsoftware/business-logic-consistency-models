@@ -50,7 +50,7 @@ public class TournamentProcessedEvents {
         return processedEventsIds;
     }
 
-    public void addProcessedEventsIds(Integer processedEventsIds) {
+    public void addProcessedEventsId(Integer processedEventsIds) {
         this.processedEventsIds.add(processedEventsIds);
     }
 
