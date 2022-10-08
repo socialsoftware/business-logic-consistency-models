@@ -4,7 +4,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 
 import javax.persistence.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOPIC;
 
@@ -57,6 +59,11 @@ public class Topic extends Aggregate {
         Map<Integer, Integer> depMap = new HashMap<>();
         depMap.put(this.course.getAggregateId(), this.course.getVersion());
         return depMap;
+    }
+
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
     }
 
     public String getName() {

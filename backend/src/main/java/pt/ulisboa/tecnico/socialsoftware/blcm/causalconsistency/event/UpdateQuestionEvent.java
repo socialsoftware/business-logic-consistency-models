@@ -6,8 +6,6 @@ import javax.persistence.Entity;
 @Entity
 @DiscriminatorValue("UPDATE_QUESTION")
 public class UpdateQuestionEvent extends DomainEvent{
-    private Integer aggregateId;
-
     private String title;
 
     private String content;
@@ -16,18 +14,9 @@ public class UpdateQuestionEvent extends DomainEvent{
         super();
     }
     public UpdateQuestionEvent(Integer aggregateId, String title, String content) {
-        super();
-        setAggregateId(aggregateId);
+        super(aggregateId);
         setTitle(title);
         setContent(content);
-    }
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
     }
 
     public String getTitle() {

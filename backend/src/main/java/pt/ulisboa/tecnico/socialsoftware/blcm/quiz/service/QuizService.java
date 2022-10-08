@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
@@ -47,6 +51,12 @@ public class QuizService {
     @Autowired
     private CourseExecutionService courseExecutionService;
 
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private ProcessedEventsRepository processedEventsRepository;
+
     @Transactional
    public QuizDto getCausalQuiz(Integer aggregateId) {
         // TODO
@@ -70,7 +80,10 @@ public class QuizService {
             throw new TutorException(QUIZ_DELETED, quiz.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(quiz);
+        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
+        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
+
+        unitOfWork.addToCausalSnapshot(quiz, allEvents, processedEvents);
         return quiz;
     }
 

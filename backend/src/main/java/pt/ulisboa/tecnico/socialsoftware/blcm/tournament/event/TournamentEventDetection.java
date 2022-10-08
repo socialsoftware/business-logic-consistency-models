@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.repository.UnitOfWorkRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
@@ -38,7 +40,7 @@ public class TournamentEventDetection {
     private UnitOfWorkService unitOfWorkService;
 
     @Autowired
-    private TournamentProcessedEventsRepository tournamentProcessedEventsRepository;
+    private ProcessedEventsRepository processedEventsRepository;
 
     @Autowired
     private UnitOfWorkRepository unitOfWorkRepository;
@@ -63,28 +65,28 @@ public class TournamentEventDetection {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
 
         for(Integer tournamentAggregateId : tournamentAggregateIds) {
-            TournamentProcessedEvents tournamentProcessedEvents = getTournamentProcessedEvents(ANONYMIZE_USER, tournamentAggregateId);
-            List<DomainEvent> events = getDomainEvents(ANONYMIZE_USER, tournamentProcessedEvents);
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(ANONYMIZE_USER, tournamentAggregateId);
+            List<DomainEvent> events = getDomainEvents(ANONYMIZE_USER, processedEvents);
 
-            processAnonymizeUserEvents(tournamentAggregateId, tournamentProcessedEvents, events);
-            tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
+            processAnonymizeUserEvents(tournamentAggregateId, processedEvents, events);
+            processedEventsRepository.save(processedEvents);
         }
     }
 
-    private void processAnonymizeUserEvents(Integer tournamentAggregateId, TournamentProcessedEvents tournamentProcessedEvents, List<DomainEvent> events) {
+    private void processAnonymizeUserEvents(Integer tournamentAggregateId, ProcessedEvents processedEvents, List<DomainEvent> events) {
         Set<AnonymizeUserEvent> anonymizeUserEvents = events.stream().map(e -> (AnonymizeUserEvent) e).collect(Collectors.toSet());
         for(AnonymizeUserEvent e : anonymizeUserEvents) {
-            Set<Integer> tournamentIdsByUser = tournamentRepository.findAllAggregateIdsByUser(e.getUserAggregateId());
+            Set<Integer> tournamentIdsByUser = tournamentRepository.findAllAggregateIdsByUser(e.getAggregateId());
             boolean runningTransactions = unitOfWorkRepository.findRunningTransactions(tournamentAggregateId, e.getAggregateVersion()).size() > 0;
             if(runningTransactions || !tournamentIdsByUser.contains(tournamentAggregateId)) {
                 continue;
             }
-            System.out.printf("Processing anonymize user %d event for tournament %d\n", e.getUserAggregateId(), tournamentAggregateId);
+            System.out.printf("Processing anonymize user %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
             UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-            tournamentService.anonymizeUser(tournamentAggregateId, e.getUserAggregateId(), e.getName(), e.getUsername(), e.getAggregateVersion(), unitOfWork);
+            tournamentService.anonymizeUser(tournamentAggregateId, e.getAggregateId(), e.getName(), e.getUsername(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsId(e.getId());
+            processedEvents.addProcessedEventVersion(e.getAggregateVersion());
         }
     }
 
@@ -100,27 +102,27 @@ public class TournamentEventDetection {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
 
         for(Integer tournamentAggregateId : tournamentAggregateIds) {
-            TournamentProcessedEvents tournamentProcessedEvents = getTournamentProcessedEvents(REMOVE_COURSE_EXECUTION, tournamentAggregateId);
-            List<DomainEvent> events = getDomainEvents(REMOVE_COURSE_EXECUTION, tournamentProcessedEvents);
-            processRemoveCourseExecutionEvents(tournamentAggregateId, tournamentProcessedEvents, events);
-            tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(REMOVE_COURSE_EXECUTION, tournamentAggregateId);
+            List<DomainEvent> events = getDomainEvents(REMOVE_COURSE_EXECUTION, processedEvents);
+            processRemoveCourseExecutionEvents(tournamentAggregateId, processedEvents, events);
+            processedEventsRepository.save(processedEvents);
         }
     }
 
-    private void processRemoveCourseExecutionEvents(Integer tournamentAggregateId, TournamentProcessedEvents tournamentProcessedEvents, List<DomainEvent> events) {
+    private void processRemoveCourseExecutionEvents(Integer tournamentAggregateId, ProcessedEvents processedEvents, List<DomainEvent> events) {
         Set<RemoveCourseExecutionEvent> removeCourseExecutionEvents = events.stream().map(e -> (RemoveCourseExecutionEvent) e).collect(Collectors.toSet());
         for(RemoveCourseExecutionEvent e : removeCourseExecutionEvents) {
-            Set<Integer> tournamentIdsByCourseExecution = tournamentRepository.findAllAggregateIdsByCourseExecution(e.getCourseExecutionAggregateId());
+            Set<Integer> tournamentIdsByCourseExecution = tournamentRepository.findAllAggregateIdsByCourseExecution(e.getAggregateId());
             boolean runningTransactions = unitOfWorkRepository.findRunningTransactions(tournamentAggregateId, e.getAggregateVersion()).size() > 0;
             if(runningTransactions || !tournamentIdsByCourseExecution.contains(tournamentAggregateId)) {
                 continue;
             }
-            System.out.printf("Processing remove course execution %d event for tournament %d\n", e.getCourseExecutionAggregateId(), tournamentAggregateId);
+            System.out.printf("Processing remove course execution %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
             UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-            tournamentService.removeCourseExecution(tournamentAggregateId, e.getCourseExecutionAggregateId(), unitOfWork);
+            tournamentService.removeCourseExecution(tournamentAggregateId, e.getAggregateId(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsId(e.getId());
+            processedEvents.addProcessedEventVersion(e.getAggregateVersion());
         }
     }
 
@@ -143,27 +145,27 @@ public class TournamentEventDetection {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
 
         for(Integer tournamentAggregateId : tournamentAggregateIds) {
-            TournamentProcessedEvents tournamentProcessedEvents = getTournamentProcessedEvents(REMOVE_USER, tournamentAggregateId);
-            List<DomainEvent> events = getDomainEvents(REMOVE_USER, tournamentProcessedEvents);
-            processRemoveUserEvents(tournamentAggregateId, tournamentProcessedEvents, events);
-            tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(REMOVE_USER, tournamentAggregateId);
+            List<DomainEvent> events = getDomainEvents(REMOVE_USER, processedEvents);
+            processRemoveUserEvents(tournamentAggregateId, processedEvents, events);
+            processedEventsRepository.save(processedEvents);
         }
     }
 
-    private void processRemoveUserEvents(Integer tournamentAggregateId, TournamentProcessedEvents tournamentProcessedEvents, List<DomainEvent> events) {
+    private void processRemoveUserEvents(Integer tournamentAggregateId, ProcessedEvents processedEvents, List<DomainEvent> events) {
         Set<RemoveUserEvent> removeUserEvents = events.stream().map(e -> (RemoveUserEvent) e).collect(Collectors.toSet());
         for(RemoveUserEvent e : removeUserEvents) {
-            Set<Integer> tournamentIdsByUser = tournamentRepository.findAllAggregateIdsByUser(e.getUserAggregateId());
+            Set<Integer> tournamentIdsByUser = tournamentRepository.findAllAggregateIdsByUser(e.getAggregateId());
             boolean runningTransactions = unitOfWorkRepository.findRunningTransactions(tournamentAggregateId, e.getAggregateVersion()).size() > 0;
             if(runningTransactions || !tournamentIdsByUser.contains(tournamentAggregateId)) {
                 continue;
             }
-            System.out.printf("Processing remove user %d event for tournament %d\n", e.getUserAggregateId(), tournamentAggregateId);
+            System.out.printf("Processing remove user %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
             UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-            tournamentService.removeUser(tournamentAggregateId, e.getUserAggregateId(), e.getAggregateVersion(), unitOfWork);
+            tournamentService.removeUser(tournamentAggregateId, e.getAggregateId(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsId(e.getId());
+            processedEvents.addProcessedEventVersion(e.getAggregateVersion());
         }
     }
 
@@ -176,27 +178,27 @@ public class TournamentEventDetection {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
 
         for(Integer tournamentAggregateId : tournamentAggregateIds) {
-            TournamentProcessedEvents tournamentProcessedEvents = getTournamentProcessedEvents(UPDATE_TOPIC, tournamentAggregateId);
-            List<DomainEvent> events = getDomainEvents(UPDATE_TOPIC, tournamentProcessedEvents);
-            processUpdateTopicEvents(tournamentAggregateId, tournamentProcessedEvents, events);
-            tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(UPDATE_TOPIC, tournamentAggregateId);
+            List<DomainEvent> events = getDomainEvents(UPDATE_TOPIC, processedEvents);
+            processUpdateTopicEvents(tournamentAggregateId, processedEvents, events);
+            processedEventsRepository.save(processedEvents);
         }
     }
 
-    private void processUpdateTopicEvents(Integer tournamentAggregateId, TournamentProcessedEvents tournamentProcessedEvents, List<DomainEvent> events) {
+    private void processUpdateTopicEvents(Integer tournamentAggregateId, ProcessedEvents processedEvents, List<DomainEvent> events) {
         Set<UpdateTopicEvent> updateTopicEvents = events.stream().map(e -> (UpdateTopicEvent) e).collect(Collectors.toSet());
         for(UpdateTopicEvent e : updateTopicEvents) {
-            Set<Integer> tournamentIdsByTopic = tournamentRepository.findAllAggregateIdsByTopic(e.getTopicAggregateId());
+            Set<Integer> tournamentIdsByTopic = tournamentRepository.findAllAggregateIdsByTopic(e.getAggregateId());
             boolean runningTransactions = unitOfWorkRepository.findRunningTransactions(tournamentAggregateId, e.getAggregateVersion()).size() > 0;
             if(runningTransactions || !tournamentIdsByTopic.contains(tournamentAggregateId)) {
                 continue;
             }
-            System.out.printf("Processing update topic %d event for tournament %d\n", e.getTopicAggregateId(), tournamentAggregateId);
+            System.out.printf("Processing update topic %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
             UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-            tournamentService.updateTopic(tournamentAggregateId, e.getTopicAggregateId(), e.getTopicName(), e.getAggregateVersion(), unitOfWork);
+            tournamentService.updateTopic(tournamentAggregateId, e.getAggregateId(), e.getTopicName(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsId(e.getId());
+            processedEvents.addProcessedEventVersion(e.getAggregateVersion());
         }
     }
 
@@ -208,27 +210,27 @@ public class TournamentEventDetection {
     public void detectDeleteTopicEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for(Integer tournamentAggregateId : tournamentAggregateIds) {
-            TournamentProcessedEvents tournamentProcessedEvents = getTournamentProcessedEvents(DELETE_TOPIC, tournamentAggregateId);
-            List<DomainEvent> events = getDomainEvents(DELETE_TOPIC, tournamentProcessedEvents);
-            processDeleteTopicEvents(tournamentAggregateId, tournamentProcessedEvents, events);
-            tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(DELETE_TOPIC, tournamentAggregateId);
+            List<DomainEvent> events = getDomainEvents(DELETE_TOPIC, processedEvents);
+            processDeleteTopicEvents(tournamentAggregateId, processedEvents, events);
+            processedEventsRepository.save(processedEvents);
         }
     }
 
-    private void processDeleteTopicEvents(Integer tournamentAggregateId, TournamentProcessedEvents tournamentProcessedEvents, List<DomainEvent> events) {
+    private void processDeleteTopicEvents(Integer tournamentAggregateId, ProcessedEvents processedEvents, List<DomainEvent> events) {
         Set<DeleteTopicEvent> deleteTopicEvents = events.stream().map(e -> (DeleteTopicEvent) e).collect(Collectors.toSet());
         for(DeleteTopicEvent e : deleteTopicEvents) {
-            Set<Integer> tournamentIdsByTopic = tournamentRepository.findAllAggregateIdsByTopic(e.getTopicAggregateId());
+            Set<Integer> tournamentIdsByTopic = tournamentRepository.findAllAggregateIdsByTopic(e.getAggregateId());
             boolean runningTransactions = unitOfWorkRepository.findRunningTransactions(tournamentAggregateId, e.getAggregateVersion()).size() > 0;
             if(runningTransactions || !tournamentIdsByTopic.contains(tournamentAggregateId)) {
                 continue;
             }
-            System.out.printf("Processing remove topic %d event for tournament %d\n", e.getTopicAggregateId(), tournamentAggregateId);
+            System.out.printf("Processing remove topic %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
             UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-            tournamentService.removeTopic(tournamentAggregateId, e.getTopicAggregateId(), e.getAggregateVersion(), unitOfWork);
+            tournamentService.removeTopic(tournamentAggregateId, e.getAggregateId(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsId(e.getId());
+            processedEvents.addProcessedEventVersion(e.getAggregateVersion());
         }
     }
 
@@ -240,14 +242,14 @@ public class TournamentEventDetection {
     public void detectAnswerQuestionEvent() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for(Integer tournamentAggregateId : tournamentAggregateIds) {
-            TournamentProcessedEvents tournamentProcessedEvents = getTournamentProcessedEvents(ANSWER_QUESTION, tournamentAggregateId);
-            List<DomainEvent> events = getDomainEvents(ANSWER_QUESTION, tournamentProcessedEvents);
-            processAnswerQuestionEvents(tournamentAggregateId, tournamentProcessedEvents, events);
-            tournamentProcessedEventsRepository.save(tournamentProcessedEvents);
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(ANSWER_QUESTION, tournamentAggregateId);
+            List<DomainEvent> events = getDomainEvents(ANSWER_QUESTION, processedEvents);
+            processAnswerQuestionEvents(tournamentAggregateId, processedEvents, events);
+            processedEventsRepository.save(processedEvents);
         }
     }
 
-    private void processAnswerQuestionEvents(Integer tournamentAggregateId, TournamentProcessedEvents tournamentProcessedEvents, List<DomainEvent> events) {
+    private void processAnswerQuestionEvents(Integer tournamentAggregateId, ProcessedEvents processedEvents, List<DomainEvent> events) {
         Set<AnswerQuestionEvent> answerQuestionEvents = events.stream().map(e -> (AnswerQuestionEvent) e).collect(Collectors.toSet());
         for(AnswerQuestionEvent e : answerQuestionEvents) {
             Set<Integer> tournamentsAggregateIdsByQuiz = tournamentRepository.findAllAggregateIdsByQuiz(e.getQuizAggregateId());
@@ -255,31 +257,31 @@ public class TournamentEventDetection {
             if(runningTransactions || !tournamentsAggregateIdsByQuiz.contains(tournamentAggregateId)) {
                 continue;
             }
-            System.out.printf("Processing answer %d event for tournament %d\n", e.getAnswerAggregateId(), tournamentAggregateId);
+            System.out.printf("Processing answer %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
             UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-            tournamentService.updateParticipantAnswer(tournamentAggregateId, e.getUserAggregateId(), e.getAnswerAggregateId(), e.isCorrect(), e.getAggregateVersion(), unitOfWork);
+            tournamentService.updateParticipantAnswer(tournamentAggregateId, e.getUserAggregateId(), e.getAggregateId(), e.isCorrect(), e.getAggregateVersion(), unitOfWork);
             unitOfWorkService.commit(unitOfWork);
 
-            tournamentProcessedEvents.addProcessedEventsId(e.getId());
+            processedEvents.addProcessedEventVersion(e.getAggregateVersion());
         }
     }
 
-    private List<DomainEvent> getDomainEvents(String eventType, TournamentProcessedEvents tournamentProcessedEvents) {
+    private List<DomainEvent> getDomainEvents(String eventType, ProcessedEvents processedEvents) {
         return eventRepository.findAll()
                 .stream()
                 .filter(e -> eventType.equals(e.getType()))
-                .filter(e -> !(tournamentProcessedEvents.containsEvent(e.getId())))
+                .filter(e -> !(processedEvents.containsEventVersion(e.getAggregateVersion())))
                 .distinct()
                 .sorted(Comparator.comparing(DomainEvent::getTs).reversed())
                 .collect(Collectors.toList());
     }
 
-    private TournamentProcessedEvents getTournamentProcessedEvents(String eventType, Integer tournamentAggregateId) {
-        return tournamentProcessedEventsRepository.findAll().stream()
+    private ProcessedEvents getTournamentProcessedEvents(String eventType, Integer tournamentAggregateId) {
+        return processedEventsRepository.findAll().stream()
                 .filter(pe -> tournamentAggregateId.equals(pe.getAggregateId()))
                 .filter(pe -> eventType.equals(pe.getEventType()))
                 .findFirst()
-                .orElse(new TournamentProcessedEvents(eventType, tournamentAggregateId));
+                .orElse(new ProcessedEvents(eventType, tournamentAggregateId));
     }
 
 

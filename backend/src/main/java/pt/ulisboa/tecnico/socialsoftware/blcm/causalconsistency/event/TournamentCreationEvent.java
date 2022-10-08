@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @DiscriminatorValue("CREATE_TOURNAMENT")
 public class TournamentCreationEvent extends DomainEvent {
-    private Integer tournamentId;
-
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;
@@ -22,19 +20,10 @@ public class TournamentCreationEvent extends DomainEvent {
         super();
     }
     public TournamentCreationEvent(Tournament tournament) {
-        super();
-        this.tournamentId = tournament.getId();
-        this.startTime = tournament.getStartTime();
-        this.endTime = tournament.getEndTime();
-        this.numberOfQuestions = tournament.getNumberOfQuestions();
-    }
-
-    public Integer getTournamentId() {
-        return tournamentId;
-    }
-
-    public void setTournamentId(Integer tournamentId) {
-        this.tournamentId = tournamentId;
+        super(tournament.getAggregateId());
+        setStartTime(tournament.getStartTime());
+        setEndTime(tournament.getEndTime());
+        setNumberOfQuestions(tournament.getNumberOfQuestions());
     }
 
     public LocalDateTime getStartTime() {

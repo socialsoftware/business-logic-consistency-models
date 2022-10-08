@@ -11,6 +11,7 @@ import java.util.*;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOURNAMENT;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /* each version of the tournament is a new instance of the tournament*/
@@ -110,6 +111,11 @@ public class Tournament extends Aggregate {
             throw new TutorException(CANNOT_DELETE_TOURNAMENT, getAggregateId());
         }
         super.remove();
+    }
+
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return Set.of(ANONYMIZE_USER, REMOVE_COURSE_EXECUTION, REMOVE_USER, UPDATE_TOPIC, DELETE_TOPIC, ANSWER_QUESTION);
     }
 
     /* ----------------------------------------- INTRA-AGGREGATE INVARIANTS ----------------------------------------- */

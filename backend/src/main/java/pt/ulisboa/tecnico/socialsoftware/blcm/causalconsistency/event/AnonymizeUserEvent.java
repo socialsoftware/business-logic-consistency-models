@@ -8,7 +8,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Eve
 @Entity
 @DiscriminatorValue(ANONYMIZE_USER)
 public class AnonymizeUserEvent extends DomainEvent{
-    private Integer userAggregateId;
     private String name;
     private String username;
 
@@ -16,19 +15,11 @@ public class AnonymizeUserEvent extends DomainEvent{
         super();
     }
 
-    public AnonymizeUserEvent(Integer userAggregateId, String name, String username) {
-        super();
-        setUserAggregateId(userAggregateId);
+    public AnonymizeUserEvent(Integer aggregateId, String name, String username) {
+        super(aggregateId);
+        setAggregateId(aggregateId);
         setName(name);
         setUsername(username);
-    }
-
-    public Integer getUserAggregateId() {
-        return userAggregateId;
-    }
-
-    public void setUserAggregateId(Integer userAggregateId) {
-        this.userAggregateId = userAggregateId;
     }
 
     public String getName() {

@@ -11,7 +11,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Eve
 @Entity
 @DiscriminatorValue(ANSWER_QUESTION)
 public class AnswerQuestionEvent extends DomainEvent {
-    private Integer answerAggregateId;
 
     private Integer questionAggregateId;
 
@@ -26,20 +25,12 @@ public class AnswerQuestionEvent extends DomainEvent {
     }
 
     public AnswerQuestionEvent(QuestionAnswer questionAnswer, Answer answer, Integer quizAggregateId) {
-        super();
+        super(answer.getAggregateId());
         setQuestionAggregateId(questionAnswer.getQuestionAggregateId());
         setQuizAggregateId(quizAggregateId);
         setCorrect(questionAnswer.isCorrect());
         setUserAggregateId(answer.getUser().getAggregateId());
-        setAnswerAggregateId(answer.getAggregateId());
-    }
-
-    public Integer getAnswerAggregateId() {
-        return answerAggregateId;
-    }
-
-    public void setAnswerAggregateId(Integer answerAggregateId) {
-        this.answerAggregateId = answerAggregateId;
+        setAggregateId(answer.getAggregateId());
     }
 
     public Integer getQuestionAggregateId() {

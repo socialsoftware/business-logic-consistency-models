@@ -8,6 +8,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
@@ -19,6 +23,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +39,12 @@ public class UserService {
 
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private ProcessedEventsRepository processedEventsRepository;
 
     @Retryable(
             value = { SQLException.class },
@@ -52,7 +63,10 @@ public class UserService {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(user);
+        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
+        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
+
+        unitOfWork.addToCausalSnapshot(user, allEvents, processedEvents);
         return user;
     }
 

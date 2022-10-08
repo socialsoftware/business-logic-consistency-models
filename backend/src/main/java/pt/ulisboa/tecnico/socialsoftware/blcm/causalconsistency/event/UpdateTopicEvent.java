@@ -10,28 +10,16 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Eve
 @Entity
 @DiscriminatorValue(UPDATE_TOPIC)
 public class UpdateTopicEvent extends DomainEvent {
-    private Integer topicAggregateId;
 
     private String topicName;
 
     public UpdateTopicEvent() {
-
+        super();
     }
 
     public UpdateTopicEvent(Topic topic) {
-        super();
-        setTopicAggregateId(topic.getAggregateId());
+        super(topic.getAggregateId());
         setTopicName(topic.getName());
-    }
-
-
-
-    public Integer getTopicAggregateId() {
-        return topicAggregateId;
-    }
-
-    public void setTopicAggregateId(Integer aggregateId) {
-        this.topicAggregateId = aggregateId;
     }
 
     public String getTopicName() {

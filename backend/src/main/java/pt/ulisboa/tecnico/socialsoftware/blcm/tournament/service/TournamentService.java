@@ -7,12 +7,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
@@ -35,6 +39,12 @@ public class TournamentService {
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
+    @Autowired
+    private ProcessedEventsRepository processedEventsRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
+
     // intended for requests from external functionalities
     @Retryable(
             value = { SQLException.class },
@@ -54,7 +64,11 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(tournament);
+        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
+        Set<ProcessedEvents> tournamentProcessedEvents = new HashSet<>(processedEventsRepository.findAll());
+
+
+        unitOfWork.addToCausalSnapshot(tournament, allEvents, tournamentProcessedEvents);
         return tournament;
     }
 
@@ -138,7 +152,7 @@ public class TournamentService {
     private Set<Tournament> findAllTournamentByVersion(UnitOfWork unitOfWork) {
         Set<Tournament> tournaments = tournamentRepository.findAll()
                 .stream()
-                .filter(t -> t.getVersion() <= unitOfWork.getVersion())
+                .filter(t -> t.getVersion() < unitOfWork.getVersion())
                 .collect(Collectors.toSet());
 
         Map<Integer, Tournament> tournamentPerAggregateId = new HashMap<>();
@@ -146,7 +160,11 @@ public class TournamentService {
             if(t.getState() == DELETED) {
                 throw new TutorException(TOURNAMENT_DELETED, t.getAggregateId());
             }
-            unitOfWork.addToCausalSnapshot(t);
+
+            Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
+            Set<ProcessedEvents> tournamentProcessedEvents = new HashSet<>(processedEventsRepository.findAll());
+
+            unitOfWork.addToCausalSnapshot(t, allEvents, tournamentProcessedEvents);
 
             if (!tournamentPerAggregateId.containsKey(t.getAggregateId())) {
                 tournamentPerAggregateId.put(t.getAggregateId(), t);

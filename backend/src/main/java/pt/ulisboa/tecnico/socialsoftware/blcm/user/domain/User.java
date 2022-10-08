@@ -14,6 +14,8 @@ import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.USER;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.ANSWER_QUESTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_COURSE_EXECUTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Entity
@@ -221,4 +223,8 @@ public class User extends Aggregate {
         return depMap;
     }
 
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return Set.of(REMOVE_COURSE_EXECUTION);
+    }
 }

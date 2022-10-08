@@ -14,6 +14,9 @@ public abstract class DomainEvent {
     private Integer id;
 
     @Column
+    private Integer aggregateId;
+
+    @Column
     private Integer  aggregateVersion;
 
     private LocalDateTime ts;
@@ -26,12 +29,25 @@ public abstract class DomainEvent {
         setTs(LocalDateTime.now());
     }
 
+    public DomainEvent(Integer aggregateId) {
+        setAggregateId(aggregateId);
+        setTs(LocalDateTime.now());
+    }
+
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getAggregateId() {
+        return aggregateId;
+    }
+
+    public void setAggregateId(Integer aggregateId) {
+        this.aggregateId = aggregateId;
     }
 
     public Integer getAggregateVersion() {

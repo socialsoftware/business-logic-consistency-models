@@ -1,12 +1,12 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tournament_processed_events")
-public class TournamentProcessedEvents {
+@Table(name = "processed_events")
+public class ProcessedEvents {
     @Id
     @GeneratedValue
     private Integer id;
@@ -15,17 +15,17 @@ public class TournamentProcessedEvents {
 
     @Column
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Integer> processedEventsIds;
+    private Set<Integer> processedEventsVersions;
 
     @Column(name = "event_type")
     private String eventType;
 
-    public TournamentProcessedEvents() {
+    public ProcessedEvents() {
 
     }
 
-    public TournamentProcessedEvents(String eventType, Integer aggregateId) {
-        this.processedEventsIds = new HashSet<>();
+    public ProcessedEvents(String eventType, Integer aggregateId) {
+        this.processedEventsVersions = new HashSet<>();
         setAggregateId(aggregateId);
         setEventType(eventType);
     }
@@ -46,16 +46,16 @@ public class TournamentProcessedEvents {
         this.aggregateId = aggregateId;
     }
 
-    public Set<Integer> getProcessedEventsIds() {
-        return processedEventsIds;
+    public Set<Integer> getProcessedEventsVersions() {
+        return processedEventsVersions;
     }
 
-    public void addProcessedEventsId(Integer processedEventsIds) {
-        this.processedEventsIds.add(processedEventsIds);
+    public void addProcessedEventVersion(Integer processedEventsIds) {
+        this.processedEventsVersions.add(processedEventsIds);
     }
 
-    public boolean containsEvent(Integer eventId) {
-        return this.processedEventsIds.contains(eventId);
+    public boolean containsEventVersion(Integer eventId) {
+        return this.processedEventsVersions.contains(eventId);
     }
 
     public String getEventType() {

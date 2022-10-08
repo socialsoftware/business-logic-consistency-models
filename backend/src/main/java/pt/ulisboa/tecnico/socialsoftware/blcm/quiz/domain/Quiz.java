@@ -204,6 +204,11 @@ public class Quiz extends Aggregate {
         return true;
     }
 
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
+    }
+
     public LocalDateTime getCreationDate() {
         return creationDate;
     }

@@ -7,8 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
@@ -19,6 +23,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionReposi
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +39,12 @@ public class QuestionService {
 
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private ProcessedEventsRepository processedEventsRepository;
 
     @Retryable(
             value = { SQLException.class },
@@ -52,7 +63,10 @@ public class QuestionService {
             throw new TutorException(ErrorMessage.QUESTION_DELETED, question.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(question);
+        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
+        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
+
+        unitOfWork.addToCausalSnapshot(question, allEvents, processedEvents);
         return question;
     }
 
@@ -108,7 +122,7 @@ public class QuestionService {
         // TODO check remove conditions, maybe not needed because they are written based on info from downstream aggregates
         newQuestion.remove();
         unitOfWork.addAggregateToCommit(newQuestion);
-        unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion.getAggregateId()));
+        unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion));
     }
 
     @Retryable(

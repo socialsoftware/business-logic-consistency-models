@@ -6,7 +6,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
 
@@ -63,6 +65,11 @@ public class CourseExecution extends Aggregate {
         Map<Integer, Integer> depMap = new HashMap<>();
         depMap.put(this.course.getAggregateId(), this.course.getVersion());
         return depMap;
+    }
+
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
     }
 
     public String getAcronym() {

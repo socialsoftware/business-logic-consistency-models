@@ -86,6 +86,11 @@ public class Question extends Aggregate {
         return  depMap;
     }
 
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
+    }
+
     public String getTitle() {
         return title;
     }

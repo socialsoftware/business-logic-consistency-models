@@ -1,13 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.map.SingletonMap;
-import org.springframework.data.util.Pair;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
 
@@ -32,10 +34,11 @@ public class UnitOfWork {
 
     // Cumulative dependencies of the functionality
     // Map type ensures only a version of an aggregate is written by transaction
-    // TODO since aggregate ids are unique amongst several aggregate types, perhaps only a pair <Integer, Integer> is enough ( second Integer being the version)
-
     @Transient
     private Map<Integer, Integer> causalSnapshot;
+
+    @Transient
+    private Map<String, Integer> eventSnapshot;
 
     public UnitOfWork() {
 
@@ -46,6 +49,7 @@ public class UnitOfWork {
         this.eventsToEmit = new HashSet<>();
         this.aggregateIds = new HashSet<>();
         this.causalSnapshot = new HashMap<>();
+        this.eventSnapshot = new HashMap<>();
         setVersion(version);
     }
 
@@ -90,11 +94,75 @@ public class UnitOfWork {
         this.eventsToEmit.add(event);
     }
 
-    public void addToCausalSnapshot(Aggregate aggregate) {
-        verifySnapshotConsistency(aggregate.getSnapshotElements());
-        verifySnapshotElementConsistency(aggregate.getAggregateId(), aggregate.getVersion());
-        addSnapshotElements(aggregate.getSnapshotElements());
-        addSnapshotElements(new SingletonMap<>(aggregate.getAggregateId(), aggregate.getVersion()));
+    public void addToCausalSnapshot(Aggregate aggregate, Set<DomainEvent> allEvents, Set<ProcessedEvents> allProcessedEvents) {
+
+        verifyProcessedEventsByAggregate(aggregate);
+
+        Set<DomainEvent> currentAggregateEmittedEvents = allEvents.stream()
+                .filter(e -> e.getAggregateId().equals(aggregate.getAggregateId()))
+                .collect(Collectors.toSet());
+
+        Set<String> currentAggregateEmittedEventTypes = currentAggregateEmittedEvents.stream()
+                .map(DomainEvent::getType)
+                .collect(Collectors.toSet());
+
+        verifyEmittedAggregateEvents(aggregate, currentAggregateEmittedEvents, currentAggregateEmittedEventTypes);
+        addAggregateProcessedEventsToSnapshot(aggregate, allProcessedEvents);
+        addAggregateEmittedEventsToSnapshot(currentAggregateEmittedEvents, currentAggregateEmittedEventTypes);
+    }
+
+    private void verifyEmittedAggregateEvents(Aggregate aggregate, Set<DomainEvent> currentAggregateEmittedEvents, Set<String> currentAggregateEmittedEventTypes) {
+        for(String eventType : currentAggregateEmittedEventTypes) {
+            DomainEvent lastEmittedEventByType = currentAggregateEmittedEvents.stream()
+                    .filter(e -> e.getType().equals(eventType))
+                    .max(Comparator.comparing(DomainEvent::getAggregateVersion))
+                    .orElse(null);
+
+            if(lastEmittedEventByType != null && hasEventType(eventType) && !lastEmittedEventByType.getAggregateVersion().equals(getLastEventByType(eventType))) {
+                throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), aggregate.getVersion());
+            }
+        }
+    }
+
+    private void addAggregateEmittedEventsToSnapshot(Set<DomainEvent> currentAggregateEmittedEvents, Set<String> currentAggregateEmittedEventTypes) {
+        for(String eventType : currentAggregateEmittedEventTypes) {
+            DomainEvent lastEmittedEventByType = currentAggregateEmittedEvents.stream()
+                    .filter(e -> e.getType().equals(eventType))
+                    .max(Comparator.comparing(DomainEvent::getAggregateVersion))
+                    .orElse(null);
+            addEventsToSnapshot(lastEmittedEventByType.getType(), lastEmittedEventByType.getAggregateVersion());
+        }
+    }
+
+    private void addAggregateProcessedEventsToSnapshot(Aggregate aggregate, Set<ProcessedEvents> allProcessedEvents) {
+        Set<ProcessedEvents> aggregateProcessedEvents = allProcessedEvents.stream()
+                .filter(pe -> aggregate.getEventSubscriptions().contains(pe.getEventType()))
+                .filter(pe -> pe.getAggregateId().equals(aggregate.getAggregateId()))
+                .collect(Collectors.toSet());
+
+        for(String eventType : aggregate.getEventSubscriptions()) {
+           boolean eventTypeExists = false;
+           for(ProcessedEvents processedEvents : aggregateProcessedEvents) {
+               if(eventType.equals(processedEvents.getEventType())) {
+                   eventTypeExists = true;
+                   Integer biggestVersion = processedEvents.getProcessedEventsVersions().stream().max(Comparator.comparing(Integer::intValue)).orElse(0);
+                   addEventsToSnapshot(eventType, biggestVersion);
+               }
+           }
+           if(!eventTypeExists) {
+               addEventsToSnapshot(eventType, 0);
+           }
+        }
+    }
+
+    private void verifyProcessedEventsByAggregate(Aggregate aggregate) {
+        this.eventSnapshot.forEach((eventType, eventId) -> {
+            if (aggregate.getEventSubscriptions().equals(eventType)) {
+                if(hasEventType(eventType) && !getLastEventByType(eventType).equals(eventId)) {
+                    throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), aggregate.getVersion());
+                }
+            }
+        });
     }
 
     private void verifySnapshotConsistency(Map<Integer, Integer> aggregateSnapshotElements) {
@@ -121,6 +189,22 @@ public class UnitOfWork {
 
     public Integer getSnapshotElementVersion(Integer aggregateId) {
         return this.causalSnapshot.get(aggregateId);
+    }
+
+    public Map<String, Integer> getEventSnapshot() {
+        return eventSnapshot;
+    }
+
+    public void addEventsToSnapshot(String eventType, Integer eventAggregateVersion) {
+        this.eventSnapshot.put(eventType, eventAggregateVersion);
+    }
+
+    public boolean hasEventType(String eventType) {
+        return this.eventSnapshot.containsKey(eventType);
+    }
+
+    public Integer getLastEventByType(String eventType) {
+        return this.eventSnapshot.get(eventType);
     }
 
 }

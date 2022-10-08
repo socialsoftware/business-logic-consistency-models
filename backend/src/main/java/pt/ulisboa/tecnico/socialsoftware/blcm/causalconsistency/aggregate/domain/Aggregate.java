@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domai
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 
@@ -134,5 +135,7 @@ public abstract class Aggregate {
     public void setPrev(Aggregate prev) {
         this.prev = prev;
     }
+
+    public abstract Set<String> getEventSubscriptions();
 
 }

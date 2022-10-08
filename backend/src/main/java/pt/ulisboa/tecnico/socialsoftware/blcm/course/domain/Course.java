@@ -5,7 +5,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
 
@@ -35,6 +37,11 @@ public class Course extends Aggregate {
         setName(other.getName());
         setType(other.getType());
         setPrev(other);
+    }
+
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
     }
 
     @Override

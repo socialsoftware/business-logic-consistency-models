@@ -5,10 +5,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.ANSWER;
@@ -63,6 +60,11 @@ public class Answer extends Aggregate {
     @Override
     public Aggregate merge(Aggregate other) {
         return null;
+    }
+
+    @Override
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
     }
 
     @Override
