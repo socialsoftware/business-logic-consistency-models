@@ -265,24 +265,123 @@ public class Tournament extends Aggregate {
             mergedTournament = new Tournament(v1);
         }
 
-        /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
-        * of the base we choose. */
-        if(v1ChangedFields.contains("participants") || v2ChangedFields.contains("participants")) {
-            Set<TournamentParticipant> addedParticipants =  SetUtils.union(
-                    SetUtils.difference(v1.getParticipants(), prev.getParticipants()),
-                    SetUtils.difference(v2.getParticipants(), prev.getParticipants())
-            );
 
-            Set<TournamentParticipant> removedParticipants = SetUtils.union(
-                    SetUtils.difference(prev.getParticipants(), v1.getParticipants()),
-                    SetUtils.difference(prev.getParticipants(), v2.getParticipants())
-            );
-            mergedTournament.setParticipants(SetUtils.union(SetUtils.difference(prev.getParticipants(), removedParticipants), addedParticipants));
-        }
-
+        mergeTopics(prev, v1, v2, mergedTournament);
+        mergeParticipants(prev, v1, v2, mergedTournament);
         // TODO see explanation for prev assignment in Quiz
         mergedTournament.setPrev(getPrev());
         return mergedTournament;
+    }
+
+    private static void mergeParticipants(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
+        /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
+        * of the base we choose. */
+
+        Set<TournamentParticipant> prevParticipants = new HashSet<>(prev.getParticipants());
+        Set<TournamentParticipant> v1Participants = new HashSet<>(v1.getParticipants());
+        Set<TournamentParticipant> v2Participants = new HashSet<>(v2.getParticipants());
+
+        for(TournamentParticipant tp1 : v1Participants) {
+            for(TournamentParticipant tp2 : v2Participants) {
+                if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
+                    if(tp1.getVersion() > tp2.getVersion()) {
+                        tp2.setVersion(tp1.getVersion());
+                        tp2.setName(tp1.getName());
+                        tp2.setUsername(tp1.getUsername());
+                    }
+
+                    if(tp2.getVersion() > tp1.getVersion()) {
+                        tp1.setVersion(tp2.getVersion());
+                        tp1.setName(tp2.getName());
+                        tp1.setUsername(tp2.getUsername());
+                    }
+                }
+            }
+
+            // no need to check again because the prev does not contain any newer version than v1 an v2
+            for(TournamentParticipant tp2 : prevParticipants) {
+                if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
+                    if(tp1.getVersion() > tp2.getVersion()) {
+                        tp2.setVersion(tp1.getVersion());
+                        tp2.setName(tp1.getName());
+                        tp2.setUsername(tp1.getUsername());
+                    }
+
+                    if(tp2.getVersion() > tp1.getVersion()) {
+                        tp1.setVersion(tp2.getVersion());
+                        tp1.setName(tp2.getName());
+                        tp1.setUsername(tp2.getUsername());
+                    }
+                }
+            }
+        }
+
+        Set<TournamentParticipant> addedParticipants =  SetUtils.union(
+                SetUtils.difference(v1Participants, prevParticipants),
+                SetUtils.difference(v2Participants, prevParticipants)
+        );
+
+        Set<TournamentParticipant> removedParticipants = SetUtils.union(
+                SetUtils.difference(prevParticipants, v1Participants),
+                SetUtils.difference(prevParticipants, v2Participants)
+        );
+
+        Set<TournamentParticipant> mergedParticipants = SetUtils.union(SetUtils.difference(prevParticipants, removedParticipants), addedParticipants);
+        mergedTournament.setParticipants(mergedParticipants);
+
+    }
+
+    private static void mergeTopics(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
+        /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
+         * of the base we choose. */
+
+        Set<TournamentTopic> prevTopics = new HashSet<>(prev.getTopics());
+        Set<TournamentTopic> v1Topics = new HashSet<>(v1.getTopics());
+        Set<TournamentTopic> v2Topics = new HashSet<>(v2.getTopics());
+
+        for(TournamentTopic t1 : v1Topics) {
+            for(TournamentTopic t2 : v2Topics) {
+                if(t1.getAggregateId().equals(t2.getAggregateId())) {
+                    if(t1.getVersion() > t2.getVersion()) {
+                        t2.setVersion(t1.getVersion());
+                        t2.setName(t1.getName());
+                    }
+
+                    if(t2.getVersion() > t1.getVersion()) {
+                        t1.setVersion(t2.getVersion());
+                        t1.setName(t2.getName());
+                    }
+                }
+            }
+
+            // no need to check again because the prev does not contain any newer version than v1 an v2
+            for(TournamentTopic tp2 : prevTopics) {
+                if(t1.getAggregateId().equals(tp2.getAggregateId())) {
+                    if(t1.getVersion() > tp2.getVersion()) {
+                        tp2.setVersion(t1.getVersion());
+                        tp2.setName(t1.getName());
+                    }
+
+                    if(tp2.getVersion() > t1.getVersion()) {
+                        t1.setVersion(tp2.getVersion());
+                        t1.setName(tp2.getName());
+                    }
+                }
+            }
+        }
+
+        Set<TournamentTopic> addedParticipants =  SetUtils.union(
+                SetUtils.difference(v1Topics, prevTopics),
+                SetUtils.difference(v2Topics, prevTopics)
+        );
+
+        Set<TournamentTopic> removedParticipants = SetUtils.union(
+                SetUtils.difference(prevTopics, v1Topics),
+                SetUtils.difference(prevTopics, v2Topics)
+        );
+
+        Set<TournamentTopic> mergedTopics = SetUtils.union(SetUtils.difference(prevTopics, removedParticipants), addedParticipants);
+        mergedTournament.setTopics(mergedTopics);
     }
 
     private static Set<String> getChangedFields(Tournament prev, Tournament v) {
@@ -312,8 +411,7 @@ public class Tournament extends Aggregate {
 
     private static boolean checkNonIncrementalChanges(Set<String> v1ChangedFields, Set<String> v2ChangedFields) {
         if(v1ChangedFields.contains("startTime")
-                && (v2ChangedFields.contains("startTime") ||
-                v2ChangedFields.contains("endTime") ||
+                && (v2ChangedFields.contains("endTime") ||
                 v2ChangedFields.contains("topics") ||
                 v2ChangedFields.contains("numberOfQuestions"))) {
 
@@ -322,7 +420,6 @@ public class Tournament extends Aggregate {
 
         if(v1ChangedFields.contains("endTime")
                 && (v2ChangedFields.contains("startTime") ||
-                v2ChangedFields.contains("endTime") ||
                 v2ChangedFields.contains("topics") ||
                 v2ChangedFields.contains("numberOfQuestions"))) {
 
@@ -332,7 +429,6 @@ public class Tournament extends Aggregate {
         if(v1ChangedFields.contains("topics")
                 && (v2ChangedFields.contains("startTime") ||
                 v2ChangedFields.contains("endTime") ||
-                v2ChangedFields.contains("topics") ||
                 v2ChangedFields.contains("numberOfQuestions"))) {
 
             return true;
@@ -341,8 +437,7 @@ public class Tournament extends Aggregate {
         if(v1ChangedFields.contains("numberOfQuestions")
                 && (v2ChangedFields.contains("startTime") ||
                 v2ChangedFields.contains("endTime") ||
-                v2ChangedFields.contains("topics") ||
-                v2ChangedFields.contains("numberOfQuestions"))) {
+                v2ChangedFields.contains("topics"))) {
 
             return true;
         }

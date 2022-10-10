@@ -124,14 +124,24 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void anonymizeUser(Integer tournamentAggregateId, Integer userAggregateId, String name, String username, Integer version, UnitOfWork unitOfWork) {
+    public void anonymizeUser(Integer tournamentAggregateId, Integer userAggregateId, String name, String username, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        //these if's are necessary if the aggregate already through direct access has a more recent version and it will still count as processed
+        if(oldTournament.getCreator().getAggregateId().equals(userAggregateId) && oldTournament.getCreator().getVersion() >= eventVersion) {
+            return;
+        }
+
+        TournamentParticipant oldParticipant = oldTournament.findParticipant(userAggregateId);
+        if(oldParticipant != null && oldParticipant.getAggregateId().equals(userAggregateId) && oldParticipant.getVersion() >= tournamentAggregateId) {
+            return;
+        }
+
         Tournament newTournament = new Tournament(oldTournament);
 
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
-            newTournament.getCreator().setVersion(version);
+            newTournament.getCreator().setVersion(eventVersion);
             unitOfWork.addAggregateToCommit(newTournament);
         }
 
@@ -143,7 +153,7 @@ public class TournamentService {
             if(tp.getAggregateId().equals(userAggregateId)) {
                 tp.setName(name);
                 tp.setUsername(username);
-                tp.setVersion(version);
+                tp.setVersion(eventVersion);
                 unitOfWork.addAggregateToCommit(newTournament);
             }
         }
@@ -307,8 +317,12 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void removeCourseExecution(Integer tournamentAggregateId, Integer courseExecutionId, UnitOfWork unitOfWork) {
+    public void removeCourseExecution(Integer tournamentAggregateId, Integer courseExecutionId, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        if(oldTournament.getCourseExecution() != null && oldTournament.getCourseExecution().getVersion() >= eventVersion) {
+            return;
+        }
+
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCourseExecution().getAggregateId().equals(courseExecutionId)) {
             newTournament.remove();
@@ -323,6 +337,14 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeUser(Integer tournamentAggregateId, Integer userAggregateId, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        if(oldTournament.getCreator().getAggregateId().equals(userAggregateId) && oldTournament.getCreator().getVersion() >= eventVersion) {
+            return;
+        }
+
+        TournamentParticipant oldParticipant = oldTournament.findParticipant(userAggregateId);
+        if(oldParticipant != null && oldParticipant.getAggregateId().equals(userAggregateId) && oldParticipant.getVersion() >= tournamentAggregateId) {
+            return;
+        }
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.setState(INACTIVE);
@@ -343,6 +365,12 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateTopic(Integer tournamentAggregateId, Integer topicAggregateId, String topicName, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+
+        TournamentTopic oldTopic = oldTournament.findTopic(topicAggregateId);
+        if(oldTopic != null && oldTopic.getVersion() >= eventVersion) {
+            return;
+        }
+
         Tournament newTournament = new Tournament(oldTournament);
         TournamentTopic topic = newTournament.findTopic(topicAggregateId);
         if(topic == null) {
@@ -359,6 +387,10 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateParticipantAnswer(Integer tournamentAggregateId, Integer userAggregateId, Integer answerAggregateId, boolean isCorrect, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        TournamentParticipant oldParticipant = oldTournament.findParticipant(userAggregateId);
+        if(oldParticipant != null && oldParticipant.getAnswer().getVersion() >= eventVersion) {
+            return;
+        }
         Tournament newTournament = new Tournament(oldTournament);
         TournamentParticipant tournamentParticipant = newTournament.findParticipant(userAggregateId);
         if(tournamentParticipant == null) {
@@ -374,6 +406,10 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeTopic(Integer tournamentAggregateId, Integer topicAggregateId, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        TournamentTopic oldTopic = oldTournament.findTopic(topicAggregateId);
+        if(oldTopic != null && oldTopic.getVersion() >= eventVersion) {
+            return;
+        }
         Tournament newTournament = new Tournament(oldTournament);
         TournamentTopic tournamentTopic  = newTournament.findTopic(topicAggregateId);
         if(tournamentTopic == null) {

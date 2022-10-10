@@ -61,8 +61,7 @@ public class UserEventDetection {
         Set<RemoveCourseExecutionEvent> anonymizeUserEvents = events.stream().map(e -> (RemoveCourseExecutionEvent) e).collect(Collectors.toSet());
         for(RemoveCourseExecutionEvent e : anonymizeUserEvents) {
             Set<Integer> userIdsByCourseExecution = userRepository.findAllAggregateIdsByCourseExecution(e.getAggregateId());
-            boolean runningTransactions = unitOfWorkRepository.findRunningTransactions(userAggregateId, e.getAggregateVersion()).size() > 0;
-            if(runningTransactions || !userIdsByCourseExecution.contains(userAggregateId)) {
+            if(!userIdsByCourseExecution.contains(userAggregateId)) {
                 continue;
             }
             System.out.printf("Processing remove course execution %d event for user %d\n", e.getAggregateId(), userAggregateId);

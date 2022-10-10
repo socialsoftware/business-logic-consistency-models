@@ -114,8 +114,8 @@ public class UnitOfWork {
     private void verifyEmittedAggregateEvents(Aggregate aggregate, Set<DomainEvent> currentAggregateEmittedEvents, Set<String> currentAggregateEmittedEventTypes) {
         for(String eventType : currentAggregateEmittedEventTypes) {
             DomainEvent lastEmittedEventByType = currentAggregateEmittedEvents.stream()
-                    .filter(e -> e.getType().equals(eventType))
-                    .max(Comparator.comparing(DomainEvent::getAggregateVersion))
+                    .filter(e -> e.getType().equals(eventType) && e.getAggregateVersion().equals(aggregate.getVersion()))
+                    .findFirst()
                     .orElse(null);
 
             if(lastEmittedEventByType != null && hasEventType(eventType) && !lastEmittedEventByType.getAggregateVersion().equals(getLastEventByType(eventType))) {

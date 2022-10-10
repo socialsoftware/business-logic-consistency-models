@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.*;
@@ -36,6 +37,7 @@ public class TournamentParticipant {
     public TournamentParticipant() {
         setEnrollTime(LocalDateTime.now());
     }
+
     public TournamentParticipant(UserDto userDto) {
         setAggregateId(userDto.getAggregateId());
         setName(userDto.getName());
@@ -95,7 +97,7 @@ public class TournamentParticipant {
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
 
         */
-        // TODO cant access tournament fields
+        // TODO cant access tournament fields such as prev
         /*if(LocalDateTime.now().isAfter(getEndTime())) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }*/
@@ -121,7 +123,7 @@ public class TournamentParticipant {
     public void updateAnswerWithQuestion(Integer answerAggregateId, boolean isCorrect, Integer eventVersion) {
         getAnswer().setAggregateId(answerAggregateId);
         getAnswer().incrementAnswered();
-        if(isCorrect) {
+        if (isCorrect) {
             getAnswer().incrementCorrect();
         }
         getAnswer().setVersion(eventVersion);
@@ -136,5 +138,23 @@ public class TournamentParticipant {
         userDto.setNumberAnswered(getAnswer().getNumberOfAnswered());
         userDto.setNumberCorrect(getAnswer().getNumberOfCorrect());
         return userDto;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + getAggregateId();
+        hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TournamentParticipant)) {
+            return false;
+        }
+        TournamentParticipant tournamentParticipant = (TournamentParticipant) obj;
+        return getAggregateId() != null && getAggregateId().equals(tournamentParticipant.getAggregateId()) &&
+                getVersion() != null && getVersion().equals(tournamentParticipant.getVersion());
     }
 }
