@@ -10,7 +10,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Eve
 
 @Entity
 @DiscriminatorValue(ANSWER_QUESTION)
-public class AnswerQuestionEvent extends DomainEvent {
+public class AnswerQuestionEvent extends Event {
 
     private Integer questionAggregateId;
 

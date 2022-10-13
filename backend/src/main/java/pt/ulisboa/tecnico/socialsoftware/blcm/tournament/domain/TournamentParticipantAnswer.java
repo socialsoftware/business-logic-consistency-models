@@ -22,6 +22,7 @@ public class TournamentParticipantAnswer {
     public TournamentParticipantAnswer() {
         setNumberOfAnswered(0);
         setNumberOfCorrect(0);
+        setVersion(0);
         setAnswered(false);
     }
 
@@ -72,5 +73,15 @@ public class TournamentParticipantAnswer {
 
     public void incrementCorrect() {
         this.numberOfCorrect++;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TournamentParticipantAnswer)) {
+            return false;
+        }
+        TournamentParticipantAnswer answer = (TournamentParticipantAnswer) obj;
+        return getAggregateId() != null && getAggregateId().equals(answer.getAggregateId()) &&
+                getVersion() != null && getVersion().equals(answer.getVersion());
     }
 }

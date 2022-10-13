@@ -47,6 +47,8 @@ public class Answer extends Aggregate {
         setAnswerDate(other.getAnswerDate());
         setCreationDate(other.getCreationDate());
         setQuestionAnswers(new ArrayList<>());
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
         setPrev(other);
     }
 

@@ -15,7 +15,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnswerQuestionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
@@ -73,10 +73,7 @@ public class AnswerService {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(answer, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(answer);
         return answer;
     }
 
@@ -88,10 +85,7 @@ public class AnswerService {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(answer, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(answer);
         return answer;
     }
 
@@ -108,7 +102,7 @@ public class AnswerService {
 
         Answer answer = new Answer(aggregateId, new AnswerUser(userDto), new AnswerQuiz(quizDto));
 
-        unitOfWork.addAggregateToCommit(answer);
+        unitOfWork.registerChanged(answer);
     }
 
     @Retryable(
@@ -121,7 +115,7 @@ public class AnswerService {
 
         QuestionAnswer questionAnswer = new QuestionAnswer(userAnswerDto, questionDto);
         newAnswer.addQuestionAnswer(questionAnswer);
-        unitOfWork.addAggregateToCommit(newAnswer);
+        unitOfWork.registerChanged(newAnswer);
         unitOfWork.addEvent(new AnswerQuestionEvent(questionAnswer, newAnswer, quizAggregateId));
     }
 
@@ -135,6 +129,6 @@ public class AnswerService {
         Answer newAnswer = new Answer(oldAnswer);
 
         newAnswer.setCompleted(true);
-        unitOfWork.addAggregateToCommit(newAnswer);
+        unitOfWork.registerChanged(newAnswer);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
@@ -59,10 +59,10 @@ public class CourseService {
             throw new TutorException(ErrorMessage.COURSE_DELETED, course.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
+        Set<Event> allEvents = new HashSet<>(eventRepository.findAll());
         Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
 
-        unitOfWork.addToCausalSnapshot(course, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(course);
         return course;
     }
 
@@ -77,7 +77,7 @@ public class CourseService {
         if(course == null) {
             Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
             course = new Course(aggregateId, unitOfWork.getVersion(), courseExecutionDto);
-            unitOfWork.addAggregateToCommit(course);
+            unitOfWork.registerChanged(course);
         }
         courseExecutionDto.setCourseAggregateId(course.getAggregateId());
         courseExecutionDto.setName(course.getName());
@@ -90,9 +90,7 @@ public class CourseService {
         Course course = courseRepository.findCausalByName(courseName, unitOfWork.getVersion())
                 .orElse(null);
         if(course != null) {
-            Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-            Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-            unitOfWork.addToCausalSnapshot(course, allEvents, processedEvents);
+            unitOfWork.addToCausalSnapshot(course);
 
         }
         return course;

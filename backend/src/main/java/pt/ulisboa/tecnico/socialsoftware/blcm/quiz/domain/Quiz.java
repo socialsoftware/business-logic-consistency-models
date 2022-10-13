@@ -70,8 +70,10 @@ public class Quiz extends Aggregate {
         setConclusionDate(other.getConclusionDate());
         setResultsDate(other.getResultsDate());
         setQuizType(other.getQuizType());
-        setPrev(other);
         setQuizQuestions(new HashSet<>(other.getQuizQuestions()));
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
+        setPrev(other);
     }
 
     @Override

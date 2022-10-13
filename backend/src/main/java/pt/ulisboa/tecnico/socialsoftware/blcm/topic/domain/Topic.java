@@ -32,18 +32,11 @@ public class Topic extends Aggregate {
         super(other.getAggregateId(), TOPIC);
         setName(other.getName());
         setCourse(other.getCourse());
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
+        setPrev(other);
     }
 
-
-    public static Topic merge(Topic prev, Topic v1, Topic v2) {
-        // choose the object with lowest ts
-        if(v2.getCreationTs().isBefore(v1.getCreationTs())) {
-            return v2;
-        } else {
-            return v1;
-        }
-
-    }
     @Override
     public boolean verifyInvariants() {
         return true;

@@ -993,7 +993,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
         </ResultCollector>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Tournament update (topics to topic 1 only)" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Tournament update (startTime and topics and numberOfQuestions)" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -1041,7 +1041,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Tournament Topic and Number of questions" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update startTime and topic to 1 and numberOfQuestions" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -1049,7 +1049,8 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
 	&quot;aggregateId&quot;: ${__property(tournament_aggregate_id)},&#xd;
-	&quot;numberOfQuestions&quot;: 1 &#xd;
+	&quot;numberOfQuestions&quot;: 1,&#xd;
+	&quot;startTime&quot;: &quot;2023-08-24T20:45:08.00&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -1275,7 +1276,7 @@ END;</stringProp>
         </ResultCollector>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Concurrent tournament update (topics to topic 2 only)" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Concurrent tournament update (endTime and topics and numberOfQuestions)" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -1287,7 +1288,7 @@ END;</stringProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <stringProp name="TestPlan.comments">This update is supposed to because it simulates a concurrent execution with the update above which changes non-incremental fields</stringProp>
+        <stringProp name="TestPlan.comments">This update is supposed to faul because it simulates a concurrent execution with the update above which changes non-incremental fields</stringProp>
       </ThreadGroup>
       <hashTree>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
@@ -1324,7 +1325,7 @@ END;</stringProp>
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Tournament topics and number of questions (second time)" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Tournament endTime and topic to 2 and numberOfQuestions" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -1332,7 +1333,8 @@ END;</stringProp>
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
 	&quot;aggregateId&quot;: ${__property(tournament_aggregate_id)},&#xd;
-	&quot;numberOfQuestions&quot;: 1&#xd;
+	&quot;numberOfQuestions&quot;: 1,&#xd;
+	&quot;endTime&quot;: &quot;2023-08-24T20:50:08.00&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -1342,7 +1344,7 @@ END;</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-            <stringProp name="HTTPSampler.path">${prefix}/tournaments/update/?topicsId=${__property(topic_aggregate_id_2)}</stringProp>
+            <stringProp name="HTTPSampler.path">${prefix}/tournaments/update</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1497,7 +1499,7 @@ END;</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-            <stringProp name="HTTPSampler.path">${prefix}/quizzes/${__property(tournament_quiz_aggregate_id)}</stringProp>
+            <stringProp name="HTTPSampler.path">${prefix}/quizzes/${__property(tournament_quiz_aggregate_id)}/?topicsId=${__property(topic_aggregate_id_2)}</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1517,13 +1519,13 @@ END;</stringProp>
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
             <hashTree/>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check second question doesnt exist" enabled="true">
-              <stringProp name="JSON_PATH">$..questionDtos[1]</stringProp>
-              <stringProp name="EXPECTED_VALUE">[]</stringProp>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check its question 1" enabled="true">
+              <stringProp name="JSON_PATH">$..questionDtos[0]</stringProp>
+              <stringProp name="EXPECTED_VALUE">(.*)\&quot;title\&quot;:\&quot;question title 1\&quot;(.*)</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
+              <boolProp name="ISREGEX">true</boolProp>
             </JSONPathAssertion>
             <hashTree/>
           </hashTree>

@@ -69,7 +69,6 @@ public class UserCourseExecution {
         this.version = version;
     }
 
-    // TODO discuss this with teacher
     public CourseExecutionDto buildDto() {
         CourseExecutionDto courseExecutionDto = new CourseExecutionDto();
         courseExecutionDto.setAggregateId(this.aggregateId);

@@ -71,7 +71,6 @@ public class Tournament extends Aggregate {
         this.courseExecution = null;
     }
 
-    // TODO should the version be assigned on the functionality or service?
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz) {
         super(aggregateId, TOURNAMENT);
@@ -98,6 +97,8 @@ public class Tournament extends Aggregate {
         this.quiz = other.getQuiz();
         this.creator = other.getCreator();
         setParticipants(new HashSet<>(other.getParticipants())); /* change this to create new instances (maybe not needed) */
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
         setPrev(other);
     }
 
@@ -246,7 +247,7 @@ public class Tournament extends Aggregate {
         * functionality which updates both incremental and non-incremental fields at the same time. Update only makes
         * changes to non-incremental fields and addParticipant only makes changes to incremental fields, meaning there
         * is no instance in which we lose an update by aborting the merge. IS IT????? */
-        if (checkNonIncrementalChanges(v1ChangedFields, v2ChangedFields) || checkNonIncrementalChanges(v2ChangedFields, v1ChangedFields)) {
+        if (checkIntentions(v1ChangedFields, v2ChangedFields) || checkIntentions(v2ChangedFields, v1ChangedFields)) {
             throw new TutorException(TOURNAMENT_MERGE_FAILURE, prev.getAggregateId());
         }
 
@@ -259,12 +260,11 @@ public class Tournament extends Aggregate {
              * If v2 did changes to the non-incremental fields the quiz was updated and we want the merged version to have
              * that update. The same thought process for v2. If neither v2 or v1 made changes, it means they both have
              * the same quiz version. This is required because the quiz is a final variable. */
-        if(v2ChangedFields.contains("startTime") || v2ChangedFields.contains("endTime") || v2ChangedFields.contains("topics") || v2ChangedFields.contains("numberOfQuestions")) {
-            mergedTournament = new Tournament(v2);
-        } else {
+        if(v1ChangedFields.contains("startTime") || v1ChangedFields.contains("endTime") || v1ChangedFields.contains("topics") || v1ChangedFields.contains("numberOfQuestions")) {
             mergedTournament = new Tournament(v1);
+        } else {
+            mergedTournament = new Tournament(v2);
         }
-
 
         mergeTopics(prev, v1, v2, mergedTournament);
         mergeParticipants(prev, v1, v2, mergedTournament);
@@ -370,17 +370,17 @@ public class Tournament extends Aggregate {
             }
         }
 
-        Set<TournamentTopic> addedParticipants =  SetUtils.union(
+        Set<TournamentTopic> addedTopics =  SetUtils.union(
                 SetUtils.difference(v1Topics, prevTopics),
                 SetUtils.difference(v2Topics, prevTopics)
         );
 
-        Set<TournamentTopic> removedParticipants = SetUtils.union(
+        Set<TournamentTopic> removedTopics = SetUtils.union(
                 SetUtils.difference(prevTopics, v1Topics),
                 SetUtils.difference(prevTopics, v2Topics)
         );
 
-        Set<TournamentTopic> mergedTopics = SetUtils.union(SetUtils.difference(prevTopics, removedParticipants), addedParticipants);
+        Set<TournamentTopic> mergedTopics = SetUtils.union(SetUtils.difference(prevTopics, removedTopics), addedTopics);
         mergedTournament.setTopics(mergedTopics);
     }
 
@@ -390,7 +390,7 @@ public class Tournament extends Aggregate {
             v1ChangedFields.add("startTime");
         }
 
-        if(prev.getStartTime().equals(v.getEndTime())) {
+        if(!prev.getEndTime().equals(v.getEndTime())) {
             v1ChangedFields.add("endTime");
         }
 
@@ -409,7 +409,7 @@ public class Tournament extends Aggregate {
          return v1ChangedFields;
     }
 
-    private static boolean checkNonIncrementalChanges(Set<String> v1ChangedFields, Set<String> v2ChangedFields) {
+    private static boolean checkIntentions(Set<String> v1ChangedFields, Set<String> v2ChangedFields) {
         if(v1ChangedFields.contains("startTime")
                 && (v2ChangedFields.contains("endTime") ||
                 v2ChangedFields.contains("topics") ||
@@ -602,7 +602,6 @@ public class Tournament extends Aggregate {
         return this.quiz;
     }
 
-    /*TODO should this throw exception??*/
     public TournamentParticipant findParticipant(Integer userAggregateId) {
         return this.participants.stream().filter(p -> p.getAggregateId().equals(userAggregateId)).findFirst()
                 .orElse(null);

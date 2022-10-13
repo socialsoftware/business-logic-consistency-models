@@ -6,9 +6,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
@@ -70,10 +69,7 @@ public class CourseExecutionService {
             throw new TutorException(COURSE_EXECUTION_DELETED, execution.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(execution, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(execution);
         return execution;
     }
 
@@ -84,7 +80,7 @@ public class CourseExecutionService {
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto, ExecutionCourse executionCourse, UnitOfWork unitOfWork) {
         CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(), courseExecutionDto, executionCourse);
 
-        unitOfWork.addAggregateToCommit(courseExecution);
+        unitOfWork.registerChanged(courseExecution);
         return new CourseExecutionDto(courseExecution);
     }
 
@@ -96,7 +92,6 @@ public class CourseExecutionService {
         return courseExecutionRepository.findAllNonDeleted().stream()
                 .map(CourseExecution::getAggregateId)
                 .distinct()
-                // TODO change this into a query that retrieve multiple entries
                 .map(id -> getCausalCourseExecutionLocal(id, unitOfWork))
                 .map(CourseExecutionDto::new)
                 .collect(Collectors.toList());
@@ -119,7 +114,7 @@ public class CourseExecutionService {
         }
 
         newCourseExecution.remove();
-        unitOfWork.addAggregateToCommit(newCourseExecution);
+        unitOfWork.registerChanged(newCourseExecution);
         unitOfWork.addEvent(new RemoveCourseExecutionEvent(newCourseExecution.getAggregateId()));
 
     }

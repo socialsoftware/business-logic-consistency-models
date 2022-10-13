@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.repository.UnitOfWorkRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
@@ -66,10 +66,6 @@ public class UnitOfWorkService {
     @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
-    private UnitOfWorkRepository unitOfWorkRepository;
-
-
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -78,22 +74,17 @@ public class UnitOfWorkService {
         return new UnitOfWork(versionService.getVersionNumber());
     }
 
-
-    // TODO store type in aggregate
-
-
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void commit(UnitOfWork unitOfWork) {
         boolean concurrentAggregates = true;
-        boolean incrementedVersion = false;
 
-        // TODO STEP 1 check whether any of the aggregates to write have concurrent versions
-        // TODO STEP 2 if so perform any merges necessary
-        // TODO STEP 3 performs steps 1 and 2 until step 1 stops holding
-        // TODO STEP 4 perform a commit of the aggregates under SERIALIZABLE isolation
+        // STEP 1 check whether any of the aggregates to write have concurrent versions
+        // STEP 2 if so perform any merges necessary
+        // STEP 3 performs steps 1 and 2 until step 1 stops holding
+        // STEP 4 perform a commit of the aggregates under SERIALIZABLE isolation
 
         Map<Integer, Aggregate> originalAggregatesToCommit = new HashMap<>(unitOfWork.getAggregatesToCommit());
 
@@ -120,11 +111,19 @@ public class UnitOfWorkService {
             }
 
             if (concurrentAggregates) {
-                // TODO because there was a concurrent version we need to get a new version
+                // because there was a concurrent version we need to get a new version
                 // the service to get a new version must also increment it to guarantee two transactions do run with the same version number
                 // a number must be requested every time a concurrent version is detected
                 unitOfWork.setVersion(versionService.getVersionNumber());
-                incrementedVersion = true;
+            }
+        }
+
+        // registering the emitted events on the committed aggregates
+        for(Aggregate a : modifiedAggregatesToCommit.values()) {
+            for(Event e : createUnitOfWork().getEventsToEmit()) {
+                if(a.getAggregateId().equals(e.getAggregateId())) {
+                    a.addEmittedEvent(e.getType(), unitOfWork.getVersion());
+                }
             }
         }
 
@@ -134,8 +133,6 @@ public class UnitOfWorkService {
             e.setAggregateVersion(unitOfWork.getVersion());
             eventRepository.save(e);
         });
-
-        unitOfWorkRepository.delete(unitOfWork);
     }
 
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
@@ -63,10 +63,7 @@ public class QuestionService {
             throw new TutorException(ErrorMessage.QUESTION_DELETED, question.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(question, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(question);
         return question;
     }
 
@@ -92,7 +89,7 @@ public class QuestionService {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
 
         Question question = new Question(aggregateId, course, questionDto, questionTopics);
-        unitOfWork.addAggregateToCommit(question);
+        unitOfWork.registerChanged(question);
         return new QuestionDto(question);
     }
 
@@ -108,7 +105,7 @@ public class QuestionService {
         Question oldQuestion = getCausalQuestionLocal(questionDto.getAggregateId(), unitOfWork);
         Question newQuestion = new Question(oldQuestion);
         newQuestion.update(questionDto);
-        unitOfWork.addAggregateToCommit(newQuestion);
+        unitOfWork.registerChanged(newQuestion);
         unitOfWork.addEvent(new UpdateQuestionEvent(newQuestion.getAggregateId(), newQuestion.getTitle(), newQuestion.getContent()));
     }
 
@@ -119,9 +116,8 @@ public class QuestionService {
     public void removeQuestion(Integer courseAggregateId, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
-        // TODO check remove conditions, maybe not needed because they are written based on info from downstream aggregates
         newQuestion.remove();
-        unitOfWork.addAggregateToCommit(newQuestion);
+        unitOfWork.registerChanged(newQuestion);
         unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion));
     }
 
@@ -133,7 +129,7 @@ public class QuestionService {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
         newQuestion.setTopics(topics);
-        unitOfWork.addAggregateToCommit(newQuestion);
+        unitOfWork.registerChanged(newQuestion);
     }
 
     @Retryable(

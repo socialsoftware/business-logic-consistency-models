@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue("REMOVE_QUESTION")
-public class RemoveQuestionEvent extends DomainEvent{
+public class RemoveQuestionEvent extends Event {
 
     public RemoveQuestionEvent() {
         super();

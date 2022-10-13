@@ -37,6 +37,8 @@ public class Course extends Aggregate {
         setName(other.getName());
         setType(other.getType());
         setPrev(other);
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
     }
 
     @Override

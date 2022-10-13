@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue("DELETE_TOPIC")
-public class DeleteTopicEvent extends DomainEvent {
+public class DeleteTopicEvent extends Event {
 
 
 

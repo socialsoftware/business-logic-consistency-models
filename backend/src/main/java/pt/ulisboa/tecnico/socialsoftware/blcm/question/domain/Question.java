@@ -62,6 +62,8 @@ public class Question extends Aggregate {
         setCourse(other.getCourse());
         setOptions(other.getOptions());
         setTopics(new HashSet<>(other.getTopics()));
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
         setPrev(other);
     }
 

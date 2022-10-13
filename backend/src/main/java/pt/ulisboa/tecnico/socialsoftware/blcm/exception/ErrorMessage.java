@@ -22,6 +22,11 @@ public enum ErrorMessage {
     CANNOT_UPDATE_TOURNAMENT("Tournament %d cannot be updated."),
     CANNOT_DELETE_TOURNAMENT("Tournament %d cannot be deleted."),
     QUIZ_NOT_FOUND("Quiz with aggregate Id %d does not exist."),
+    CANNOT_ADD_PARTICIPANT("Cannot add participant to tournament %d after it has started."),
+    PARTICIPANT_NOT_STUDENT("User %d must be a student to be added as participant to tournament %d."),
+    PARTICIPANT_NOT_ENROLLED_IN_TOURNAMENT_EXECUTION("User %d not enrolled in tournament's %d course execution."),
+
+
 
     USER_IS_ANONYMOUS("Cant add anonymous user %d."),
 

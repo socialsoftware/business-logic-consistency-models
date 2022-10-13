@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="type",
         discriminatorType = DiscriminatorType.STRING)
-@Table(name = "domain_events")
-public abstract class DomainEvent {
+@Table(name = "events")
+public abstract class Event {
     @Id
     @GeneratedValue
     private Integer id;
@@ -25,11 +25,11 @@ public abstract class DomainEvent {
     @Column(name = "type", insertable = false, updatable = false)
     private String type;
 
-    public DomainEvent() {
+    public Event() {
         setTs(LocalDateTime.now());
     }
 
-    public DomainEvent(Integer aggregateId) {
+    public Event(Integer aggregateId) {
         setAggregateId(aggregateId);
         setTs(LocalDateTime.now());
     }

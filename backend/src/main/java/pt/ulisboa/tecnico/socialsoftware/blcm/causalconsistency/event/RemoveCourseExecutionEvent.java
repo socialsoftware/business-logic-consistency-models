@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(EventType.REMOVE_COURSE_EXECUTION)
-public class RemoveCourseExecutionEvent extends DomainEvent {
+public class RemoveCourseExecutionEvent extends Event {
 
     public RemoveCourseExecutionEvent() {
         super();

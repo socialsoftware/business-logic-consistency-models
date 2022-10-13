@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue("UPDATE_QUESTION")
-public class UpdateQuestionEvent extends DomainEvent{
+public class UpdateQuestionEvent extends Event {
     private String title;
 
     private String content;

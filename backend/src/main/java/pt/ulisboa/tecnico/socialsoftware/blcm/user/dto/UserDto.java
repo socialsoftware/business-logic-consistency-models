@@ -116,4 +116,6 @@ public class UserDto implements Serializable {
     public void setNumberCorrect(Integer numberCorrect) {
         this.numberCorrect = numberCorrect;
     }
+
+
 }

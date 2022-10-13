@@ -9,7 +9,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Eve
 
 @Entity
 @DiscriminatorValue(UPDATE_TOPIC)
-public class UpdateTopicEvent extends DomainEvent {
+public class UpdateTopicEvent extends Event {
 
     private String topicName;
 

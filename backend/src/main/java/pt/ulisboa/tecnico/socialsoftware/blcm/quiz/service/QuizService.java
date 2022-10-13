@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
@@ -80,14 +80,10 @@ public class QuizService {
             throw new TutorException(QUIZ_DELETED, quiz.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(quiz, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(quiz);
         return quiz;
     }
 
-    // TODO discuss this implementation
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -115,7 +111,7 @@ public class QuizService {
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, GENERATED);
         quiz.setTitle("Generated Quiz Title");
         quiz.setCourseExecution(quizCourseExecution);
-        unitOfWork.addAggregateToCommit(quiz);
+        unitOfWork.registerChanged(quiz);
         return new QuizDto(quiz);
     }
 
@@ -147,7 +143,7 @@ public class QuizService {
     public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, Set<QuizQuestion> quizQuestions, QuizDto quizDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, IN_CLASS);
-        unitOfWork.addAggregateToCommit(quiz);
+        unitOfWork.registerChanged(quiz);
         return new QuizDto(quiz);
     }
 
@@ -175,7 +171,7 @@ public class QuizService {
         }
 
         newQuiz.setTitle("Generated Quiz Title");
-        unitOfWork.addAggregateToCommit(newQuiz);
+        unitOfWork.registerChanged(newQuiz);
         return new QuizDto(newQuiz);
     }
 }

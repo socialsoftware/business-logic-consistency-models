@@ -23,8 +23,6 @@ public class CourseExecution extends Aggregate {
     @Column
     private String academicTerm;
 
-    // TODO course execution status contained in aggregate status?
-
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
@@ -52,6 +50,8 @@ public class CourseExecution extends Aggregate {
         setAcademicTerm(other.getAcademicTerm());
         setEndDate(other.getEndDate());
         setCourse(other.getCourse());
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
         setPrev(other);
     }
 

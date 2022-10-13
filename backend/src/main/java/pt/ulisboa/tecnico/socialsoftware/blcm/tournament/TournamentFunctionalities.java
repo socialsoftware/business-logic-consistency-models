@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.Role.STUDENT;
 
 @Service
 public class TournamentFunctionalities {
@@ -118,7 +119,10 @@ public class TournamentFunctionalities {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
         TournamentParticipant participant = new TournamentParticipant(userDto);
-        tournamentService.addParticipant(tournamentAggregateId, participant, unitOfWork);
+        Set<Integer> userExecutionsIds = userDto.getExecutions().stream()
+                .map(CourseExecutionDto::getAggregateId)
+                .collect(Collectors.toSet());
+        tournamentService.addParticipant(tournamentAggregateId, participant, userExecutionsIds, userDto.getRole(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 

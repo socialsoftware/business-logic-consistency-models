@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
@@ -63,10 +63,7 @@ public class TopicService {
             throw new TutorException(ErrorMessage.TOPIC_DELETED, topic.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(topic, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(topic);
         return topic;
     }
 
@@ -77,7 +74,7 @@ public class TopicService {
     public TopicDto createTopic(TopicDto topicDto, TopicCourse course, UnitOfWork unitOfWorkWorkService) {
         Topic topic = new Topic(aggregateIdGeneratorService.getNewAggregateId(),
                 topicDto.getName(), course);
-        unitOfWorkWorkService.addAggregateToCommit(topic);
+        unitOfWorkWorkService.registerChanged(topic);
         return new TopicDto(topic);
     }
 
@@ -104,7 +101,7 @@ public class TopicService {
         Topic oldTopic = getCausalTopicLocal(topicDto.getAggregateId(), unitOfWork);
         Topic newTopic = new Topic(oldTopic);
         newTopic.setName(topicDto.getName());
-        unitOfWork.addAggregateToCommit(newTopic);
+        unitOfWork.registerChanged(newTopic);
         unitOfWork.addEvent(new UpdateTopicEvent(newTopic));
     }
 
@@ -116,7 +113,7 @@ public class TopicService {
         Topic oldTopic = getCausalTopicLocal(topicAggregateId, unitOfWork);
         Topic newTopic = new Topic(oldTopic);
         newTopic.remove();
-        unitOfWork.addAggregateToCommit(newTopic);
+        unitOfWork.registerChanged(newTopic);
         unitOfWork.addEvent(new DeleteTopicEvent(newTopic));
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeUserEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DomainEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
@@ -63,10 +63,7 @@ public class UserService {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
-        Set<DomainEvent> allEvents = new HashSet<>(eventRepository.findAll());
-        Set<ProcessedEvents> processedEvents = new HashSet<>(processedEventsRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(user, allEvents, processedEvents);
+        unitOfWork.addToCausalSnapshot(user);
         return user;
     }
 
@@ -78,7 +75,7 @@ public class UserService {
     public UserDto createUser(UserDto userDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         User user = new User(aggregateId, userDto);
-        unitOfWork.addAggregateToCommit(user);
+        unitOfWork.registerChanged(user);
         return new UserDto(user);
     }
 
@@ -92,7 +89,7 @@ public class UserService {
         executionsUsers.forEach(oldUser -> {
             User newUser = new User(oldUser);
             newUser.anonymize();
-            unitOfWork.addAggregateToCommit(newUser);
+            unitOfWork.registerChanged(newUser);
             unitOfWork.addEvent(new AnonymizeUserEvent(newUser.getAggregateId(), "ANONYMOUS", "ANONYMOUS"));
         });
     }
@@ -110,7 +107,7 @@ public class UserService {
 
         User newUser = new User(oldUser);
         newUser.addCourseExecution(userCourseExecution);
-        unitOfWork.addAggregateToCommit(newUser);
+        unitOfWork.registerChanged(newUser);
     }
 
     @Retryable(
@@ -124,7 +121,7 @@ public class UserService {
         }
         User newUser = new User(oldUser);
         newUser.setActive(true);
-        unitOfWork.addAggregateToCommit(newUser);
+        unitOfWork.registerChanged(newUser);
     }
 
     @Retryable(
@@ -146,28 +143,7 @@ public class UserService {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
         User newUser = new User(oldUser);
         newUser.remove();
-        unitOfWork.addAggregateToCommit(newUser);
-    }
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void removeCourseExecutionsFromUser(Integer userAggregateId, List<Integer> courseExecutionsAggregateIds, UnitOfWork unitOfWork) {
-        User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
-        Set<UserCourseExecution> courseExecutionsToRemove = oldUser.getCourseExecutions().stream()
-                .filter(uce -> courseExecutionsAggregateIds.contains(uce.getAggregateId()))
-                .collect(Collectors.toSet());
-
-        if(!courseExecutionsToRemove.isEmpty()) {
-            User newUser = new User(oldUser);
-            for (UserCourseExecution userCourseExecution : courseExecutionsToRemove) {
-                newUser.removeCourseExecution(userCourseExecution);
-            }
-
-            unitOfWork.addAggregateToCommit(newUser);
-        }
-
+        unitOfWork.registerChanged(newUser);
     }
 
     @Retryable(
@@ -198,5 +174,27 @@ public class UserService {
                 .map(id -> getCausalUserLocal(id, unitOfWork))
                 .map(UserDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public User removeCourseExecutionsFromUser(Integer userAggregateId, List<Integer> courseExecutionsAggregateIds, UnitOfWork unitOfWork) {
+        User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
+        Set<UserCourseExecution> courseExecutionsToRemove = oldUser.getCourseExecutions().stream()
+                .filter(uce -> courseExecutionsAggregateIds.contains(uce.getAggregateId()))
+                .collect(Collectors.toSet());
+
+        if(!courseExecutionsToRemove.isEmpty()) {
+            User newUser = new User(oldUser);
+            for (UserCourseExecution userCourseExecution : courseExecutionsToRemove) {
+                newUser.removeCourseExecution(userCourseExecution);
+            }
+
+            unitOfWork.registerChanged(newUser);
+            return newUser;
+        }
+        return null;
     }
 }

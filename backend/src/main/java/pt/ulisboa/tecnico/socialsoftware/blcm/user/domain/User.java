@@ -42,17 +42,18 @@ public class User extends Aggregate {
 
     }
 
-    public User(User otherUser) {
-        super(otherUser.getAggregateId(), USER);
+    public User(User other) {
+        super(other.getAggregateId(), USER);
         setId(null);
-        setName(otherUser.getName());
-        setUsername(otherUser.getUsername());
-        setRole(otherUser.getRole());
+        setName(other.getName());
+        setUsername(other.getUsername());
+        setRole(other.getRole());
         setState(AggregateState.ACTIVE);
-        setPrev(otherUser);
-        setActive(otherUser.isActive());
-        setCourseExecutions(new HashSet<>(otherUser.getCourseExecutions()));
-
+        setActive(other.isActive());
+        setCourseExecutions(new HashSet<>(other.getCourseExecutions()));
+        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
+        setPrev(other);
     }
 
     public User(Integer aggregateId, UserDto userDto) {
@@ -174,14 +175,6 @@ public class User extends Aggregate {
 
 
             mergedUser.setCourseExecutions(SetUtils.union(SetUtils.difference(prev.getCourseExecutions(), removedCourseExecutions), addedCourseExecutions));
-
-            /*for(Aggregate dep : v2.getDependencies().values()){
-                if (!mergedUser.getDependencies().containsKey(dep.getAggregateId()) && dep instanceof User) {
-                    // TODO: create method to allow adding individual dependencies
-                    mergedUser.getDependencies().put(dep.getAggregateId(), dep);
-                }
-            }*/
-
         }
 
         return mergedUser;

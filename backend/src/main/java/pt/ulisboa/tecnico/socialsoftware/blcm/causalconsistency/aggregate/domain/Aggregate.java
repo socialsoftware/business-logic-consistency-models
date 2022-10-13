@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domai
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,9 +35,11 @@ public abstract class Aggregate {
     @Column(name = "aggregate_type")
     private AggregateType aggregateType;
 
-    // during a transaction we only want to have one primary aggregate and so by default all aggregates are secondary
-    @Column(columnDefinition = "boolean default false")
-    private boolean primaryAggregate;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Map<String, Integer> processedEvents;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Map<String, Integer> emittedEvents;
 
     @ManyToOne
     private Aggregate prev;
@@ -61,6 +64,8 @@ public abstract class Aggregate {
         setAggregateId(aggregateId);
         setState(AggregateState.ACTIVE);
         setAggregateType(aggregateType);
+        setEmittedEvents(new HashMap<>());
+        setProcessedEvents(new HashMap<>());
     }
 
 
@@ -108,24 +113,12 @@ public abstract class Aggregate {
         this.state = state;
     }
 
-    public abstract Aggregate merge(Aggregate other);
-
-    public abstract Map<Integer, Integer> getSnapshotElements();
-
     public AggregateType getAggregateType() {
         return aggregateType;
     }
 
     public void setAggregateType(AggregateType aggregateType) {
         this.aggregateType = aggregateType;
-    }
-
-    public boolean isPrimaryAggregate() {
-        return primaryAggregate;
-    }
-
-    public void setPrimaryAggregate(boolean primary) {
-        this.primaryAggregate = primary;
     }
 
     public Aggregate getPrev() {
@@ -135,6 +128,46 @@ public abstract class Aggregate {
     public void setPrev(Aggregate prev) {
         this.prev = prev;
     }
+
+    public Map<String, Integer> getProcessedEvents() {
+        return processedEvents;
+    }
+
+    public void setProcessedEvents(Map<String, Integer> processedEvents) {
+        this.processedEvents = processedEvents;
+    }
+
+    public void addProcessedEvent(String eventType, Integer eventVersion) {
+        if(this.processedEvents.containsKey(eventType) && this.processedEvents.get(eventType) >= eventVersion) {
+            return;
+        }
+        this.processedEvents.put(eventType, eventVersion);
+    }
+
+    public Map<String, Integer> getEmittedEvents() {
+        return emittedEvents;
+    }
+
+    public void setEmittedEvents(Map<String, Integer> emittedEvents) {
+        this.emittedEvents = emittedEvents;
+    }
+
+    public void addEmittedEvent(String eventType, Integer eventVersion) {
+        if(this.emittedEvents.containsKey(eventType) && this.emittedEvents.get(eventType) >= eventVersion) {
+            return;
+        }
+        this.emittedEvents.put(eventType, eventVersion);
+    }
+
+    public void setEmittedEventsVersion(Integer commitVersion) {
+        for(String eventType : this.emittedEvents.keySet()) {
+            this.emittedEvents.put(eventType, commitVersion);
+        }
+    }
+
+    public abstract Aggregate merge(Aggregate other);
+
+    public abstract Map<Integer, Integer> getSnapshotElements();
 
     public abstract Set<String> getEventSubscriptions();
 
