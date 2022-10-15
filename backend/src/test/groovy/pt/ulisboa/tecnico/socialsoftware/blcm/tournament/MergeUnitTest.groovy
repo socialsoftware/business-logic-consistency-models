@@ -177,14 +177,14 @@ class MergeUnitTest extends SpockTest {
         participant2 = new TournamentParticipant()
         participant2.setAggregateId(USER_AGGREGATE_ID_2)
         participant2.setName(USER_NAME_2)
-        participant1.setUsername(USER_USERNAME_2)
+        participant2.setUsername(USER_USERNAME_2)
         participant2.setVersion(2)
 
 
         participant3 = new TournamentParticipant()
         participant3.setAggregateId(USER_AGGREGATE_ID_3)
         participant3.setName(USER_NAME_3)
-        participant1.setUsername(USER_USERNAME_3)
+        participant3.setUsername(USER_USERNAME_3)
         participant3.setVersion(3)
 
 
@@ -401,22 +401,22 @@ class MergeUnitTest extends SpockTest {
         answer1v2.setNumberOfCorrect(ansNoCorrect2)
 
         //participant1.setAnswer(answer1)
-
-        participant2.setAggregateId(participant1.getAggregateId())
+        TournamentParticipant participant1v2 = new TournamentParticipant()
+        participant1v2.setAggregateId(participant1.getAggregateId())
         //participant2.setAnswer(answer1v2)
-        participant2.setName(participant1.getName())
-        participant1.setUsername(participant1.getUsername())
+        participant1v2.setName("ANONYMOUS")
+        participant1v2.setUsername("ANONYMOUS")
+        participant1v2.setVersion(participant1.getVersion() + 1)
 
 
-
-        HashSet<TournamentParticipant> prevParticipants = new HashSet<>()
+        HashSet<TournamentParticipant> prevParticipants = new HashSet<TournamentParticipant>()
         prevParticipants.add(participant1)
 
-        HashSet<TournamentParticipant> v1Participants = new HashSet<>()
+        HashSet<TournamentParticipant> v1Participants = new HashSet<TournamentParticipant>()
         v1Participants.add(participant1)
 
-        HashSet<TournamentParticipant> v2Participants = new HashSet<>()
-        v2Participants.add(participant2)
+        HashSet<TournamentParticipant> v2Participants = new HashSet<TournamentParticipant>()
+        v2Participants.add(participant1v2)
 
 
         prev.setParticipants(prevParticipants)

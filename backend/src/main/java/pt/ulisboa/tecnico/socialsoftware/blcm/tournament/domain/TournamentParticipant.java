@@ -153,8 +153,9 @@ public class TournamentParticipant {
         if (!(obj instanceof TournamentParticipant)) {
             return false;
         }
-        TournamentParticipant tournamentParticipant = (TournamentParticipant) obj;
-        return getAggregateId() != null && getAggregateId().equals(tournamentParticipant.getAggregateId()) &&
-                getVersion() != null && getVersion().equals(tournamentParticipant.getVersion());
+        TournamentParticipant otherParticipant = (TournamentParticipant) obj;
+        boolean r = getAggregateId() != null && getAggregateId().equals(otherParticipant.getAggregateId()) &&
+                getVersion() != null && getVersion().equals(otherParticipant.getVersion());
+        return r;
     }
 }

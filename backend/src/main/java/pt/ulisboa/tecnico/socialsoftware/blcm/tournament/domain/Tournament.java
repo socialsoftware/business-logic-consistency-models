@@ -284,12 +284,12 @@ public class Tournament extends Aggregate {
         /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
         * of the base we choose. */
 
-        Set<TournamentParticipant> prevParticipants = new HashSet<>(prev.getParticipants());
-        Set<TournamentParticipant> v1Participants = new HashSet<>(v1.getParticipants());
-        Set<TournamentParticipant> v2Participants = new HashSet<>(v2.getParticipants());
+        Set<TournamentParticipant> prevParticipantsPre = new HashSet<>(prev.getParticipants());
+        Set<TournamentParticipant> v1ParticipantsPre = new HashSet<>(v1.getParticipants());
+        Set<TournamentParticipant> v2ParticipantsPre = new HashSet<>(v2.getParticipants());
 
-        for(TournamentParticipant tp1 : v1Participants) {
-            for(TournamentParticipant tp2 : v2Participants) {
+        for(TournamentParticipant tp1 : v1ParticipantsPre) {
+            for(TournamentParticipant tp2 : v2ParticipantsPre) {
                 if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
                     if(tp1.getVersion() > tp2.getVersion()) {
                         tp2.setVersion(tp1.getVersion());
@@ -306,7 +306,7 @@ public class Tournament extends Aggregate {
             }
 
             // no need to check again because the prev does not contain any newer version than v1 an v2
-            for(TournamentParticipant tp2 : prevParticipants) {
+            for(TournamentParticipant tp2 : prevParticipantsPre) {
                 if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
                     if(tp1.getVersion() > tp2.getVersion()) {
                         tp2.setVersion(tp1.getVersion());
@@ -322,6 +322,24 @@ public class Tournament extends Aggregate {
                 }
             }
         }
+
+        boolean a1 = prevParticipantsPre.stream().findFirst().get().hashCode() == v1ParticipantsPre.stream().findFirst().get().hashCode();
+        boolean a2 = prevParticipantsPre.stream().findFirst().get().hashCode() == v2ParticipantsPre.stream().findFirst().get().hashCode();
+        boolean a3 = v1ParticipantsPre.stream().findFirst().get().hashCode() == v2ParticipantsPre.stream().findFirst().get().hashCode();
+
+        boolean b1 = prevParticipantsPre.equals(v1ParticipantsPre);
+        boolean b2 = prevParticipantsPre.equals(v2ParticipantsPre);
+        boolean b3 = v1ParticipantsPre.equals(v2ParticipantsPre);
+
+        boolean c1 = prevParticipantsPre.stream().findFirst().get().equals(v1ParticipantsPre.stream().findFirst().get());
+        boolean c2 = prevParticipantsPre.stream().findFirst().get().equals(v2ParticipantsPre.stream().findFirst().get());
+        boolean c3 = v1ParticipantsPre.stream().findFirst().get().equals(v2ParticipantsPre.stream().findFirst().get());
+
+
+        Set<TournamentParticipant> prevParticipants = new HashSet<>(prevParticipantsPre);
+        Set<TournamentParticipant> v1Participants = new HashSet<>(v1ParticipantsPre);
+        Set<TournamentParticipant> v2Participants = new HashSet<>(v2ParticipantsPre);
+
 
         Set<TournamentParticipant> addedParticipants =  SetUtils.union(
                 SetUtils.difference(v1Participants, prevParticipants),
