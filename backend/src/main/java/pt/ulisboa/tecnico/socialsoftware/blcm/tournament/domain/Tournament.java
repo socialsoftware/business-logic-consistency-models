@@ -6,6 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 
 import javax.persistence.*;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -15,6 +16,43 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Eve
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /* each version of the tournament is a new instance of the tournament*/
+/*
+    INTRA-INVARIANTS:
+    Intra-Invariants (Causal Consistency check on version merge) (Eventual Consistency check on set to APPROVED) (Apply to ACTIVE states)
+        CREATOR_IS_FINAL
+        COURSE_EXECUTION_IS_FINAL
+        QUIZ_IS_FINAL
+        START_BEFORE_END_TIME
+        UNIQUE_AS_PARTICIPANT
+        ENROLL_UNTIL_START_TIME
+        ANSWER_BEFORE_START
+        FINAL_AFTER_START
+        LEAVE_TOURNAMENT
+        AFTER_END
+        IS_CANCELED
+        DELETE
+    INTER-INVARIANTS:
+        NUMBER_OF_QUESTIONS
+        QUIZ_TOPICS
+        START_TIME_AVAILABLE_DATE
+        END_TIME_CONCLUSION_DATE
+        CREATOR_COURSE_EXECUTION
+        PARTICIPANT_COURSE_EXECUTION
+        QUIZ_COURSE_EXECUTION
+        TOPIC_COURSE_EXECUTION
+        QUIZ_QUIZ_ANSWER
+        CREATOR_STUDENT
+        PARTICIPANT_STUDENT
+        NUMBER_OF_ANSWERED
+        NUMBER_OF_CORRECT
+        INACTIVE_PROPAGATION ????
+        CREATOR_EXISTS
+        COURSE_EXECUTION_EXISTS
+        PARTICIPANT_EXISTS
+        TOPIC_EXISTS
+        QUIZ_EXISTS
+        QUIZ_ANSWER_EXISTS
+ */
 @Entity
 @Table(name = "tournaments")
 public class Tournament extends Aggregate {
@@ -116,7 +154,7 @@ public class Tournament extends Aggregate {
 
     @Override
     public Set<String> getEventSubscriptions() {
-        return Set.of(ANONYMIZE_USER, REMOVE_COURSE_EXECUTION, REMOVE_USER, UPDATE_TOPIC, DELETE_TOPIC, ANSWER_QUESTION);
+        return Set.of(ANONYMIZE_EXECUTION_STUDENT, REMOVE_COURSE_EXECUTION, REMOVE_USER, UPDATE_TOPIC, DELETE_TOPIC, ANSWER_QUESTION);
     }
 
     /* ----------------------------------------- INTRA-AGGREGATE INVARIANTS ----------------------------------------- */
@@ -181,8 +219,9 @@ public class Tournament extends Aggregate {
         return true;
     }
 
+    // TODO
     @Override
-    public boolean verifyInvariants() {
+    public void verifyInvariants() {
         if(!(/*invariantAnswerBeforeStart()
                 &&*/ invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
@@ -190,87 +229,55 @@ public class Tournament extends Aggregate {
                 && deleteCondition())) {
             throw new TutorException(INVARIANT_BREAK, getAggregateId());
         }
-        return true;
     }
 
+    public Set<String> getFieldsAbleToChange()  {
+        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants");
+    }
 
-    @Override
-    public Aggregate merge(Aggregate other) {
-        /*
-        Causal Consistency
-		FIELD MERGE RULES
-			DEFAULT ATTRIBUTE COMBINATION: NON-INCREMENTAL
-			DEFAULT VERSION PICKING PROCESS: LOWER TS
-			SPECIFIC ATTRIBUTE COMBINATIONS
-				(v1.participants, v2.participants): INCREMENTAL
-				(v1.startTime, v2.participants): INCREMENTAL
-				(v1.participants, v2.endTime): INCREMENTAL
-				p1: v1.participants | p2 = v2.participants | p1.id != p2.id => (p1,p2): INCREMENTAL
-				(v1.participants, v2.numberOfQuestions): INCREMENTAL
-				(v1.participants, v2.topics): INCREMENTAL
-				(v1.participants, v2.endTime): INCREMENTAL
-				(v1.numberOfQuestions, v2.numberOfQuestions): INCREMENTAL
-		MERGE FUNCTIONS
-			participants
-				addedParticipants = v1.participants - prev.participants + v2.participants - prev.participants
-				removedParticipants = prev.participants - v1.participants + prev.participants - v2.participants
-				this.participants = prev.participants - removedParticipants + addedParticipants
-			numberOfQuestions
-				this.numberOfQuestions = v2.numberOfQuestions (v2 has higher TS)
-			*/
+    public Set<String> getIntentionFields() {
+        return Set.of("startTime", "endTime", "numberOfQuestions", "topics");
+    }
 
-        /* if there is an already concurrent version which is deleted this should not execute*/
-        Tournament prev = (Tournament) getPrev();
-        Tournament v1 = this;
-        if(!(other instanceof Tournament)) {
-            throw new TutorException(TOURNAMENT_MERGE_FAILURE, getAggregateId());
-        }
-        Tournament v2 = (Tournament)other;
-
-
-        if(v1.getState() == DELETED) {
-            throw new TutorException(TOURNAMENT_DELETED, v1.getAggregateId());
-        }
-        /* take the state into account because we don't want to override a deleted object*/
-
-        if(v2.getState() == DELETED) {
-            throw new TutorException(TOURNAMENT_DELETED, v2.getAggregateId());
+    public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields){
+        if(!(committedVersion instanceof Tournament)) {
+            throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
         }
 
-        Set<String> v1ChangedFields = getChangedFields(prev, v1);
-        Set<String> v2ChangedFields = getChangedFields(prev, v2);
+        Tournament committedTournament = (Tournament) committedVersion;
+        Tournament mergedTournament = new Tournament(this);
 
-        /* if updates occur in both versions that change any of the fields in the non-incremental set we stay with
-        * concurrent version which was committed first (v2) by throwing an exception on this merge.
-        * This implementation does not allow versions to be merged if there are any non-incremental changes it may also
-        * exist. SHOULD IT BE THIS WAY??? This requires knowledge of the tournament functionalities: we do not have any
-        * functionality which updates both incremental and non-incremental fields at the same time. Update only makes
-        * changes to non-incremental fields and addParticipant only makes changes to incremental fields, meaning there
-        * is no instance in which we lose an update by aborting the merge. IS IT????? */
-        if (checkIntentions(v1ChangedFields, v2ChangedFields) || checkIntentions(v2ChangedFields, v1ChangedFields)) {
-            throw new TutorException(TOURNAMENT_MERGE_FAILURE, prev.getAggregateId());
-        }
+        mergeStartTime(toCommitVersionChangedFields, committedTournament, mergedTournament);
+        mergeEndTime(toCommitVersionChangedFields, committedTournament, mergedTournament);
+        mergeNumberOfQuestions(toCommitVersionChangedFields, committedTournament, mergedTournament);
+        mergeParticipants((Tournament) getPrev(), this, committedTournament, mergedTournament);
+        mergeTopics((Tournament) getPrev(), this, committedTournament, mergedTournament);
 
-        Tournament mergedTournament;
-
-            /* Here we know that the two updates didn't alter non-incremental fields.
-             * We choose the base of the merged version by checking whether the already existing concurrent version (v2) made
-             *  changes to non-incremental fields. If it didn't do any changes we choose the version we're trying to commit
-             * (v1) as a base. This is because it is the non-incremental fields which determine the generation of the quiz.
-             * If v2 did changes to the non-incremental fields the quiz was updated and we want the merged version to have
-             * that update. The same thought process for v2. If neither v2 or v1 made changes, it means they both have
-             * the same quiz version. This is required because the quiz is a final variable. */
-        if(v1ChangedFields.contains("startTime") || v1ChangedFields.contains("endTime") || v1ChangedFields.contains("topics") || v1ChangedFields.contains("numberOfQuestions")) {
-            mergedTournament = new Tournament(v1);
-        } else {
-            mergedTournament = new Tournament(v2);
-        }
-
-        mergeTopics(prev, v1, v2, mergedTournament);
-        mergeParticipants(prev, v1, v2, mergedTournament);
-        // TODO see explanation for prev assignment in Quiz
-        mergedTournament.setPrev(getPrev());
         return mergedTournament;
+    }
+
+    private void mergeNumberOfQuestions(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
+        if(toCommitVersionChangedFields.contains("numberOfQuestions")) {
+            mergedTournament.setNumberOfQuestions(getNumberOfQuestions());
+        } else {
+            mergedTournament.setNumberOfQuestions(committedTournament.getNumberOfQuestions());
+        }
+    }
+
+    private void mergeEndTime(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
+        if(toCommitVersionChangedFields.contains("endTime")) {
+            mergedTournament.setEndTime(getEndTime());
+        } else {
+            mergedTournament.setEndTime(committedTournament.getEndTime());
+        }
+    }
+
+    private void mergeStartTime(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
+        if(toCommitVersionChangedFields.contains("startTime")) {
+            mergedTournament.setStartTime(getStartTime());
+        } else {
+            mergedTournament.setStartTime(committedTournament.getStartTime());
+        }
     }
 
     private static void mergeParticipants(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
@@ -384,81 +391,8 @@ public class Tournament extends Aggregate {
         mergedTournament.setTopics(mergedTopics);
     }
 
-    private static Set<String> getChangedFields(Tournament prev, Tournament v) {
-        Set<String> v1ChangedFields = new HashSet<>();
-        if(!prev.getStartTime().equals(v.getStartTime())) {
-            v1ChangedFields.add("startTime");
-        }
-
-        if(!prev.getEndTime().equals(v.getEndTime())) {
-            v1ChangedFields.add("endTime");
-        }
-
-        if(!prev.getParticipants().equals(v.getParticipants())) {
-            v1ChangedFields.add("participants");
-        }
-
-        if(!prev.getTopics().equals(v.getTopics())) {
-            v1ChangedFields.add("topics");
-        }
-
-        if(!prev.getNumberOfQuestions().equals(v.getNumberOfQuestions())) {
-            v1ChangedFields.add("numberOfQuestions");
-        }
-
-         return v1ChangedFields;
-    }
-
-    private static boolean checkIntentions(Set<String> v1ChangedFields, Set<String> v2ChangedFields) {
-        if(v1ChangedFields.contains("startTime")
-                && (v2ChangedFields.contains("endTime") ||
-                v2ChangedFields.contains("topics") ||
-                v2ChangedFields.contains("numberOfQuestions"))) {
-
-            return true;
-        }
-
-        if(v1ChangedFields.contains("endTime")
-                && (v2ChangedFields.contains("startTime") ||
-                v2ChangedFields.contains("topics") ||
-                v2ChangedFields.contains("numberOfQuestions"))) {
-
-            return true;
-        }
-
-        if(v1ChangedFields.contains("topics")
-                && (v2ChangedFields.contains("startTime") ||
-                v2ChangedFields.contains("endTime") ||
-                v2ChangedFields.contains("numberOfQuestions"))) {
-
-            return true;
-        }
-
-        if(v1ChangedFields.contains("numberOfQuestions")
-                && (v2ChangedFields.contains("startTime") ||
-                v2ChangedFields.contains("endTime") ||
-                v2ChangedFields.contains("topics"))) {
-
-            return true;
-        }
-        return false;
-    }
-
-
     public void cancel() {
         this.cancelled = true;
-    }
-
-    @Override
-    public Map<Integer, Integer> getSnapshotElements() {
-        Map<Integer , Integer> depMap = new HashMap<>();
-        depMap.put(this.courseExecution.getAggregateId(), this.courseExecution.getVersion());
-        depMap.put(this.creator.getAggregateId(), this.creator.getVersion());
-        this.participants.forEach(p -> {
-            depMap.put(p.getAggregateId(), p.getVersion());
-        });
-        depMap.put(this.quiz.getAggregateId(), this.quiz.getVersion());
-        return depMap;
     }
 
     public LocalDateTime getStartTime() {

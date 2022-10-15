@@ -21,10 +21,6 @@ public class UserDto implements Serializable {
 
     private Integer version;
 
-    private Set<CourseExecutionDto> executions;
-
-
-
     private Integer numberAnswered;
 
     private Integer numberCorrect;
@@ -40,9 +36,6 @@ public class UserDto implements Serializable {
         this.username = user.getUsername();
         this.version = user.getVersion();
         setActive(user.isActive());
-        setExecutions(user.getCourseExecutions().stream()
-                .map(UserCourseExecution::buildDto)
-                .collect(Collectors.toSet()));
     }
 
     public Integer getAggregateId() {
@@ -83,14 +76,6 @@ public class UserDto implements Serializable {
 
     public void setVersion(Integer version) {
         this.version = version;
-    }
-
-    public Set<CourseExecutionDto> getExecutions() {
-        return executions;
-    }
-
-    public void setExecutions(Set<CourseExecutionDto> executions) {
-        this.executions = executions;
     }
 
     public boolean isActive() {

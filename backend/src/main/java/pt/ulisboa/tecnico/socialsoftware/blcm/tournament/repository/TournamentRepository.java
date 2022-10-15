@@ -24,6 +24,9 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     @Query(value = "select t.aggregate_id from tournaments t, tournament_participants tp where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND ((t.id = tp.tournament_id AND tp.participant_aggregate_id = :userAggregateId)  OR (t.creator_aggregate_id = :userAggregateId))", nativeQuery = true)
     Set<Integer> findAllAggregateIdsByUser(Integer userAggregateId);
 
+    @Query(value = "select t.aggregate_id from tournaments t, tournament_participants tp where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (t.course_execution_aggregate_id = :executionAggregateId) AND((t.id = tp.tournament_id AND tp.participant_aggregate_id = :userAggregateId)  OR (t.creator_aggregate_id = :userAggregateId))", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByExecutionAndUser(Integer executionAggregateId, Integer userAggregateId);
+
     @Query(value = "select t.aggregate_id from tournaments t where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (t.course_execution_aggregate_id = :courseExecutionAggregateId)", nativeQuery = true)
     Set<Integer> findAllAggregateIdsByCourseExecution(Integer courseExecutionAggregateId);
 

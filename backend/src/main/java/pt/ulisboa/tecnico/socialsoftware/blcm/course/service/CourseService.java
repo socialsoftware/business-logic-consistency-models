@@ -76,7 +76,7 @@ public class CourseService {
         Course course = getCausalCourseLocalByName(courseExecutionDto.getName(), unitOfWork);
         if(course == null) {
             Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-            course = new Course(aggregateId, unitOfWork.getVersion(), courseExecutionDto);
+            course = new Course(aggregateId, courseExecutionDto);
             unitOfWork.registerChanged(course);
         }
         courseExecutionDto.setCourseAggregateId(course.getAggregateId());

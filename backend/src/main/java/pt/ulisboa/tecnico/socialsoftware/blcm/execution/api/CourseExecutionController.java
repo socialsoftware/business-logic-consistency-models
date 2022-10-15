@@ -6,6 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctiona
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class CourseExecutionController {
@@ -32,6 +33,25 @@ public class CourseExecutionController {
     @PostMapping(value = "/executions/{executionAggregateId}/delete")
     public void removeCourseExecution(@PathVariable Integer executionAggregateId) {
         courseExecutionFunctionalities.removeCourseExecution(executionAggregateId);
+    }
 
+    @PostMapping("/executions/{executionAggregateId}/students/add")
+    public void addCourseExecution(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
+        courseExecutionFunctionalities.addCourseExecution(executionAggregateId, userAggregateId);
+    }
+
+    @GetMapping("/users/{userAggregateId}/executions")
+    public Set<CourseExecutionDto> getUserCourseExecutions(@PathVariable Integer userAggregateId) {
+        return courseExecutionFunctionalities.getCourseExecutionsByUser(userAggregateId);
+    }
+
+    @PostMapping("/executions/{executionAggregateId}/students/remove")
+    public void removeStudentFromCourseExecution(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
+        courseExecutionFunctionalities.removeStudentFromCourseExecution(executionAggregateId, userAggregateId);
+    }
+
+    @PostMapping("/executions/{executionAggregateId}/anonymize")
+    public void anonymizeCourseExecutionUsers(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
+        courseExecutionFunctionalities.anonymizeStudent(executionAggregateId, userAggregateId);
     }
 }

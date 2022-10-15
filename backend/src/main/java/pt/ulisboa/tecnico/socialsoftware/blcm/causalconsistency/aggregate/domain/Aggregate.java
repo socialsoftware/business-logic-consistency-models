@@ -1,12 +1,18 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+
 import javax.persistence.*;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 //@MappedSuperclass
 @Entity
@@ -69,9 +75,15 @@ public abstract class Aggregate {
     }
 
 
-    public abstract boolean verifyInvariants();
+    public abstract void verifyInvariants();
 
-    //public abstract Aggregate merge(Aggregate prev, Aggregate v1, Aggregate v2);
+    public abstract Set<String> getEventSubscriptions();
+
+    public abstract Set<String> getFieldsAbleToChange();
+
+    public abstract Set<String> getIntentionFields();
+
+    public abstract Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields);
 
     public Integer getId() {
         return id;
@@ -159,16 +171,71 @@ public abstract class Aggregate {
         this.emittedEvents.put(eventType, eventVersion);
     }
 
-    public void setEmittedEventsVersion(Integer commitVersion) {
-        for(String eventType : this.emittedEvents.keySet()) {
-            this.emittedEvents.put(eventType, commitVersion);
+    public Aggregate merge(Aggregate other) {
+        Aggregate prev = getPrev();
+        Aggregate toCommitVersion = this;
+        Aggregate committedVersion = other;
+
+        if(prev.getClass() != toCommitVersion.getClass() || prev.getClass() != committedVersion.getClass() || toCommitVersion.getClass() != committedVersion.getClass()) {
+            throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
+        }
+
+        if(toCommitVersion.getState() == DELETED) {
+            throw new TutorException(AGGREGATE_DELETED, toCommitVersion.getAggregateId());
+        }
+        /* take the state into account because we don't want to override a deleted object*/
+
+        if(committedVersion.getState() == DELETED) {
+            throw new TutorException(AGGREGATE_DELETED, committedVersion.getAggregateId());
+        }
+
+        Set<String> toCommitVersionChangedFields = getChangedFields(prev, toCommitVersion);
+        Set<String> committedVersionChangedFields = getChangedFields(prev, committedVersion);
+
+        checkIntentions(toCommitVersionChangedFields, committedVersionChangedFields);
+
+        Aggregate mergedAggregate = mergeFields(toCommitVersionChangedFields, committedVersion, committedVersionChangedFields);
+
+        // TODO see explanation for prev assignment in Quiz
+        mergedAggregate.setPrev(getPrev());
+        return mergedAggregate;
+    }
+
+    private Set<String> getChangedFields(Object prevObj, Object obj) {
+        Set<String> changedFields = new HashSet<>();
+        if(prevObj.getClass() != obj.getClass()) {
+            throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
+        }
+
+        try {
+            for(String fieldName : getFieldsAbleToChange()) {
+
+                Field field = obj.getClass().getDeclaredField(fieldName);
+                field.setAccessible(true);
+
+                Object currentFieldValue = field.get(obj);
+                Object prevFieldValue = field.get(prevObj);
+
+
+                if(currentFieldValue != null && prevFieldValue != null && !(currentFieldValue.equals(prevFieldValue))) {
+                    changedFields.add(fieldName);
+                }
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
+        }
+        return changedFields;
+    }
+
+    private void checkIntentions(Set<String> changedFields1, Set<String> changedFields2) {
+        for(String f1 : changedFields1) {
+            for(String f2 : changedFields2) {
+                if(getIntentionFields().contains(f1) && getIntentionFields().contains(f2) && !f1.equals(f2)) {
+                    throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
+                }
+            }
         }
     }
 
-    public abstract Aggregate merge(Aggregate other);
-
-    public abstract Map<Integer, Integer> getSnapshotElements();
-
-    public abstract Set<String> getEventSubscriptions();
 
 }

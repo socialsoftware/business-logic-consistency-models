@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.*;
@@ -11,6 +13,16 @@ import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
+
+/*
+    INTRA-INVARIANTS
+        REMOVE_NO_STUDENTS
+        REMOVE_COURSE_IS_VALID
+        ALL_STUDENTS_ARE_ACTIVE
+    INTER-INVARIANTS
+        USER_EXISTS
+        COURSE_EXISTS (does it count? course doesn't send events)
+ */
 
 @Entity
 @Table(name = "course_executions")
@@ -29,6 +41,9 @@ public class CourseExecution extends Aggregate {
     @Embedded
     private ExecutionCourse course;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<ExecutionStudent> students;
+
     public CourseExecution() {
 
     }
@@ -40,7 +55,7 @@ public class CourseExecution extends Aggregate {
         setAcademicTerm(courseExecutionDto.getAcademicTerm());
         setEndDate(LocalDateTime.parse(courseExecutionDto.getEndDate()));
         setCourse(executionCourse);
-
+        setStudents(new HashSet<>());
     }
 
 
@@ -50,6 +65,7 @@ public class CourseExecution extends Aggregate {
         setAcademicTerm(other.getAcademicTerm());
         setEndDate(other.getEndDate());
         setCourse(other.getCourse());
+        setStudents(new HashSet<>(other.getStudents()));
         setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
         setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
         setPrev(other);
@@ -61,15 +77,23 @@ public class CourseExecution extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Integer> getSnapshotElements() {
-        Map<Integer, Integer> depMap = new HashMap<>();
-        depMap.put(this.course.getAggregateId(), this.course.getVersion());
-        return depMap;
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return new HashSet<>();
+    public Set<String> getFieldsAbleToChange() {
+        return null;
+    }
+
+    @Override
+    public Set<String> getIntentionFields() {
+        return null;
+    }
+
+    @Override
+    public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
+        return null;
     }
 
     public String getAcronym() {
@@ -104,11 +128,53 @@ public class CourseExecution extends Aggregate {
         this.course = course;
     }
 
+    public Set<ExecutionStudent> getStudents() {
+        return students;
+    }
 
-    @Override
-    public boolean verifyInvariants() {
+    public void setStudents(Set<ExecutionStudent> students) {
+        this.students = students;
+    }
+
+    public void addStudent(ExecutionStudent executionStudent) {
+        this.students.add(executionStudent);
+    }
+
+    /*
+        REMOVE_NO_STUDENTS
+     */
+    public boolean removedNoStudents() {
+        if(getState() == AggregateState.DELETED) {
+            return getStudents().size() == 0;
+        }
         return true;
     }
+
+    public boolean allStudentsAreActive() {
+        for(ExecutionStudent student : getStudents()) {
+            if(!student.isActive()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void verifyInvariants() {
+        if(!(removedNoStudents() && allStudentsAreActive())) {
+            throw new TutorException(ErrorMessage.INVARIANT_BREAK, getAggregateId());
+        }
+    }
+
+    @Override
+    public void remove() {
+        if(getStudents().size() > 0) {
+            super.remove();
+        } else {
+            throw new TutorException(ErrorMessage.CANNOT_DELETE_COURSE_EXECUTION, getAggregateId());
+        }
+    }
+
 
     @Override
     public void setVersion(Integer version) {
@@ -117,5 +183,36 @@ public class CourseExecution extends Aggregate {
             this.course.setVersion(version);
         }
         super.setVersion(version);
+    }
+
+    public boolean hasStudent(Integer userAggregateId) {
+        for(ExecutionStudent student : this.students) {
+            if (student.getAggregateId().equals(userAggregateId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ExecutionStudent findStudent(Integer userAggregateId) {
+        for(ExecutionStudent student : this.students) {
+            if(student.getAggregateId().equals(userAggregateId)) {
+                return student;
+            }
+        }
+        return null;
+    }
+
+    public void removeStudent(Integer userAggregateId) {
+        ExecutionStudent studentToRemove = null;
+        if(!hasStudent(userAggregateId)) {
+            throw new TutorException(ErrorMessage.COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, getAggregateId());
+        }
+        for(ExecutionStudent student : this.students) {
+            if(student.getAggregateId().equals(userAggregateId)) {
+                studentToRemove = student;
+            }
+        }
+        this.students.remove(studentToRemove);
     }
 }

@@ -322,7 +322,7 @@ class MergeUnitTest extends SpockTest {
 
         then:
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.TOURNAMENT_MERGE_FAILURE
+        error.errorMessage == ErrorMessage.AGGREGATE_MERGE_FAILURE
 
         where:
         /** Prev values
@@ -427,13 +427,13 @@ class MergeUnitTest extends SpockTest {
         def mergedTournament = (Tournament)(v1.merge(v2))
 
         then:
-        prev.getParticipants() == v1.getParticipants()
+        //prev.getParticipants() == v1.getParticipants()
         /*println("prev:" + prev.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
         println("v1:" + v1.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
         println("v2:" + v2.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
         println("tournament:" + mergedTournament.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
-        println("calculated:" + Set<TournamentParticipant>.of(participant2).stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
-        mergedTournament.getParticipants() == new HashSet(v2Participants)*/
+        println("calculated:" + Set<TournamentParticipant>.of(participant2).stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))*/
+        mergedTournament.getParticipants() == new HashSet(v2Participants)
 
     }
 }

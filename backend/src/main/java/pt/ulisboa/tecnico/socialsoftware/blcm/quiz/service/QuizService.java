@@ -110,7 +110,6 @@ public class QuizService {
 
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, GENERATED);
         quiz.setTitle("Generated Quiz Title");
-        quiz.setCourseExecution(quizCourseExecution);
         unitOfWork.registerChanged(quiz);
         return new QuizDto(quiz);
     }

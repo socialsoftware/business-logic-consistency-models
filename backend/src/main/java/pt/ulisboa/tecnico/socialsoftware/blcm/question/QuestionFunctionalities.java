@@ -3,6 +3,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
@@ -45,9 +47,19 @@ public class QuestionFunctionalities {
         return questionService.findQuestionsByCourseAggregateId(courseAggregateId, unitOfWork);
     }
 
-    public QuestionDto createQuestion(Integer questionAggregateId, QuestionDto questionDto) {
+    public QuestionDto createQuestion(Integer courseAggregateId, QuestionDto questionDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        QuestionCourse course = new QuestionCourse(courseService.getCausalCourseRemote(questionAggregateId, unitOfWork));
+        QuestionCourse course = new QuestionCourse(courseService.getCausalCourseRemote(courseAggregateId, unitOfWork));
+        /*
+            // TODO COURSE_SAME_TOPICS_COURSE
+         */
+
+        for(TopicDto topicDto : questionDto.getTopicDto()) {
+            if(!topicDto.getCourseId().equals(courseAggregateId)) {
+                throw new TutorException(ErrorMessage.QUESTION_TOPIC_INVALID_COURSE, topicDto.getAggregateId(), courseAggregateId);
+            }
+        }
+
         List<QuestionTopic> questionTopics = questionDto.getTopicDto().stream()
                 .map(topicDto -> topicService.getCausalTopicRemote(topicDto.getAggregateId(), unitOfWork))
                 .map(QuestionTopic::new)

@@ -11,6 +11,15 @@ import java.util.stream.Collectors;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.ANSWER;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
+/*
+    INTRA-INVARIANTS:
+    INTER-INVARIANTS:
+        USER_EXISTS
+        QUIZ_EXISTS
+        QUESTION_EXISTS
+        QUIZ_COURSE_EXECUTION_SAME_AS_QUESTION_COURSE
+
+ */
 @Entity
 @Table(name = "answers")
 public class Answer extends Aggregate {
@@ -55,8 +64,8 @@ public class Answer extends Aggregate {
 
 
     @Override
-    public boolean verifyInvariants() {
-        return true;
+    public void verifyInvariants() {
+
     }
 
     @Override
@@ -70,8 +79,18 @@ public class Answer extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Integer> getSnapshotElements() {
-        return new HashMap<>();
+    public Set<String> getFieldsAbleToChange() {
+        return null;
+    }
+
+    @Override
+    public Set<String> getIntentionFields() {
+        return null;
+    }
+
+    @Override
+    public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
+        return null;
     }
 
     public LocalDateTime getCreationDate() {

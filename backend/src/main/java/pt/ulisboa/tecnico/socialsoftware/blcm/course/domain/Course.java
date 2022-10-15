@@ -11,31 +11,43 @@ import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
 
+/*
+    INTRA-INVARIANTS:
+        COURSE_TYPE_FINAL
+        COURSE_NAME_FINAL
+    INTER_INVARIANTS:
+ */
 @Entity
 @Table(name = "courses")
 public class Course extends Aggregate {
-
+    /*
+        COURSE_TYPE_FINAL
+     */
     @Enumerated(EnumType.STRING)
-    private CourseType type;
+    private final CourseType type;
 
+    /*
+        COURSE_NAME_FINAL
+     */
     @Column
-    private String name;
+    private final String name;
 
     public Course() {
-
+        this.name = "COURSE NAME";
+        this.type = CourseType.TECNICO;
     }
 
-    public Course(Integer aggregateId, Integer version, CourseExecutionDto courseExecutionDto) {
+    public Course(Integer aggregateId, CourseExecutionDto courseExecutionDto) {
         super(aggregateId, COURSE);
-        setName(courseExecutionDto.getName());
-        setType(CourseType.valueOf(courseExecutionDto.getType()));
+        this.name = courseExecutionDto.getName();
+        this.type = CourseType.valueOf(courseExecutionDto.getType());
     }
 
     public Course(Course other) {
         super(other.getAggregateId(), COURSE);
         setId(null);
-        setName(other.getName());
-        setType(other.getType());
+        this.name = other.getName();
+        this.type = other.getType();
         setPrev(other);
         setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
         setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
@@ -47,8 +59,23 @@ public class Course extends Aggregate {
     }
 
     @Override
-    public boolean verifyInvariants() {
-        return true;
+    public Set<String> getFieldsAbleToChange() {
+        return null;
+    }
+
+    @Override
+    public Set<String> getIntentionFields() {
+        return null;
+    }
+
+    @Override
+    public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
+        return null;
+    }
+
+    @Override
+    public void verifyInvariants() {
+
     }
 
     @Override
@@ -56,24 +83,11 @@ public class Course extends Aggregate {
         return this;
     }
 
-    @Override
-    public Map<Integer, Integer> getSnapshotElements() {
-        return new HashMap<>();
-    }
-
     public CourseType getType() {
         return type;
     }
 
-    public void setType(CourseType type) {
-        this.type = type;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

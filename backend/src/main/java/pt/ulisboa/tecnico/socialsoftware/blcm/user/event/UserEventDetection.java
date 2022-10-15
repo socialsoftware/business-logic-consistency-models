@@ -41,7 +41,7 @@ public class UserEventDetection {
 
     @Scheduled(fixedDelay = 10000)
     public void detectRemoveCourseExecutionEvents() {
-        Set<Integer> userAggregateIds = userRepository.findAll().stream().map(User::getAggregateId).collect(Collectors.toSet());
+        /*Set<Integer> userAggregateIds = userRepository.findAll().stream().map(User::getAggregateId).collect(Collectors.toSet());
 
         for(Integer userAggregateId : userAggregateIds) {
             ProcessedEvents userProcessedEvents = getUserProcessedEvents(REMOVE_COURSE_EXECUTION, userAggregateId);
@@ -86,7 +86,6 @@ public class UserEventDetection {
                 .filter(pe -> userAggregateId.equals(pe.getAggregateId()))
                 .filter(pe -> eventType.equals(pe.getEventType()))
                 .findFirst()
-                .orElse(new ProcessedEvents(eventType, userAggregateId));
+                .orElse(new ProcessedEvents(eventType, userAggregateId));*/
     }
-
 }

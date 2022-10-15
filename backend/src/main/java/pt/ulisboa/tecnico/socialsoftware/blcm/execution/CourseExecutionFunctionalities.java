@@ -6,12 +6,16 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
 import java.util.List;
+import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
@@ -23,6 +27,9 @@ public class CourseExecutionFunctionalities {
 
     @Autowired
     private CourseExecutionService courseExecutionService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private UnitOfWorkService unitOfWorkService;
@@ -55,6 +62,31 @@ public class CourseExecutionFunctionalities {
     public void removeCourseExecution(Integer executionAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         courseExecutionService.removeCourseExecution(executionAggregateId, unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void addCourseExecution(Integer executionAggregateId, Integer userAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
+        ExecutionStudent executionUser = new ExecutionStudent(userDto);
+        courseExecutionService.enrollStudent(executionAggregateId, executionUser, unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public Set<CourseExecutionDto> getCourseExecutionsByUser(Integer userAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        return courseExecutionService.getCourseExecutionsByUser(userAggregateId, unitOfWork);
+    }
+
+    public void removeStudentFromCourseExecution(Integer courseExecutionAggregateId, Integer userAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        courseExecutionService.removeStudentFromCourseExecution(courseExecutionAggregateId, userAggregateId, unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void anonymizeStudent(Integer executionAggregateId, Integer userAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        courseExecutionService.anonymizeStudent(executionAggregateId, userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 

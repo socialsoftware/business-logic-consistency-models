@@ -7,23 +7,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeUserEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.Role;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,37 +74,6 @@ public class UserService {
         return new UserDto(user);
     }
 
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void anonymizeCourseExecutionUsers(Integer executionAggregateId, UnitOfWork unitOfWork) {
-        Set<User> executionsUsers = userRepository.findCausalByExecution(executionAggregateId, unitOfWork.getVersion());
-        executionsUsers.forEach(oldUser -> {
-            User newUser = new User(oldUser);
-            newUser.anonymize();
-            unitOfWork.registerChanged(newUser);
-            unitOfWork.addEvent(new AnonymizeUserEvent(newUser.getAggregateId(), "ANONYMOUS", "ANONYMOUS"));
-        });
-    }
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void addCourseExecution(Integer userAggregateId, UserCourseExecution userCourseExecution, UnitOfWork unitOfWork) {
-        User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
-
-        if(!oldUser.isActive()){
-            throw new TutorException(ErrorMessage.INACTIVE_USER);
-        }
-
-        User newUser = new User(oldUser);
-        newUser.addCourseExecution(userCourseExecution);
-        unitOfWork.registerChanged(newUser);
-    }
-
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -128,22 +92,12 @@ public class UserService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Set<CourseExecutionDto> getUserCourseExecutions(Integer userAggregateId, UnitOfWork unitOfWork) {
-        User user = getCausalUserLocal(userAggregateId, unitOfWork);
-        return user.getCourseExecutions().stream()
-                .map(UserCourseExecution::buildDto)
-                .collect(Collectors.toSet());
-    }
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteUser(Integer userAggregateId, UnitOfWork unitOfWork) {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
         User newUser = new User(oldUser);
         newUser.remove();
         unitOfWork.registerChanged(newUser);
+        unitOfWork.addEvent(new RemoveUserEvent(newUser));
     }
 
     @Retryable(
@@ -176,6 +130,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    /*
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -196,5 +151,5 @@ public class UserService {
             return newUser;
         }
         return null;
-    }
+    }*/
 }

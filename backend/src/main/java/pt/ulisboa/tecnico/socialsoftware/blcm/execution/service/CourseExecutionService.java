@@ -7,22 +7,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -106,6 +107,9 @@ public class CourseExecutionService {
         CourseExecution oldCourseExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
         CourseExecution newCourseExecution = new CourseExecution(oldCourseExecution);
 
+        /*
+            REMOVE_COURSE_IS_VALID
+         */
         Integer numberOfExecutionsOfCourse = Math.toIntExact(getAllCausalCourseExecutions(unitOfWork).stream()
                 .filter(ce -> ce.getCourseAggregateId() == newCourseExecution.getCourse().getAggregateId())
                 .count());
@@ -116,6 +120,73 @@ public class CourseExecutionService {
         newCourseExecution.remove();
         unitOfWork.registerChanged(newCourseExecution);
         unitOfWork.addEvent(new RemoveCourseExecutionEvent(newCourseExecution.getAggregateId()));
+    }
 
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void enrollStudent(Integer courseExecutionAggregateId, ExecutionStudent executionStudent, UnitOfWork unitOfWork) {
+        CourseExecution oldCourseExecution = getCausalCourseExecutionLocal(courseExecutionAggregateId, unitOfWork);
+
+        if(!executionStudent.isActive()){
+            throw new TutorException(ErrorMessage.INACTIVE_USER, executionStudent.getAggregateId());
+        }
+
+        CourseExecution newCourseExecution = new CourseExecution(oldCourseExecution);
+        newCourseExecution.addStudent(executionStudent);
+        unitOfWork.registerChanged(newCourseExecution);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Set<CourseExecutionDto> getCourseExecutionsByUser(Integer userAggregateId, UnitOfWork unitOfWork) {
+        return courseExecutionRepository.findAll().stream()
+                .map(CourseExecution::getAggregateId)
+                .map(aggregateId -> getCausalCourseExecutionLocal(aggregateId, unitOfWork))
+                .filter(ce -> ce.hasStudent(userAggregateId))
+                .map(ce -> new CourseExecutionDto(ce))
+                .collect(Collectors.toSet());
+
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void removeStudentFromCourseExecution(Integer courseExecutionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+        CourseExecution oldCourseExecution = getCausalCourseExecutionLocal(courseExecutionAggregateId, unitOfWork);
+        CourseExecution newCourseExecution = new CourseExecution(oldCourseExecution);
+        newCourseExecution.removeStudent(userAggregateId);
+        unitOfWork.registerChanged(newCourseExecution);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public UserDto getStudentByExecutionIdAndUserId(Integer executionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+        CourseExecution courseExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
+        if(!courseExecution.hasStudent(userAggregateId)) {
+            throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
+        }
+        return courseExecution.findStudent(userAggregateId).buildDto();
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void anonymizeStudent(Integer executionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+        CourseExecution oldExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
+        if(!oldExecution.hasStudent(userAggregateId)) {
+            throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
+        }
+        CourseExecution newExecution = new CourseExecution(oldExecution);
+        newExecution.findStudent(userAggregateId).anonymize();
+        unitOfWork.registerChanged(newExecution);
+        unitOfWork.addEvent(new AnonymizeExecutionStudentEvent(userAggregateId, "ANONYMOUS", "ANONYMOUS", executionAggregateId));
     }
 }

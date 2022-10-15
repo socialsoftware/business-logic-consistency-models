@@ -1,9 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CourseExecutionDto implements Serializable {
     private Integer aggregateId;
@@ -26,6 +30,8 @@ public class CourseExecutionDto implements Serializable {
 
     private Integer courseVersion;
 
+    private Set<UserDto> students;
+
     public CourseExecutionDto() {
 
     }
@@ -41,8 +47,7 @@ public class CourseExecutionDto implements Serializable {
         setStatus(courseExecution.getState().toString());
         setVersion(courseExecution.getVersion());
         setEndDate(courseExecution.getEndDate().toString());
-
-        LocalDateTime a = LocalDateTime.now();
+        setStudents(courseExecution.getStudents().stream().map(ExecutionStudent::buildDto).collect(Collectors.toSet()));
     }
 
     public Integer getAggregateId() {
@@ -123,5 +128,13 @@ public class CourseExecutionDto implements Serializable {
 
     public void setCourseVersion(Integer courseVersion) {
         this.courseVersion = courseVersion;
+    }
+
+    public Set<UserDto> getStudents() {
+        return students;
+    }
+
+    public void setStudents(Set<UserDto> students) {
+        this.students = students;
     }
 }

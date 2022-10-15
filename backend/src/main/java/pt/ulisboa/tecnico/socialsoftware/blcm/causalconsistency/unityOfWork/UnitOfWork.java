@@ -101,7 +101,7 @@ public class UnitOfWork {
             }
         }
     }
-    
+
     private void addAggregateToSnapshot(Aggregate aggregate) {
         if(!this.causalSnapshot.containsKey(aggregate.getAggregateId()) || !(aggregate.getVersion() <= this.causalSnapshot.get(aggregate.getAggregateId()).getVersion())) {
             this.causalSnapshot.put(aggregate.getAggregateId(), aggregate);

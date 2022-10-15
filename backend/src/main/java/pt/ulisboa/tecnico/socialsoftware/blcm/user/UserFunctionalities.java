@@ -37,27 +37,6 @@ public class UserFunctionalities {
         return userDto1;
     }
 
-    public void anonymizeCourseExecutionUsers(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        userService.anonymizeCourseExecutionUsers(executionAggregateId, unitOfWork);
-        unitOfWorkService.commit(unitOfWork);
-    }
-
-    public void addCourseExecution(Integer userAggregateId, Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        CourseExecutionDto courseExecutionDto = courseExecutionService.getCausalCourseExecutionRemote(executionAggregateId, unitOfWork);
-
-        UserCourseExecution userCourseExecution = new UserCourseExecution(courseExecutionDto);
-
-        userService.addCourseExecution(userAggregateId, userCourseExecution, unitOfWork);
-
-        //unitOfWork.addDependency(userAggregateId, new Dependency(userCourseExecution.getAggregateId(), "Course Execution", unitOfWork.getVersion()));
-        //unitOfWork.addDependency(userCourseExecution.getAggregateId(), new Dependency(userAggregateId, "User", unitOfWork.getVersion()));
-
-        unitOfWorkService.commit(unitOfWork);
-
-    }
-
     public UserDto findByAggregateId(Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         return userService.getCausalUserRemote(userAggregateId, unitOfWork);
@@ -69,20 +48,9 @@ public class UserFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public Set<CourseExecutionDto> getUserCourseExecutions(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        return userService.getUserCourseExecutions(userAggregateId, unitOfWork);
-    }
-
     public void deleteUser(Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         userService.deleteUser(userAggregateId, unitOfWork);
-        unitOfWorkService.commit(unitOfWork);
-    }
-
-    public void removeCourseExecutionsFromUser(Integer userAggregateId, List<Integer> courseExecutionsIds) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        userService.removeCourseExecutionsFromUser(userAggregateId, courseExecutionsIds, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 

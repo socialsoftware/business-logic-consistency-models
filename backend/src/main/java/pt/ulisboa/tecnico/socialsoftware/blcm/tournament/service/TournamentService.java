@@ -103,7 +103,7 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void addParticipant(Integer tournamentAggregateId, TournamentParticipant tournamentParticipant, Set<Integer> participantExecutions, String userRole, UnitOfWork unitOfWorkWorkService) {
+    public void addParticipant(Integer tournamentAggregateId, TournamentParticipant tournamentParticipant, String userRole, UnitOfWork unitOfWorkWorkService) {
         if(tournamentParticipant.getName().equals("ANONYMOUS") || tournamentParticipant.getUsername().equals("ANONYMOUS")) {
             throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, tournamentParticipant.getAggregateId());
         }
@@ -111,9 +111,7 @@ public class TournamentService {
         if(LocalDateTime.now().isAfter(oldTournament.getStartTime())) {
             throw new TutorException(CANNOT_ADD_PARTICIPANT, tournamentAggregateId);
         }
-        if(!participantExecutions.contains(oldTournament.getCourseExecution().getAggregateId())) {
-            throw new TutorException(PARTICIPANT_NOT_ENROLLED_IN_TOURNAMENT_EXECUTION, tournamentParticipant.getAggregateId(), tournamentAggregateId );
-        }
+
         if(!userRole.equals("STUDENT")) {
             throw new TutorException(PARTICIPANT_NOT_STUDENT, tournamentParticipant.getAggregateId(), tournamentAggregateId);
         }
@@ -300,10 +298,6 @@ public class TournamentService {
             newTournament.getCreator().setVersion(eventVersion);
             unitOfWork.registerChanged(newTournament);
         }
-
-        /*TournamentParticipant participantToAnonymize = newTournament.findParticipant(userAggregateId);
-        participantToAnonymize.setName(name);
-        participantToAnonymize.setUsername(name);*/
 
         for(TournamentParticipant tp : newTournament.getParticipants()) {
             if(tp.getAggregateId().equals(userAggregateId)) {

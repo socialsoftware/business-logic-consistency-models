@@ -7,10 +7,10 @@ public enum ErrorMessage {
 
     VERSION_MANAGER_DOES_NOT_EXIST("Version manager does not exist."),
 
+    AGGREGATE_MERGE_FAILURE("Two versions of aggregate %d cannot be merged."),
 
     TOURNAMENT_NOT_FOUND("Tournament with aggregate Id %d does not exist."),
     TOURNAMENT_INVALID("Tournament version with aggregate id %d and version %d breaks invariants."),
-    TOURNAMENT_MERGE_FAILURE("Two versions of a tournament with aggregate id %d cannot be merged."),
     TOURNAMENT_MISSING_USER("Tournament requires a user."),
     TOURNAMENT_MISSING_TOPICS("Tournament requires topics."),
     TOURNAMENT_MISSING_START_TIME("Tournament requires a start time."),
@@ -34,6 +34,8 @@ public enum ErrorMessage {
     NOT_ENOUGH_QUESTIONS("Not enough questions to generate quiz."),
     QUIZ_MERGE_FAILURE("Two versions of a quiz with aggregate id %d cannot be merged."),
 
+    CANNOT_UPDATE_QUIZ("Quiz %d cannot be deleted."),
+
     COURSE_EXECUTION_NOT_FOUND("Course execution with aggregate id %d does not exist."),
     COURSE_EXECUTION_DELETED("Course execution with aggregate id %d already deleted."),
     COURSE_EXECUTION_MISSING_COURSE_ID("Course execution requires a course id."),
@@ -42,8 +44,8 @@ public enum ErrorMessage {
     COURSE_EXECUTION_MISSING_END_DATE("Course execution requires an end date."),
 
     COURSE_EXECUTION_INVALID("Course execution aggregate id %d  and version %d breaks invariants."),
-
     CANNOT_DELETE_COURSE_EXECUTION("Cannot delete course execution with aggregate id %d."),
+    COURSE_EXECUTION_STUDENT_NOT_FOUND("Student with aggregate id %d not found in course execution %d."),
 
 
     TOPIC_MISSING_NAME("Topic requires a name."),
@@ -72,6 +74,8 @@ public enum ErrorMessage {
     QUESTION_NOT_FOUND("Question with aggregate id %d does no exist."),
 
     QUESTION_DELETED("Question with aggregate id %d already deleted."),
+    QUESTION_TOPIC_INVALID_COURSE("Topic %d does not belong to course %d."),
+
 
     QUIZ_ANSWER_NOT_FOUND("Answer with aggregate id %d not found."),
 

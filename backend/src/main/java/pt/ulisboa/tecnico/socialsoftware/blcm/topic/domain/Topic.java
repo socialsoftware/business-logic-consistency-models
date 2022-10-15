@@ -10,6 +10,12 @@ import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOPIC;
 
+/*
+    INTRA-INVARIANTS:
+
+    INTER-INVARIANTS:
+        COURSE-EXISTS (course doesnt send events)
+ */
 @Entity
 @Table(name = "topics")
 public class Topic extends Aggregate {
@@ -38,8 +44,8 @@ public class Topic extends Aggregate {
     }
 
     @Override
-    public boolean verifyInvariants() {
-        return true;
+    public void verifyInvariants() {
+
     }
 
     @Override
@@ -48,15 +54,23 @@ public class Topic extends Aggregate {
     }
 
     @Override
-    public Map<Integer, Integer> getSnapshotElements() {
-        Map<Integer, Integer> depMap = new HashMap<>();
-        depMap.put(this.course.getAggregateId(), this.course.getVersion());
-        return depMap;
+    public Set<String> getEventSubscriptions() {
+        return new HashSet<>();
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return new HashSet<>();
+    public Set<String> getFieldsAbleToChange() {
+        return null;
+    }
+
+    @Override
+    public Set<String> getIntentionFields() {
+        return null;
+    }
+
+    @Override
+    public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
+        return null;
     }
 
     public String getName() {

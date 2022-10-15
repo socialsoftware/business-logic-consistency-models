@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
 public class EventType {
-    public final static String ANONYMIZE_USER = "ANONYMIZE_USER";
+    public final static String ANONYMIZE_EXECUTION_STUDENT = "ANONYMIZE_EXECUTION_STUDENT";
 
     public final static String REMOVE_COURSE_EXECUTION = "REMOVE_COURSE_EXECUTION";
 

@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
-import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -9,15 +8,20 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import javax.persistence.*;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.USER;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.ANSWER_QUESTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_COURSE_EXECUTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
+/*
+    INTRA-INVARIANTS:
+        ROLE IS FINAL
+        DELETED_STATE
+    INTER_INVARIANTS:
+
+ */
 @Entity
 @Table(name = "users")
 public class User extends Aggregate {
@@ -28,18 +32,18 @@ public class User extends Aggregate {
     @Column
     private String username;
 
+    /*
+        ROLE_FINAL
+    */
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private final Role role;
 
 
     @Column(columnDefinition = "boolean default false")
     private Boolean active;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<UserCourseExecution> courseExecutions;
-
     public User() {
-
+        this.role = null;
     }
 
     public User(User other) {
@@ -47,10 +51,9 @@ public class User extends Aggregate {
         setId(null);
         setName(other.getName());
         setUsername(other.getUsername());
-        setRole(other.getRole());
+        this.role = other.getRole();
         setState(AggregateState.ACTIVE);
         setActive(other.isActive());
-        setCourseExecutions(new HashSet<>(other.getCourseExecutions()));
         setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
         setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
         setPrev(other);
@@ -60,14 +63,25 @@ public class User extends Aggregate {
         super(aggregateId, USER);
         setName(userDto.getName());
         setUsername(userDto.getUsername());
-        setRole(Role.valueOf(userDto.getRole()));
+        this.role = Role.valueOf(userDto.getRole());
         setActive(false);
-        setCourseExecutions(new HashSet<>());
     }
 
-    public void anonymize() {
-        setName("ANONYMOUS");
-        setUsername("ANONYMOUS");
+    /*
+        DELETED_STATE
+     */
+    public boolean deletedState() {
+        if(getState() == DELETED) {
+            return !isActive();
+        }
+        return true;
+    }
+
+    @Override
+    public void verifyInvariants() {
+        if(!(deletedState())) {
+            throw new TutorException(INVARIANT_BREAK, getAggregateId());
+        }
     }
 
     public void remove() {
@@ -75,12 +89,6 @@ public class User extends Aggregate {
             throw new TutorException(USER_ACTIVE, this.getAggregateId());
         }
         setState(AggregateState.DELETED);
-    }
-
-
-
-    public void removeCourseExecution(UserCourseExecution userCourseExecution) {
-        this.courseExecutions.remove(userCourseExecution);
     }
 
     public String getName() {
@@ -103,36 +111,12 @@ public class User extends Aggregate {
         return role;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-
     public Boolean isActive() {
         return active;
     }
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-
-
-    public Set<UserCourseExecution> getCourseExecutions() {
-        return courseExecutions;
-    }
-
-    public void setCourseExecutions(Set<UserCourseExecution> courseExecutions) {
-        this.courseExecutions = courseExecutions;
-    }
-
-    public void addCourseExecution(UserCourseExecution userCourseExecution) {
-        this.courseExecutions.add(userCourseExecution);
-    }
-
-    @Override
-    public boolean verifyInvariants() {
-        return true;
     }
 
     @Override
@@ -161,7 +145,7 @@ public class User extends Aggregate {
         User mergedUser = this;
 
 
-        if(v1ChangedFields.contains("course executions") || v2ChangedFields.contains("course executions")) {
+        /*if(v1ChangedFields.contains("course executions") || v2ChangedFields.contains("course executions")) {
 
             Set<UserCourseExecution> addedCourseExecutions =  SetUtils.union(
                     SetUtils.difference(v1.getCourseExecutions(), prev.getCourseExecutions()),
@@ -175,7 +159,7 @@ public class User extends Aggregate {
 
 
             mergedUser.setCourseExecutions(SetUtils.union(SetUtils.difference(prev.getCourseExecutions(), removedCourseExecutions), addedCourseExecutions));
-        }
+        }*/
 
         return mergedUser;
     }
@@ -200,24 +184,33 @@ public class User extends Aggregate {
             v1ChangedFields.add("active");
         }
 
-        if(!prev.getCourseExecutions().equals(v.getCourseExecutions())) {
+        /*if(!prev.getCourseExecutions().equals(v.getCourseExecutions())) {
             v1ChangedFields.add("course executions");
-        }
+        }*/
 
 
 
         return v1ChangedFields;
     }
 
-    @Override
-    public Map<Integer, Integer> getSnapshotElements() {
-        Map<Integer, Integer> depMap = new HashMap<>();
-        this.courseExecutions.forEach(ce -> depMap.put(ce.getAggregateId(), ce.getVersion()));
-        return depMap;
-    }
 
     @Override
     public Set<String> getEventSubscriptions() {
         return Set.of(REMOVE_COURSE_EXECUTION);
+    }
+
+    @Override
+    public Set<String> getFieldsAbleToChange() {
+        return null;
+    }
+
+    @Override
+    public Set<String> getIntentionFields() {
+        return null;
+    }
+
+    @Override
+    public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
+        return null;
     }
 }

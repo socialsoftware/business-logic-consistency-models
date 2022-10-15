@@ -67,7 +67,8 @@ public class TournamentFunctionalities {
 
         checkInput(userId, topicsId, tournamentDto);
 
-        UserDto userDto = userService.getCausalUserRemote(userId, unitOfWork);
+        // by making this call the invariants regarding the course execution and the role of the creator are guaranteed
+        UserDto userDto = courseExecutionService.getStudentByExecutionIdAndUserId(executionId, userId, unitOfWork);
         TournamentCreator creator = new TournamentCreator(userDto.getAggregateId(), userDto.getName(), userDto.getUsername(), userDto.getVersion());
 
         CourseExecutionDto courseExecutionDto = courseExecutionService.getCausalCourseExecutionRemote(executionId, unitOfWork);
@@ -117,12 +118,11 @@ public class TournamentFunctionalities {
 
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
+        TournamentDto tournamentDto= tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
+        // by making this call the invariants regarding the course execution and the role of the participant are guaranteed
+        UserDto userDto = courseExecutionService.getStudentByExecutionIdAndUserId(tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
         TournamentParticipant participant = new TournamentParticipant(userDto);
-        Set<Integer> userExecutionsIds = userDto.getExecutions().stream()
-                .map(CourseExecutionDto::getAggregateId)
-                .collect(Collectors.toSet());
-        tournamentService.addParticipant(tournamentAggregateId, participant, userExecutionsIds, userDto.getRole(), unitOfWork);
+        tournamentService.addParticipant(tournamentAggregateId, participant, userDto.getRole(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
