@@ -26,6 +26,14 @@ public class TournamentParticipantAnswer {
         setAnswered(false);
     }
 
+    public TournamentParticipantAnswer(TournamentParticipantAnswer other) {
+        setAggregateId(other.getAggregateId());
+        setNumberOfAnswered(other.getNumberOfAnswered());
+        setNumberOfCorrect(other.getNumberOfCorrect());
+        setVersion(other.getVersion());
+        setAnswered(other.isAnswered());
+    }
+
 
     public Integer getAggregateId() {
         return aggregateId;

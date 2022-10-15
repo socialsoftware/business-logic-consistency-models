@@ -269,7 +269,7 @@ class MergeUnitTest extends SpockTest {
     }
 
     @Unroll
-    def 'topics intention and merge' () {
+    def 'topics merge' () {
         given:
         def prev = tournament1
         def v1 = tournament2
@@ -352,12 +352,6 @@ class MergeUnitTest extends SpockTest {
         def mergedTournament = (Tournament)v1.merge(v2)
 
         then:
-        println("prev:" + prev.getParticipants().stream().map(t -> t.getName()).collect(Collectors.toSet()))
-        println("v1:" + v1Participants.stream().map(t -> t.getName()).collect(Collectors.toSet()))
-        println("v2:" + v2Participants.stream().map(t -> t.getName()).collect(Collectors.toSet()))
-        println("tournament:" + mergedTournament.getParticipants().stream().map(t -> t.getName()).collect(Collectors.toSet()))
-        println("calculated:" + mergedParticipants.stream().map(t -> t.getName()).collect(Collectors.toSet()))
-
         mergedTournament.getParticipants() == mergedParticipants
 
         where:
@@ -371,8 +365,7 @@ class MergeUnitTest extends SpockTest {
         participantSet2 | participantSet4   | participantSet5
     }
 
-    @Unroll
-    def 'participants merge with answers' () {
+    def 'participants merge with different versions of the same participant _one is anonymous_' () {
         given:
         def prev = tournament1
         def v1 = tournament2
@@ -400,22 +393,21 @@ class MergeUnitTest extends SpockTest {
         answer1v2.setNumberOfAnswered(ansNoAnswered2)
         answer1v2.setNumberOfCorrect(ansNoCorrect2)
 
-        //participant1.setAnswer(answer1)
-        TournamentParticipant participant1v2 = new TournamentParticipant()
+        def participant1v2 = new TournamentParticipant()
         participant1v2.setAggregateId(participant1.getAggregateId())
-        //participant2.setAnswer(answer1v2)
         participant1v2.setName("ANONYMOUS")
         participant1v2.setUsername("ANONYMOUS")
         participant1v2.setVersion(participant1.getVersion() + 1)
 
 
-        HashSet<TournamentParticipant> prevParticipants = new HashSet<TournamentParticipant>()
+
+        HashSet<TournamentParticipant> prevParticipants = new HashSet<>()
         prevParticipants.add(participant1)
 
-        HashSet<TournamentParticipant> v1Participants = new HashSet<TournamentParticipant>()
+        HashSet<TournamentParticipant> v1Participants = new HashSet<>()
         v1Participants.add(participant1)
 
-        HashSet<TournamentParticipant> v2Participants = new HashSet<TournamentParticipant>()
+        HashSet<TournamentParticipant> v2Participants = new HashSet<>()
         v2Participants.add(participant1v2)
 
 
@@ -427,13 +419,68 @@ class MergeUnitTest extends SpockTest {
         def mergedTournament = (Tournament)(v1.merge(v2))
 
         then:
-        //prev.getParticipants() == v1.getParticipants()
-        /*println("prev:" + prev.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
-        println("v1:" + v1.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
-        println("v2:" + v2.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
-        println("tournament:" + mergedTournament.getParticipants().stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))
-        println("calculated:" + Set<TournamentParticipant>.of(participant2).stream().map(p -> p.getAnswer().getVersion()).collect(Collectors.toSet()))*/
         mergedTournament.getParticipants() == new HashSet(v2Participants)
 
+    }
+
+    def 'participants merge with different versions of the same participant _one has answers_' () {
+        given:
+        def prev = tournament1
+        def v1 = tournament2
+        def v2 = tournament3
+
+        def ansId1 = 25
+        def ansVer1 = 50
+        def ansNoAnswered1 = 5
+        def ansNoCorrect1 = 3
+
+        def ansId2 = 30
+        def ansVer2 = 65
+        def ansNoAnswered2 = 4
+        def ansNoCorrect2 = 4
+
+        def answer1 = new TournamentParticipantAnswer()
+        answer1.setAggregateId(ansId1)
+        answer1.setVersion(ansVer1)
+        answer1.setNumberOfAnswered(ansNoAnswered1)
+        answer1.setNumberOfCorrect(ansNoCorrect1)
+
+        def answer1v2 = new TournamentParticipantAnswer()
+        answer1v2.setAggregateId(ansId1)
+        answer1v2.setVersion(ansVer2)
+        answer1v2.setNumberOfAnswered(ansNoAnswered2)
+        answer1v2.setNumberOfCorrect(ansNoCorrect2)
+
+
+        def participant1v2 = new TournamentParticipant()
+        participant1v2.setAggregateId(participant1.getAggregateId())
+        participant1v2.setName(participant1.getName())
+        participant1v2.setUsername(participant1.getUsername())
+        participant1v2.setVersion(participant1.getVersion() + 1)
+
+        participant1.setAnswer(answer1)
+        participant1v2.setAnswer(answer1v2)
+
+
+        HashSet<TournamentParticipant> prevParticipants = new HashSet<TournamentParticipant>()
+        prevParticipants.add(participant1)
+
+        HashSet<TournamentParticipant> v1Participants = new HashSet<TournamentParticipant>()
+        v1Participants.add(participant1)
+
+
+        HashSet<TournamentParticipant> v2Participants = new HashSet<>()
+        v2Participants.add(participant1v2)
+
+
+        prev.setParticipants(prevParticipants)
+        v1.setParticipants(v1Participants)
+        v2.setParticipants(v2Participants)
+
+        when:
+        def mergedTournament = (Tournament)(v1.merge(v2))
+
+        then:
+        mergedTournament.getParticipants() == new HashSet(v2Participants)
     }
 }
