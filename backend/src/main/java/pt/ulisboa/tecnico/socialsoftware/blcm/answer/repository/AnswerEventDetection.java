@@ -6,7 +6,7 @@ public class AnswerEventDetection {
     /*
         USER_EXISTS
      */
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectDeleteUserEvents() {
 
     }
@@ -14,7 +14,7 @@ public class AnswerEventDetection {
     /*
         QUESTION_EXISTS
      */
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectUpdateQuestionEvents() {
 
     }
@@ -22,7 +22,7 @@ public class AnswerEventDetection {
     /*
         QUESTION_EXISTS
      */
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectRemoveQuestionEvents() {
 
     }

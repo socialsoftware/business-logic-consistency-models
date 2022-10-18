@@ -18,4 +18,6 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     @Query(value = "select * from questions where id = (select max(id) from questions where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
     Optional<Question> findConcurrentVersions(Integer aggregateId, Integer version);
 
+    @Query(value = "select q.aggregate_id from questions q, question_topics qt where q.aggregate_id NOT IN (select aggregate_id from questions where state = 'DELETED' OR state = 'INACTIVE') AND (q.id = qt.question_id AND qt.topic_aggregate_id = :topicAggregateId)", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByTopic(Integer topicAggregateId);
 }

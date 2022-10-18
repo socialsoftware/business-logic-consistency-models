@@ -5,7 +5,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import javax.persistence.*;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOPIC;
@@ -59,13 +58,13 @@ public class Topic extends Aggregate {
     }
 
     @Override
-    public Set<String> getFieldsAbleToChange() {
-        return null;
+    public Set<String> getFieldsChangedByFunctionalities() {
+        return Set.of("name");
     }
 
     @Override
-    public Set<String> getIntentionFields() {
-        return null;
+    public Set<String[]> getIntentions() {
+        return new HashSet<>();
     }
 
     @Override

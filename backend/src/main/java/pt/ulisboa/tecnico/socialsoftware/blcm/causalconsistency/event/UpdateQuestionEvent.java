@@ -3,12 +3,16 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.UPDATE_QUESTION;
+
 @Entity
-@DiscriminatorValue("UPDATE_QUESTION")
+@DiscriminatorValue(UPDATE_QUESTION)
 public class UpdateQuestionEvent extends Event {
     private String title;
 
     private String content;
+
+    // TODO put OPTION
 
     public UpdateQuestionEvent() {
         super();

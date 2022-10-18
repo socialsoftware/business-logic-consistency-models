@@ -87,7 +87,6 @@ public class TournamentFunctionalities {
         quizDto.setConclusionDate(tournamentDto.getEndTime());
         quizDto.setResultsDate(tournamentDto.getEndTime());
 
-        List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(topicsId, unitOfWork);
 
 
         /*
@@ -101,7 +100,7 @@ public class TournamentFunctionalities {
         END_TIME_CONCLUSION_DATE
             this.endTime == Quiz(tournamentQuiz.id).conclusionDate
          */
-        QuizDto quizDto1 = quizService.generateQuiz(executionId, quizDto, questionDtos, tournamentDto.getNumberOfQuestions(), unitOfWork);
+        QuizDto quizDto1 = quizService.generateQuiz(executionId, quizDto, topicsId, tournamentDto.getNumberOfQuestions(), unitOfWork);
 
         TournamentDto tournamentDto2 = tournamentService.createTournament(tournamentDto, creator, tournamentCourseExecution, tournamentTopics, new TournamentQuiz(quizDto1.getAggregateId(), quizDto1.getVersion()), unitOfWork);
 
@@ -109,11 +108,6 @@ public class TournamentFunctionalities {
         unitOfWorkService.commit(unitOfWork);
 
         return tournamentDto2;
-    }
-
-    public TournamentDto getTournament(Integer aggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        return tournamentService.getCausalTournamentRemote(aggregateId, unitOfWork);
     }
 
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
@@ -222,6 +216,7 @@ public class TournamentFunctionalities {
         return tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
     }
 
+    /** FOR TESTING PURPOSES **/
     public void getTournamentAndUser(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);

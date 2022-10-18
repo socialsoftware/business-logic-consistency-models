@@ -25,6 +25,8 @@ public class UserDto implements Serializable {
 
     private Integer numberCorrect;
 
+    private String state;
+
     public UserDto() {
 
     }
@@ -36,6 +38,7 @@ public class UserDto implements Serializable {
         this.username = user.getUsername();
         this.version = user.getVersion();
         setActive(user.isActive());
+        setState(user.getState().toString());
     }
 
     public Integer getAggregateId() {
@@ -102,5 +105,11 @@ public class UserDto implements Serializable {
         this.numberCorrect = numberCorrect;
     }
 
+    public String getState() {
+        return state;
+    }
 
+    public void setState(String state) {
+        this.state = state;
+    }
 }

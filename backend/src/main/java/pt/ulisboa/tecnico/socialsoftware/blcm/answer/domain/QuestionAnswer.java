@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
@@ -23,6 +24,8 @@ public class QuestionAnswer {
 
     private boolean correct;
 
+    private Aggregate.AggregateState state;
+
     public  QuestionAnswer() {
 
     }
@@ -32,6 +35,7 @@ public class QuestionAnswer {
         setQuestionAggregateId(questionAnswerDto.getQuestionAggregateId());
         //setTimeTaken(questionAnswerDto.getTimeTaken());
         setOptionKey(questionAnswerDto.getOptionKey());
+        setState(Aggregate.AggregateState.ACTIVE);
     }
 
     public QuestionAnswer(QuestionAnswerDto questionAnswerDto, QuestionDto questionDto) {
@@ -49,6 +53,7 @@ public class QuestionAnswer {
                 setCorrect(o.isCorrect());
             }
         }
+        setState(Aggregate.AggregateState.ACTIVE);
     }
 
     public Integer getOptionSequenceChoice() {
@@ -89,5 +94,13 @@ public class QuestionAnswer {
 
     public void setCorrect(boolean correct) {
         this.correct = correct;
+    }
+
+    public Aggregate.AggregateState getState() {
+        return state;
+    }
+
+    public void setState(Aggregate.AggregateState state) {
+        this.state = state;
     }
 }

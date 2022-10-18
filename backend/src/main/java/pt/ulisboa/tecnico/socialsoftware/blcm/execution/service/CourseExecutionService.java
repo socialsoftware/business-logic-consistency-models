@@ -10,6 +10,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.servic
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -21,6 +22,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecuti
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.sql.SQLException;
@@ -29,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -161,6 +164,7 @@ public class CourseExecutionService {
         CourseExecution newCourseExecution = new CourseExecution(oldCourseExecution);
         newCourseExecution.removeStudent(userAggregateId);
         unitOfWork.registerChanged(newCourseExecution);
+        unitOfWork.addEvent(new UnerollStudentFromCourseExecutionEvent(courseExecutionAggregateId, userAggregateId));
     }
 
     @Retryable(
@@ -188,5 +192,23 @@ public class CourseExecutionService {
         newExecution.findStudent(userAggregateId).anonymize();
         unitOfWork.registerChanged(newExecution);
         unitOfWork.addEvent(new AnonymizeExecutionStudentEvent(userAggregateId, "ANONYMOUS", "ANONYMOUS", executionAggregateId));
+    }
+
+    /************************************************ EVENT PROCESSING ************************************************/
+
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public CourseExecution removeUser(Integer executionAggregateId, Integer userAggregateId, Integer aggregateEventVersion, UnitOfWork unitOfWork) {
+        CourseExecution oldExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
+        if(oldExecution != null && oldExecution.findStudent(userAggregateId).getAggregateId().equals(userAggregateId) && oldExecution.findStudent(userAggregateId).getVersion() >= aggregateEventVersion) {
+            return null;
+        }
+        CourseExecution newExecution = new CourseExecution(oldExecution);
+        newExecution.findStudent(userAggregateId).setState(INACTIVE);
+        unitOfWork.registerChanged(newExecution);
+        return newExecution;
     }
 }

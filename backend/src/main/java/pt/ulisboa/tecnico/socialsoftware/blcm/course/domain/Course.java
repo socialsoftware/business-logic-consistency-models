@@ -6,7 +6,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import javax.persistence.*;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
@@ -59,13 +58,13 @@ public class Course extends Aggregate {
     }
 
     @Override
-    public Set<String> getFieldsAbleToChange() {
-        return null;
+    public Set<String> getFieldsChangedByFunctionalities() {
+        return new HashSet<>();
     }
 
     @Override
-    public Set<String> getIntentionFields() {
-        return null;
+    public Set<String[]> getIntentions() {
+        return new HashSet<>();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
 import javax.persistence.*;
 import java.lang.reflect.Field;
@@ -79,9 +78,9 @@ public abstract class Aggregate {
 
     public abstract Set<String> getEventSubscriptions();
 
-    public abstract Set<String> getFieldsAbleToChange();
+    public abstract Set<String> getFieldsChangedByFunctionalities();
 
-    public abstract Set<String> getIntentionFields();
+    public abstract Set<String[]> getIntentions();
 
     public abstract Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields);
 
@@ -157,7 +156,7 @@ public abstract class Aggregate {
     }
 
     public Map<String, Integer> getEmittedEvents() {
-        return emittedEvents;
+        return this.emittedEvents;
     }
 
     public void setEmittedEvents(Map<String, Integer> emittedEvents) {
@@ -196,9 +195,42 @@ public abstract class Aggregate {
 
         Aggregate mergedAggregate = mergeFields(toCommitVersionChangedFields, committedVersion, committedVersionChangedFields);
 
+        mergeProcessedEvents(toCommitVersion, committedVersion, mergedAggregate);
+        mergeEmittedEvents(toCommitVersion, committedVersion, mergedAggregate);
+
         // TODO see explanation for prev assignment in Quiz
         mergedAggregate.setPrev(getPrev());
         return mergedAggregate;
+    }
+
+    private static void mergeProcessedEvents(Aggregate toCommitVersion, Aggregate committedVersion, Aggregate mergedAggregate) {
+        Map<String, Integer> mergedProcessedEvents = new HashMap<>();
+        toCommitVersion.getProcessedEvents().forEach((eventType, eventVersion) -> {
+            if(!mergedProcessedEvents.containsKey(eventType) || (mergedProcessedEvents.containsKey(eventType) && eventVersion > mergedProcessedEvents.get(eventType))) {
+                mergedProcessedEvents.put(eventType, eventVersion);
+            }
+        });
+        committedVersion.getProcessedEvents().forEach((eventType, eventVersion) -> {
+            if(!mergedProcessedEvents.containsKey(eventType) || (mergedProcessedEvents.containsKey(eventType) && eventVersion > mergedProcessedEvents.get(eventType))) {
+                mergedProcessedEvents.put(eventType, eventVersion);
+            }
+        });
+        mergedAggregate.setProcessedEvents(mergedProcessedEvents);
+    }
+
+    private static void mergeEmittedEvents(Aggregate toCommitVersion, Aggregate committedVersion, Aggregate mergedAggregate) {
+        Map<String, Integer> mergedEmittedEvents = new HashMap<>();
+        toCommitVersion.getEmittedEvents().forEach((eventType, eventVersion) -> {
+            if(!mergedEmittedEvents.containsKey(eventType) || (mergedEmittedEvents.containsKey(eventType) && eventVersion > mergedEmittedEvents.get(eventType))) {
+                mergedEmittedEvents.put(eventType, eventVersion);
+            }
+        });
+        committedVersion.getEmittedEvents().forEach((eventType, eventVersion) -> {
+            if(!mergedEmittedEvents.containsKey(eventType) || (mergedEmittedEvents.containsKey(eventType) && eventVersion > mergedEmittedEvents.get(eventType))) {
+                mergedEmittedEvents.put(eventType, eventVersion);
+            }
+        });
+        mergedAggregate.setEmittedEvents(mergedEmittedEvents);
     }
 
     private Set<String> getChangedFields(Object prevObj, Object obj) {
@@ -208,7 +240,7 @@ public abstract class Aggregate {
         }
 
         try {
-            for(String fieldName : getFieldsAbleToChange()) {
+            for(String fieldName : getFieldsChangedByFunctionalities()) {
 
                 Field field = obj.getClass().getDeclaredField(fieldName);
                 field.setAccessible(true);
@@ -228,11 +260,17 @@ public abstract class Aggregate {
     }
 
     private void checkIntentions(Set<String> changedFields1, Set<String> changedFields2) {
-        for(String f1 : changedFields1) {
-            for(String f2 : changedFields2) {
-                if(getIntentionFields().contains(f1) && getIntentionFields().contains(f2) && !f1.equals(f2)) {
+        /*for (String f1 : changedFields1) {
+            for (String f2 : changedFields2) {
+                if (getIntentions().contains(f1) && getIntentions().contains(f2) && !f1.equals(f2)) {
                     throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
                 }
+            }
+        }*/
+
+        for (String [] intention : getIntentions()) {
+            if((changedFields1.contains(intention[0]) && changedFields2.contains(intention[1])) || (changedFields1.contains(intention[1]) && changedFields2.contains(intention[0]))) {
+                throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
             }
         }
     }

@@ -120,93 +120,18 @@ public class User extends Aggregate {
     }
 
     @Override
-    public Aggregate merge(Aggregate other) {
-        User v1 = this;
-        if(!(other instanceof User)) {
-            throw new TutorException(ErrorMessage.USER_MERGE_FAILURE, getPrev().getAggregateId());
-        }
-        User v2 = (User)other;
-        User prev = (User)(this.getPrev());
-
-        /* if there is an already concurrent version which is deleted this should not execute*/
-        if(v1.getState() == DELETED) {
-            throw new TutorException(USER_DELETED, v1.getAggregateId());
-        }
-
-        Set<String> v1ChangedFields = getChangedFields(prev, v1);
-        Set<String> v2ChangedFields = getChangedFields(prev, v2);
-
-        /* only course executions are incremental */
-        if(!(v1ChangedFields.contains("course executions") && v1ChangedFields.size() == 1 && v2ChangedFields.contains("course executions") && v2ChangedFields.size() == 1)) {
-            throw new TutorException(ErrorMessage.USER_MERGE_FAILURE, prev.getAggregateId());
-        }
-
-
-        User mergedUser = this;
-
-
-        /*if(v1ChangedFields.contains("course executions") || v2ChangedFields.contains("course executions")) {
-
-            Set<UserCourseExecution> addedCourseExecutions =  SetUtils.union(
-                    SetUtils.difference(v1.getCourseExecutions(), prev.getCourseExecutions()),
-                    SetUtils.difference(v2.getCourseExecutions(), prev.getCourseExecutions())
-            );
-
-            Set<UserCourseExecution> removedCourseExecutions = SetUtils.union(
-                    SetUtils.difference(prev.getCourseExecutions(), v1.getCourseExecutions()),
-                    SetUtils.difference(prev.getCourseExecutions(), v2.getCourseExecutions())
-            );
-
-
-            mergedUser.setCourseExecutions(SetUtils.union(SetUtils.difference(prev.getCourseExecutions(), removedCourseExecutions), addedCourseExecutions));
-        }*/
-
-        return mergedUser;
-    }
-
-
-
-    private static Set<String> getChangedFields(User prev, User v) {
-        Set<String> v1ChangedFields = new HashSet<>();
-        if(!prev.getRole().equals(v.getRole())) {
-            v1ChangedFields.add("role");
-        }
-
-        if(!prev.getName().equals(v.getName())) {
-            v1ChangedFields.add("name");
-        }
-
-        if(!prev.getUsername().equals(v.getUsername())) {
-            v1ChangedFields.add("username");
-        }
-
-        if(!prev.isActive().equals(v.isActive())) {
-            v1ChangedFields.add("active");
-        }
-
-        /*if(!prev.getCourseExecutions().equals(v.getCourseExecutions())) {
-            v1ChangedFields.add("course executions");
-        }*/
-
-
-
-        return v1ChangedFields;
-    }
-
-
-    @Override
     public Set<String> getEventSubscriptions() {
         return Set.of(REMOVE_COURSE_EXECUTION);
     }
 
     @Override
-    public Set<String> getFieldsAbleToChange() {
-        return null;
+    public Set<String> getFieldsChangedByFunctionalities() {
+        return Set.of("name", "username", "active");
     }
 
     @Override
-    public Set<String> getIntentionFields() {
-        return null;
+    public Set<String[]> getIntentions() {
+        return new HashSet<>();
     }
 
     @Override

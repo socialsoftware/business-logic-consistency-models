@@ -6,7 +6,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 
 import javax.persistence.*;
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -219,7 +218,6 @@ public class Tournament extends Aggregate {
         return true;
     }
 
-    // TODO
     @Override
     public void verifyInvariants() {
         if(!(/*invariantAnswerBeforeStart()
@@ -231,12 +229,16 @@ public class Tournament extends Aggregate {
         }
     }
 
-    public Set<String> getFieldsAbleToChange()  {
+    public Set<String> getFieldsChangedByFunctionalities()  {
         return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants");
     }
 
-    public Set<String> getIntentionFields() {
-        return Set.of("startTime", "endTime", "numberOfQuestions", "topics");
+    public Set<String[]> getIntentions() {
+        return Set.of(
+                new String[]{"startTime", "endTime"},
+                new String[]{"startTime", "numberOfQuestions"},
+                new String[]{"endTime", "numberOfQuestions"},
+                new String[]{"numberOfQuestions", "topics"});
     }
 
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields){
@@ -288,52 +290,7 @@ public class Tournament extends Aggregate {
         Set<TournamentParticipant> v1ParticipantsPre = new HashSet<>(v1.getParticipants());
         Set<TournamentParticipant> v2ParticipantsPre = new HashSet<>(v2.getParticipants());
 
-        for(TournamentParticipant tp1 : v1ParticipantsPre) {
-            for(TournamentParticipant tp2 : v2ParticipantsPre) {
-                if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
-                    if(tp1.getVersion() > tp2.getVersion()) {
-                        tp2.setVersion(tp1.getVersion());
-                        tp2.setName(tp1.getName());
-                        tp2.setUsername(tp1.getUsername());
-                        if(tp1.getAnswer() != null) {
-                            tp2.setAnswer(new TournamentParticipantAnswer(tp1.getAnswer()));
-                        }
-                    }
-
-                    if(tp2.getVersion() > tp1.getVersion()) {
-                        tp1.setVersion(tp2.getVersion());
-                        tp1.setName(tp2.getName());
-                        tp1.setUsername(tp2.getUsername());
-                        if(tp2.getAnswer() != null) {
-                            tp1.setAnswer(new TournamentParticipantAnswer(tp2.getAnswer()));
-                        }
-                    }
-                }
-            }
-
-            // no need to check again because the prev does not contain any newer version than v1 an v2
-            for(TournamentParticipant prevParticipant : prevParticipantsPre) {
-                if(tp1.getAggregateId().equals(prevParticipant.getAggregateId())) {
-                    if(tp1.getVersion() > prevParticipant.getVersion()) {
-                        prevParticipant.setVersion(tp1.getVersion());
-                        prevParticipant.setName(tp1.getName());
-                        prevParticipant.setUsername(tp1.getUsername());
-                        if(tp1.getAnswer() != null) {
-                            prevParticipant.setAnswer(new TournamentParticipantAnswer(tp1.getAnswer()));
-                        }
-                    }
-
-                    if(prevParticipant.getVersion() > tp1.getVersion()) {
-                        tp1.setVersion(prevParticipant.getVersion());
-                        tp1.setName(prevParticipant.getName());
-                        tp1.setUsername(prevParticipant.getUsername());
-                        if(prevParticipant.getAnswer() != null) {
-                            tp1.setAnswer(new TournamentParticipantAnswer(prevParticipant.getAnswer()));
-                        }
-                    }
-                }
-            }
-        }
+        TournamentParticipant.syncParticipantVersions(prevParticipantsPre, v1ParticipantsPre, v2ParticipantsPre);
 
         Set<TournamentParticipant> prevParticipants = new HashSet<>(prevParticipantsPre);
         Set<TournamentParticipant> v1Participants = new HashSet<>(v1ParticipantsPre);
@@ -355,6 +312,8 @@ public class Tournament extends Aggregate {
 
     }
 
+
+
     private static void mergeTopics(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
         /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
          * of the base we choose. */
@@ -363,36 +322,7 @@ public class Tournament extends Aggregate {
         Set<TournamentTopic> v1TopicsPre = new HashSet<>(v1.getTopics());
         Set<TournamentTopic> v2TopicsPre = new HashSet<>(v2.getTopics());
 
-        for(TournamentTopic t1 : v1TopicsPre) {
-            for(TournamentTopic t2 : v2TopicsPre) {
-                if(t1.getAggregateId().equals(t2.getAggregateId())) {
-                    if(t1.getVersion() > t2.getVersion()) {
-                        t2.setVersion(t1.getVersion());
-                        t2.setName(t1.getName());
-                    }
-
-                    if(t2.getVersion() > t1.getVersion()) {
-                        t1.setVersion(t2.getVersion());
-                        t1.setName(t2.getName());
-                    }
-                }
-            }
-
-            // no need to check again because the prev does not contain any newer version than v1 an v2
-            for(TournamentTopic tp2 : prevTopicsPre) {
-                if(t1.getAggregateId().equals(tp2.getAggregateId())) {
-                    if(t1.getVersion() > tp2.getVersion()) {
-                        tp2.setVersion(t1.getVersion());
-                        tp2.setName(t1.getName());
-                    }
-
-                    if(tp2.getVersion() > t1.getVersion()) {
-                        t1.setVersion(tp2.getVersion());
-                        t1.setName(tp2.getName());
-                    }
-                }
-            }
-        }
+        TournamentTopic.syncTopicVersions(prevTopicsPre, v1TopicsPre, v2TopicsPre);
 
         Set<TournamentTopic> prevTopics = new HashSet<>(prevTopicsPre);
         Set<TournamentTopic> v1Topics = new HashSet<>(v1TopicsPre);
@@ -411,6 +341,8 @@ public class Tournament extends Aggregate {
         Set<TournamentTopic> mergedTopics = SetUtils.union(SetUtils.difference(prevTopics, removedTopics), addedTopics);
         mergedTournament.setTopics(mergedTopics);
     }
+
+
 
     public void cancel() {
         this.cancelled = true;

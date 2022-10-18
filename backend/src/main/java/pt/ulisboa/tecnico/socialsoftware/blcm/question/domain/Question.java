@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.QUESTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.DELETE_TOPIC;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.UPDATE_TOPIC;
 
 /*
     INTRA-INVARIANTS:
@@ -82,23 +84,23 @@ public class Question extends Aggregate {
     }
 
     @Override
-    public Aggregate merge(Aggregate other) {
-        return this;
-    }
-
-    @Override
     public Set<String> getEventSubscriptions() {
-        return new HashSet<>();
+        return Set.of(UPDATE_TOPIC, DELETE_TOPIC);
     }
 
     @Override
-    public Set<String> getFieldsAbleToChange() {
-        return null;
+    public Set<String> getFieldsChangedByFunctionalities() {
+        return Set.of("title", "content", "options", "topics");
     }
 
     @Override
-    public Set<String> getIntentionFields() {
-        return null;
+    public Set<String[]> getIntentions() {
+
+        return Set.of(
+                new String[]{"title", "content"},
+                new String[]{"title", "options"},
+                new String[]{"content", "options"}
+        );
     }
 
     @Override
@@ -158,5 +160,14 @@ public class Question extends Aggregate {
         setTitle(questionDto.getTitle());
         setContent(questionDto.getContent());
         setOptions(questionDto.getOptionDtos().stream().map(Option::new).collect(Collectors.toList()));
+    }
+
+    public QuestionTopic findTopic(Integer topicAggregateId) {
+        for(QuestionTopic questionTopic : this.topics) {
+            if(questionTopic.getAggregateId().equals(topicAggregateId)) {
+                return questionTopic;
+            }
+        }
+        return null;
     }
 }

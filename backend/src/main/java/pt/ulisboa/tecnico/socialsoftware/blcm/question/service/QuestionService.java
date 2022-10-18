@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -153,5 +154,43 @@ public class QuestionService {
                 .map(QuestionDto::new)
                 .collect(Collectors.toList());
 
+    }
+
+    /************************************************ EVENT PROCESSING ************************************************/
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Question removeTopic(Integer questionAggregateId, Integer topicAggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
+        Question oldQuestion = getCausalQuestionLocal(questionAggregateId, unitOfWork);
+        Question newQuestion = new Question(oldQuestion);
+
+        QuestionTopic questionTopic = newQuestion.findTopic(topicAggregateId);
+        if(questionTopic != null && questionTopic.getAggregateId().equals(topicAggregateId) && questionTopic.getVersion() >= aggregateVersion) {
+            return null;
+        }
+
+        questionTopic.setState(INACTIVE);
+        unitOfWork.registerChanged(newQuestion);
+        return newQuestion;
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Question updateTopic(Integer questionAggregateId, Integer topicAggregateId, String topicName, Integer aggregateVersion, UnitOfWork unitOfWork) {
+        Question oldQuestion = getCausalQuestionLocal(questionAggregateId, unitOfWork);
+        Question newQuestion = new Question(oldQuestion);
+
+        QuestionTopic questionTopic = newQuestion.findTopic(topicAggregateId);
+        if(questionTopic != null && questionTopic.getAggregateId().equals(topicAggregateId) && questionTopic.getVersion() >= aggregateVersion) {
+            return null;
+        }
+
+        questionTopic.setName(topicName);
+        unitOfWork.registerChanged(newQuestion);
+        return newQuestion;
     }
 }

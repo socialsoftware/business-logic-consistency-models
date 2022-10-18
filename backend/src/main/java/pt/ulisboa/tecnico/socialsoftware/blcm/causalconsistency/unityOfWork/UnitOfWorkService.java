@@ -20,6 +20,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRe
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.EntityManager;
 import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
@@ -120,9 +121,9 @@ public class UnitOfWorkService {
 
         // registering the emitted events on the committed aggregates
         for(Aggregate a : modifiedAggregatesToCommit.values()) {
-            for(Event e : createUnitOfWork().getEventsToEmit()) {
+            for(Event e : unitOfWork.getEventsToEmit()) {
                 if(a.getAggregateId().equals(e.getAggregateId())) {
-                    a.addEmittedEvent(e.getType(), unitOfWork.getVersion());
+                    a.addEmittedEvent(e.getClass().getAnnotation( DiscriminatorValue.class ).value(), unitOfWork.getVersion());
                 }
             }
         }

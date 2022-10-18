@@ -9,15 +9,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.ANSWER;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_USER;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
 /*
     INTRA-INVARIANTS:
+        FINAL_ANSWER_DATE
+        FINAL_CREATION_DATE
+        FINAL_USER
+        FINAL_QUIZ
     INTER-INVARIANTS:
         USER_EXISTS
         QUIZ_EXISTS
         QUESTION_EXISTS
         QUIZ_COURSE_EXECUTION_SAME_AS_QUESTION_COURSE
+        QUIZ_COURSE_EXECUTION_SAME_AS_USER
 
  */
 @Entity
@@ -69,23 +75,18 @@ public class Answer extends Aggregate {
     }
 
     @Override
-    public Aggregate merge(Aggregate other) {
-        return null;
-    }
-
-    @Override
     public Set<String> getEventSubscriptions() {
+        return Set.of(REMOVE_USER);
+    }
+
+    @Override
+    public Set<String> getFieldsChangedByFunctionalities() {
+        return Set.of("questionAnswers", "answerDate");
+    }
+
+    @Override
+    public Set<String[]> getIntentions() {
         return new HashSet<>();
-    }
-
-    @Override
-    public Set<String> getFieldsAbleToChange() {
-        return null;
-    }
-
-    @Override
-    public Set<String> getIntentionFields() {
-        return null;
     }
 
     @Override
@@ -151,4 +152,12 @@ public class Answer extends Aggregate {
         this.questionAnswers.add(questionAnswer);
     }
 
+    public QuestionAnswer findQuestionAnswer(Integer questionAggregateId) {
+        for(QuestionAnswer qa : this.questionAnswers) {
+            if(qa.getQuestionAggregateId().equals(questionAggregateId)) {
+                return qa;
+            }
+        }
+        return null;
+    }
 }

@@ -1,17 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.*;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /*
@@ -215,7 +213,7 @@ public class Quiz extends Aggregate {
 
     public boolean invariantDateOrdering() {
         return getCreationDate().isBefore(getConclusionDate()) &&
-                getAvailableDate().isBefore(getCreationDate()) &&
+                getAvailableDate().isBefore(getConclusionDate()) &&
                 (getConclusionDate().isEqual(getResultsDate()) || getConclusionDate().isBefore(getResultsDate()));
 
     }
@@ -229,17 +227,20 @@ public class Quiz extends Aggregate {
 
     @Override
     public Set<String> getEventSubscriptions() {
-        return new HashSet<>();
+        return Set.of(REMOVE_COURSE_EXECUTION, UPDATE_QUESTION, REMOVE_QUESTION);
     }
 
     @Override
-    public Set<String> getFieldsAbleToChange() {
-        return null;
+    public Set<String> getFieldsChangedByFunctionalities() {
+        return Set.of("availableDate", "conclusionDate", "resultsDate", "quizQuestions");
     }
 
     @Override
-    public Set<String> getIntentionFields() {
-        return null;
+    public Set<String[]> getIntentions() {
+        return Set.of(
+                new String[]{"availableDate", "conclusionDate"},
+                new String[]{"availableDate", "resultsDate"},
+                new String[]{"conclusionDate", "resultsDate"});
     }
 
     @Override
@@ -337,5 +338,14 @@ public class Quiz extends Aggregate {
         setAvailableDate(LocalDateTime.parse(quizDto.getAvailableDate()));
         setConclusionDate(LocalDateTime.parse(quizDto.getConclusionDate()));
         setResultsDate(LocalDateTime.parse(quizDto.getResultsDate()));
+    }
+
+    public QuizQuestion findQuestion(Integer questionAggregateId) {
+        for(QuizQuestion qq : quizQuestions) {
+            if(qq.getAggregateId().equals(questionAggregateId)) {
+                return qq;
+            }
+        }
+        return null;
     }
 }

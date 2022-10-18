@@ -23,4 +23,11 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
 
     @Query(value = "select * from answers where id = (select max(id) from answers where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
     Optional<Answer> findConcurrentVersions(Integer aggregateId, Integer version);
+
+    @Query(value = "select t.aggregate_id from answers a where a.aggregate_id NOT IN (select aggregate_id from answers where state = 'DELETED' OR state = 'INACTIVE') AND ((a.user_aggregate_id = :userAggregateId))", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByUser(Integer userAggregateId);
+
+    @Query(value = "select q.aggregate_id from quizzes q, answer_quiz_questions_aggregate_ids aqqa where q.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (q.id = aqqa.answer_id) AND (:questionAggregateId IN (select quiz_questions_aggregate_ids from aqqa))", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByQuestion(Integer questionAggregateId);
+
 }

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
@@ -43,6 +44,25 @@ public class TournamentController {
     @PostMapping(value = "/tournaments/{tournamentAggregateId}/solveQuiz")
     public QuizDto solveQuiz(@PathVariable Integer tournamentAggregateId, @RequestParam Integer userAggregateId) {
         return tournamentFunctionalities.solveQuiz(tournamentAggregateId, userAggregateId);
+    }
+
+    @GetMapping(value = "/executions/{executionAggregateId}/tournaments/")
+    public List<TournamentDto> getTournamentsForCourseExecution(@PathVariable Integer executionAggregateId) {
+        return tournamentFunctionalities.getTournamentsForCourseExecution(executionAggregateId);
+    }
+
+    @GetMapping(value = "/executions/{executionAggregateId}/tournaments/opened")
+    public List<TournamentDto> getOpenedTournamentsForCourseExecution(@PathVariable Integer executionAggregateId) {
+        return tournamentFunctionalities.getOpenedTournamentsForCourseExecution(executionAggregateId);
+    }
+
+    @GetMapping(value = "/executions/{executionAggregateId}/tournaments/closed")
+    public List<TournamentDto> getClosedTournamentsForCourseExecution(@PathVariable Integer executionAggregateId) {
+        return tournamentFunctionalities.getClosedTournamentsForCourseExecution(executionAggregateId);
+    }
+
+    public void leaveTournament(Integer tournamentAggregateId, Integer userAggregateId) {
+        tournamentFunctionalities.leaveTournament(tournamentAggregateId, userAggregateId);
     }
 
 

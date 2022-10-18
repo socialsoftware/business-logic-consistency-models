@@ -59,6 +59,12 @@ class MergeUnitTest extends SpockTest {
     public static final LocalDateTime TIME_3 = LocalDateTime.of(2023, 8, 15, 23, 00)
     public static final LocalDateTime TIME_4 = LocalDateTime.of(2023, 8, 15, 23, 20)
 
+    public static final String EVENT_1 = "EVENT_1"
+    public static final String EVENT_2 = "EVENT_2"
+    public static final String EVENT_3 = "EVENT_3"
+    public static final String EVENT_4 = "EVENT_4"
+
+
 
     @Shared
     Tournament tournament1
@@ -269,7 +275,7 @@ class MergeUnitTest extends SpockTest {
     }
 
     @Unroll
-    def 'topics merge' () {
+    def 'topics intention and merge' () {
         given:
         def prev = tournament1
         def v1 = tournament2
@@ -295,6 +301,10 @@ class MergeUnitTest extends SpockTest {
         topicSet1   | topicSet4 | topicSet4
         topicSet3   | topicSet4 | topicSet6
         topicSet2   | topicSet4 | topicSet5
+    }
+
+    def "intention pass combination" () {
+
     }
 
 
@@ -331,9 +341,7 @@ class MergeUnitTest extends SpockTest {
         v1StartTime | v2StartTime   | v1EndTime | v2EndTime | v1NoQuestions | v2NoQuestions | v1Topics  | v2Topics
         TIME_3      | TIME_1        | TIME_2    | TIME_4    | 5             | 5             | topicSet1 | topicSet1 // start/end
         TIME_3      | TIME_1        | TIME_2    | TIME_2    | 3             | 4             | topicSet1 | topicSet1 // start/no
-        TIME_3      | TIME_1        | TIME_2    | TIME_2    | 5             | 5             | topicSet2 | topicSet3 // start/topics
         TIME_1      | TIME_1        | TIME_3    | TIME_4    | 2             | 6             | topicSet1 | topicSet1 // end/no
-        TIME_1      | TIME_1        | TIME_3    | TIME_4    | 5             | 5             | topicSet2 | topicSet3 // end/topics
         TIME_1      | TIME_1        | TIME_2    | TIME_2    | 1             | 4             | topicSet2 | topicSet3 // no/topics
     }
 
@@ -482,5 +490,40 @@ class MergeUnitTest extends SpockTest {
 
         then:
         mergedTournament.getParticipants() == new HashSet(v2Participants)
+    }
+
+    def "merge topics with different versions" () {
+
+    }
+
+    def "merge processed events" () {
+        given:
+        def prev = tournament1
+        def v1 = tournament2
+        def v2 = tournament3
+
+        v1.setProcessedEvents(Map.of(EVENT_1, 1, EVENT_2, 5, EVENT_3, 2))
+        v2.setProcessedEvents(Map.of(EVENT_1, 3, EVENT_2, 2, EVENT_3, 2, EVENT_4, 10))
+
+        when:
+        def mergedTournament = (Tournament)v1.merge(v2)
+
+        then:
+        mergedTournament.getProcessedEvents() == Map.of(EVENT_1, 3, EVENT_2, 5, EVENT_3, 2, EVENT_4, 10)
+    }
+
+    def "merge emitted events" () {
+        given:
+        def v1 = tournament2
+        def v2 = tournament3
+
+        v1.setEmittedEvents(HashMap.of(EVENT_1, 1, EVENT_2, 5, EVENT_3, 2))
+        v2.setEmittedEvents(HashMap.of(EVENT_1, 3, EVENT_2, 2, EVENT_3, 2, EVENT_4, 10))
+
+        when:
+        def mergedTournament = (Tournament)v1.merge(v2)
+
+        then:
+        mergedTournament.getEmittedEvents() == Map.of(EVENT_1, 3, EVENT_2, 5, EVENT_3, 2, EVENT_4, 10)
     }
 }

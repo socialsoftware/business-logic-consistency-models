@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
@@ -19,6 +20,8 @@ public class ExecutionStudent {
 
     private boolean active;
 
+    private Aggregate.AggregateState state;
+
     public ExecutionStudent() {
 
     }
@@ -26,9 +29,10 @@ public class ExecutionStudent {
     public ExecutionStudent(UserDto userDto) {
         setAggregateId(userDto.getAggregateId());
         setVersion(userDto.getVersion());
-        setUsername(userDto.getName());
+        setName(userDto.getName());
         setUsername(userDto.getUsername());
         setActive(userDto.isActive());
+        setState(Aggregate.AggregateState.valueOf(userDto.getState()));
     }
 
     public void anonymize() {
@@ -74,6 +78,14 @@ public class ExecutionStudent {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public Aggregate.AggregateState getState() {
+        return state;
+    }
+
+    public void setState(Aggregate.AggregateState state) {
+        this.state = state;
     }
 
     public UserDto buildDto() {

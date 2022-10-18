@@ -13,6 +13,8 @@ public class QuestionAnswerDto implements Serializable {
 
     private Integer optionKey;
 
+    private String state;
+
     public QuestionAnswerDto() {
 
     }
@@ -47,5 +49,13 @@ public class QuestionAnswerDto implements Serializable {
 
     public void setOptionKey(Integer optionKey) {
         this.optionKey = optionKey;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

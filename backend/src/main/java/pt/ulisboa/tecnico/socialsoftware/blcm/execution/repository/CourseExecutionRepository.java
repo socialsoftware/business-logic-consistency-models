@@ -22,4 +22,7 @@ public interface CourseExecutionRepository extends JpaRepository<CourseExecution
 
     @Query(value = "select * from course_executions ce where aggregate_id NOT IN (select aggregate_id from course_executions where state = 'DELETED')", nativeQuery = true)
     Set<CourseExecution> findAllNonDeleted();
+
+    @Query(value = "select t.aggregate_id from course_executions ce, course_executions_studends ces where cr.aggregate_id NOT IN (select aggregate_id from course_executions where state = 'DELETED' OR state = 'INACTIVE') AND ((ce.id = ces.course_execution_id AND ces.user_aggregate_id = :userAggregateId)  OR (t.creator_aggregate_id = :userAggregateId))", nativeQuery = true)
+    Set<Integer> findAllAggregateIdsByUser(Integer userAggregateId);
 }

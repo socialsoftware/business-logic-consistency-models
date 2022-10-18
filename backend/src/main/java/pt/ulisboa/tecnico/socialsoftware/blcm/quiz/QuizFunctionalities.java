@@ -43,20 +43,20 @@ public class QuizFunctionalities {
 
     }
 
-    public QuizDto updateQuiz(QuizDto quizDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        List<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream()
-                .map(qq -> questionService.getCausalQuestionRemote(qq.getAggregateId(), unitOfWork))
-                .map(QuizQuestion::new)
-                .collect(Collectors.toList());
-        //QuizDto quizDto1 = quizService.updateQuiz(quizDto, quizQuestions, unitOfWork);
-        unitOfWorkService.commit(unitOfWork);
-        //return quizDto1;
-        return null;
-    }
-
     public QuizDto findQuiz(Integer quizAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         return quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
+    }
+
+    public void getAvailableQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {
+
+    }
+
+    public QuizDto updateQuiz(QuizDto quizDto) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        Set<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream().map(QuizQuestion::new).collect(Collectors.toSet());
+        QuizDto quizDto1 = quizService.updateQuiz(quizDto, quizQuestions, unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+        return quizDto1;
     }
 }

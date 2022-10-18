@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.InvalidateQuizEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
@@ -24,6 +24,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizType.GENERATED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizType.IN_CLASS;
@@ -56,12 +58,6 @@ public class QuizService {
 
     @Autowired
     private ProcessedEventsRepository processedEventsRepository;
-
-    @Transactional
-   public QuizDto getCausalQuiz(Integer aggregateId) {
-        // TODO
-        return new QuizDto(new Quiz());
-    }
 
     @Retryable(
             value = { SQLException.class },
@@ -88,10 +84,12 @@ public class QuizService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuizDto generateQuiz(Integer courseExecutionAggregateId, QuizDto quizDto, List<QuestionDto> questionDtos, Integer numberOfQuestions, UnitOfWork unitOfWork) {
+    public QuizDto generateQuiz(Integer courseExecutionAggregateId, QuizDto quizDto, List<Integer> topicIds, Integer numberOfQuestions, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
 
         QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.getCausalCourseExecutionRemote(courseExecutionAggregateId, unitOfWork));
+
+        List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(topicIds, unitOfWork);
 
         if(questionDtos.size() < numberOfQuestions) {
             throw new TutorException(ErrorMessage.NOT_ENOUGH_QUESTIONS);
@@ -155,22 +153,118 @@ public class QuizService {
         Quiz newQuiz = new Quiz(oldQuiz);
         newQuiz.update(quizDto);
 
-        List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(new ArrayList<>(topicsAggregateIds), unitOfWork);
+        if (topicsAggregateIds != null && numberOfQuestions != null) {
+            List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(new ArrayList<>(topicsAggregateIds), unitOfWork);
 
-        if(questionDtos.size() < numberOfQuestions) {
-            throw new TutorException(ErrorMessage.NOT_ENOUGH_QUESTIONS);
-        }
+            if (questionDtos.size() < numberOfQuestions) {
+                throw new TutorException(ErrorMessage.NOT_ENOUGH_QUESTIONS);
+            }
 
-        Set<QuizQuestion> quizQuestions = questionDtos.stream()
-                .map(QuizQuestion::new)
-                .collect(Collectors.toSet());
+            Set<QuizQuestion> quizQuestions = questionDtos.stream()
+                    .map(QuizQuestion::new)
+                    .collect(Collectors.toSet());
 
-        if(quizQuestions != null) {
-            newQuiz.setQuizQuestions(quizQuestions);
+            if (quizQuestions != null) {
+                newQuiz.setQuizQuestions(quizQuestions);
+            }
         }
 
         newQuiz.setTitle("Generated Quiz Title");
         unitOfWork.registerChanged(newQuiz);
         return new QuizDto(newQuiz);
     }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public QuizDto updateQuiz(QuizDto quizDto, Set<QuizQuestion> quizQuestions, UnitOfWork unitOfWork) {
+        Quiz oldQuiz = getCausalQuizLocal(quizDto.getAggregateId(), unitOfWork);
+        Quiz newQuiz = new Quiz(oldQuiz);
+
+
+        if (quizDto.getTitle() != null) {
+            newQuiz.setTitle(quizDto.getTitle());
+            unitOfWork.registerChanged(newQuiz);
+        }
+
+        if(quizDto.getAvailableDate() != null) {
+            newQuiz.setAvailableDate(LocalDateTime.parse(quizDto.getAvailableDate()));
+        }
+
+        if(quizDto.getConclusionDate() != null) {
+            newQuiz.setConclusionDate(LocalDateTime.parse(quizDto.getConclusionDate()));
+        }
+
+        if(quizDto.getResultsDate() != null) {
+            newQuiz.setResultsDate(LocalDateTime.parse(quizDto.getResultsDate()));
+        }
+
+        if(quizQuestions != null && quizQuestions.size() > 0) {
+            newQuiz.setQuizQuestions(quizQuestions);
+        }
+
+        return new QuizDto(newQuiz);
+    }
+    /************************************************ EVENT PROCESSING ************************************************/
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Quiz removeCourseExecution(Integer quizAggregateId, Integer courseExecutionId, Integer aggregateVersion, UnitOfWork unitOfWork) {
+        Quiz oldQuiz = getCausalQuizLocal(quizAggregateId, unitOfWork);
+        Quiz newQuiz = new Quiz(oldQuiz);
+        
+        if(newQuiz.getCourseExecution().getAggregateId().equals(courseExecutionId)) {
+            newQuiz.setState(INACTIVE);
+            unitOfWork.registerChanged(newQuiz);
+            return newQuiz;
+        }
+        
+        return null;
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Quiz updateQuestion(Integer quizAggregateId, Integer questionAggregateId, String title, String content, Integer aggregateVersion, UnitOfWork unitOfWork) {
+        Quiz oldQuiz = getCausalQuizLocal(quizAggregateId, unitOfWork);
+        Quiz newQuiz = new Quiz(oldQuiz);
+
+        QuizQuestion quizQuestion = newQuiz.findQuestion(questionAggregateId);
+
+        if (quizQuestion == null) {
+            return null;
+        }
+
+        quizQuestion.setTitle(title);
+        quizQuestion.setContent(content);
+        quizQuestion.setVersion(aggregateVersion);
+
+        return newQuiz;
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Quiz removeQuestion(Integer quizAggregateId, Integer questionAggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
+        Quiz oldQuiz = getCausalQuizLocal(quizAggregateId, unitOfWork);
+        Quiz newQuiz = new Quiz(oldQuiz);
+
+        QuizQuestion quizQuestion = newQuiz.findQuestion(questionAggregateId);
+
+        if (quizQuestion == null) {
+            return null;
+        }
+
+        newQuiz.setState(INACTIVE);
+        quizQuestion.setState(DELETED);
+        unitOfWork.addEvent(new InvalidateQuizEvent(newQuiz.getAggregateId()));
+        return newQuiz;
+    }
+
+
 }

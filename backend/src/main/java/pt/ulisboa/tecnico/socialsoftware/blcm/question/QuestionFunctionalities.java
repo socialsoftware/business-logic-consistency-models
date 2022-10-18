@@ -38,10 +38,6 @@ public class QuestionFunctionalities {
         return questionService.getCausalQuestionRemote(aggregateId, unitOfWork);
     }
 
-    public void getStatementQuestionDto(Integer aggregateId) {
-
-    }
-
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         return questionService.findQuestionsByCourseAggregateId(courseAggregateId, unitOfWork);

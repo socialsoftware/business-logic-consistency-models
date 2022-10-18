@@ -25,6 +25,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
@@ -33,8 +35,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.NO_USER_ANSWER_FOR_QUIZ;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUIZ_ANSWER_NOT_FOUND;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class AnswerService {
@@ -130,5 +132,38 @@ public class AnswerService {
 
         newAnswer.setCompleted(true);
         unitOfWork.registerChanged(newAnswer);
+    }
+
+    /************************************************ EVENT PROCESSING ************************************************/
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Answer removeUser(Integer answerAggregateId, Integer userAggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
+        Answer oldAnswer = getCausalQuizAnswerLocal(answerAggregateId, unitOfWork);
+        if(oldAnswer != null && oldAnswer.getUser().getAggregateId().equals(userAggregateId) && oldAnswer.getVersion() >= aggregateVersion) {
+            return null;
+        }
+
+        Answer newAnswer = new Answer(oldAnswer);
+        newAnswer.getUser().setState(DELETED);
+        newAnswer.setState(INACTIVE);
+        unitOfWork.registerChanged(newAnswer);
+        return newAnswer;
+    }
+
+    public Answer removeQuestion(Integer answerAggregateId, Integer questionAggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
+        Answer oldAnswer = getCausalQuizAnswerLocal(answerAggregateId, unitOfWork);
+        QuestionAnswer questionAnswer = oldAnswer.findQuestionAnswer(questionAggregateId);
+
+        if(questionAnswer == null) {
+            return null;
+        }
+
+        Answer newAnswer = new Answer(oldAnswer);
+        questionAnswer.setState(DELETED);
+        newAnswer.setState(INACTIVE);
+        unitOfWork.registerChanged(newAnswer);
+        return newAnswer;
     }
 }

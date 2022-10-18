@@ -17,6 +17,14 @@ public class EventType {
 
     public final static String ANSWER_QUESTION = "ANSWER_QUESTION";
 
+    public final static String UPDATE_QUESTION = "UPDATE_QUESTION";
+
+    public final static String REMOVE_QUESTION = "REMOVE_QUESTION";
+
+    public final static String UNENROLL_STUDENT = "UNENROLL_STUDENT";
+
+    public final static String INVALIDATE_QUIZ = "INVALIDATE_QUIZ";
+
 
 
 }

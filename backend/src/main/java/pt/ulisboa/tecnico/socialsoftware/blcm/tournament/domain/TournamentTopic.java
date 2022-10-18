@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.util.HashSet;
+import java.util.Set;
 
 @Embeddable
 public class TournamentTopic {
@@ -85,6 +87,39 @@ public class TournamentTopic {
         topicDto.setName(getName());
         topicDto.setState(getState().toString());
         return topicDto;
+    }
+
+    public static void syncTopicVersions(Set<TournamentTopic> prevTopics, Set<TournamentTopic> v1Topics, Set<TournamentTopic> v2Topics) {
+        for(TournamentTopic t1 : v1Topics) {
+            for(TournamentTopic t2 : v2Topics) {
+                if(t1.getAggregateId().equals(t2.getAggregateId())) {
+                    if(t1.getVersion() > t2.getVersion()) {
+                        t2.setVersion(t1.getVersion());
+                        t2.setName(t1.getName());
+                    }
+
+                    if(t2.getVersion() > t1.getVersion()) {
+                        t1.setVersion(t2.getVersion());
+                        t1.setName(t2.getName());
+                    }
+                }
+            }
+
+            // no need to check again because the prev does not contain any newer version than v1 an v2
+            for(TournamentTopic tp2 : prevTopics) {
+                if(t1.getAggregateId().equals(tp2.getAggregateId())) {
+                    if(t1.getVersion() > tp2.getVersion()) {
+                        tp2.setVersion(t1.getVersion());
+                        tp2.setName(t1.getName());
+                    }
+
+                    if(tp2.getVersion() > t1.getVersion()) {
+                        t1.setVersion(tp2.getVersion());
+                        t1.setName(tp2.getName());
+                    }
+                }
+            }
+        }
     }
 
     @Override

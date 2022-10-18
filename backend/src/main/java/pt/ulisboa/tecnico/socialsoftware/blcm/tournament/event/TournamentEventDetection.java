@@ -57,8 +57,8 @@ public class TournamentEventDetection {
 					p.state = INACTIVE
 	*/
 
-    @Scheduled(fixedDelay = 10000)
-    public void detectAnonymizeUserEvents() {
+    @Scheduled(fixedDelay = 1000)
+    public void detectAnonymizeStudentEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         List<Event> events = getEmittedEvents(ANONYMIZE_EXECUTION_STUDENT);
         for(Integer tournamentAggregateId : tournamentAggregateIds) {
@@ -76,7 +76,7 @@ public class TournamentEventDetection {
     private Set<Integer> processAnonymizeUserEvents(Integer tournamentAggregateId, List<Event> events) {
         Set<Integer> newlyProcessedEventVersions = new HashSet<>();
         Set<AnonymizeExecutionStudentEvent> anonymizeExecutionStudentEvents = events.stream()
-                .map(e -> AnonymizeExecutionStudentEvent.class.cast(e))
+                .map(AnonymizeExecutionStudentEvent.class::cast)
                 .collect(Collectors.toSet());
         for(AnonymizeExecutionStudentEvent e : anonymizeExecutionStudentEvents) {
             Set<Integer> tournamentIdsByExecutionAndUser = tournamentRepository.findAllAggregateIdsByExecutionAndUser(e.getExecutionAggregateId(), e.getAggregateId());
@@ -102,7 +102,7 @@ public class TournamentEventDetection {
 		&& this.courseExecution.acronym == CourseExecution(this.courseExecution.id).acronym
      */
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectRemoveCourseExecutionEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         List<Event> events = getEmittedEvents(REMOVE_COURSE_EXECUTION);
@@ -120,7 +120,7 @@ public class TournamentEventDetection {
     private Set<Integer> processRemoveCourseExecutionEvents(Integer tournamentAggregateId, List<Event> events) {
         Set<Integer> newlyProcessedEventVersions = new HashSet<>();
         Set<RemoveCourseExecutionEvent> removeCourseExecutionEvents = events.stream()
-                .map(e -> RemoveCourseExecutionEvent.class.cast(e))
+                .map(RemoveCourseExecutionEvent.class::cast)
                 .collect(Collectors.toSet());
         for(RemoveCourseExecutionEvent e : removeCourseExecutionEvents) {
             Set<Integer> tournamentIdsByCourseExecution = tournamentRepository.findAllAggregateIdsByCourseExecution(e.getAggregateId());
@@ -153,7 +153,7 @@ public class TournamentEventDetection {
 					p.state = INACTIVE
 	*/
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectRemoveUserEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         List<Event> events = getEmittedEvents(REMOVE_USER);
@@ -171,7 +171,7 @@ public class TournamentEventDetection {
     private Set<Integer> processRemoveUserEvents(Integer tournamentAggregateId, List<Event> events) {
         Set<Integer> newlyProcessedEventVersions = new HashSet<>();
         Set<RemoveUserEvent> removeUserEvents = events.stream()
-                .map(e -> RemoveUserEvent.class.cast(e))
+                .map(RemoveUserEvent.class::cast)
                 .collect(Collectors.toSet());
         for(RemoveUserEvent e : removeUserEvents) {
             Set<Integer> tournamentIdsByUser = tournamentRepository.findAllAggregateIdsByUser(e.getAggregateId());
@@ -195,7 +195,7 @@ public class TournamentEventDetection {
         TOPIC_EXISTS
             t: this.tournamentTopics | t.state != INACTIVE => EXISTS Topic(t.id) && t.name == Topic(t.id).name
     */
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 100000)
     public void detectUpdateTopicEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         List<Event> events = getEmittedEvents(UPDATE_TOPIC);
@@ -213,7 +213,7 @@ public class TournamentEventDetection {
     private Set<Integer> processUpdateTopicEvents(Integer tournamentAggregateId, List<Event> events) {
         Set<Integer> newlyProcessedEventVersions = new HashSet<>();
         Set<UpdateTopicEvent> updateTopicEvents = events.stream()
-                .map(e -> UpdateTopicEvent.class.cast(e))
+                .map(UpdateTopicEvent.class::cast)
                 .collect(Collectors.toSet());
         for(UpdateTopicEvent e : updateTopicEvents) {
             Set<Integer> tournamentIdsByTopic = tournamentRepository.findAllAggregateIdsByTopic(e.getAggregateId());
@@ -236,7 +236,7 @@ public class TournamentEventDetection {
         TOPIC_EXISTS
             t: this.tournamentTopics | t.state != INACTIVE => EXISTS Topic(t.id) && t.name == Topic(t.id).name
     */
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectDeleteTopicEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         List<Event> events = getEmittedEvents(DELETE_TOPIC);
@@ -254,7 +254,7 @@ public class TournamentEventDetection {
     private Set<Integer> processDeleteTopicEvents(Integer tournamentAggregateId, List<Event> events) {
         Set<Integer> newlyProcessedEventVersions = new HashSet<>();
         Set<DeleteTopicEvent> deleteTopicEvents = events.stream()
-                .map(e -> DeleteTopicEvent.class.cast(e))
+                .map(DeleteTopicEvent.class::cast)
                 .collect(Collectors.toSet());
         for(DeleteTopicEvent e : deleteTopicEvents) {
             Set<Integer> tournamentIdsByTopic = tournamentRepository.findAllAggregateIdsByTopic(e.getAggregateId());
@@ -277,7 +277,7 @@ public class TournamentEventDetection {
         QUIZ_ANSWER_EXISTS
             p: this.participants | (!p.answer.isEmpty && p.answer.state != INACTIVE) => EXISTS QuizAnswer(p.answer.id)
      */
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectAnswerQuestionEvent() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         List<Event> events = getEmittedEvents(ANSWER_QUESTION);
@@ -295,7 +295,7 @@ public class TournamentEventDetection {
     private Set<Integer> processAnswerQuestionEvents(Integer tournamentAggregateId, List<Event> events) {
         Set<Integer> newlyProcessedEventVersions = new HashSet<>();
         Set<AnswerQuestionEvent> answerQuestionEvents = events.stream()
-                .map(e -> AnswerQuestionEvent.class.cast(e))
+                .map(AnswerQuestionEvent.class::cast)
                 .collect(Collectors.toSet());
         for(AnswerQuestionEvent e : answerQuestionEvents) {
             Set<Integer> tournamentsAggregateIdsByQuiz = tournamentRepository.findAllAggregateIdsByQuiz(e.getQuizAggregateId());
@@ -305,6 +305,85 @@ public class TournamentEventDetection {
             System.out.printf("Processing answer %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
             UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
             Tournament updatedTournament = tournamentService.updateParticipantAnswer(tournamentAggregateId, e.getUserAggregateId(), e.getAggregateId(), e.isCorrect(), e.getAggregateVersion(), unitOfWork);
+            if(updatedTournament != null) {
+                updatedTournament.addProcessedEvent(e.getType(), e.getAggregateVersion());
+                unitOfWorkService.commit(unitOfWork);
+            }
+            newlyProcessedEventVersions.add(e.getAggregateVersion());
+        }
+        return newlyProcessedEventVersions;
+    }
+
+    /*
+        CREATOR_COURSE_EXECUTION
+        PARTICIPANT_COURSE_EXECUTION
+     */
+    
+    @Scheduled(fixedDelay = 1000)
+    public void detectUnenrollStudentFromCourseExecutionEvents() {
+        Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
+        List<Event> events = getEmittedEvents(UNENROLL_STUDENT);
+        for(Integer tournamentAggregateId : tournamentAggregateIds) {
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(UNENROLL_STUDENT, tournamentAggregateId);
+            events = events.stream()
+                    .filter(e -> !(processedEvents.containsEventVersion(e.getAggregateVersion())))
+                    .collect(Collectors.toList());
+            Set<Integer> newlyProcessedEventVersions = processUnenrollStudentEvent(tournamentAggregateId, events);
+            newlyProcessedEventVersions.forEach(ev -> processedEvents.addProcessedEventVersion(ev));
+            processedEventsRepository.save(processedEvents);
+        }
+    }
+
+    private Set<Integer> processUnenrollStudentEvent(Integer tournamentAggregateId, List<Event> events) {
+        Set<Integer> newlyProcessedEventVersions = new HashSet<>();
+        Set<UnerollStudentFromCourseExecutionEvent> removeQuestionEvents = events.stream()
+                .map(UnerollStudentFromCourseExecutionEvent.class::cast)
+                .collect(Collectors.toSet());
+        for(UnerollStudentFromCourseExecutionEvent e : removeQuestionEvents) {
+            Set<Integer> tournamentIdsIdsByUser = tournamentRepository.findAllAggregateIdsByUser(e.getAggregateId());
+            if(!tournamentIdsIdsByUser.contains(tournamentAggregateId)) {
+                continue;
+            }
+            System.out.printf("Processing unenroll student %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
+            UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+            Tournament updatedTournament = tournamentService.removeUser(tournamentAggregateId, e.getAggregateId(), e.getAggregateVersion(), unitOfWork);
+            if(updatedTournament != null) {
+                updatedTournament.addProcessedEvent(e.getType(), e.getAggregateVersion());
+                unitOfWorkService.commit(unitOfWork);
+            }
+            newlyProcessedEventVersions.add(e.getAggregateVersion());
+        }
+        return newlyProcessedEventVersions;
+    }
+
+    @Scheduled(fixedDelay = 1000)
+    public void detectInvalidateQuizEvent() {
+        Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
+        List<Event> events = getEmittedEvents(INVALIDATE_QUIZ);
+        for(Integer tournamentAggregateId : tournamentAggregateIds) {
+            ProcessedEvents processedEvents = getTournamentProcessedEvents(INVALIDATE_QUIZ, tournamentAggregateId);
+            events = events.stream()
+                    .filter(e -> !(processedEvents.containsEventVersion(e.getAggregateVersion())))
+                    .collect(Collectors.toList());
+            Set<Integer> newlyProcessedEventVersions = processUnenrollStudentEvent(tournamentAggregateId, events);
+            newlyProcessedEventVersions.forEach(ev -> processedEvents.addProcessedEventVersion(ev));
+            processedEventsRepository.save(processedEvents);
+        }
+    }
+
+    private Set<Integer> processInvalidateQuizEvent(Integer tournamentAggregateId, List<Event> events) {
+        Set<Integer> newlyProcessedEventVersions = new HashSet<>();
+        Set<InvalidateQuizEvent> removeQuestionEvents = events.stream()
+                .map(InvalidateQuizEvent.class::cast)
+                .collect(Collectors.toSet());
+        for(InvalidateQuizEvent e : removeQuestionEvents) {
+            Set<Integer> tournamentIdsIdsByUser = tournamentRepository.findAllAggregateIdsByQuiz(e.getAggregateId());
+            if(!tournamentIdsIdsByUser.contains(tournamentAggregateId)) {
+                continue;
+            }
+            System.out.printf("Processing invalidate %d event for tournament %d\n", e.getAggregateId(), tournamentAggregateId);
+            UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+            Tournament updatedTournament = tournamentService.invalidateQuiz(tournamentAggregateId, e.getAggregateId(), e.getAggregateVersion(), unitOfWork);
             if(updatedTournament != null) {
                 updatedTournament.addProcessedEvent(e.getType(), e.getAggregateVersion());
                 unitOfWorkService.commit(unitOfWork);

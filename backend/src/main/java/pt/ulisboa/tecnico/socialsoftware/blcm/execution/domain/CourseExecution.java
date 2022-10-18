@@ -9,10 +9,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_USER;
 
 /*
     INTRA-INVARIANTS
@@ -72,23 +72,18 @@ public class CourseExecution extends Aggregate {
     }
 
     @Override
-    public Aggregate merge(Aggregate other) {
-        return this;
-    }
-
-    @Override
     public Set<String> getEventSubscriptions() {
+        return Set.of(REMOVE_USER);
+    }
+
+    @Override
+    public Set<String> getFieldsChangedByFunctionalities() {
+        return Set.of("students");
+    }
+
+    @Override
+    public Set<String[]> getIntentions() {
         return new HashSet<>();
-    }
-
-    @Override
-    public Set<String> getFieldsAbleToChange() {
-        return null;
-    }
-
-    @Override
-    public Set<String> getIntentionFields() {
-        return null;
     }
 
     @Override

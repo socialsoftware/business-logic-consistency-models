@@ -39,7 +39,7 @@ public class UserEventDetection {
     @Autowired
     private ProcessedEventsRepository processedEventsRepository;
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectRemoveCourseExecutionEvents() {
         /*Set<Integer> userAggregateIds = userRepository.findAll().stream().map(User::getAggregateId).collect(Collectors.toSet());
 

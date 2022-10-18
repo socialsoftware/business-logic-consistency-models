@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
@@ -24,6 +25,8 @@ public class QuizQuestion {
 
     private Integer sequence;
 
+    private Aggregate.AggregateState state;
+
 
     public QuizQuestion() {
 
@@ -36,6 +39,7 @@ public class QuizQuestion {
         setTitle(questionDto.getTitle());
         setContent(questionDto.getContent());
         setSequence(questionDto.getSequence());
+        setState(Aggregate.AggregateState.ACTIVE);
     }
 
     public Integer getAggregateId() {
@@ -78,6 +82,14 @@ public class QuizQuestion {
         this.sequence = sequence;
     }
 
+    public Aggregate.AggregateState getState() {
+        return state;
+    }
+
+    public void setState(Aggregate.AggregateState state) {
+        this.state = state;
+    }
+
     public QuestionDto buildDto() {
         QuestionDto questionDto = new QuestionDto();
         questionDto.setAggregateId(getAggregateId());
@@ -105,4 +117,5 @@ public class QuizQuestion {
         hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
         return hash;
     }
+
 }

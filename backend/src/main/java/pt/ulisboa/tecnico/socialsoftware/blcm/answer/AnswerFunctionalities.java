@@ -34,6 +34,9 @@ public class AnswerFunctionalities {
         QuestionDto questionDto = questionService.getCausalQuestionRemote(userQuestionAnswerDto.getQuestionAggregateId(), unitOfWork);
         answerService.answerQuestion(quizAggregateId, userAggregateId, userQuestionAnswerDto, questionDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void startQuiz(Integer quizAggregateId) {
 
     }
 
@@ -41,5 +44,8 @@ public class AnswerFunctionalities {
 
     }
 
+    public void getSolvedQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {
+
+    }
 
 }

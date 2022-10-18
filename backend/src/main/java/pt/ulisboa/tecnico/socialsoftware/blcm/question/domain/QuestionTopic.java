@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic;
 
@@ -15,6 +16,8 @@ public class QuestionTopic {
     private String name;
     @Column(name = "topic_version")
     private Integer version;
+
+    private Aggregate.AggregateState state;
 
     public QuestionTopic (TopicDto topicDto) {
         setAggregateId(topicDto.getAggregateId());
@@ -48,6 +51,14 @@ public class QuestionTopic {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Aggregate.AggregateState getState() {
+        return state;
+    }
+
+    public void setState(Aggregate.AggregateState state) {
+        this.state = state;
     }
 
     public TopicDto buildDto() {
