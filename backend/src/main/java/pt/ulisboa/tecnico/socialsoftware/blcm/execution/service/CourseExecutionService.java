@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
@@ -72,7 +73,8 @@ public class CourseExecutionService {
             throw new TutorException(COURSE_EXECUTION_DELETED, execution.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(execution);
+        List<Event> allEvents = eventRepository.findAll();
+        unitOfWork.addToCausalSnapshot(execution, allEvents);
         return execution;
     }
 

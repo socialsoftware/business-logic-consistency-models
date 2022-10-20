@@ -17,6 +17,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     @Query(value = "select * from courses where id = (select max(id) from courses where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
     Optional<Course> findConcurrentVersions(Integer aggregateId, Integer version);
-    @Query(value = "select * from courses c where c.name = :courseName AND c.version <= :version AND c.state != 'INACTIVE'", nativeQuery = true)
+    @Query(value = "select * from courses c where id = (select max(id) from courses where c.name = :courseName AND c.version > :version AND state = 'ACTIVE')", nativeQuery = true)
     Optional<Course> findCausalByName(String courseName, Integer version);
 }

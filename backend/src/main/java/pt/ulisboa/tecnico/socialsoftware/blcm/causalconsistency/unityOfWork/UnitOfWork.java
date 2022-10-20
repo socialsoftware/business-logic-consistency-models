@@ -74,10 +74,10 @@ public class UnitOfWork {
         this.eventsToEmit.add(event);
     }
 
-    public void addToCausalSnapshot(Aggregate aggregate) {
+    public void addToCausalSnapshot(Aggregate aggregate, List<Event> allEvents) {
         verifyProcessedEventsByAggregate(aggregate);
         verifyEmittedEventsByAggregate(aggregate);
-        verifySameProcessedEvents(aggregate);
+        verifySameProcessedEvents(aggregate, allEvents);
         addAggregateToSnapshot(aggregate);
     }
 
@@ -114,14 +114,23 @@ public class UnitOfWork {
         }
     }
 
-    private void verifySameProcessedEvents(Aggregate aggregate) {
+    private void verifySameProcessedEvents(Aggregate aggregate, List<Event> allEvents) {
         Set<EventSubscription> aggregateEventSubscriptions = aggregate.getEventSubscriptions();
         for(Aggregate snapshotAggregate : this.causalSnapshot.values()) {
             for(EventSubscription es1 : aggregateEventSubscriptions)
                 for(EventSubscription es2 : snapshotAggregate.getEventSubscriptions()) {
                     // if they correspond to the same aggregate and type
                     if(es1.getSenderAggregateId().equals(es2.getSenderAggregateId()) && es1.getEventType().equals(es2.getEventType()) && !es1.getSenderLastVersion().equals(es2.getSenderLastVersion())) {
-                        throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                        Integer minVersion = Math.min(es1.getSenderLastVersion(), es2.getSenderLastVersion());
+                        Integer maxVersion = Math.max(es1.getSenderLastVersion(), es2.getSenderLastVersion());
+                        Long numberOfEventsBetweenAggregates = allEvents.stream()
+                                .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
+                                .filter(event -> event.getType().equals(es1.getEventType()))
+                                .filter(event -> minVersion >= event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
+                                .count();
+                        if(numberOfEventsBetweenAggregates > 0) {
+                            throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                        }
                     }
                 }
         }

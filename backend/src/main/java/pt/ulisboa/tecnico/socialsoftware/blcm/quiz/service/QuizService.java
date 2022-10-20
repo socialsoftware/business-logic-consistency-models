@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.InvalidateQuizEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
@@ -47,6 +48,9 @@ public class QuizService {
     private QuizRepository quizRepository;
 
     @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
     private QuestionService questionService;
 
     @Autowired
@@ -70,7 +74,8 @@ public class QuizService {
             throw new TutorException(QUIZ_DELETED, quiz.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(quiz);
+        List<Event> allEvents = eventRepository.findAll();
+        unitOfWork.addToCausalSnapshot(quiz, allEvents);
         return quiz;
     }
 

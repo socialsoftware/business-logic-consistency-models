@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
@@ -58,7 +59,8 @@ public class UserService {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(user);
+        List<Event> allEvents = eventRepository.findAll();
+        unitOfWork.addToCausalSnapshot(user, allEvents);
         return user;
     }
 

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -65,7 +66,8 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(tournament);
+        List<Event> allEvents = eventRepository.findAll();
+        unitOfWork.addToCausalSnapshot(tournament, allEvents);
         return tournament;
     }
 
@@ -123,6 +125,7 @@ public class TournamentService {
         unitOfWork.registerChanged(newTournament);
     }
 
+    // TODO ditch these method
     private Set<Tournament> findAllTournamentByVersion(UnitOfWork unitOfWork) {
         Set<Tournament> tournaments = tournamentRepository.findAll()
                 .stream()
@@ -135,7 +138,8 @@ public class TournamentService {
                 throw new TutorException(TOURNAMENT_DELETED, t.getAggregateId());
             }
 
-            unitOfWork.addToCausalSnapshot(t);
+            List<Event> allEvents = eventRepository.findAll();
+            unitOfWork.addToCausalSnapshot(t, allEvents);
 
             if (!tournamentPerAggregateId.containsKey(t.getAggregateId())) {
                 tournamentPerAggregateId.put(t.getAggregateId(), t);

@@ -156,7 +156,7 @@ public class Quiz extends Aggregate {
 
         mergeAvailableDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
         mergeConclusionDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
-        mergeResultsDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz)
+        mergeResultsDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
         mergeTitle(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
         mergeQuizQuestions((Quiz)getPrev(), this, committedQuiz, mergedQuiz) ;
         return mergedQuiz;

@@ -22,6 +22,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
@@ -59,9 +60,8 @@ public class CourseService {
             throw new TutorException(ErrorMessage.COURSE_DELETED, course.getAggregateId());
         }
 
-        Set<Event> allEvents = new HashSet<>(eventRepository.findAll());
-
-        unitOfWork.addToCausalSnapshot(course);
+        List<Event> allEvents = eventRepository.findAll();
+        unitOfWork.addToCausalSnapshot(course, allEvents);
         return course;
     }
 
@@ -89,8 +89,8 @@ public class CourseService {
         Course course = courseRepository.findCausalByName(courseName, unitOfWork.getVersion())
                 .orElse(null);
         if(course != null) {
-            unitOfWork.addToCausalSnapshot(course);
-
+            List<Event> allEvents = eventRepository.findAll();
+            unitOfWork.addToCausalSnapshot(course, allEvents);
         }
         return course;
     }

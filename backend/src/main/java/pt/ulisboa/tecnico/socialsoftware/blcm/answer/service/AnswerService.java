@@ -15,6 +15,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnswerQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
@@ -28,6 +29,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
@@ -73,7 +76,8 @@ public class AnswerService {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(answer);
+        List<Event> allEvents = eventRepository.findAll();
+        unitOfWork.addToCausalSnapshot(answer, allEvents);
         return answer;
     }
 
@@ -85,7 +89,8 @@ public class AnswerService {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
-        unitOfWork.addToCausalSnapshot(answer);
+        List<Event> allEvents = eventRepository.findAll();
+        unitOfWork.addToCausalSnapshot(answer, allEvents);
         return answer;
     }
 
