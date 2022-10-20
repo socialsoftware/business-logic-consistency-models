@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
@@ -12,7 +12,7 @@ import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.USER;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_COURSE_EXECUTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.REMOVE_COURSE_EXECUTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /*
@@ -47,16 +47,11 @@ public class User extends Aggregate {
     }
 
     public User(User other) {
-        super(other.getAggregateId(), USER);
-        setId(null);
+        super(other);
         setName(other.getName());
         setUsername(other.getUsername());
         this.role = other.getRole();
-        setState(AggregateState.ACTIVE);
         setActive(other.isActive());
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
-        setPrev(other);
     }
 
     public User(Integer aggregateId, UserDto userDto) {
@@ -120,10 +115,9 @@ public class User extends Aggregate {
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return Set.of(REMOVE_COURSE_EXECUTION);
+    public Set<EventSubscription> getEventSubscriptions() {
+        return new HashSet<>();
     }
-
     @Override
     public Set<String> getFieldsChangedByFunctionalities() {
         return Set.of("name", "username", "active");
@@ -138,4 +132,6 @@ public class User extends Aggregate {
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
         return null;
     }
+
+
 }

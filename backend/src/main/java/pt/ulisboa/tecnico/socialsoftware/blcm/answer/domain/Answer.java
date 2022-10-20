@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import javax.persistence.*;
@@ -8,8 +9,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.ANSWER;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_USER;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
 /*
@@ -55,16 +57,12 @@ public class Answer extends Aggregate {
     }
 
     public Answer(Answer other) {
-        super(other.getAggregateId(), ANSWER);
-        setId(null);
-        setUser(other.getUser());
-        setQuiz(other.getQuiz());
+        super(other);
+        setUser(new AnswerUser(other.getUser()));
+        setQuiz(new AnswerQuiz(other.getQuiz()));
         setAnswerDate(other.getAnswerDate());
         setCreationDate(other.getCreationDate());
-        setQuestionAnswers(new ArrayList<>());
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
-        setPrev(other);
+        setQuestionAnswers(other.getQuestionAnswers().stream().map(QuestionAnswer::new).collect(Collectors.toList()));
     }
 
 
@@ -75,8 +73,24 @@ public class Answer extends Aggregate {
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return Set.of(REMOVE_USER);
+    public Set<EventSubscription> getEventSubscriptions() {
+        //return Set.of(REMOVE_USER, UNENROLL_STUDENT, INVALIDATE_QUIZ/*, REMOVE_QUIZ*/);
+        // TODO should we add remove quiz???
+        Set<EventSubscription> eventSubscriptions = new HashSet<>();
+        if(getState() == ACTIVE) {
+            interInvariantUserExists(eventSubscriptions);
+            interInvariantQuizCourseExecutionSameAsUSers(eventSubscriptions);
+        }
+        return eventSubscriptions;
+
+    }
+
+    private void interInvariantUserExists(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.user.getAggregateId(), this.user.getVersion(), REMOVE_USER));
+    }
+
+    private void interInvariantQuizCourseExecutionSameAsUSers(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.quiz.getCourseExecution().getAggregateId(), this.quiz.getCourseExecution().getVersion(), UNENROLL_STUDENT));
     }
 
     @Override

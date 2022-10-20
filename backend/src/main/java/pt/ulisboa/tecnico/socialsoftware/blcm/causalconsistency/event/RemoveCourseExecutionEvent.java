@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 

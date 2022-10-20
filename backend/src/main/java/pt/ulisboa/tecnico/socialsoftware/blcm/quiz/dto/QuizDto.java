@@ -23,6 +23,10 @@ public class QuizDto implements Serializable {
 
     private List<QuestionDto> questionDtos;
 
+    private Integer courseExecutionAggregateId;
+
+    private Integer courseExecutionVersion;
+
     public QuizDto() {
 
     }
@@ -37,7 +41,8 @@ public class QuizDto implements Serializable {
         setQuestionDtos(quiz.getQuizQuestions().stream()
                 .map(qq -> qq.buildDto())
                 .collect(Collectors.toList()));
-
+        setCourseExecutionAggregateId(quiz.getCourseExecution().getAggregateId());
+        setCourseExecutionVersion(quiz.getCourseExecution().getVersion());
     }
 
     public Integer getAggregateId() {
@@ -94,5 +99,21 @@ public class QuizDto implements Serializable {
 
     public void setQuestionDtos(List<QuestionDto> questionDtos) {
         this.questionDtos = questionDtos;
+    }
+
+    public Integer getCourseExecutionAggregateId() {
+        return courseExecutionAggregateId;
+    }
+
+    public void setCourseExecutionAggregateId(Integer courseExecutionAggregateId) {
+        this.courseExecutionAggregateId = courseExecutionAggregateId;
+    }
+
+    public Integer getCourseExecutionVersion() {
+        return courseExecutionVersion;
+    }
+
+    public void setCourseExecutionVersion(Integer courseExecutionVersion) {
+        this.courseExecutionVersion = courseExecutionVersion;
     }
 }

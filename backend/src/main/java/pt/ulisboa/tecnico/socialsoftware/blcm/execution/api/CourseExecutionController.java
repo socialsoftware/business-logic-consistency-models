@@ -51,7 +51,7 @@ public class CourseExecutionController {
     }
 
     @PostMapping("/executions/{executionAggregateId}/anonymize")
-    public void anonymizeCourseExecutionUsers(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
+    public void anonymizeCourseStudent(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
         courseExecutionFunctionalities.anonymizeStudent(executionAggregateId, userAggregateId);
     }
 }

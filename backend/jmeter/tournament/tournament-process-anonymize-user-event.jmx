@@ -368,7 +368,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-            <stringProp name="HTTPSampler.path">${prefix}/users/${user_aggregate_id}/executions/add?executionAggregateId=${__property(course_execution_aggregate_id)}</stringProp>
+            <stringProp name="HTTPSampler.path">${prefix}/executions/${__property(course_execution_aggregate_id)}/students/add?userAggregateId=${user_aggregate_id}</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -699,7 +699,8 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
     &quot;content&quot;: &quot;question content ${question_counter}&quot;,&#xd;
 	&quot;topicDto&quot;: [&#xd;
 		{&#xd;
-			&quot;aggregateId&quot;: ${__property(topic_aggregate_id_${question_counter})}&#xd;
+			&quot;aggregateId&quot;: ${__property(topic_aggregate_id_${question_counter})},&#xd;
+			&quot;courseId&quot;: ${__property(course_aggregate_id)}&#xd;
 		}&#xd;
 	],&#xd;
 	&#xd;
@@ -1202,7 +1203,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-            <stringProp name="HTTPSampler.path">${prefix}/executions/${__property(course_execution_aggregate_id)}/anonymize</stringProp>
+            <stringProp name="HTTPSampler.path">${prefix}/executions/${__property(course_execution_aggregate_id)}/anonymize?userAggregateId=${__property(user_aggregate_id)}</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -1304,7 +1305,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
       </ThreadGroup>
       <hashTree>
         <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Event processing delay" enabled="true">
-          <stringProp name="ConstantTimer.delay">10000</stringProp>
+          <stringProp name="ConstantTimer.delay">2000</stringProp>
         </ConstantTimer>
         <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">

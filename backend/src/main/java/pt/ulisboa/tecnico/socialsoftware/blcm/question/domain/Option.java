@@ -16,15 +16,22 @@ public class Option {
 
     private String content;
 
+    public Option() {
+
+    }
+
     public Option(OptionDto optionDto) {
         setSequence(optionDto.getSequence());
         setCorrect(optionDto.isCorrect());
         setContent(optionDto.getContent());
     }
 
-    public Option() {
-
+    public Option(Option other) {
+        setSequence(other.getSequence());
+        setCorrect(other.isCorrect());
+        setContent(other.getContent());
     }
+
 
     public Integer getKey() {
         return key;

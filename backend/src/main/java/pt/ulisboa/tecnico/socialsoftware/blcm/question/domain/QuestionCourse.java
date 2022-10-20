@@ -26,6 +26,12 @@ public class QuestionCourse {
         setVersion(causalCourseRemote.getVersion());
     }
 
+    public QuestionCourse(QuestionCourse other) {
+        setAggregateId(other.getAggregateId());
+        setName(other.getName());
+        setVersion(other.getVersion());
+    }
+
     public Integer getAggregateId() {
         return aggregateId;
     }

@@ -13,14 +13,19 @@ public class TournamentQuiz {
     @Column(name = "quiz_version")
     private Integer version;
 
+    public TournamentQuiz() {
+
+    }
     public TournamentQuiz(Integer aggregateId, Integer version) {
         setAggregateId(aggregateId);
         setVersion(version);
     }
 
-    public TournamentQuiz() {
-
+    public TournamentQuiz(TournamentQuiz other) {
+        setAggregateId(other.getAggregateId());
+        setVersion(other.getVersion());
     }
+
 
     public Integer getAggregateId() {
         return aggregateId;

@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
@@ -10,9 +11,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_USER;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.REMOVE_USER;
 
 /*
     INTRA-INVARIANTS
@@ -60,20 +63,28 @@ public class CourseExecution extends Aggregate {
 
 
     public CourseExecution(CourseExecution other) {
-        super(other.getAggregateId(), COURSE_EXECUTION);
+        super(other);
         setAcronym(other.getAcronym());
         setAcademicTerm(other.getAcademicTerm());
         setEndDate(other.getEndDate());
         setCourse(other.getCourse());
-        setStudents(new HashSet<>(other.getStudents()));
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
-        setPrev(other);
+        setStudents(new HashSet<>(other.getStudents().stream().map(ExecutionStudent::new).collect(Collectors.toSet())));
+
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return Set.of(REMOVE_USER);
+    public Set<EventSubscription> getEventSubscriptions() {
+        Set<EventSubscription> eventSubscriptions = new HashSet<>();
+        if(getState() == ACTIVE) {
+            for (ExecutionStudent student : this.students) {
+                interInvariantUsersExist(eventSubscriptions, student);
+            }
+        }
+        return eventSubscriptions;
+    }
+
+    private static void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions, ExecutionStudent student) {
+        eventSubscriptions.add(new EventSubscription(student.getAggregateId(), student.getVersion(), REMOVE_USER));
     }
 
     @Override

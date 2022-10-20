@@ -2,7 +2,9 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.AnswerService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
@@ -112,7 +114,7 @@ public class TournamentFunctionalities {
 
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        TournamentDto tournamentDto= tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
+        TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
         // by making this call the invariants regarding the course execution and the role of the participant are guaranteed
         UserDto userDto = courseExecutionService.getStudentByExecutionIdAndUserId(tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
         TournamentParticipant participant = new TournamentParticipant(userDto);
@@ -167,6 +169,8 @@ public class TournamentFunctionalities {
     }
 
 
+
+
     public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         return tournamentService.getTournamentsForCourseExecution(executionAggregateId, unitOfWork);
@@ -191,9 +195,10 @@ public class TournamentFunctionalities {
     public QuizDto solveQuiz(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
-        tournamentService.solveQuiz(tournamentAggregateId, userAggregateId, unitOfWork);
         QuizDto quizDto = quizService.startTournamentQuiz(userAggregateId, tournamentDto.getQuiz().getAggregateId(), unitOfWork);
-        answerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), userAggregateId, unitOfWork);
+        QuizAnswerDto quizAnswerDto = answerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), userAggregateId, unitOfWork);
+        tournamentService.solveQuiz(tournamentAggregateId, userAggregateId, quizAnswerDto.getAggregateId(), unitOfWork);
+
         unitOfWorkService.commit(unitOfWork);
         return quizDto;
     }
@@ -223,6 +228,7 @@ public class TournamentFunctionalities {
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
         return;
     }
+
 
 
     private void checkInput(Integer userId, List<Integer> topicsId, TournamentDto tournamentDto) {
@@ -258,5 +264,69 @@ public class TournamentFunctionalities {
         }
     }
 
+    /************************************************ EVENT PROCESSING ************************************************/
 
+    public void processAnonymizeStudentEvent(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing anonymize a user for course execution %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        AnonymizeExecutionStudentEvent anonymizeEvent = (AnonymizeExecutionStudentEvent) eventToProcess;
+        tournamentService.anonymizeUser(aggregateId, anonymizeEvent.getUserAggregateId(), anonymizeEvent.getName(), anonymizeEvent.getUsername(), anonymizeEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processRemoveCourseExecution (Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing remove execution %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        RemoveCourseExecutionEvent removeCourseExecutionEvent = (RemoveCourseExecutionEvent) eventToProcess;
+        tournamentService.removeCourseExecution(aggregateId, removeCourseExecutionEvent.getAggregateId(), removeCourseExecutionEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processRemoveUser(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing remove user %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        RemoveUserEvent removeUserEvent = (RemoveUserEvent) eventToProcess;
+        tournamentService.removeUser(aggregateId, removeUserEvent.getAggregateId(), removeUserEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processUpdateTopic (Integer aggregateId, Event eventToProcess){
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing update topic %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        UpdateTopicEvent updateTopicEvent = (UpdateTopicEvent) eventToProcess;
+        tournamentService.updateTopic(aggregateId, updateTopicEvent.getAggregateId(), updateTopicEvent.getTopicName(), updateTopicEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processDeleteTopic (Integer aggregateId, Event eventToProcess){
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing delete topic %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        DeleteTopicEvent deleteTopicEvent = (DeleteTopicEvent) eventToProcess;
+        tournamentService.removeTopic(aggregateId, deleteTopicEvent.getAggregateId(), deleteTopicEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processAnswerQuestion(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing answer question %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        AnswerQuestionEvent answerQuestionEvent = (AnswerQuestionEvent) eventToProcess;
+        tournamentService.updateParticipantAnswer(aggregateId, answerQuestionEvent.getUserAggregateId(), answerQuestionEvent.getAggregateId(), answerQuestionEvent.isCorrect(), answerQuestionEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processUnenrollStudent(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing unenroll student %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent = (UnerollStudentFromCourseExecutionEvent) eventToProcess;
+        tournamentService.removeUser(aggregateId, unerollStudentFromCourseExecutionEvent.getAggregateId(), unerollStudentFromCourseExecutionEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processInvalidateQuizEvent(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing invalidate quiz %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        InvalidateQuizEvent invalidateQuizEvent = (InvalidateQuizEvent) eventToProcess;
+        tournamentService.invalidateQuiz(aggregateId, invalidateQuizEvent.getAggregateId(), invalidateQuizEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
 }

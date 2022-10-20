@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import org.apache.commons.collections4.SetUtils;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
@@ -8,10 +9,12 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.TOURNAMENT;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.*;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /* each version of the tournament is a new instance of the tournament*/
@@ -123,20 +126,18 @@ public class Tournament extends Aggregate {
     }
     /* used to update the tournament by creating new versions */
     public Tournament(Tournament other) {
-        super(other.getAggregateId(), TOURNAMENT);
-        setId(null); /* to force a new database entry when saving to be able to distinguish between versions of the same aggregate*/
+        //super(other.getAggregateId(), TOURNAMENT);
+        super(other);
+        //setId(null); /* to force a new database entry when saving to be able to distinguish between versions of the same aggregate*/
         setStartTime(other.getStartTime());
         setEndTime(other.getEndTime());
         setNumberOfQuestions(other.getNumberOfQuestions());
         setCancelled(other.isCancelled());
-        this.courseExecution = other.getCourseExecution();
-        setTopics(new HashSet<>(other.getTopics()));
-        this.quiz = other.getQuiz();
-        this.creator = other.getCreator();
-        setParticipants(new HashSet<>(other.getParticipants())); /* change this to create new instances (maybe not needed) */
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
-        setPrev(other);
+        this.courseExecution = new TournamentCourseExecution(other.getCourseExecution());
+        setTopics(new HashSet<>(other.getTopics().stream().map(TournamentTopic::new).collect(Collectors.toSet())));
+        this.quiz = new TournamentQuiz(other.getQuiz());
+        this.creator = new TournamentCreator(other.getCreator());
+        setParticipants(new HashSet<>(other.getParticipants().stream().map(TournamentParticipant::new).collect(Collectors.toSet())));
     }
 
     @Override
@@ -152,8 +153,52 @@ public class Tournament extends Aggregate {
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return Set.of(ANONYMIZE_EXECUTION_STUDENT, REMOVE_COURSE_EXECUTION, REMOVE_USER, UPDATE_TOPIC, DELETE_TOPIC, ANSWER_QUESTION);
+    public Set<EventSubscription> getEventSubscriptions() {
+        Set<EventSubscription> eventSubscriptions = new HashSet<>();
+        if (this.getState() == ACTIVE) {
+            interInvariantCourseExecutionExists(eventSubscriptions);
+            interInvariantCourseExecutionSameAsUsers(eventSubscriptions);
+            interInvariantUsersExist(eventSubscriptions);
+            interInvariantQuizAnswersExist(eventSubscriptions);
+            interInvariantTopicsExist(eventSubscriptions);
+            interInvariantQuizExists(eventSubscriptions);
+        }
+        return eventSubscriptions;
+    }
+
+    private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION));
+    }
+
+    private void interInvariantCourseExecutionSameAsUsers(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));
+    }
+
+    private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.creator.getAggregateId(), this.creator.getVersion(), REMOVE_USER));
+        for (TournamentParticipant participant : this.participants) {
+            eventSubscriptions.add(new EventSubscription(participant.getAggregateId(), participant.getVersion(), REMOVE_USER));
+        }
+    }
+
+    private void interInvariantQuizAnswersExist(Set<EventSubscription> eventSubscriptions) {
+        for (TournamentParticipant participant : this.participants) {
+            if (participant.getAnswer().getAggregateId() != null) {
+                eventSubscriptions.add(new EventSubscription(participant.getAnswer().getAggregateId(), participant.getAnswer().getVersion(), ANSWER_QUESTION));
+            }
+        }
+    }
+
+    private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions) {
+        for (TournamentTopic topic : this.topics) {
+            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DELETE_TOPIC));
+            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UPDATE_TOPIC));
+        }
+    }
+
+    private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), getVersion(), INVALIDATE_QUIZ));
     }
 
     /* ----------------------------------------- INTRA-AGGREGATE INVARIANTS ----------------------------------------- */
@@ -512,6 +557,7 @@ public class Tournament extends Aggregate {
         return this.participants.remove(participant);
     }
 
+    // this setVersion is special because the quiz is created in the same transaction and we want to have its version upon commit
     @Override
     public void setVersion(Integer version) {
         if(this.quiz.getVersion() == null) {

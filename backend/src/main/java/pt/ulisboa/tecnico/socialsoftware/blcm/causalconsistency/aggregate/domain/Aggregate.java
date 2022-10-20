@@ -5,10 +5,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
@@ -41,9 +39,6 @@ public abstract class Aggregate {
     private AggregateType aggregateType;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Map<String, Integer> processedEvents;
-
-    @ElementCollection(fetch = FetchType.EAGER)
     private Map<String, Integer> emittedEvents;
 
     @ManyToOne
@@ -52,6 +47,8 @@ public abstract class Aggregate {
     public void remove() {
         setState(DELETED);
     }
+
+
 
 
     public enum AggregateState {
@@ -70,19 +67,26 @@ public abstract class Aggregate {
         setState(AggregateState.ACTIVE);
         setAggregateType(aggregateType);
         setEmittedEvents(new HashMap<>());
-        setProcessedEvents(new HashMap<>());
+    }
+
+    public Aggregate(Aggregate other) {
+        setId(null);
+        setAggregateId(other.getAggregateId());
+        setAggregateType(other.getAggregateType());
+        setState(other.getState());
+        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
+        setPrev(other);
     }
 
 
     public abstract void verifyInvariants();
-
-    public abstract Set<String> getEventSubscriptions();
-
     public abstract Set<String> getFieldsChangedByFunctionalities();
 
     public abstract Set<String[]> getIntentions();
 
     public abstract Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields);
+
+    public abstract Set<EventSubscription> getEventSubscriptions();
 
     public Integer getId() {
         return id;
@@ -140,19 +144,16 @@ public abstract class Aggregate {
         this.prev = prev;
     }
 
-    public Map<String, Integer> getProcessedEvents() {
-        return processedEvents;
+    public Set<EventSubscription> getEventSubscriptionsByEventType(String eventType) {
+        return getEventSubscriptions().stream()
+                .filter(es -> es.getEventType().equals(eventType))
+                .collect(Collectors.toSet());
     }
 
-    public void setProcessedEvents(Map<String, Integer> processedEvents) {
-        this.processedEvents = processedEvents;
-    }
-
-    public void addProcessedEvent(String eventType, Integer eventVersion) {
-        if(this.processedEvents.containsKey(eventType) && this.processedEvents.get(eventType) >= eventVersion) {
-            return;
-        }
-        this.processedEvents.put(eventType, eventVersion);
+    public Optional<EventSubscription> getEventSubscriptionsByAggregateIdAndType(Integer aggregateId, String eventType) {
+        return getEventSubscriptions().stream()
+                .filter(es -> es.getSenderAggregateId().equals(aggregateId) && es.getEventType().equals(eventType))
+                .findAny();
     }
 
     public Map<String, Integer> getEmittedEvents() {
@@ -195,7 +196,6 @@ public abstract class Aggregate {
 
         Aggregate mergedAggregate = mergeFields(toCommitVersionChangedFields, committedVersion, committedVersionChangedFields);
 
-        mergeProcessedEvents(toCommitVersion, committedVersion, mergedAggregate);
         mergeEmittedEvents(toCommitVersion, committedVersion, mergedAggregate);
 
         // TODO see explanation for prev assignment in Quiz
@@ -203,20 +203,6 @@ public abstract class Aggregate {
         return mergedAggregate;
     }
 
-    private static void mergeProcessedEvents(Aggregate toCommitVersion, Aggregate committedVersion, Aggregate mergedAggregate) {
-        Map<String, Integer> mergedProcessedEvents = new HashMap<>();
-        toCommitVersion.getProcessedEvents().forEach((eventType, eventVersion) -> {
-            if(!mergedProcessedEvents.containsKey(eventType) || (mergedProcessedEvents.containsKey(eventType) && eventVersion > mergedProcessedEvents.get(eventType))) {
-                mergedProcessedEvents.put(eventType, eventVersion);
-            }
-        });
-        committedVersion.getProcessedEvents().forEach((eventType, eventVersion) -> {
-            if(!mergedProcessedEvents.containsKey(eventType) || (mergedProcessedEvents.containsKey(eventType) && eventVersion > mergedProcessedEvents.get(eventType))) {
-                mergedProcessedEvents.put(eventType, eventVersion);
-            }
-        });
-        mergedAggregate.setProcessedEvents(mergedProcessedEvents);
-    }
 
     private static void mergeEmittedEvents(Aggregate toCommitVersion, Aggregate committedVersion, Aggregate mergedAggregate) {
         Map<String, Integer> mergedEmittedEvents = new HashMap<>();
@@ -260,14 +246,6 @@ public abstract class Aggregate {
     }
 
     private void checkIntentions(Set<String> changedFields1, Set<String> changedFields2) {
-        /*for (String f1 : changedFields1) {
-            for (String f2 : changedFields2) {
-                if (getIntentions().contains(f1) && getIntentions().contains(f2) && !f1.equals(f2)) {
-                    throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
-                }
-            }
-        }*/
-
         for (String [] intention : getIntentions()) {
             if((changedFields1.contains(intention[0]) && changedFields2.contains(intention[1])) || (changedFields1.contains(intention[1]) && changedFields2.contains(intention[0]))) {
                 throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());

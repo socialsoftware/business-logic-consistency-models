@@ -28,6 +28,12 @@ public class AnswerUser {
         setState(Aggregate.AggregateState.valueOf(userDto.getState()));
     }
 
+    public AnswerUser(AnswerUser other) {
+        setAggregateId(other.getAggregateId());
+        setVersion(other.getVersion());
+        setState(other.getState());
+    }
+
     public Integer getAggregateId() {
         return aggregateId;
     }

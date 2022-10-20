@@ -6,7 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.ANSWER_QUESTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.ANSWER_QUESTION;
 
 @Entity
 @DiscriminatorValue(ANSWER_QUESTION)

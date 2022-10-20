@@ -30,4 +30,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     @Query(value = "select q.aggregate_id from quizzes q, answer_quiz_questions_aggregate_ids aqqa where q.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (q.id = aqqa.answer_id) AND (:questionAggregateId IN (select quiz_questions_aggregate_ids from aqqa))", nativeQuery = true)
     Set<Integer> findAllAggregateIdsByQuestion(Integer questionAggregateId);
 
+    @Query(value = "select * from answers a where a.aggregate_id = :aggregateId AND state = 'ACTIVE' AND a.version >= (select max(version) from answers)", nativeQuery = true)
+    Optional<Answer> findLastQuestionVersion(Integer aggregateId);
 }

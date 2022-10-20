@@ -6,16 +6,15 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
@@ -26,8 +25,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.*;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.REMOVE_COURSE_EXECUTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.Role.STUDENT;
 
 @Service
 public class TournamentService {
@@ -94,8 +94,8 @@ public class TournamentService {
             throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, creator.getAggregateId());
         }
         Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz); /* should the skeleton creation be part of the functionality?? */
+
         unitOfWork.registerChanged(tournament);
-        //unitOfWorkWorkService.addEvent(new TournamentCreationEvent(tournament));
         return new TournamentDto(tournament);
     }
 
@@ -112,12 +112,14 @@ public class TournamentService {
             throw new TutorException(CANNOT_ADD_PARTICIPANT, tournamentAggregateId);
         }
 
-        if(!userRole.equals("STUDENT")) {
+        // verification not needed anymore because request is made to course execution aggregate in which all are students
+        /*if(!userRole.equals(STUDENT.toString())) {
             throw new TutorException(PARTICIPANT_NOT_STUDENT, tournamentParticipant.getAggregateId(), tournamentAggregateId);
-        }
+        }*/
         Tournament newTournament = new Tournament(oldTournament);
 
         newTournament.addParticipant(tournamentParticipant);
+
         unitOfWork.registerChanged(newTournament);
     }
 
@@ -232,6 +234,7 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
         newTournament.removeParticipant(participantToRemove);
+
         unitOfWork.registerChanged(newTournament);
     }
 
@@ -239,7 +242,7 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+    public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId, Integer answerAggregateId, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         TournamentParticipant participant = newTournament.findParticipant(userAggregateId);
@@ -258,6 +261,7 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.cancel();
+        // TODO should we cancel all subscriptions??
         unitOfWork.registerChanged(newTournament);
     }
 
@@ -269,6 +273,7 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.remove();
+        // TODO should we cancel all subscriptions??
         unitOfWork.registerChanged(newTournament);
     }
 
@@ -281,21 +286,21 @@ public class TournamentService {
     public Tournament anonymizeUser(Integer tournamentAggregateId, Integer userAggregateId, String name, String username, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         //these if's are necessary if the aggregate already through direct access has a more recent version and it will still count as processed
-        if(oldTournament.getCreator().getAggregateId().equals(userAggregateId) && oldTournament.getCreator().getVersion() >= eventVersion) {
+        /*if(oldTournament.getCreator().getAggregateId().equals(userAggregateId) && oldTournament.getCreator().getVersion() >= eventVersion) {
             return null;
-        }
+        }*/
 
-        TournamentParticipant oldParticipant = oldTournament.findParticipant(userAggregateId);
-        if(oldParticipant != null && oldParticipant.getAggregateId().equals(userAggregateId) && oldParticipant.getVersion() >= tournamentAggregateId) {
+        //TournamentParticipant oldParticipant = oldTournament.findParticipant(userAggregateId);
+        /*if(oldParticipant != null && oldParticipant.getAggregateId().equals(userAggregateId) && oldParticipant.getVersion() >= tournamentAggregateId) {
             return null;
-        }
+        }*/
 
         Tournament newTournament = new Tournament(oldTournament);
 
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
-            newTournament.getCreator().setVersion(eventVersion);
+            //newTournament.getCreator().setVersion(eventVersion);
             unitOfWork.registerChanged(newTournament);
         }
 
@@ -303,10 +308,12 @@ public class TournamentService {
             if(tp.getAggregateId().equals(userAggregateId)) {
                 tp.setName(name);
                 tp.setUsername(username);
-                tp.setVersion(eventVersion);
+                //tp.setVersion(eventVersion);
                 unitOfWork.registerChanged(newTournament);
             }
         }
+
+        newTournament.getCourseExecution().setVersion(eventVersion);
 
         return newTournament;
     }
@@ -343,18 +350,20 @@ public class TournamentService {
         if(oldParticipant != null && oldParticipant.getAggregateId().equals(userAggregateId) && oldParticipant.getVersion() >= tournamentAggregateId) {
             return null;
         }
+
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.setState(INACTIVE);
             unitOfWork.registerChanged(newTournament);
         }
+
         TournamentParticipant tournamentParticipant  = newTournament.findParticipant(userAggregateId);
-        if(tournamentParticipant == null) {
-            throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, userAggregateId, tournamentAggregateId);
+        if(tournamentParticipant != null) {
+            tournamentParticipant.setState(DELETED);
+            tournamentParticipant.setVersion(eventVersion);
+            unitOfWork.registerChanged(newTournament);
         }
-        tournamentParticipant.setState(DELETED);
-        tournamentParticipant.setVersion(eventVersion);
-        unitOfWork.registerChanged(newTournament);
+
 
         return newTournament;
     }
@@ -365,12 +374,6 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament updateTopic(Integer tournamentAggregateId, Integer topicAggregateId, String topicName, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
-
-        TournamentTopic oldTopic = oldTournament.findTopic(topicAggregateId);
-        if(oldTopic != null && oldTopic.getVersion() >= eventVersion) {
-            return null;
-        }
-
         Tournament newTournament = new Tournament(oldTournament);
         TournamentTopic topic = newTournament.findTopic(topicAggregateId);
         if(topic == null) {
@@ -405,7 +408,12 @@ public class TournamentService {
         quizDto.setAvailableDate(newTournament.getStartTime().toString());
         quizDto.setConclusionDate(newTournament.getEndTime().toString());
         quizDto.setResultsDate(newTournament.getEndTime().toString());
-        quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState() == ACTIVE).map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(),unitOfWork);
+        try {
+            quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState() == ACTIVE).map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(), unitOfWork);
+        } catch (TutorException e) {
+            newTournament.setState(INACTIVE);
+        }
+
         unitOfWork.registerChanged(newTournament);
         return newTournament;
     }
@@ -449,12 +457,19 @@ public class TournamentService {
         quizDto.setConclusionDate(newTournament.getEndTime().toString());
         quizDto.setResultsDate(newTournament.getEndTime().toString());
 
+        QuizDto quizDto1 = null;
         try {
-            quizService.generateQuiz(newTournament.getCourseExecution().getAggregateId(), quizDto, topicsIds, newTournament.getNumberOfQuestions(), unitOfWork);
+            quizDto1 = quizService.generateQuiz(newTournament.getCourseExecution().getAggregateId(), quizDto, topicsIds, newTournament.getNumberOfQuestions(), unitOfWork);
         } catch (TutorException e) {
             newTournament.setState(INACTIVE);
         }
-        unitOfWork.registerChanged(newTournament);
+
+        if(quizDto1 != null) {
+            newTournament.getQuiz().setAggregateId(quizDto1.getAggregateId());
+            newTournament.getQuiz().setVersion(quizDto1.getVersion());
+            unitOfWork.registerChanged(newTournament);
+        }
+
         return newTournament;
 
     }

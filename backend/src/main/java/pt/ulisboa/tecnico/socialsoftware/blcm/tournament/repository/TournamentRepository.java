@@ -35,4 +35,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
 
     @Query(value = "select t.aggregate_id from tournaments t where t.aggregate_id NOT IN (select aggregate_id from tournaments where state = 'DELETED' OR state = 'INACTIVE') AND (t.quiz_aggregate_id = :quizAggregateId)", nativeQuery = true)
     Set<Integer> findAllAggregateIdsByQuiz(Integer quizAggregateId);
+
+    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND state = 'ACTIVE' AND t.version >= (select max(version) from tournaments)", nativeQuery = true)
+    Optional<Tournament> findLastTournamentVersion(Integer aggregateId);
 }

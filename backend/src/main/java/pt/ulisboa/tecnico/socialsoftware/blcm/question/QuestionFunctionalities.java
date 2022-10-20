@@ -2,6 +2,9 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -90,9 +93,25 @@ public class QuestionFunctionalities {
                         .collect(Collectors.toSet());
 
         questionService.updateQuestionTopics(courseAggregateId, topics, unitOfWork);
-
         unitOfWorkService.commit(unitOfWork);
     }
 
+    /************************************************ EVENT PROCESSING ************************************************/
+
+    public void processUpdateTopic(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing update topic %d event for question %d\n", eventToProcess.getAggregateId(), aggregateId);
+        UpdateTopicEvent updateTopicEvent = (UpdateTopicEvent) eventToProcess;
+        questionService.updateTopic(aggregateId, updateTopicEvent.getAggregateId(), updateTopicEvent.getTopicName(), updateTopicEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processRemoveTopic(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing delete topic %d event for question %d\n", eventToProcess.getAggregateId(), aggregateId);
+        DeleteTopicEvent deleteTopicEvent = (DeleteTopicEvent) eventToProcess;
+        questionService.removeTopic(aggregateId, deleteTopicEvent.getAggregateId(), deleteTopicEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
 
 }

@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import java.util.*;
@@ -77,28 +77,53 @@ public class UnitOfWork {
     public void addToCausalSnapshot(Aggregate aggregate) {
         verifyProcessedEventsByAggregate(aggregate);
         verifyEmittedEventsByAggregate(aggregate);
+        verifySameProcessedEvents(aggregate);
         addAggregateToSnapshot(aggregate);
     }
 
     private void verifyProcessedEventsByAggregate(Aggregate aggregate) {
-        for(String subType : aggregate.getEventSubscriptions()) {
-            Integer lastProcessedEventVersion = aggregate.getProcessedEvents().get(subType) != null ? aggregate.getProcessedEvents().get(subType) : 0;
-            for(Aggregate snapShotAggregate : this.causalSnapshot.values()) {
-                if(snapShotAggregate.getEmittedEvents().containsKey(subType) && !snapShotAggregate.getEmittedEvents().get(subType).equals(lastProcessedEventVersion)) {
-                    throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+        for (EventSubscription es : aggregate.getEventSubscriptions()) {
+            for (Aggregate snapshotAggregate : this.causalSnapshot.values()) {
+                if (es.getSenderAggregateId().equals(snapshotAggregate.getAggregateId())) {
+                    if(!es.getSenderLastVersion().equals(snapshotAggregate.getVersion())) {
+                        Map<String, Integer> snapshotAggregateEmittedEvents = snapshotAggregate.getEmittedEvents();
+                        if (snapshotAggregateEmittedEvents.containsKey(es.getEventType()) && snapshotAggregateEmittedEvents.get(es.getEventType()) > es.getSenderLastVersion()) {
+                            throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                        }
+                    }
+                    // if event version equals aggregate in snapshot version  OK
+                    // else get all events of type for aggregate id which is higher than subscribed version and lower or equal than aggregate in snapshot version
+                    // confirm that these events are processed
                 }
             }
         }
     }
 
     private void verifyEmittedEventsByAggregate(Aggregate aggregate) {
-        for(Aggregate snapShotAggregate : this.causalSnapshot.values()) {
-            for(String subType : snapShotAggregate.getEventSubscriptions()) {
-                Integer lastProcessedEventVersion = snapShotAggregate.getProcessedEvents().get(subType) != null ? snapShotAggregate.getProcessedEvents().get(subType) : 0;
-                if(aggregate.getProcessedEvents().containsKey(subType) && !aggregate.getEmittedEvents().get(subType).equals(lastProcessedEventVersion)) {
-                    throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+        Map<String, Integer> aggregateEmittedEvents = aggregate.getEmittedEvents();
+        for (Aggregate snapshotAggregate : this.causalSnapshot.values()) {
+            for (EventSubscription es : snapshotAggregate.getEventSubscriptions()) {
+                if (es.getSenderAggregateId().equals(aggregate.getAggregateId())) {
+                    if(!es.getSenderLastVersion().equals(snapshotAggregate.getVersion())) {
+                        if (aggregateEmittedEvents.containsKey(es.getEventType()) && aggregateEmittedEvents.get(es.getEventType()) > es.getSenderLastVersion()) {
+                            throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private void verifySameProcessedEvents(Aggregate aggregate) {
+        Set<EventSubscription> aggregateEventSubscriptions = aggregate.getEventSubscriptions();
+        for(Aggregate snapshotAggregate : this.causalSnapshot.values()) {
+            for(EventSubscription es1 : aggregateEventSubscriptions)
+                for(EventSubscription es2 : snapshotAggregate.getEventSubscriptions()) {
+                    // if they correspond to the same aggregate and type
+                    if(es1.getSenderAggregateId().equals(es2.getSenderAggregateId()) && es1.getEventType().equals(es2.getEventType()) && !es1.getSenderLastVersion().equals(es2.getSenderLastVersion())) {
+                        throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                    }
+                }
         }
     }
 

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
@@ -22,7 +22,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecuti
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.sql.SQLException;
@@ -191,7 +190,7 @@ public class CourseExecutionService {
         CourseExecution newExecution = new CourseExecution(oldExecution);
         newExecution.findStudent(userAggregateId).anonymize();
         unitOfWork.registerChanged(newExecution);
-        unitOfWork.addEvent(new AnonymizeExecutionStudentEvent(userAggregateId, "ANONYMOUS", "ANONYMOUS", executionAggregateId));
+        unitOfWork.addEvent(new AnonymizeExecutionStudentEvent(executionAggregateId, "ANONYMOUS", "ANONYMOUS", userAggregateId));
     }
 
     /************************************************ EVENT PROCESSING ************************************************/

@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.UPDATE_QUESTION;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.UPDATE_QUESTION;
 
 @Entity
 @DiscriminatorValue(UPDATE_QUESTION)

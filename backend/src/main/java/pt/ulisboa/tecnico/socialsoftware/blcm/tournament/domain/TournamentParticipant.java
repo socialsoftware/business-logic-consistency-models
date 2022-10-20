@@ -50,6 +50,16 @@ public class TournamentParticipant {
         setState(AggregateState.ACTIVE);
     }
 
+    public TournamentParticipant(TournamentParticipant other) {
+        setAggregateId(other.getAggregateId());
+        setName(other.getName());
+        setUsername(other.getUsername());
+        setVersion(other.getVersion());
+        setAnswer(new TournamentParticipantAnswer(other.getAnswer()));
+        setEnrollTime(other.getEnrollTime());
+        setState(other.getState());
+    }
+
 
     public void answerQuiz() {
         this.answer.setAnswered(true);
@@ -189,6 +199,7 @@ public class TournamentParticipant {
                 }
             }
         }
+        // TODO in the end sync with the creator
     }
 
     @Override

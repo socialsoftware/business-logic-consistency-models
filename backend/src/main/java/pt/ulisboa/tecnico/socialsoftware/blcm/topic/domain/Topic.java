@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 
 import javax.persistence.*;
 import java.util.HashMap;
@@ -34,12 +35,9 @@ public class Topic extends Aggregate {
     }
 
     public Topic(Topic other) {
-        super(other.getAggregateId(), TOPIC);
+        super(other);
         setName(other.getName());
-        setCourse(other.getCourse());
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
-        setPrev(other);
+        setCourse(new TopicCourse(other.getCourse()));
     }
 
     @Override
@@ -53,7 +51,7 @@ public class Topic extends Aggregate {
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
+    public Set<EventSubscription> getEventSubscriptions() {
         return new HashSet<>();
     }
 

@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.course.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.*;
@@ -43,17 +44,13 @@ public class Course extends Aggregate {
     }
 
     public Course(Course other) {
-        super(other.getAggregateId(), COURSE);
-        setId(null);
+        super(other);
         this.name = other.getName();
         this.type = other.getType();
-        setPrev(other);
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
+    public Set<EventSubscription> getEventSubscriptions() {
         return new HashSet<>();
     }
 
@@ -89,4 +86,5 @@ public class Course extends Aggregate {
     public String getName() {
         return name;
     }
+
 }

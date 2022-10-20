@@ -1,15 +1,20 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
+import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.*;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.*;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /*
@@ -80,136 +85,19 @@ public class Quiz extends Aggregate {
     }
 
     public Quiz(Quiz other) {
-        super(other.getAggregateId(), QUIZ);
-        setId(null);
+        super(other);
         setQuizQuestions(other.getQuizQuestions());
-        this.courseExecution = other.getCourseExecution();
+        this.courseExecution = new QuizCourseExecution(other.getCourseExecution());
         setTitle(other.getTitle());
         this.creationDate = other.getCreationDate();
         setAvailableDate(other.getAvailableDate());
         setConclusionDate(other.getConclusionDate());
         setResultsDate(other.getResultsDate());
         setQuizType(other.getQuizType());
-        setQuizQuestions(new HashSet<>(other.getQuizQuestions()));
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
-        setPrev(other);
+        setQuizQuestions(other.getQuizQuestions().stream().map(QuizQuestion::new).collect(Collectors.toSet()));
     }
 
-    //@Override
-    /*public Aggregate merge(Aggregate other) {*/
-        /*
-            GENERATED_QUIZ
-                INCREMENTAL FIELDS: NONE
-            NON_GENERATED_QUIZ
-                INCREMENTAL FIELDS: NONE
-         */
-        /*if(getQuizType().equals(QuizType.GENERATED)) {
-            return mergeGenerated(other);
-        } else {
-            //mergeNormal(other);
-            return this;
-        }
-    }*/
 
-    /*private Aggregate mergeGenerated(Aggregate other) {
-        if(!(other instanceof Quiz)) {
-            throw new TutorException(ErrorMessage.QUIZ_MERGE_FAILURE, getAggregateId());
-        }
-        Quiz v2 = (Quiz)other;
-
-        if(getState() == DELETED) {
-            throw new TutorException(QUIZ_DELETED, getAggregateId());
-        }
-
-        if(v2.getState() == DELETED) {
-            throw new TutorException(QUIZ_DELETED, v2.getAggregateId());
-        }
-
-        Set<String> v1ChangedFields = getChangedFields((Quiz)getPrev(), this);
-        Set<String> v2ChangedFields = getChangedFields((Quiz)getPrev(), v2);
-
-        if (checkNonIncrementalChanges(v1ChangedFields, v2ChangedFields) || checkNonIncrementalChanges(v2ChangedFields, v1ChangedFields)) {
-            throw new TutorException(QUIZ_MERGE_FAILURE, getPrev().getAggregateId());
-        }
-
-        Quiz mergedQuiz = new Quiz(this);
-
-
-        // TODO refer in thesis we assign the prev of the current aggregate because we want to preserve it case another merge round is executed
-        // TODO once it's committed the prev is no longer relevant, because it will be other version will try to merge with this and that version contains its own prev
-        mergedQuiz.setPrev((Quiz)getPrev());
-
-        return mergedQuiz;
-    }*/
-
-    private Set<String> getChangedFields(Quiz prev, Quiz v) {
-        Set<String> v1ChangedFields = new HashSet<>();
-        /*if(!prev.getAvailableDate().equals(v.getAvailableDate())) {
-            v1ChangedFields.add("availableDate");
-        }
-
-        if(!prev.getConclusionDate().equals(v.getConclusionDate())) {
-            v1ChangedFields.add("conclusionDate");
-        }
-
-        if(!prev.getResultsDate().equals(v.getResultsDate())) {
-            v1ChangedFields.add("resultsDate");
-        }*/
-
-        /*if(!prev.getQuizQuestions().equals(v.getQuizQuestions())) {
-            v1ChangedFields.add("quizQuestions");
-        }*/
-
-        /*if(!prev.getTitle().equals(v.getTitle())) {
-            v1ChangedFields.add("title");
-        }*/
-
-        return v1ChangedFields;
-    }
-
-    /*private static boolean checkNonIncrementalChanges(Set<String> v1ChangedFields, Set<String> v2ChangedFields) {
-        if(v1ChangedFields.contains("availableDate")
-                && (v2ChangedFields.contains("availableDate") ||
-                v2ChangedFields.contains("conclusionDate") ||
-                v2ChangedFields.contains("resultsDate"))) {
-
-            return true;
-        }
-
-        if(v1ChangedFields.contains("conclusionDate")
-                && (v2ChangedFields.contains("availableDate") ||
-                v2ChangedFields.contains("conclusionDate") ||
-                v2ChangedFields.contains("resultsDate"))) {
-
-            return true;
-        }
-
-        if(v1ChangedFields.contains("resultsDate")
-                && (v2ChangedFields.contains("availableDate") ||
-                v2ChangedFields.contains("conclusionDate") ||
-                v2ChangedFields.contains("resultsDate"))) {
-
-            return true;
-        }
-
-        // TODO verify what to do with this
-        // TODO verify equals in tournament aggregate components
-        if(v1ChangedFields.contains("quizQuestions")
-                && (v2ChangedFields.contains("quizQuestions"))) {
-
-            return true;
-        }
-
-
-        if(v1ChangedFields.contains("title")
-                && (v2ChangedFields.contains("title"))) {
-
-            return true;
-        }
-
-        return false;
-    }*/
 
     public boolean invariantDateOrdering() {
         return getCreationDate().isBefore(getConclusionDate()) &&
@@ -226,13 +114,31 @@ public class Quiz extends Aggregate {
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return Set.of(REMOVE_COURSE_EXECUTION, UPDATE_QUESTION, REMOVE_QUESTION);
+    public Set<EventSubscription> getEventSubscriptions() {
+        Set<EventSubscription> eventSubscriptions = new HashSet<>();
+        if(getState() == ACTIVE) {
+            interInvariantCourseExecutionExists(eventSubscriptions);
+            interInvariantQuestionsExist(eventSubscriptions);
+        }
+        return eventSubscriptions;
     }
+
+    private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION));
+    }
+
+    private void interInvariantQuestionsExist(Set<EventSubscription> eventSubscriptions) {
+        for (QuizQuestion quizQuestion : this.quizQuestions) {
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), UPDATE_QUESTION));
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), REMOVE_QUESTION));
+        }
+    }
+
 
     @Override
     public Set<String> getFieldsChangedByFunctionalities() {
-        return Set.of("availableDate", "conclusionDate", "resultsDate", "quizQuestions");
+        // we dont add the courseExecution because it can only change through events and the only events that comes from it is the delete which deletes the quiz
+        return Set.of("availableDate", "conclusionDate", "resultsDate", "title" ,"quizQuestions");
     }
 
     @Override
@@ -245,7 +151,73 @@ public class Quiz extends Aggregate {
 
     @Override
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
-        return null;
+        Quiz committedQuiz = (Quiz) committedVersion;
+        Quiz mergedQuiz = new Quiz(this);
+
+        mergeAvailableDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
+        mergeConclusionDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
+        mergeResultsDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz)
+        mergeTitle(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
+        mergeQuizQuestions((Quiz)getPrev(), this, committedQuiz, mergedQuiz) ;
+        return mergedQuiz;
+    }
+
+    private void mergeAvailableDate(Set<String> toCommitVersionChangedFields, Quiz committedQuiz, Quiz mergedQuiz) {
+        if(toCommitVersionChangedFields.contains("availableDate")) {
+            mergedQuiz.setAvailableDate(getAvailableDate());
+        } else {
+            mergedQuiz.setAvailableDate(committedQuiz.getAvailableDate());
+        }
+    }
+
+    private void mergeConclusionDate(Set<String> toCommitVersionChangedFields, Quiz committedQuiz, Quiz mergedQuiz) {
+        if(toCommitVersionChangedFields.contains("conclusionDate")) {
+            mergedQuiz.setConclusionDate(getConclusionDate());
+        } else {
+            mergedQuiz.setConclusionDate(committedQuiz.getConclusionDate());
+        }
+    }
+
+    private void mergeResultsDate(Set<String> toCommitVersionChangedFields, Quiz committedQuiz, Quiz mergedQuiz) {
+        if(toCommitVersionChangedFields.contains("resultsDate")) {
+            mergedQuiz.setResultsDate(getResultsDate());
+        } else {
+            mergedQuiz.setResultsDate(committedQuiz.getResultsDate());
+        }
+    }
+
+    private void mergeTitle(Set<String> toCommitVersionChangedFields, Quiz committedQuiz, Quiz mergedQuiz) {
+        if(toCommitVersionChangedFields.contains("title")) {
+            mergedQuiz.setTitle(getTitle());
+        } else {
+            mergedQuiz.setTitle(committedQuiz.getTitle());
+        }
+    }
+    
+    private void mergeQuizQuestions(Quiz prev, Quiz toCommitQuiz, Quiz committedQuiz, Quiz mergedQuiz) {
+        Set<QuizQuestion> prevQuestionsPre = new HashSet<>(prev.getQuizQuestions());
+        Set<QuizQuestion> toCommitQuizQuestionsPre = new HashSet<>(toCommitQuiz.getQuizQuestions());
+        Set<QuizQuestion> committedQuizQuestionsPre = new HashSet<>(committedQuiz.getQuizQuestions());
+
+        QuizQuestion.syncQuestionVersions(prevQuestionsPre, toCommitQuizQuestionsPre, committedQuizQuestionsPre);
+
+        Set<QuizQuestion> prevQuestions = new HashSet<>(prevQuestionsPre);
+        Set<QuizQuestion> toCommitQuizQuestions = new HashSet<>(toCommitQuizQuestionsPre);
+        Set<QuizQuestion> committedQuizQuestions = new HashSet<>(committedQuizQuestionsPre);
+
+
+        Set<QuizQuestion> addedQuestions =  SetUtils.union(
+                SetUtils.difference(toCommitQuizQuestions, prevQuestions),
+                SetUtils.difference(committedQuizQuestions, prevQuestions)
+        );
+
+        Set<QuizQuestion> removedQuestions = SetUtils.union(
+                SetUtils.difference(prevQuestions, toCommitQuizQuestions),
+                SetUtils.difference(prevQuestions, committedQuizQuestions)
+        );
+
+        Set<QuizQuestion> mergedQuestions = SetUtils.union(SetUtils.difference(prevQuestions, removedQuestions), addedQuestions);
+        mergedQuiz.setQuizQuestions(mergedQuestions);
     }
 
     public LocalDateTime getCreationDate() {

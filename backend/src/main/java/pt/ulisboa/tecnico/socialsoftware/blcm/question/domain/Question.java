@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
 import javax.persistence.*;
@@ -8,9 +9,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.QUESTION;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.DELETE_TOPIC;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventType.UPDATE_TOPIC;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.DELETE_TOPIC;
+import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.UPDATE_TOPIC;
 
 /*
     INTRA-INVARIANTS:
@@ -36,10 +38,10 @@ public class Question extends Aggregate {
     @Embedded
     private QuestionCourse course;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<QuestionTopic> topics;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Option> options;
 
     public Question() {
@@ -64,17 +66,13 @@ public class Question extends Aggregate {
     }
 
     public Question(Question other) {
-        super(other.getAggregateId(), QUESTION);
-        setId(null);
+        super(other);
         setTitle(other.getTitle());
         setContent(other.getContent());
         setCreationDate(other.getCreationDate());
-        setCourse(other.getCourse());
-        setOptions(other.getOptions());
-        setTopics(new HashSet<>(other.getTopics()));
-        setProcessedEvents(new HashMap<>(other.getProcessedEvents()));
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
-        setPrev(other);
+        setCourse(new QuestionCourse(other.getCourse()));
+        setOptions(other.getOptions().stream().map(Option::new).collect(Collectors.toList()));
+        setTopics(other.getTopics().stream().map(QuestionTopic::new).collect(Collectors.toSet()));
     }
 
 
@@ -84,8 +82,20 @@ public class Question extends Aggregate {
     }
 
     @Override
-    public Set<String> getEventSubscriptions() {
-        return Set.of(UPDATE_TOPIC, DELETE_TOPIC);
+    public Set<EventSubscription> getEventSubscriptions() {
+        //return Set.of(UPDATE_TOPIC, DELETE_TOPIC);
+        Set<EventSubscription> eventSubscriptions = new HashSet<>();
+        if(getState() == ACTIVE) {
+            for (QuestionTopic topic : this.topics) {
+                interInvariantTopicsExist(eventSubscriptions, topic);
+            }
+        }
+        return eventSubscriptions;
+    }
+
+    private static void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions, QuestionTopic topic) {
+        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DELETE_TOPIC));
+        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UPDATE_TOPIC));
     }
 
     @Override

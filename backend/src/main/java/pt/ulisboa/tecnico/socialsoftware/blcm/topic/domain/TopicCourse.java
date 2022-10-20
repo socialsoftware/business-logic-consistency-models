@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 
 import javax.persistence.Column;
@@ -18,6 +19,11 @@ public class TopicCourse {
     public TopicCourse(CourseDto courseDto) {
         setAggregateId(courseDto.getAggregateId());
         setVersion(courseDto.getVersion());
+    }
+
+    public TopicCourse(TopicCourse other) {
+        setAggregateId(other.getAggregateId());
+        setVersion(other.getVersion());
     }
 
     public Integer getAggregateId() {

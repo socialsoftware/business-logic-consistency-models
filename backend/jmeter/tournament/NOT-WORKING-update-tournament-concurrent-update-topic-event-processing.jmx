@@ -1304,6 +1304,11 @@ END;</stringProp>
         <stringProp name="TestPlan.comments">This update is supposed to because it simulates a concurrent execution with the update above which changes non-incremental fields</stringProp>
       </ThreadGroup>
       <hashTree>
+        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
+          <stringProp name="ConstantTimer.delay">2000</stringProp>
+          <stringProp name="TestPlan.comments">This timer is necesary so the questions can process the event, when they are accessed to regenerate the quiz questions.</stringProp>
+        </ConstantTimer>
+        <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Requests" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>

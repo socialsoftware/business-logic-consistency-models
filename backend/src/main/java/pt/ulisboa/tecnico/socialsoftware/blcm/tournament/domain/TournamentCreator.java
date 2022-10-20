@@ -29,7 +29,12 @@ public class TournamentCreator {
         setVersion(version);
     }
 
-
+    public TournamentCreator(TournamentCreator other) {
+        setAggregateId(other.getAggregateId());
+        setName(other.getName());
+        setUsername(other.getUsername());
+        setVersion(other.getVersion());
+    }
 
     public Integer getAggregateId() {
         return aggregateId;

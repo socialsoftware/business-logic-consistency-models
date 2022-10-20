@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
 import java.util.Optional;
 import java.util.Set;
@@ -20,4 +21,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 
     @Query(value = "select q.aggregate_id from questions q, question_topics qt where q.aggregate_id NOT IN (select aggregate_id from questions where state = 'DELETED' OR state = 'INACTIVE') AND (q.id = qt.question_id AND qt.topic_aggregate_id = :topicAggregateId)", nativeQuery = true)
     Set<Integer> findAllAggregateIdsByTopic(Integer topicAggregateId);
+
+    @Query(value = "select * from questions q where q.aggregate_id = :aggregateId AND state = 'ACTIVE' AND q.version >= (select max(version) from questions)", nativeQuery = true)
+    Optional<Question> findLastQuestionVersion(Integer aggregateId);
 }

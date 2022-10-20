@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.AnswerService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
@@ -48,4 +49,29 @@ public class AnswerFunctionalities {
 
     }
 
+    /************************************************ EVENT PROCESSING ************************************************/
+
+    public void processRemoveUser(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing remove user %d event for answer %d\n", eventToProcess.getAggregateId(), aggregateId);
+        RemoveUserEvent removeUserEvent = (RemoveUserEvent) eventToProcess;
+        answerService.removeUser(aggregateId, removeUserEvent.getAggregateId(), removeUserEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processRemoveQuestion(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing remove question %d event for answer %d\n", eventToProcess.getAggregateId(), aggregateId);
+        RemoveQuestionEvent removeQuestionEvent = (RemoveQuestionEvent) eventToProcess;
+        answerService.removeQuestion(aggregateId, removeQuestionEvent.getAggregateId(), removeQuestionEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processUnenrollStudent(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing uneroll student from course execution %d event for answer %d\n", eventToProcess.getAggregateId(), aggregateId);
+        UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent = (UnerollStudentFromCourseExecutionEvent) eventToProcess;
+        answerService.removeUser(aggregateId, unerollStudentFromCourseExecutionEvent.getAggregateId(), unerollStudentFromCourseExecutionEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
 }

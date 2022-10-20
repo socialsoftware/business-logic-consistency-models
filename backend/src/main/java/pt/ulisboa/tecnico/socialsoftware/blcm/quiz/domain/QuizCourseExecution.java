@@ -22,6 +22,11 @@ public class QuizCourseExecution {
         setVersion(courseExecutionDto.getVersion());
     }
 
+    public QuizCourseExecution(QuizCourseExecution other) {
+        setAggregateId(other.getAggregateId());
+        setVersion(other.getVersion());
+    }
+
     public Integer getAggregateId() {
         return aggregateId;
     }

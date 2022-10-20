@@ -35,6 +35,15 @@ public class ExecutionStudent {
         setState(Aggregate.AggregateState.valueOf(userDto.getState()));
     }
 
+    public ExecutionStudent(ExecutionStudent other) {
+        setAggregateId(other.getAggregateId());
+        setVersion(other.getVersion());
+        setName(other.getName());
+        setUsername(other.getUsername());
+        setActive(other.isActive());
+        setState(other.getState());
+    }
+
     public void anonymize() {
         setName("ANONYMOUS");
         setUsername("ANONYMOUS");

@@ -38,6 +38,13 @@ public class TournamentTopic {
         setState(Aggregate.AggregateState.ACTIVE);
     }
 
+    public TournamentTopic(TournamentTopic other) {
+        setAggregateId(other.getAggregateId());
+        setVersion(other.getVersion());
+        setName(other.getName());
+        setCourseAggregateId(other.getCourseAggregateId());
+        setState(other.getState());
+    }
 
 
     public Integer getAggregateId() {

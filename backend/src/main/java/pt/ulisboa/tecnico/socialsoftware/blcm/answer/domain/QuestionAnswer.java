@@ -18,6 +18,8 @@ public class QuestionAnswer {
 
     private Integer questionAggregateId;
 
+    private Integer version;
+
     private Integer timeTaken;
 
     private Integer optionKey;
@@ -39,8 +41,9 @@ public class QuestionAnswer {
     }
 
     public QuestionAnswer(QuestionAnswerDto questionAnswerDto, QuestionDto questionDto) {
-        setOptionSequenceChoice(questionAnswerDto.getSequence());
         setQuestionAggregateId(questionAnswerDto.getQuestionAggregateId());
+        setVersion(questionDto.getVersion());
+        setOptionSequenceChoice(questionAnswerDto.getSequence());
         //setTimeTaken(questionAnswerDto.getTimeTaken());
         setOptionKey(questionAnswerDto.getOptionKey());
 
@@ -54,6 +57,15 @@ public class QuestionAnswer {
             }
         }
         setState(Aggregate.AggregateState.ACTIVE);
+    }
+
+    public QuestionAnswer(QuestionAnswer other) {
+        setQuestionAggregateId(other.getQuestionAggregateId());
+        setVersion(other.getVersion());
+        setOptionSequenceChoice(other.getOptionSequenceChoice());
+        setOptionKey(other.getOptionKey());
+        setCorrect(other.isCorrect());
+        setState(other.getState());
     }
 
     public Integer getOptionSequenceChoice() {
@@ -70,6 +82,14 @@ public class QuestionAnswer {
 
     public void setQuestionAggregateId(Integer questionId) {
         this.questionAggregateId = questionId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer questionVersion) {
+        this.version = questionVersion;
     }
 
     public Integer getTimeTaken() {

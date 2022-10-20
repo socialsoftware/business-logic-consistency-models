@@ -33,6 +33,15 @@ public class TournamentCourseExecution {
         setStatus(courseExecutionDto.getStatus());
     }
 
+    public TournamentCourseExecution(TournamentCourseExecution other) {
+        setAggregateId(other.getAggregateId());
+        setVersion(other.getVersion());
+        setCourseId(other.getCourseId());
+        setAcronym(other.getAcronym());
+        setStatus(other.getStatus());
+    }
+
+
     public Integer getAggregateId() {
         return aggregateId;
     }

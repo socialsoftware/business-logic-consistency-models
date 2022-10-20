@@ -19,14 +19,20 @@ public class QuestionTopic {
 
     private Aggregate.AggregateState state;
 
+    public QuestionTopic() {
+
+    }
+
     public QuestionTopic (TopicDto topicDto) {
         setAggregateId(topicDto.getAggregateId());
         setName(topicDto.getName());
         setVersion(topicDto.getVersion());
     }
 
-    public QuestionTopic() {
-
+    public QuestionTopic(QuestionTopic other) {
+        setAggregateId(other.getAggregateId());
+        setName(other.getName());
+        setVersion(other.getVersion());
     }
 
     public Integer getAggregateId() {
