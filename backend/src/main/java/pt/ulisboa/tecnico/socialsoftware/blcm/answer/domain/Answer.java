@@ -1,8 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
+import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -105,7 +108,68 @@ public class Answer extends Aggregate {
 
     @Override
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
-        return null;
+        Answer mergedAnswer = new Answer(this);
+        Answer committedAnswer = (Answer) committedVersion;
+        mergeUser(mergedAnswer, committedAnswer);
+        mergeQuiz(mergedAnswer, committedAnswer);
+        mergeAnswerDate(toCommitVersionChangedFields, mergedAnswer, committedAnswer);
+        mergeQuestionAnswers((Answer)getPrev(), this, committedAnswer, mergedAnswer);
+        return mergedAnswer;
+    }
+
+    private void mergeUser(Answer mergedAnswer, Answer committedAnswer) {
+        if(getUser().getVersion() >= committedAnswer.getUser().getVersion()) {
+            mergedAnswer.setUser(getUser());
+        } else {
+            mergedAnswer.setUser(committedAnswer.getUser());
+        }
+    }
+
+    private void mergeQuiz(Answer mergedAnswer, Answer committedAnswer) {
+        if(getQuiz().getVersion() >= committedAnswer.getQuiz().getVersion()) {
+            mergedAnswer.setQuiz(getQuiz());
+        } else {
+            mergedAnswer.setQuiz(committedAnswer.getQuiz());
+        }
+    }
+
+    private void mergeAnswerDate(Set<String> toCommitVersionChangedFields, Answer mergedAnswer, Answer committedAnswer) {
+        if(toCommitVersionChangedFields.contains("answerDate")) {
+            mergedAnswer.setAnswerDate(getAnswerDate());
+        } else {
+            mergedAnswer.setAnswerDate(committedAnswer.getAnswerDate());
+        }
+    }
+
+    private static void mergeQuestionAnswers(Answer prev, Answer v1, Answer v2, Answer mergedAnswer) {
+        /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
+         * of the base we choose. */
+
+        Set<QuestionAnswer> prevQuestionAnswersPre = new HashSet<>(prev.getQuestionAnswers());
+        Set<QuestionAnswer> v1QuestionAnswersPre = new HashSet<>(v1.getQuestionAnswers());
+        Set<QuestionAnswer> v2QuestionAnswersPre = new HashSet<>(v2.getQuestionAnswers());
+
+        /*is this necessary*/
+        //QuestionAnswer.syncQuestionVersions(prevQuestionAnswersPre, v1QuestionAnswersPre, v2QuestionAnswersPre);
+
+        Set<QuestionAnswer> prevQuestionAnswers = new HashSet<>(prevQuestionAnswersPre);
+        Set<QuestionAnswer> v1QuestionAnswers = new HashSet<>(v1QuestionAnswersPre);
+        Set<QuestionAnswer> v2QuestionAnswers = new HashSet<>(v2QuestionAnswersPre);
+
+
+        Set<QuestionAnswer> addedQuestionAnswers =  SetUtils.union(
+                SetUtils.difference(v1QuestionAnswers, prevQuestionAnswers),
+                SetUtils.difference(v2QuestionAnswers, prevQuestionAnswers)
+        );
+
+        Set<QuestionAnswer> removedQuestionAnswers = SetUtils.union(
+                SetUtils.difference(prevQuestionAnswers, v1QuestionAnswers),
+                SetUtils.difference(prevQuestionAnswers, v2QuestionAnswers)
+        );
+
+        Set<QuestionAnswer> mergedQuestionAnswers = SetUtils.union(SetUtils.difference(prevQuestionAnswers, removedQuestionAnswers), addedQuestionAnswers);
+        mergedAnswer.setQuestionAnswers(new ArrayList<>(mergedQuestionAnswers));
+
     }
 
     public LocalDateTime getCreationDate() {

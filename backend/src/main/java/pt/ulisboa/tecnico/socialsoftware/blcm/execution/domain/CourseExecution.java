@@ -1,10 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
+import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -99,8 +103,38 @@ public class CourseExecution extends Aggregate {
 
     @Override
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
-        return null;
+        CourseExecution mergedCourseExecution = new CourseExecution(this);
+        CourseExecution committedCourseExecution = (CourseExecution) committedVersion;
+        mergeQuizQuestions((CourseExecution) getPrev(), this, committedCourseExecution, mergedCourseExecution);
+        return mergedCourseExecution;
     }
+
+    private void mergeQuizQuestions(CourseExecution prev, CourseExecution toCommitQuiz, CourseExecution committedQuiz, CourseExecution mergedCourseExecution) {
+        Set<ExecutionStudent> prevStudentsPre = new HashSet<>(prev.getStudents());
+        Set<ExecutionStudent> toCommitStudentsPre = new HashSet<>(toCommitQuiz.getStudents());
+        Set<ExecutionStudent> committedStudentsPre = new HashSet<>(committedQuiz.getStudents());
+
+        ExecutionStudent.syncStudentVersions(prevStudentsPre, toCommitStudentsPre, committedStudentsPre);
+
+        Set<ExecutionStudent> prevStudents = new HashSet<>(prevStudentsPre);
+        Set<ExecutionStudent> toCommitQuizStudents = new HashSet<>(toCommitStudentsPre);
+        Set<ExecutionStudent> committedQuizStudents = new HashSet<>(committedStudentsPre);
+
+
+        Set<ExecutionStudent> addedStudents =  SetUtils.union(
+                SetUtils.difference(toCommitQuizStudents, prevStudents),
+                SetUtils.difference(committedQuizStudents, prevStudents)
+        );
+
+        Set<ExecutionStudent> removedStudents = SetUtils.union(
+                SetUtils.difference(prevStudents, toCommitQuizStudents),
+                SetUtils.difference(prevStudents, committedQuizStudents)
+        );
+
+        Set<ExecutionStudent> mergedStudents = SetUtils.union(SetUtils.difference(prevStudents, removedStudents), addedStudents);
+        mergedCourseExecution.setStudents(mergedStudents);
+    }
+
 
     public String getAcronym() {
         return acronym;

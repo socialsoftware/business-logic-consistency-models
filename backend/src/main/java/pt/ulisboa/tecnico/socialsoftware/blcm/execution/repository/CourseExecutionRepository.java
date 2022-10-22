@@ -14,8 +14,11 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface CourseExecutionRepository extends JpaRepository<CourseExecution, Integer> {
-    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version < :maxVersion AND ce.state != 'INACTIVE' AND ce.version >= (select max(version) from course_executions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version <= :maxVersion AND ce.state = 'ACTIVE' AND ce.version >= (select max(version) from course_executions where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
     Optional<CourseExecution> findCausal(Integer aggregateId, Integer maxVersion);
+
+    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version <= :maxVersion AND ce.version >= (select max(version) from course_executions where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
+    Optional<CourseExecution> findCausalInactiveIncluded(Integer aggregateId, Integer maxVersion);
 
     @Query(value = "select * from course_executions where id = (select max(id) from course_executions where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
     Optional<CourseExecution> findConcurrentVersions(Integer aggregateId, Integer version);

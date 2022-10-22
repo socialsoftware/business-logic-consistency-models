@@ -126,7 +126,7 @@ public class UnitOfWork {
                         Long numberOfEventsBetweenAggregates = allEvents.stream()
                                 .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
                                 .filter(event -> event.getType().equals(es1.getEventType()))
-                                .filter(event -> minVersion >= event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
+                                .filter(event -> minVersion < event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
                                 .count();
                         if(numberOfEventsBetweenAggregates > 0) {
                             throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());

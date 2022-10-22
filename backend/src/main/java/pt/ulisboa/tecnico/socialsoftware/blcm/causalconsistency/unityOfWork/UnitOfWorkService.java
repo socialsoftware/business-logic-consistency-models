@@ -72,7 +72,7 @@ public class UnitOfWorkService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public UnitOfWork createUnitOfWork() {
-        return new UnitOfWork(versionService.getVersionNumber());
+        return new UnitOfWork(versionService.getFreshVersionNumber());
     }
 
     @Retryable(
@@ -115,7 +115,7 @@ public class UnitOfWorkService {
                 // because there was a concurrent version we need to get a new version
                 // the service to get a new version must also increment it to guarantee two transactions do run with the same version number
                 // a number must be requested every time a concurrent version is detected
-                unitOfWork.setVersion(versionService.getVersionNumber());
+                unitOfWork.setVersion(versionService.getFreshVersionNumber());
             }
         }
 
@@ -128,10 +128,12 @@ public class UnitOfWorkService {
             }
         }
 
-        commitAllObjects(unitOfWork.getVersion(), modifiedAggregatesToCommit);
+
+        Integer commitVersion = versionService.getCommitVersionNumber(unitOfWork.getVersion());
+        commitAllObjects(commitVersion, modifiedAggregatesToCommit);
         unitOfWork.getEventsToEmit().forEach(e -> {
             /* this is so event detectors can compare this version to those of running transactions */
-            e.setAggregateVersion(unitOfWork.getVersion());
+            e.setAggregateVersion(commitVersion);
             eventRepository.save(e);
         });
     }

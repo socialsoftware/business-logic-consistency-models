@@ -204,12 +204,10 @@ public class CourseExecutionService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public CourseExecution removeUser(Integer executionAggregateId, Integer userAggregateId, Integer aggregateEventVersion, UnitOfWork unitOfWork) {
         CourseExecution oldExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
-        if(oldExecution != null && oldExecution.findStudent(userAggregateId).getAggregateId().equals(userAggregateId) && oldExecution.findStudent(userAggregateId).getVersion() >= aggregateEventVersion) {
-            return null;
-        }
         CourseExecution newExecution = new CourseExecution(oldExecution);
         newExecution.findStudent(userAggregateId).setState(INACTIVE);
         unitOfWork.registerChanged(newExecution);
+        unitOfWork.addEvent(new UnerollStudentFromCourseExecutionEvent(executionAggregateId, userAggregateId));
         return newExecution;
     }
 }

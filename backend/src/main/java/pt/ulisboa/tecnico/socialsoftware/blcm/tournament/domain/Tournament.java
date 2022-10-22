@@ -33,6 +33,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
         AFTER_END
         IS_CANCELED
         DELETE
+        CREATOR_PARTICIPANT_CONSISTENCY
     INTER-INVARIANTS:
         NUMBER_OF_QUESTIONS
         QUIZ_TOPICS
@@ -157,8 +158,8 @@ public class Tournament extends Aggregate {
         Set<EventSubscription> eventSubscriptions = new HashSet<>();
         if (this.getState() == ACTIVE) {
             interInvariantCourseExecutionExists(eventSubscriptions);
-            interInvariantCourseExecutionSameAsUsers(eventSubscriptions);
-            interInvariantUsersExist(eventSubscriptions);
+            interInvariantCreatorExists(eventSubscriptions);
+            interInvariantParticipantExists(eventSubscriptions);
             interInvariantQuizAnswersExist(eventSubscriptions);
             interInvariantTopicsExist(eventSubscriptions);
             interInvariantQuizExists(eventSubscriptions);
@@ -170,16 +171,13 @@ public class Tournament extends Aggregate {
         eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION));
     }
 
-    private void interInvariantCourseExecutionSameAsUsers(Set<EventSubscription> eventSubscriptions) {
+    private void interInvariantCreatorExists(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));    }
+
+    private void interInvariantParticipantExists(Set<EventSubscription> eventSubscriptions) {
         eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT));
         eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));
-    }
-
-    private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.creator.getAggregateId(), this.creator.getVersion(), REMOVE_USER));
-        for (TournamentParticipant participant : this.participants) {
-            eventSubscriptions.add(new EventSubscription(participant.getAggregateId(), participant.getVersion(), REMOVE_USER));
-        }
     }
 
     private void interInvariantQuizAnswersExist(Set<EventSubscription> eventSubscriptions) {
@@ -256,26 +254,43 @@ public class Tournament extends Aggregate {
     DELETE
 		this.state == DELETED => this.participants.empty
      */
-    private boolean deleteCondition() {
+    private boolean invariantDeleteCondition() {
         if(getState() == DELETED) {
             return getParticipants().size() == 0;
         }
         return true;
     }
 
+    /*
+        CREATOR_PARTICIPANT_CONSISTENCY
+     */
+
+    private boolean invariantCreatorParticipantConsistency() {
+        for(TournamentParticipant participant : this.participants) {
+            if(participant.getAggregateId().equals(this.creator.getAggregateId())) {
+                if(!participant.getVersion().equals(this.creator.getVersion())
+                        || !participant.getName().equals(this.creator.getName())
+                        || participant.getUsername().equals(this.creator.getUsername())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     @Override
     public void verifyInvariants() {
         if(!(/*invariantAnswerBeforeStart()
                 &&*/ invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
                 && invariantStartTimeBeforeEndTime()
-                && deleteCondition())) {
+                && invariantDeleteCondition()
+                && invariantCreatorParticipantConsistency())) {
             throw new TutorException(INVARIANT_BREAK, getAggregateId());
         }
     }
 
     public Set<String> getFieldsChangedByFunctionalities()  {
-        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants");
+        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants", "cancelled");
     }
 
     public Set<String[]> getIntentions() {
@@ -294,6 +309,10 @@ public class Tournament extends Aggregate {
         Tournament committedTournament = (Tournament) committedVersion;
         Tournament mergedTournament = new Tournament(this);
 
+        // merge of creator is built in the participants dont know yet
+        mergeCourseExecution(committedTournament, mergedTournament);
+        mergeQuiz(committedTournament, mergedTournament);
+        mergeCancelled(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeStartTime(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeEndTime(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeNumberOfQuestions(toCommitVersionChangedFields, committedTournament, mergedTournament);
@@ -301,6 +320,34 @@ public class Tournament extends Aggregate {
         mergeTopics((Tournament) getPrev(), this, committedTournament, mergedTournament);
 
         return mergedTournament;
+    }
+
+    private void mergeCourseExecution(Tournament committedTournament, Tournament mergedTournament) {
+        if(getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
+            mergedTournament.getCourseExecution().setVersion(getCourseExecution().getVersion());
+        } else {
+            mergedTournament.getCourseExecution().setVersion(committedTournament.getCourseExecution().getVersion());
+        }
+    }
+
+    private void mergeQuiz(Tournament committedTournament, Tournament mergedTournament) {
+        // The quiz aggregate id must be set in case the quiz has been regenerated due to the previous having been invalidated
+        if (getQuiz().getVersion() >= committedTournament.getQuiz().getVersion()) {
+            mergedTournament.getQuiz().setAggregateId(getQuiz().getAggregateId());
+            mergedTournament.getQuiz().setVersion(getQuiz().getVersion());
+        } else {
+            mergedTournament.getQuiz().setVersion(committedTournament.getQuiz().getAggregateId());
+            mergedTournament.getQuiz().setVersion(committedTournament.getQuiz().getVersion());
+        }
+
+    }
+
+    private void mergeCancelled(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
+        if(toCommitVersionChangedFields.contains("cancelled")) {
+            mergedTournament.setCancelled(isCancelled());
+        } else {
+            mergedTournament.setCancelled(committedTournament.isCancelled());
+        }
     }
 
     private void mergeNumberOfQuestions(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
@@ -327,7 +374,7 @@ public class Tournament extends Aggregate {
         }
     }
 
-    private static void mergeParticipants(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
+    private void mergeParticipants(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
         /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
         * of the base we choose. */
 
@@ -335,7 +382,7 @@ public class Tournament extends Aggregate {
         Set<TournamentParticipant> v1ParticipantsPre = new HashSet<>(v1.getParticipants());
         Set<TournamentParticipant> v2ParticipantsPre = new HashSet<>(v2.getParticipants());
 
-        TournamentParticipant.syncParticipantVersions(prevParticipantsPre, v1ParticipantsPre, v2ParticipantsPre);
+        TournamentParticipant.syncParticipantsVersions(prevParticipantsPre, v1ParticipantsPre, v2ParticipantsPre);
 
         Set<TournamentParticipant> prevParticipants = new HashSet<>(prevParticipantsPre);
         Set<TournamentParticipant> v1Participants = new HashSet<>(v1ParticipantsPre);
@@ -359,7 +406,7 @@ public class Tournament extends Aggregate {
 
 
 
-    private static void mergeTopics(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
+    private void mergeTopics(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
         /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
          * of the base we choose. */
 

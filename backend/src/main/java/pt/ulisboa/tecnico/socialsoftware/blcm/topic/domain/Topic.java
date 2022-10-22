@@ -67,7 +67,18 @@ public class Topic extends Aggregate {
 
     @Override
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
-        return null;
+        Topic mergedTopic = new Topic(this);
+        Topic committedTopic = (Topic) committedVersion;
+        mergeName(toCommitVersionChangedFields, mergedTopic, committedTopic);
+        return mergedTopic;
+    }
+
+    private void mergeName(Set<String> toCommitVersionChangedFields, Topic mergedTopic, Topic committedTopic) {
+        if(toCommitVersionChangedFields.contains("name")) {
+            mergedTopic.setName(getName());
+        } else {
+            mergedTopic.setName(committedTopic.getName());
+        }
     }
 
     public String getName() {

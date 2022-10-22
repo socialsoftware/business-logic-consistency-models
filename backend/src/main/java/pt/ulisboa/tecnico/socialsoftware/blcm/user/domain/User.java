@@ -130,7 +130,7 @@ public class User extends Aggregate {
 
     @Override
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
-        return null;
+        return this;
     }
 
 

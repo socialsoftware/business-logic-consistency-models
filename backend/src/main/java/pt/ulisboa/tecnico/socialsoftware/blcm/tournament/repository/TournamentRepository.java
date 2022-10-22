@@ -12,8 +12,11 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface TournamentRepository extends JpaRepository<Tournament, Integer> {
-    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND state != 'INACTIVE' AND t.version < :maxVersion AND t.version >= (select max(version) from tournaments where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND t.version <= :maxVersion AND t.state = 'ACTIVE' AND t.version >= (select max(version) from tournaments where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
     Optional<Tournament> findCausal(Integer aggregateId, Integer maxVersion);
+
+    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND t.version <= :maxVersion AND t.version >= (select max(version) from tournaments where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
+    Optional<Tournament> findCausalInactiveIncluded(Integer aggregateId, Integer maxVersion);
 
     @Query(value = "select * from tournaments where id = (select max(id) from tournaments where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
     Optional<Tournament> findConcurrentVersions(Integer aggregateId, Integer version);

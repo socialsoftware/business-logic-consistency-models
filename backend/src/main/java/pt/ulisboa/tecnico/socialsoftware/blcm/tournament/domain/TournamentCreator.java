@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.Column;
@@ -16,8 +17,11 @@ public class TournamentCreator {
     @Column(name = "creator_username")
     private String username;
 
-    @Column(name = "participant_version")
+    @Column(name = "creator_version")
     private Integer version;
+
+    @Column(name = "creator_state")
+    private Aggregate.AggregateState state;
 
     public TournamentCreator() {
 
@@ -66,6 +70,14 @@ public class TournamentCreator {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Aggregate.AggregateState getState() {
+        return state;
+    }
+
+    public void setState(Aggregate.AggregateState state) {
+        this.state = state;
     }
 
     public UserDto buildDto() {

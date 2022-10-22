@@ -6,6 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.util.Set;
 
 @Embeddable
 public class QuestionTopic {
@@ -73,6 +74,39 @@ public class QuestionTopic {
         dto.setName(this.name);
         dto.setVersion(this.version);
         return dto;
+    }
+
+    public static void syncTopicVersions(Set<QuestionTopic> prevTopics, Set<QuestionTopic> v1Topics, Set<QuestionTopic> v2Topics) {
+        for(QuestionTopic t1 : v1Topics) {
+            for(QuestionTopic t2 : v2Topics) {
+                if(t1.getAggregateId().equals(t2.getAggregateId())) {
+                    if(t1.getVersion() > t2.getVersion()) {
+                        t2.setVersion(t1.getVersion());
+                        t2.setName(t1.getName());
+                    }
+
+                    if(t2.getVersion() > t1.getVersion()) {
+                        t1.setVersion(t2.getVersion());
+                        t1.setName(t2.getName());
+                    }
+                }
+            }
+
+            // no need to check again because the prev does not contain any newer version than v1 an v2
+            for(QuestionTopic tp2 : prevTopics) {
+                if(t1.getAggregateId().equals(tp2.getAggregateId())) {
+                    if(t1.getVersion() > tp2.getVersion()) {
+                        tp2.setVersion(t1.getVersion());
+                        tp2.setName(t1.getName());
+                    }
+
+                    if(tp2.getVersion() > t1.getVersion()) {
+                        t1.setVersion(tp2.getVersion());
+                        t1.setName(tp2.getName());
+                    }
+                }
+            }
+        }
     }
 
     @Override

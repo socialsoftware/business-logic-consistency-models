@@ -1,16 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_UPDATE_TOURNAMENT;
 
 @Embeddable
 public class TournamentParticipant {
@@ -152,7 +147,7 @@ public class TournamentParticipant {
         return userDto;
     }
 
-    public static void syncParticipantVersions(Set<TournamentParticipant> prevParticipants, Set<TournamentParticipant> v1Participants, Set<TournamentParticipant> v2Participants) {
+    public static void syncParticipantsVersions(Set<TournamentParticipant> prevParticipants, Set<TournamentParticipant> v1Participants, Set<TournamentParticipant> v2Participants/*, TournamentCreator v1Creator, TournamentCreator v2Creator*/) {
         for(TournamentParticipant tp1 : v1Participants) {
             for(TournamentParticipant tp2 : v2Participants) {
                 if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
@@ -199,6 +194,12 @@ public class TournamentParticipant {
                 }
             }
         }
+
+
+
+        /*Integer maxCreatorVersion = Math.max(v1Creator.getVersion(), v2Creator.getVersion());
+        for()*/
+
         // TODO in the end sync with the creator
     }
 

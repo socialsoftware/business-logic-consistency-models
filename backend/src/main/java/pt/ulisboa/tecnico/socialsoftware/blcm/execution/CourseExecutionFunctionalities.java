@@ -38,15 +38,10 @@ public class CourseExecutionFunctionalities {
 
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-
         checkInput(courseExecutionDto);
-
         ExecutionCourse executionCourse = new ExecutionCourse(courseService.getAndOrCreateCourseRemote(courseExecutionDto, unitOfWork));
-
         CourseExecutionDto courseExecutionDto1 = courseExecutionService.createCourseExecution(courseExecutionDto, executionCourse, unitOfWork);
-
         unitOfWorkService.commit(unitOfWork);
-
         return courseExecutionDto1;
     }
 

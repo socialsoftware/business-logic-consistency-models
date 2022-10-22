@@ -102,39 +102,6 @@ public class TournamentEventDetection {
     }
 
     /*
-    CREATOR_EXISTS
-		this.creator.state != INACTIVE => EXISTS User(this.creator.id) && this.creator.username == User(this.creator.id).username && this.creator.name == User(this.creator.id).name
-    PARTICIPANT_EXISTS
-		Rule:
-			forall p : this.tournamentParticipants | p.state != INACTIVE => EXISTS User(p.id) && p.username == User(p.id).username && p.name == User(p.id).name
-		Events Subscribed:
-			anonymizeUser(user: User) {
-				p in this.participants | p.id == user.id
-					p.username = user.username
-					p.name = user.name
-					p.state = INACTIVE
-	*/
-
-    @Scheduled(fixedDelay = 1000)
-    public void detectRemoveUserEvents() {
-        Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
-        for (Integer aggregateId : tournamentAggregateIds) {
-            Optional<Tournament> tournamentOp = tournamentRepository.findLastTournamentVersion(aggregateId);
-            if (tournamentOp.isEmpty()) {
-                continue;
-            }
-            Tournament tournament = tournamentOp.get();
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(REMOVE_USER);
-            for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
-                for (Event eventToProcess : eventsToProcess) {
-                    tournamentFunctionalities.processRemoveUser(aggregateId, eventToProcess);
-                }
-            }
-        }
-    }
-
-    /*
         TOPIC_EXISTS
             t: this.tournamentTopics | t.state != INACTIVE => EXISTS Topic(t.id) && t.name == Topic(t.id).name
     */

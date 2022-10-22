@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.AnswerService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
@@ -25,6 +26,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -130,8 +132,7 @@ public class TournamentFunctionalities {
         Set<TournamentTopic> tournamentTopics = new HashSet<>();
         topicsAggregateIds.forEach(topicAggregateId -> {
             TopicDto topicDto = topicService.getCausalTopicRemote(topicAggregateId, unitOfWork);
-            tournamentTopics.add(new TournamentTopic(topicDto
-            ));
+            tournamentTopics.add(new TournamentTopic(topicDto));
         });
 
         TournamentDto newTournamentDto = tournamentService.updateTournament(tournamentDto, tournamentTopics, unitOfWork);
@@ -268,6 +269,16 @@ public class TournamentFunctionalities {
 
     public void processAnonymizeStudentEvent(Integer aggregateId, Event eventToProcess) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+
+        // TODO is this actually necessary? Dont think so can't anonymize a user if it doesnt exist in the current tournament version. Will do in the following.
+        /*Tournament tournament = tournamentService.getCausalTournamentLocal(aggregateId, unitOfWork);
+        Optional<EventSubscription> eventSubscriptionOp = tournament.getEventSubscriptionsByAggregateIdAndType(eventToProcess.getAggregateId(), eventToProcess.getType());
+        if(eventSubscriptionOp.isPresent()) {
+            if(eventSubscriptionOp.get().getSenderLastVersion() <= eventToProcess.getAggregateVersion()) {
+                return;
+            }
+        }*/
+
         System.out.printf("Processing anonymize a user for course execution %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
         AnonymizeExecutionStudentEvent anonymizeEvent = (AnonymizeExecutionStudentEvent) eventToProcess;
         tournamentService.anonymizeUser(aggregateId, anonymizeEvent.getUserAggregateId(), anonymizeEvent.getName(), anonymizeEvent.getUsername(), anonymizeEvent.getAggregateVersion(), unitOfWork);
@@ -282,13 +293,13 @@ public class TournamentFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public void processRemoveUser(Integer aggregateId, Event eventToProcess) {
+    /*public void processRemoveUser(Integer aggregateId, Event eventToProcess) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         System.out.printf("Processing remove user %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
         RemoveUserEvent removeUserEvent = (RemoveUserEvent) eventToProcess;
         tournamentService.removeUser(aggregateId, removeUserEvent.getAggregateId(), removeUserEvent.getAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
-    }
+    }*/
 
     public void processUpdateTopic (Integer aggregateId, Event eventToProcess){
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
@@ -318,7 +329,7 @@ public class TournamentFunctionalities {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         System.out.printf("Processing unenroll student %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
         UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent = (UnerollStudentFromCourseExecutionEvent) eventToProcess;
-        tournamentService.removeUser(aggregateId, unerollStudentFromCourseExecutionEvent.getAggregateId(), unerollStudentFromCourseExecutionEvent.getAggregateVersion(), unitOfWork);
+        tournamentService.removeUser(aggregateId, unerollStudentFromCourseExecutionEvent.getAggregateId(), unerollStudentFromCourseExecutionEvent.getUserAggregateId() ,unerollStudentFromCourseExecutionEvent.getAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 

@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.domain.Version;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.repository.VersionRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -20,27 +22,42 @@ public class VersionService {
     private VersionRepository versionRepository;
 
     /* cannot allow two transactions to get the same version number*/
+    // Get version number of new transaction which is the last version of the last committed transaction + 1.
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Integer getVersionNumber() {
-        Optional<Version> versionOp = versionRepository.findAll().stream().findFirst();
+    public Integer getFreshVersionNumber() {
+        //Optional<Version> versionOp = versionRepository.findAll().stream().findFirst();
+        Optional<Version> versionOp = versionRepository.findAll().stream().findAny();
         Version version;
-        if(versionOp.isEmpty()) {
+        if (versionOp.isEmpty()) {
             version = new Version();
             versionRepository.save(version);
         } else {
             version = versionOp.get();
         }
+        //version.incrementVersion();
+        return version.getVersionNumber();
+
+    }
+
+    // If a functionality has started and committed in the meanwhile this one will get a new version number to commit
+    // If non has committed in between we commit with the same version as the functionality started
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Integer getCommitVersionNumber(Integer currentCommitVersionNumber) {
+        Version version = versionRepository.findAll().stream().findAny().orElseThrow(() -> new TutorException(ErrorMessage.VERSION_MANAGER_DOES_NOT_EXIST));
+        /*if(currentCommitVersionNumber + 1 <= version.getVersionNumber()) {
+            version.incrementVersion();
+            versionRepository.save(version);
+            return version.getVersionNumber();
+        } else {
+            return version.getVersionNumber()+1;
+        }*/
         version.incrementVersion();
         return version.getVersionNumber();
     }
-
-    /*@Transactional
-    public void incrementVersionNumber() {
-        Version version = versionRepository.findAll().stream().findFirst().orElseThrow(() -> new TutorException(ErrorMessage.VERSION_MANAGER_DOES_NOT_EXIST));
-        version.incrementVersion();
-        versionRepository.save(version);
-    }*/
 }
