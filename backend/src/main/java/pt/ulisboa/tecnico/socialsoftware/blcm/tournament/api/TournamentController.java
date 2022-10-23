@@ -8,6 +8,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventDetection;
 
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,9 @@ public class TournamentController {
 
     @Autowired
     private TournamentFunctionalities tournamentFunctionalities;
+
+    @Autowired
+    private TournamentEventDetection tournamentEventDetection;
 
     @PostMapping(value = "/executions/{executionId}/tournaments/create")
     public TournamentDto createTournament(@RequestParam Integer userId, @PathVariable int executionId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
@@ -72,6 +76,12 @@ public class TournamentController {
     @GetMapping(value = "/tournaments/{tournamentAggregateId}/user/{userAggregateId}")
     public void getTournamentAndUser(@PathVariable Integer tournamentAggregateId, @PathVariable Integer userAggregateId) {
         tournamentFunctionalities.getTournamentAndUser(tournamentAggregateId, userAggregateId);
+    }
+
+    @PostMapping(value = "/tournament/process/anonymize")
+    public void processAnonymize() {
+        System.out.println("Direct anonymize");
+        tournamentEventDetection.detectAnonymizeStudentEvents();
     }
 
 

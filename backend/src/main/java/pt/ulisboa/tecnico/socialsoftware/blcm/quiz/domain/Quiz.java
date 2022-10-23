@@ -158,7 +158,7 @@ public class Quiz extends Aggregate {
         mergeConclusionDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
         mergeResultsDate(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
         mergeTitle(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
-        mergeQuizQuestions((Quiz)getPrev(), this, committedQuiz, mergedQuiz) ;
+        mergeQuizQuestions(toCommitVersionChangedFields, committedQuiz, mergedQuiz);
         return mergedQuiz;
     }
 
@@ -194,30 +194,12 @@ public class Quiz extends Aggregate {
         }
     }
     
-    private void mergeQuizQuestions(Quiz prev, Quiz toCommitQuiz, Quiz committedQuiz, Quiz mergedQuiz) {
-        Set<QuizQuestion> prevQuestionsPre = new HashSet<>(prev.getQuizQuestions());
-        Set<QuizQuestion> toCommitQuizQuestionsPre = new HashSet<>(toCommitQuiz.getQuizQuestions());
-        Set<QuizQuestion> committedQuizQuestionsPre = new HashSet<>(committedQuiz.getQuizQuestions());
-
-        QuizQuestion.syncQuestionVersions(prevQuestionsPre, toCommitQuizQuestionsPre, committedQuizQuestionsPre);
-
-        Set<QuizQuestion> prevQuestions = new HashSet<>(prevQuestionsPre);
-        Set<QuizQuestion> toCommitQuizQuestions = new HashSet<>(toCommitQuizQuestionsPre);
-        Set<QuizQuestion> committedQuizQuestions = new HashSet<>(committedQuizQuestionsPre);
-
-
-        Set<QuizQuestion> addedQuestions =  SetUtils.union(
-                SetUtils.difference(toCommitQuizQuestions, prevQuestions),
-                SetUtils.difference(committedQuizQuestions, prevQuestions)
-        );
-
-        Set<QuizQuestion> removedQuestions = SetUtils.union(
-                SetUtils.difference(prevQuestions, toCommitQuizQuestions),
-                SetUtils.difference(prevQuestions, committedQuizQuestions)
-        );
-
-        Set<QuizQuestion> mergedQuestions = SetUtils.union(SetUtils.difference(prevQuestions, removedQuestions), addedQuestions);
-        mergedQuiz.setQuizQuestions(mergedQuestions);
+    private void mergeQuizQuestions(Set<String> toCommitVersionChangedFields, Quiz committedQuiz, Quiz mergedQuiz) {
+        if(toCommitVersionChangedFields.contains("quizQuestions")) {
+            mergedQuiz.setQuizQuestions(getQuizQuestions().stream().map(QuizQuestion::new).collect(Collectors.toSet()));
+        } else {
+            mergedQuiz.setQuizQuestions(committedQuiz.getQuizQuestions().stream().map(QuizQuestion::new).collect(Collectors.toSet()));
+        }
     }
 
     public LocalDateTime getCreationDate() {

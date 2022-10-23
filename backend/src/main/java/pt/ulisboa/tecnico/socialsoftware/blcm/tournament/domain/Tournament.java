@@ -270,7 +270,7 @@ public class Tournament extends Aggregate {
             if(participant.getAggregateId().equals(this.creator.getAggregateId())) {
                 if(!participant.getVersion().equals(this.creator.getVersion())
                         || !participant.getName().equals(this.creator.getName())
-                        || participant.getUsername().equals(this.creator.getUsername())) {
+                        || !participant.getUsername().equals(this.creator.getUsername())) {
                     return false;
                 }
             }
@@ -317,7 +317,8 @@ public class Tournament extends Aggregate {
         mergeEndTime(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeNumberOfQuestions(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeParticipants((Tournament) getPrev(), this, committedTournament, mergedTournament);
-        mergeTopics((Tournament) getPrev(), this, committedTournament, mergedTournament);
+        //mergeTopics((Tournament) getPrev(), this, committedTournament, mergedTournament);
+        mergeTopics(toCommitVersionChangedFields, committedTournament, mergedTournament);
 
         return mergedTournament;
     }
@@ -406,32 +407,12 @@ public class Tournament extends Aggregate {
 
 
 
-    private void mergeTopics(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
-        /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
-         * of the base we choose. */
-
-        Set<TournamentTopic> prevTopicsPre = new HashSet<>(prev.getTopics());
-        Set<TournamentTopic> v1TopicsPre = new HashSet<>(v1.getTopics());
-        Set<TournamentTopic> v2TopicsPre = new HashSet<>(v2.getTopics());
-
-        TournamentTopic.syncTopicVersions(prevTopicsPre, v1TopicsPre, v2TopicsPre);
-
-        Set<TournamentTopic> prevTopics = new HashSet<>(prevTopicsPre);
-        Set<TournamentTopic> v1Topics = new HashSet<>(v1TopicsPre);
-        Set<TournamentTopic> v2Topics = new HashSet<>(v2TopicsPre);
-
-        Set<TournamentTopic> addedTopics =  SetUtils.union(
-                SetUtils.difference(v1Topics, prevTopics),
-                SetUtils.difference(v2Topics, prevTopics)
-        );
-
-        Set<TournamentTopic> removedTopics = SetUtils.union(
-                SetUtils.difference(prevTopics, v1Topics),
-                SetUtils.difference(prevTopics, v2Topics)
-        );
-
-        Set<TournamentTopic> mergedTopics = SetUtils.union(SetUtils.difference(prevTopics, removedTopics), addedTopics);
-        mergedTournament.setTopics(mergedTopics);
+    private void mergeTopics(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
+        if(toCommitVersionChangedFields.contains("topics")) {
+            mergedTournament.setTopics(getTopics().stream().map(TournamentTopic::new).collect(Collectors.toSet()));
+        } else {
+            mergedTournament.setTopics(committedTournament.getTopics().stream().map(TournamentTopic::new).collect(Collectors.toSet()));
+        }
     }
 
 

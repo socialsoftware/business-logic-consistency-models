@@ -56,7 +56,7 @@ public class TournamentEventDetection {
 					p.state = INACTIVE
 	*/
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 10000)
     public void detectAnonymizeStudentEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {

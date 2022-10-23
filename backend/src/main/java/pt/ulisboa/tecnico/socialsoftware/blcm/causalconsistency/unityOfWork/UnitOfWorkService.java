@@ -72,7 +72,9 @@ public class UnitOfWorkService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public UnitOfWork createUnitOfWork() {
-        return new UnitOfWork(versionService.getFreshVersionNumber());
+        Integer readVersionNumber = versionService.getFreshVersionNumber();
+        Integer commitVersionNumber = readVersionNumber;
+        return new UnitOfWork(readVersionNumber, commitVersionNumber);
     }
 
     @Retryable(
@@ -81,6 +83,7 @@ public class UnitOfWorkService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void commit(UnitOfWork unitOfWork) {
         boolean concurrentAggregates = true;
+        boolean atLeastOneConcurrent = false;
 
         // STEP 1 check whether any of the aggregates to write have concurrent versions
         // STEP 2 if so perform any merges necessary
@@ -115,7 +118,8 @@ public class UnitOfWorkService {
                 // because there was a concurrent version we need to get a new version
                 // the service to get a new version must also increment it to guarantee two transactions do run with the same version number
                 // a number must be requested every time a concurrent version is detected
-                unitOfWork.setVersion(versionService.getFreshVersionNumber());
+                atLeastOneConcurrent = true;
+                unitOfWork.setVersion(versionService.getCommitVersionNumber(unitOfWork.getVersion()));
             }
         }
 
@@ -128,8 +132,12 @@ public class UnitOfWorkService {
             }
         }
 
-
-        Integer commitVersion = versionService.getCommitVersionNumber(unitOfWork.getVersion());
+        Integer commitVersion;
+        if(!atLeastOneConcurrent) {
+            commitVersion = versionService.getCommitVersionNumber(unitOfWork.getVersion());
+        } else {
+            commitVersion = unitOfWork.getVersion();
+        }
         commitAllObjects(commitVersion, modifiedAggregatesToCommit);
         unitOfWork.getEventsToEmit().forEach(e -> {
             /* this is so event detectors can compare this version to those of running transactions */
