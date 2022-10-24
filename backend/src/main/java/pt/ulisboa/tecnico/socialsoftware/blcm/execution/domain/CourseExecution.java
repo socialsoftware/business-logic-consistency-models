@@ -26,6 +26,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.uti
         REMOVE_NO_STUDENTS
         REMOVE_COURSE_IS_VALID
         ALL_STUDENTS_ARE_ACTIVE
+        CANNOT_REMOVE_IF_STUDENTS
     INTER-INVARIANTS
         USER_EXISTS
         COURSE_EXISTS (does it count? course doesn't send events)
@@ -208,6 +209,9 @@ public class CourseExecution extends Aggregate {
 
     @Override
     public void remove() {
+        /*
+            CANNOT_REMOVE_IF_STUDENTS
+         */
         if(getStudents().size() > 0) {
             super.remove();
         } else {

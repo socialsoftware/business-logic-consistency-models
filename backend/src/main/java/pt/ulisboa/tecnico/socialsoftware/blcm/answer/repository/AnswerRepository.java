@@ -14,10 +14,10 @@ import java.util.Set;
 @Transactional
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
-    @Query(value = "select * from answers a where a.aggregate_id = :aggregateId AND a.version <= :maxVersion AND state = 'ACTIVE' AND a.version >= (select max(version) from answers where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from answers a where a.aggregate_id = :aggregateId AND a.version < :maxVersion AND state = 'ACTIVE' AND a.version >= (select max(version) from answers where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Answer> findCausal(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from answers a where a.aggregate_id = :aggregateId AND a.version <= :maxVersion AND a.version >= (select max(version) from answers where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from answers a where a.aggregate_id = :aggregateId AND a.version < :maxVersion AND a.version >= (select max(version) from answers where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Answer> findCausalInactiveIncluded(Integer aggregateId, Integer maxVersion);
 
     @Query(value = "select * from answers q where q.quiz_aggregate_id = :quizAggregateId AND q.user_aggregate_id = :userAggregateId AND q.version < :maxVersion AND  q.version >= (select max(version) from answers where q.quiz_aggregate_id = :quizAggregateId AND q.user_aggregate_id = :userAggregateId AND version < :maxVersion)", nativeQuery = true)

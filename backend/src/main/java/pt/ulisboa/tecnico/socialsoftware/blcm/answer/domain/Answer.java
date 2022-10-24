@@ -4,8 +4,6 @@ import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -82,7 +80,7 @@ public class Answer extends Aggregate {
         Set<EventSubscription> eventSubscriptions = new HashSet<>();
         if(getState() == ACTIVE) {
             interInvariantUserExists(eventSubscriptions);
-            interInvariantQuizCourseExecutionSameAsUSers(eventSubscriptions);
+            interInvariantQuizCourseExecutionSameAsUsers(eventSubscriptions);
         }
         return eventSubscriptions;
 
@@ -92,7 +90,7 @@ public class Answer extends Aggregate {
         eventSubscriptions.add(new EventSubscription(this.user.getAggregateId(), this.user.getVersion(), REMOVE_USER));
     }
 
-    private void interInvariantQuizCourseExecutionSameAsUSers(Set<EventSubscription> eventSubscriptions) {
+    private void interInvariantQuizCourseExecutionSameAsUsers(Set<EventSubscription> eventSubscriptions) {
         eventSubscriptions.add(new EventSubscription(this.quiz.getCourseExecution().getAggregateId(), this.quiz.getCourseExecution().getVersion(), UNENROLL_STUDENT));
     }
 

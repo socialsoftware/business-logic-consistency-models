@@ -11,10 +11,10 @@ import java.util.Optional;
 @Repository
 @Transactional
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    @Query(value = "select * from courses c where c.aggregate_id = :aggregateId AND c.version <= :maxVersion AND c.state = 'ACTIVE' AND c.version >= (select max(version) from courses where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from courses c where c.aggregate_id = :aggregateId AND c.version < :maxVersion AND c.state = 'ACTIVE' AND c.version >= (select max(version) from courses where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Course> findCausal(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from courses c where c.aggregate_id = :aggregateId AND c.version <= :maxVersion AND c.version >= (select max(version) from courses where aggregate_id = :aggregateId AND version <= :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from courses c where c.aggregate_id = :aggregateId AND c.version < :maxVersion AND c.version >= (select max(version) from courses where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Course> findCausalInactiveIncluded(Integer aggregateId, Integer maxVersion);
 
     @Query(value = "select * from courses where id = (select max(id) from courses where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)

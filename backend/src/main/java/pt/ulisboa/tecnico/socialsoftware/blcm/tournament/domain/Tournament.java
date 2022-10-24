@@ -310,6 +310,7 @@ public class Tournament extends Aggregate {
         Tournament mergedTournament = new Tournament(this);
 
         // merge of creator is built in the participants dont know yet
+        mergeCreator(committedTournament, mergedTournament);
         mergeCourseExecution(committedTournament, mergedTournament);
         mergeQuiz(committedTournament, mergedTournament);
         mergeCancelled(toCommitVersionChangedFields, committedTournament, mergedTournament);
@@ -321,6 +322,18 @@ public class Tournament extends Aggregate {
         mergeTopics(toCommitVersionChangedFields, committedTournament, mergedTournament);
 
         return mergedTournament;
+    }
+
+    private void mergeCreator(Tournament committedTournament, Tournament mergedTournament) {
+        if(getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
+            mergedTournament.getCreator().setName(getCreator().getName());
+            mergedTournament.getCreator().setUsername(getCreator().getUsername());
+            mergedTournament.getCreator().setVersion(getCreator().getVersion());
+        } else {
+            mergedTournament.getCreator().setName(committedTournament.getCreator().getName());
+            mergedTournament.getCreator().setUsername(committedTournament.getCreator().getUsername());
+            mergedTournament.getCreator().setVersion(committedTournament.getCreator().getVersion());
+        }
     }
 
     private void mergeCourseExecution(Tournament committedTournament, Tournament mergedTournament) {

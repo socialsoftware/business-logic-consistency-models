@@ -27,7 +27,7 @@ public class UnitOfWork {
 
     }
 
-    public UnitOfWork(Integer version, Integer commitVersionNumber) {
+    public UnitOfWork(Integer version) {
         this.aggregateToCommit = new HashMap<>();
         this.eventsToEmit = new HashSet<>();
         this.causalSnapshot = new HashMap<>();

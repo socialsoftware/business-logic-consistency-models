@@ -72,9 +72,8 @@ public class UnitOfWorkService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public UnitOfWork createUnitOfWork() {
-        Integer readVersionNumber = versionService.getFreshVersionNumber();
-        Integer commitVersionNumber = readVersionNumber;
-        return new UnitOfWork(readVersionNumber, commitVersionNumber);
+        Integer lastCommittedAggregateVersionNumber = versionService.getVersionNumber();
+        return new UnitOfWork(lastCommittedAggregateVersionNumber+1);
     }
 
     @Retryable(
@@ -83,7 +82,6 @@ public class UnitOfWorkService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void commit(UnitOfWork unitOfWork) {
         boolean concurrentAggregates = true;
-        boolean atLeastOneConcurrent = false;
 
         // STEP 1 check whether any of the aggregates to write have concurrent versions
         // STEP 2 if so perform any merges necessary
@@ -118,8 +116,7 @@ public class UnitOfWorkService {
                 // because there was a concurrent version we need to get a new version
                 // the service to get a new version must also increment it to guarantee two transactions do run with the same version number
                 // a number must be requested every time a concurrent version is detected
-                atLeastOneConcurrent = true;
-                unitOfWork.setVersion(versionService.getCommitVersionNumber(unitOfWork.getVersion()));
+                unitOfWork.setVersion(versionService.incrementAndGetVersionNumber());
             }
         }
 
@@ -133,8 +130,8 @@ public class UnitOfWorkService {
         }
 
         Integer commitVersion;
-        if(!atLeastOneConcurrent) {
-            commitVersion = versionService.getCommitVersionNumber(unitOfWork.getVersion());
+        if(versionService.getVersionNumber() < unitOfWork.getVersion()) {
+            commitVersion = versionService.incrementAndGetVersionNumber();
         } else {
             commitVersion = unitOfWork.getVersion();
         }

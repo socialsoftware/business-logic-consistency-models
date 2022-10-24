@@ -27,7 +27,7 @@ public class VersionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Integer getFreshVersionNumber() {
+    public Integer getVersionNumber() {
         //Optional<Version> versionOp = versionRepository.findAll().stream().findFirst();
         Optional<Version> versionOp = versionRepository.findAll().stream().findAny();
         Version version;
@@ -48,7 +48,7 @@ public class VersionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Integer getCommitVersionNumber(Integer currentCommitVersionNumber) {
+    public Integer incrementAndGetVersionNumber() {
         Version version = versionRepository.findAll().stream().findAny().orElseThrow(() -> new TutorException(ErrorMessage.VERSION_MANAGER_DOES_NOT_EXIST));
         /*if(currentCommitVersionNumber + 1 <= version.getVersionNumber()) {
             version.incrementVersion();

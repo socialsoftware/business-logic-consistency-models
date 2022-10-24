@@ -42,13 +42,13 @@ public class Quiz extends Aggregate {
     private final LocalDateTime creationDate;
 
     @Column(name = "available_date")
-    private LocalDateTime availableDate; // changes
+    private LocalDateTime availableDate;
 
     @Column(name = "conclusion_date")
-    private LocalDateTime conclusionDate; // changes
+    private LocalDateTime conclusionDate;
 
     @Column(name = "results_date")
-    private LocalDateTime resultsDate; // changes
+    private LocalDateTime resultsDate;
 
     @Column(nullable = false)
     private String title = "Title";
