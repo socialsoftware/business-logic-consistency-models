@@ -3,10 +3,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import java.util.*;
 
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_MODIFY_INACTIVE_AGGREGATE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
 
 
@@ -17,7 +19,9 @@ public class UnitOfWork {
 
     private Integer version;
 
-    private Map<Integer, Aggregate> aggregateToCommit;
+    private Map<Integer, Aggregate> aggregatesToCommit;
+
+    private Set<Aggregate> aggregatesToDelete;
 
     private Set<Event> eventsToEmit;
 
@@ -28,7 +32,8 @@ public class UnitOfWork {
     }
 
     public UnitOfWork(Integer version) {
-        this.aggregateToCommit = new HashMap<>();
+        this.aggregatesToCommit = new HashMap<>();
+        this.aggregatesToDelete = new HashSet<>();
         this.eventsToEmit = new HashSet<>();
         this.causalSnapshot = new HashMap<>();
         setVersion(version);
@@ -51,19 +56,29 @@ public class UnitOfWork {
         this.version = version;
     }
 
-    public Collection<Aggregate> getAggregateToCommit() {
-        return aggregateToCommit.values();
-    }
-
     public Map<Integer, Aggregate> getAggregatesToCommit() {
-        return aggregateToCommit;
+        return aggregatesToCommit;
     }
 
 
     public void registerChanged(Aggregate aggregate) {
-        // the id to null is to force a new entry in the db
+        if(aggregate.getState() == Aggregate.AggregateState.INACTIVE) {
+            throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregate.getAggregateId());
+        }
+        // the id set to null to force a new entry in the db
         aggregate.setId(null);
-        this.aggregateToCommit.put(aggregate.getAggregateId(), aggregate);
+        this.aggregatesToCommit.put(aggregate.getAggregateId(), aggregate);
+    }
+
+    public Set<Aggregate> getAggregatesToDelete() {
+        return aggregatesToDelete;
+    }
+
+    public void registerForDeletion(Aggregate aggregate) {
+        if(aggregate.getState() == Aggregate.AggregateState.INACTIVE) {
+            throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregate.getAggregateId());
+        }
+        this.aggregatesToDelete.add(aggregate);
     }
 
     public Set<Event> getEventsToEmit() {

@@ -93,7 +93,8 @@ public enum ErrorMessage {
     NO_PRIMARY_AGGREGATE_FOUND("No primary aggregate was found within the transactional context."),
     TOO_MANY_PRIMARY_AGGREGATE_FOUND("More than one primary aggregates were found within the transactional context"),
     INVARIANT_BREAK("Aggregate %d breaks invariants"),
-    INVALID_EVENT_TYPE("Invalid event type %s.");
+    INVALID_EVENT_TYPE("Invalid event type %s."),
+    CANNOT_MODIFY_INACTIVE_AGGREGATE("Cannot update aggregate %d because it is INACTIVE.");
 
     public final String label;
 
