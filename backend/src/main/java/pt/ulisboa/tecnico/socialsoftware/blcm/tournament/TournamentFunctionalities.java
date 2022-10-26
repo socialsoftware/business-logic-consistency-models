@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.AnswerService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.service.TopicService;
@@ -26,13 +24,11 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.Role.STUDENT;
 
 @Service
 public class TournamentFunctionalities {
@@ -341,11 +337,11 @@ public class TournamentFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public void processUpdateExecutionStudentEvent(Integer aggregateId, Event eventToProcess) {
+    public void processUpdateExecutionStudentNameEvent(Integer aggregateId, Event eventToProcess) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         System.out.printf("Processing update execution student name of execution %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
-        UpdateExecutionStudentName updateExecutionStudentName = (UpdateExecutionStudentName) eventToProcess;
-        tournamentService.updateUserName(aggregateId, updateExecutionStudentName.getAggregateId(), updateExecutionStudentName.getAggregateVersion(), updateExecutionStudentName.getUserAggregateId(), updateExecutionStudentName.getName(), unitOfWork);
+        UpdateExecutionStudentNameEvent updateExecutionStudentNameEvent = (UpdateExecutionStudentNameEvent) eventToProcess;
+        tournamentService.updateUserName(aggregateId, updateExecutionStudentNameEvent.getAggregateId(), updateExecutionStudentNameEvent.getAggregateVersion(), updateExecutionStudentNameEvent.getUserAggregateId(), updateExecutionStudentNameEvent.getName(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 }

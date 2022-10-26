@@ -204,7 +204,7 @@ public class CourseExecutionService {
         CourseExecution newExecution = new CourseExecution(oldExecution);
         newExecution.findStudent(userAggregateId).setName(name);
         unitOfWork.registerChanged(newExecution);
-        unitOfWork.addEvent(new UpdateExecutionStudentName(executionAggregateId, userAggregateId, name));
+        unitOfWork.addEvent(new UpdateExecutionStudentNameEvent(executionAggregateId, userAggregateId, name));
     }
 
 

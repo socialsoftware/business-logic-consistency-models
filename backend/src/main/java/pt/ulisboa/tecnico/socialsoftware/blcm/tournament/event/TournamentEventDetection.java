@@ -6,14 +6,9 @@ import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.service.TournamentService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -206,7 +201,7 @@ public class TournamentEventDetection {
     }
 
     @Scheduled(fixedDelay = 10000)
-    public void detectUpdateExecutionStudentEvent() {
+    public void detectUpdateExecutionStudentNameEvent() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
             Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
@@ -217,7 +212,7 @@ public class TournamentEventDetection {
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
                 for (Event eventToProcess : eventsToProcess) {
-                    tournamentFunctionalities.processUpdateExecutionStudentEvent(aggregateId, eventToProcess);
+                    tournamentFunctionalities.processUpdateExecutionStudentNameEvent(aggregateId, eventToProcess);
                 }
             }
         }

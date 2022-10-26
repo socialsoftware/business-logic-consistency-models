@@ -172,15 +172,18 @@ public class Tournament extends Aggregate {
     }
 
     private void interInvariantCreatorExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, this.creator.getAggregateId()));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, this.creator.getAggregateId()));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, this.creator.getAggregateId()));
     }
 
     private void interInvariantParticipantExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME));
+        for(TournamentParticipant participant : this.participants) {
+            eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, participant.getAggregateId()));
+            eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, participant.getAggregateId()));
+            eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, participant.getAggregateId()));
+        }
+
     }
 
     private void interInvariantQuizAnswersExist(Set<EventSubscription> eventSubscriptions) {
@@ -624,5 +627,9 @@ public class Tournament extends Aggregate {
                 .filter(t -> topicAggregateId.equals(t.getAggregateId()))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void removeTopic(TournamentTopic tournamentTopic) {
+        this.topics.remove(tournamentTopic);
     }
 }

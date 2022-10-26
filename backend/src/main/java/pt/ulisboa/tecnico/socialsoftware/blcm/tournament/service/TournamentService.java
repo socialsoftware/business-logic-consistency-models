@@ -298,17 +298,18 @@ public class TournamentService {
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
+            newTournament.getCourseExecution().setVersion(eventVersion);
+            unitOfWork.registerChanged(newTournament);
         }
 
         for(TournamentParticipant tp : newTournament.getParticipants()) {
             if(tp.getAggregateId().equals(userAggregateId)) {
                 tp.setName(name);
                 tp.setUsername(username);
+                newTournament.getCourseExecution().setVersion(eventVersion);
+                unitOfWork.registerChanged(newTournament);
             }
         }
-
-        newTournament.getCourseExecution().setVersion(eventVersion);
-        unitOfWork.registerChanged(newTournament);
 
         return newTournament;
     }
@@ -392,8 +393,7 @@ public class TournamentService {
         if(tournamentTopic == null) {
             throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, topicAggregateId, tournamentAggregateId);
         }
-        tournamentTopic.setState(INACTIVE);
-        tournamentTopic.setVersion(eventVersion);
+        newTournament.removeTopic(tournamentTopic);
         QuizDto quizDto = new QuizDto();
         quizDto.setAggregateId(newTournament.getQuiz().getAggregateId());
         quizDto.setAvailableDate(newTournament.getStartTime().toString());
@@ -479,15 +479,16 @@ public class TournamentService {
 
         if (newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.getCreator().setName(name);
-
+            newTournament.getCourseExecution().setVersion(eventVersion);
+            unitOfWork.registerChanged(newTournament);
         }
 
         for (TournamentParticipant tp : newTournament.getParticipants()) {
             if(tp.getAggregateId().equals(userAggregateId)) {
                 tp.setName(name);
+                newTournament.getCourseExecution().setVersion(eventVersion);
+                unitOfWork.registerChanged(newTournament);
             }
         }
-        newTournament.getCourseExecution().setVersion(eventVersion);
-        unitOfWork.registerChanged(newTournament);
     }
 }

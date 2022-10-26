@@ -7,6 +7,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_MODIFY_INACTIVE_AGGREGATE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
@@ -77,39 +78,44 @@ public class UnitOfWork {
     }
 
     public void addToCausalSnapshot(Aggregate aggregate, List<Event> allEvents) {
-        verifyProcessedEventsByAggregate(aggregate);
-        verifyEmittedEventsByAggregate(aggregate);
+        verifyProcessedEventsByAggregate(aggregate, allEvents);
+        verifyEmittedEventsByAggregate(aggregate, allEvents);
         verifySameProcessedEvents(aggregate, allEvents);
         addAggregateToSnapshot(aggregate);
     }
 
-    private void verifyProcessedEventsByAggregate(Aggregate aggregate) {
+    private void verifyProcessedEventsByAggregate(Aggregate aggregate, List<Event> allEvents) {
         for (EventSubscription es : aggregate.getEventSubscriptions()) {
             for (Aggregate snapshotAggregate : this.causalSnapshot.values()) {
-                if (es.getSenderAggregateId().equals(snapshotAggregate.getAggregateId())) {
-                    if(!es.getSenderLastVersion().equals(snapshotAggregate.getVersion())) {
-                        Map<String, Integer> snapshotAggregateEmittedEvents = snapshotAggregate.getEmittedEvents();
-                        if (snapshotAggregateEmittedEvents.containsKey(es.getEventType()) && snapshotAggregateEmittedEvents.get(es.getEventType()) > es.getSenderLastVersion()) {
-                            throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
-                        }
+                List<Event> snapshotAggregateEmittedEvents = allEvents.stream()
+                        .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
+                        .filter(e -> e.getType().equals(es.getEventType()))
+                        .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
+                        .collect(Collectors.toList());
+                // snapshotAggregateEmittedEvents is a list of emitted events of the same type of the current sub emitted
+                // by the current snapshot aggregate emitted after the version of the current subscription
+
+                // if there are events in those situations we verify whether they are relevant or not for the subscription
+                for(Event snapshotAggregateEmittedEvent : snapshotAggregateEmittedEvents) {
+                    if(es.conformsToEvent(snapshotAggregateEmittedEvent)) {
+                        throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
                     }
-                    // if event version equals aggregate in snapshot version  OK
-                    // else get all events of type for aggregate id which is higher than subscribed version and lower or equal than aggregate in snapshot version
-                    // confirm that these events are processed
                 }
             }
         }
     }
 
-    private void verifyEmittedEventsByAggregate(Aggregate aggregate) {
-        Map<String, Integer> aggregateEmittedEvents = aggregate.getEmittedEvents();
+    private void verifyEmittedEventsByAggregate(Aggregate aggregate, List<Event> allEvents) {
         for (Aggregate snapshotAggregate : this.causalSnapshot.values()) {
             for (EventSubscription es : snapshotAggregate.getEventSubscriptions()) {
-                if (es.getSenderAggregateId().equals(aggregate.getAggregateId())) {
-                    if(!es.getSenderLastVersion().equals(snapshotAggregate.getVersion())) {
-                        if (aggregateEmittedEvents.containsKey(es.getEventType()) && aggregateEmittedEvents.get(es.getEventType()) > es.getSenderLastVersion()) {
-                            throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
-                        }
+                List<Event> aggregateEmittedEvents = allEvents.stream()
+                        .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
+                        .filter(e -> e.getType().equals(es.getEventType()))
+                        .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
+                        .collect(Collectors.toList());
+                for(Event snapshotAggregateEmittedEvent : aggregateEmittedEvents) {
+                    if(es.conformsToEvent(snapshotAggregateEmittedEvent)) {
+                        throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
                     }
                 }
             }
@@ -119,22 +125,25 @@ public class UnitOfWork {
     private void verifySameProcessedEvents(Aggregate aggregate, List<Event> allEvents) {
         Set<EventSubscription> aggregateEventSubscriptions = aggregate.getEventSubscriptions();
         for(Aggregate snapshotAggregate : this.causalSnapshot.values()) {
-            for(EventSubscription es1 : aggregateEventSubscriptions)
-                for(EventSubscription es2 : snapshotAggregate.getEventSubscriptions()) {
+            for(EventSubscription es1 : aggregateEventSubscriptions) {
+                for (EventSubscription es2 : snapshotAggregate.getEventSubscriptions()) {
                     // if they correspond to the same aggregate and type
-                    if(es1.getSenderAggregateId().equals(es2.getSenderAggregateId()) && es1.getEventType().equals(es2.getEventType()) && !es1.getSenderLastVersion().equals(es2.getSenderLastVersion())) {
-                        Integer minVersion = Math.min(es1.getSenderLastVersion(), es2.getSenderLastVersion());
-                        Integer maxVersion = Math.max(es1.getSenderLastVersion(), es2.getSenderLastVersion());
-                        Long numberOfEventsBetweenAggregates = allEvents.stream()
-                                .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
-                                .filter(event -> event.getType().equals(es1.getEventType()))
-                                .filter(event -> minVersion < event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
-                                .count();
-                        if(numberOfEventsBetweenAggregates > 0) {
-                            throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                    if (es1.getSenderAggregateId().equals(es2.getSenderAggregateId()) && es1.getEventType().equals(es2.getEventType())) {
+                        if((es1.getExtraEventInfo() == null && es2.getExtraEventInfo() == null || (es1.getExtraEventInfo() != null && es1.getExtraEventInfo().equals(es2.getExtraEventInfo()))) && !es1.getSenderLastVersion().equals(es2.getSenderLastVersion())) {
+                            Integer minVersion = Math.min(es1.getSenderLastVersion(), es2.getSenderLastVersion());
+                            Integer maxVersion = Math.max(es1.getSenderLastVersion(), es2.getSenderLastVersion());
+                            Integer numberOfEventsBetweenAggregates = Math.toIntExact(allEvents.stream()
+                                    .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
+                                    .filter(event -> event.getType().equals(es1.getEventType()))
+                                    .filter(event -> minVersion < event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
+                                    .count());
+                            if(numberOfEventsBetweenAggregates > 0) {
+                                throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                            }
                         }
                     }
                 }
+            }
         }
     }
 
