@@ -287,28 +287,28 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Tournament anonymizeUser(Integer tournamentAggregateId, Integer userAggregateId, String name, String username, Integer eventVersion, UnitOfWork unitOfWork) {
+    public Tournament anonymizeUser(Integer tournamentAggregateId, Integer executionAggregateId, Integer userAggregateId, String name, String username, Integer eventVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
+
+        if(!newTournament.getCourseExecution().getAggregateId().equals(executionAggregateId)) {
+            return null;
+        }
 
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
-            //newTournament.getCreator().setVersion(eventVersion);
-            newTournament.getCourseExecution().setVersion(eventVersion);
-            unitOfWork.registerChanged(newTournament);
         }
 
         for(TournamentParticipant tp : newTournament.getParticipants()) {
             if(tp.getAggregateId().equals(userAggregateId)) {
                 tp.setName(name);
                 tp.setUsername(username);
-                //tp.setVersion(eventVersion);
-                newTournament.getCourseExecution().setVersion(eventVersion);
-                unitOfWork.registerChanged(newTournament);
             }
         }
 
+        newTournament.getCourseExecution().setVersion(eventVersion);
+        unitOfWork.registerChanged(newTournament);
 
         return newTournament;
     }
@@ -463,5 +463,31 @@ public class TournamentService {
 
         return newTournament;
 
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void updateUserName(Integer tournamentAggregateId, Integer executionAggregateId, Integer eventVersion, Integer userAggregateId, String name, UnitOfWork unitOfWork) {
+        Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new Tournament(oldTournament);
+
+        if (!newTournament.getCourseExecution().getAggregateId().equals(executionAggregateId)) {
+            return;
+        }
+
+        if (newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
+            newTournament.getCreator().setName(name);
+
+        }
+
+        for (TournamentParticipant tp : newTournament.getParticipants()) {
+            if(tp.getAggregateId().equals(userAggregateId)) {
+                tp.setName(name);
+            }
+        }
+        newTournament.getCourseExecution().setVersion(eventVersion);
+        unitOfWork.registerChanged(newTournament);
     }
 }

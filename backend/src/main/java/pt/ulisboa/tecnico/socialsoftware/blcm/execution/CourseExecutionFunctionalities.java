@@ -13,6 +13,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
@@ -87,6 +88,18 @@ public class CourseExecutionFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
+    public void updateExecutionStudentName(Integer executionAggregateId, Integer userAggregateId ,UserDto userDto) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+
+        if (userDto.getName() == null) {
+            throw new TutorException(USER_MISSING_NAME);
+        }
+
+
+        courseExecutionService.updateExecutionStudentName(executionAggregateId, userAggregateId, userDto.getName(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
     private void checkInput(CourseExecutionDto courseExecutionDto) {
         if (courseExecutionDto.getAcronym() == null) {
             throw new TutorException(COURSE_EXECUTION_MISSING_ACRONYM);
@@ -109,4 +122,6 @@ public class CourseExecutionFunctionalities {
         courseExecutionService.removeUser(aggregateId, removeUserEvent.getAggregateId(), removeUserEvent.getAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
+
+
 }

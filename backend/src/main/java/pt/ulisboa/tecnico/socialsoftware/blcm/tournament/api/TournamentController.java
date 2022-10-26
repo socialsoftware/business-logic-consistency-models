@@ -85,5 +85,10 @@ public class TournamentController {
     }
 
 
+    @PostMapping(value = "/tournament/process/updateExecutionStudentName")
+    public void processUpdateExecutionName() {
+        System.out.println("Direct updateExecutionName");
+        tournamentEventDetection.detectUpdateExecutionStudentEvent();
+    }
 
 }

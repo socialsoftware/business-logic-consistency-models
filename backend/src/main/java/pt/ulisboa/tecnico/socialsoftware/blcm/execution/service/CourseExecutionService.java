@@ -7,11 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -194,6 +191,22 @@ public class CourseExecutionService {
         unitOfWork.registerChanged(newExecution);
         unitOfWork.addEvent(new AnonymizeExecutionStudentEvent(executionAggregateId, "ANONYMOUS", "ANONYMOUS", userAggregateId));
     }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void updateExecutionStudentName(Integer executionAggregateId, Integer userAggregateId, String name, UnitOfWork unitOfWork) {
+        CourseExecution oldExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
+        if(!oldExecution.hasStudent(userAggregateId)) {
+            throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
+        }
+        CourseExecution newExecution = new CourseExecution(oldExecution);
+        newExecution.findStudent(userAggregateId).setName(name);
+        unitOfWork.registerChanged(newExecution);
+        unitOfWork.addEvent(new UpdateExecutionStudentName(executionAggregateId, userAggregateId, name));
+    }
+
 
     /************************************************ EVENT PROCESSING ************************************************/
 

@@ -281,7 +281,7 @@ public class TournamentFunctionalities {
 
         System.out.printf("Processing anonymize a user for course execution %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
         AnonymizeExecutionStudentEvent anonymizeEvent = (AnonymizeExecutionStudentEvent) eventToProcess;
-        tournamentService.anonymizeUser(aggregateId, anonymizeEvent.getUserAggregateId(), anonymizeEvent.getName(), anonymizeEvent.getUsername(), anonymizeEvent.getAggregateVersion(), unitOfWork);
+        tournamentService.anonymizeUser(aggregateId, anonymizeEvent.getAggregateId(), anonymizeEvent.getUserAggregateId(), anonymizeEvent.getName(), anonymizeEvent.getUsername(), anonymizeEvent.getAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
@@ -338,6 +338,14 @@ public class TournamentFunctionalities {
         System.out.printf("Processing invalidate quiz %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
         InvalidateQuizEvent invalidateQuizEvent = (InvalidateQuizEvent) eventToProcess;
         tournamentService.invalidateQuiz(aggregateId, invalidateQuizEvent.getAggregateId(), invalidateQuizEvent.getAggregateVersion(), unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
+    }
+
+    public void processUpdateExecutionStudentEvent(Integer aggregateId, Event eventToProcess) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        System.out.printf("Processing update execution student name of execution %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
+        UpdateExecutionStudentName updateExecutionStudentName = (UpdateExecutionStudentName) eventToProcess;
+        tournamentService.updateUserName(aggregateId, updateExecutionStudentName.getAggregateId(), updateExecutionStudentName.getAggregateVersion(), updateExecutionStudentName.getUserAggregateId(), updateExecutionStudentName.getName(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 }

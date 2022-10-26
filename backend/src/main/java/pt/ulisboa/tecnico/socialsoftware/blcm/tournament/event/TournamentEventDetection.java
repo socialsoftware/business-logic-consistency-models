@@ -32,15 +32,6 @@ public class TournamentEventDetection {
     @Autowired
     private TournamentFunctionalities tournamentFunctionalities;
 
-    @Autowired
-    private TournamentService tournamentService;
-
-    @Autowired
-    private UnitOfWorkService unitOfWorkService;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
-
     /* fixed delay guarantees this task only runs 10 seconds after the previous finished. With fixed delay concurrent executions are not possible.*/
     /*
     CREATOR_EXISTS
@@ -209,6 +200,24 @@ public class TournamentEventDetection {
                 List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processInvalidateQuizEvent(aggregateId, eventToProcess);
+                }
+            }
+        }
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    public void detectUpdateExecutionStudentEvent() {
+        Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
+        for (Integer aggregateId : tournamentAggregateIds) {
+            Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
+            if (tournament == null) {
+                continue;
+            }
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(UPDATE_EXECUTION_STUDENT_NAME);
+            for (EventSubscription eventSubscription : eventSubscriptions) {
+                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                for (Event eventToProcess : eventsToProcess) {
+                    tournamentFunctionalities.processUpdateExecutionStudentEvent(aggregateId, eventToProcess);
                 }
             }
         }

@@ -21,7 +21,6 @@ public class UnitOfWork {
 
     private Map<Integer, Aggregate> aggregatesToCommit;
 
-    private Set<Aggregate> aggregatesToDelete;
 
     private Set<Event> eventsToEmit;
 
@@ -33,7 +32,6 @@ public class UnitOfWork {
 
     public UnitOfWork(Integer version) {
         this.aggregatesToCommit = new HashMap<>();
-        this.aggregatesToDelete = new HashSet<>();
         this.eventsToEmit = new HashSet<>();
         this.causalSnapshot = new HashMap<>();
         setVersion(version);
@@ -68,17 +66,6 @@ public class UnitOfWork {
         // the id set to null to force a new entry in the db
         aggregate.setId(null);
         this.aggregatesToCommit.put(aggregate.getAggregateId(), aggregate);
-    }
-
-    public Set<Aggregate> getAggregatesToDelete() {
-        return aggregatesToDelete;
-    }
-
-    public void registerForDeletion(Aggregate aggregate) {
-        if(aggregate.getState() == Aggregate.AggregateState.INACTIVE) {
-            throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregate.getAggregateId());
-        }
-        this.aggregatesToDelete.add(aggregate);
     }
 
     public Set<Event> getEventsToEmit() {

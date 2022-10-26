@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.util.List;
 import java.util.Set;
@@ -51,7 +52,12 @@ public class CourseExecutionController {
     }
 
     @PostMapping("/executions/{executionAggregateId}/anonymize")
-    public void anonymizeCourseStudent(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
+    public void anonymizeExecutionStudent(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
         courseExecutionFunctionalities.anonymizeStudent(executionAggregateId, userAggregateId);
+    }
+
+    @PostMapping("/executions/{executionAggregateId}/students/{userAggregateId}/update/name")
+    public void updateExecutionStudentName(@PathVariable Integer executionAggregateId, @PathVariable Integer userAggregateId, @RequestBody UserDto userDto) {
+        courseExecutionFunctionalities.updateExecutionStudentName(executionAggregateId, userAggregateId, userDto);
     }
 }

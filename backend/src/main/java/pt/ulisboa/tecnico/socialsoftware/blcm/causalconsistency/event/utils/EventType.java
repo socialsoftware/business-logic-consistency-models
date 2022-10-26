@@ -25,6 +25,8 @@ public class EventType {
 
     public final static String INVALIDATE_QUIZ = "INVALIDATE_QUIZ";
 
+    public final static String UPDATE_EXECUTION_STUDENT_NAME = "UPDATE_EXECUTION_STUDENT_NAME";
+
 
 
 }

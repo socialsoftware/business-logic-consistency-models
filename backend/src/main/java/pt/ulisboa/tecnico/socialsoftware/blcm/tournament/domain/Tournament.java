@@ -173,11 +173,14 @@ public class Tournament extends Aggregate {
 
     private void interInvariantCreatorExists(Set<EventSubscription> eventSubscriptions) {
         eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));    }
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME));
+    }
 
     private void interInvariantParticipantExists(Set<EventSubscription> eventSubscriptions) {
         eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT));
         eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME));
     }
 
     private void interInvariantQuizAnswersExist(Set<EventSubscription> eventSubscriptions) {
@@ -279,8 +282,8 @@ public class Tournament extends Aggregate {
     }
     @Override
     public void verifyInvariants() {
-        if(!(/*invariantAnswerBeforeStart()
-                &&*/ invariantUniqueParticipant()
+        if(!(invariantAnswerBeforeStart()
+                && invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
                 && invariantStartTimeBeforeEndTime()
                 && invariantDeleteCondition()
@@ -290,7 +293,7 @@ public class Tournament extends Aggregate {
     }
 
     public Set<String> getFieldsChangedByFunctionalities()  {
-        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants", "cancelled");
+        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants", "cancelled", "courseExecution");
     }
 
     public Set<String[]> getIntentions() {
@@ -311,7 +314,8 @@ public class Tournament extends Aggregate {
 
         // merge of creator is built in the participants dont know yet
         mergeCreator(committedTournament, mergedTournament);
-        mergeCourseExecution(committedTournament, mergedTournament);
+        //mergeCourseExecution(committedTournament, mergedTournament);
+        mergeCourseExecution(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeQuiz(committedTournament, mergedTournament);
         mergeCancelled(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeStartTime(toCommitVersionChangedFields, committedTournament, mergedTournament);
@@ -336,8 +340,16 @@ public class Tournament extends Aggregate {
         }
     }
 
-    private void mergeCourseExecution(Tournament committedTournament, Tournament mergedTournament) {
+    /*private void mergeCourseExecution(Tournament committedTournament, Tournament mergedTournament) {
         if(getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
+            mergedTournament.getCourseExecution().setVersion(getCourseExecution().getVersion());
+        } else {
+            mergedTournament.getCourseExecution().setVersion(committedTournament.getCourseExecution().getVersion());
+        }
+    }*/
+
+    private void mergeCourseExecution(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
+        if(toCommitVersionChangedFields.contains("courseExecution")) {
             mergedTournament.getCourseExecution().setVersion(getCourseExecution().getVersion());
         } else {
             mergedTournament.getCourseExecution().setVersion(committedTournament.getCourseExecution().getVersion());

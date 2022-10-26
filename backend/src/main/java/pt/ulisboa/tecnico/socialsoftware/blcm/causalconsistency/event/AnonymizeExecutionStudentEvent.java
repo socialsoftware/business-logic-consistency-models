@@ -10,7 +10,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.uti
 public class AnonymizeExecutionStudentEvent extends Event {
     private String name;
     private String username;
-
     private Integer userAggregateId;
 
     public AnonymizeExecutionStudentEvent() {
