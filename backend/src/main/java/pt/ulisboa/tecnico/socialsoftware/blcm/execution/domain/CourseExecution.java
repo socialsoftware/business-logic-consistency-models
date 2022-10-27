@@ -3,16 +3,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -88,8 +84,8 @@ public class CourseExecution extends Aggregate {
         return eventSubscriptions;
     }
 
-    private static void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions, ExecutionStudent student) {
-        eventSubscriptions.add(new EventSubscription(student.getAggregateId(), student.getVersion(), REMOVE_USER));
+    private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions, ExecutionStudent student) {
+        eventSubscriptions.add(new EventSubscription(student.getAggregateId(), student.getVersion(), REMOVE_USER, this));
     }
 
     @Override

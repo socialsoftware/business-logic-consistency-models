@@ -99,6 +99,9 @@ public class UnitOfWorkService {
             concurrentAggregates = false;
             for (Integer aggregateId : originalAggregatesToCommit.keySet()) {
                 Aggregate aggregateToWrite = originalAggregatesToCommit.get(aggregateId);
+                if(aggregateToWrite.getState() == INACTIVE) {
+                    throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregateToWrite.getAggregateId());
+                }
                 aggregateToWrite.verifyInvariants();
                 Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite, unitOfWork.getVersion());
                 // second condition is necessary for when a concurrent version is detected at first and then in the following detections it will have to do

@@ -1,11 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
-import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -124,13 +122,13 @@ public class Quiz extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION, this));
     }
 
     private void interInvariantQuestionsExist(Set<EventSubscription> eventSubscriptions) {
         for (QuizQuestion quizQuestion : this.quizQuestions) {
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), UPDATE_QUESTION));
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), REMOVE_QUESTION));
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), UPDATE_QUESTION, this));
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), REMOVE_QUESTION, this));
         }
     }
 

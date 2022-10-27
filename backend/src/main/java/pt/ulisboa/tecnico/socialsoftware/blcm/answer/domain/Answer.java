@@ -87,11 +87,11 @@ public class Answer extends Aggregate {
     }
 
     private void interInvariantUserExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.user.getAggregateId(), this.user.getVersion(), REMOVE_USER));
+        eventSubscriptions.add(new EventSubscription(this.user.getAggregateId(), this.user.getVersion(), REMOVE_USER, this));
     }
 
     private void interInvariantQuizCourseExecutionSameAsUsers(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.quiz.getCourseExecution().getAggregateId(), this.quiz.getCourseExecution().getVersion(), UNENROLL_STUDENT));
+        eventSubscriptions.add(new EventSubscription(this.quiz.getCourseExecution().getAggregateId(), this.quiz.getCourseExecution().getVersion(), UNENROLL_STUDENT, this));
     }
 
     @Override

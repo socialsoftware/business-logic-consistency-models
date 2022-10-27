@@ -168,41 +168,38 @@ public class Tournament extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION, this));
     }
 
     private void interInvariantCreatorExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, this.creator.getAggregateId()));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, this.creator.getAggregateId()));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, this.creator.getAggregateId()));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, this));
     }
 
     private void interInvariantParticipantExists(Set<EventSubscription> eventSubscriptions) {
-        for(TournamentParticipant participant : this.participants) {
-            eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, participant.getAggregateId()));
-            eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, participant.getAggregateId()));
-            eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, participant.getAggregateId()));
-        }
-
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, this));
     }
 
     private void interInvariantQuizAnswersExist(Set<EventSubscription> eventSubscriptions) {
         for (TournamentParticipant participant : this.participants) {
             if (participant.getAnswer().getAggregateId() != null) {
-                eventSubscriptions.add(new EventSubscription(participant.getAnswer().getAggregateId(), participant.getAnswer().getVersion(), ANSWER_QUESTION));
+                eventSubscriptions.add(new EventSubscription(participant.getAnswer().getAggregateId(), participant.getAnswer().getVersion(), ANSWER_QUESTION, this));
             }
         }
     }
 
     private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions) {
         for (TournamentTopic topic : this.topics) {
-            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DELETE_TOPIC));
-            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UPDATE_TOPIC));
+            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DELETE_TOPIC, this));
+            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UPDATE_TOPIC, this));
         }
     }
 
     private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), getVersion(), INVALIDATE_QUIZ));
+        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), getVersion(), INVALIDATE_QUIZ, this));
     }
 
     /* ----------------------------------------- INTRA-AGGREGATE INVARIANTS ----------------------------------------- */

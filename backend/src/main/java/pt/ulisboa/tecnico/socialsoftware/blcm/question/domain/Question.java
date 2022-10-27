@@ -4,8 +4,6 @@ import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -96,9 +94,9 @@ public class Question extends Aggregate {
         return eventSubscriptions;
     }
 
-    private static void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions, QuestionTopic topic) {
-        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DELETE_TOPIC));
-        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UPDATE_TOPIC));
+    private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions, QuestionTopic topic) {
+        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DELETE_TOPIC, this));
+        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UPDATE_TOPIC, this));
     }
 
     @Override

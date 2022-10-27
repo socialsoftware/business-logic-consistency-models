@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import java.util.*;
@@ -97,7 +96,7 @@ public class UnitOfWork {
 
                 // if there are events in those situations we verify whether they are relevant or not for the subscription
                 for(Event snapshotAggregateEmittedEvent : snapshotAggregateEmittedEvents) {
-                    if(es.conformsToEvent(snapshotAggregateEmittedEvent)) {
+                    if(es.subscribesEvent(snapshotAggregateEmittedEvent)) {
                         throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
                     }
                 }
@@ -114,7 +113,7 @@ public class UnitOfWork {
                         .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
                         .collect(Collectors.toList());
                 for(Event snapshotAggregateEmittedEvent : aggregateEmittedEvents) {
-                    if(es.conformsToEvent(snapshotAggregateEmittedEvent)) {
+                    if(es.subscribesEvent(snapshotAggregateEmittedEvent)) {
                         throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
                     }
                 }
@@ -129,15 +128,15 @@ public class UnitOfWork {
                 for (EventSubscription es2 : snapshotAggregate.getEventSubscriptions()) {
                     // if they correspond to the same aggregate and type
                     if (es1.getSenderAggregateId().equals(es2.getSenderAggregateId()) && es1.getEventType().equals(es2.getEventType())) {
-                        if((es1.getExtraEventInfo() == null && es2.getExtraEventInfo() == null || (es1.getExtraEventInfo() != null && es1.getExtraEventInfo().equals(es2.getExtraEventInfo()))) && !es1.getSenderLastVersion().equals(es2.getSenderLastVersion())) {
-                            Integer minVersion = Math.min(es1.getSenderLastVersion(), es2.getSenderLastVersion());
-                            Integer maxVersion = Math.max(es1.getSenderLastVersion(), es2.getSenderLastVersion());
-                            Integer numberOfEventsBetweenAggregates = Math.toIntExact(allEvents.stream()
-                                    .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
-                                    .filter(event -> event.getType().equals(es1.getEventType()))
-                                    .filter(event -> minVersion < event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
-                                    .count());
-                            if(numberOfEventsBetweenAggregates > 0) {
+                        Integer minVersion = Math.min(es1.getSenderLastVersion(), es2.getSenderLastVersion());
+                        Integer maxVersion = Math.max(es1.getSenderLastVersion(), es2.getSenderLastVersion());
+                        List<Event> eventsBetweenAggregates = allEvents.stream()
+                                .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
+                                .filter(event -> event.getType().equals(es1.getEventType()))
+                                .filter(event -> minVersion < event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
+                                .collect(Collectors.toList());
+                        for (Event eventBetweenAggregates : eventsBetweenAggregates) {
+                            if(es1.subscribesEvent(eventBetweenAggregates) && es2.subscribesEvent(eventBetweenAggregates)) {
                                 throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
                             }
                         }
