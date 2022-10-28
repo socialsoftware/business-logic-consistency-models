@@ -193,7 +193,7 @@ public class TournamentFunctionalities {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
         QuizDto quizDto = quizService.startTournamentQuiz(userAggregateId, tournamentDto.getQuiz().getAggregateId(), unitOfWork);
-        QuizAnswerDto quizAnswerDto = answerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), userAggregateId, unitOfWork);
+        QuizAnswerDto quizAnswerDto = answerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
         tournamentService.solveQuiz(tournamentAggregateId, userAggregateId, quizAnswerDto.getAggregateId(), unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);

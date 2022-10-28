@@ -84,6 +84,8 @@ public enum ErrorMessage {
 
     QUIZ_ANSWER_DELETED("Answer with aggregate id %d already deleted."),
 
+    QUIZ_DOES_NOT_BELONG_TO_COURSE_EXECUTION("Quiz %d does not belong to course execution %d."),
+
     QUESTION_ALREADY_ANSWERED("Question %d of quiz %d already answered."),
 
     INVALID_OPTION_SELECTED("Invalid option %d for question %d."),

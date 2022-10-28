@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
@@ -49,42 +50,57 @@ public class EventSubscription {
 
 
     public boolean subscribesEvent(Event event) {
-        boolean specialCases;
-        Tournament tournament;
         if (!(getSenderAggregateId().equals(event.getAggregateId()) && getSenderLastVersion() < event.getAggregateVersion())) {
             return false;
         }
         switch (event.getType()) {
             case ANONYMIZE_EXECUTION_STUDENT:
                 AnonymizeExecutionStudentEvent anonymizeExecutionStudentEvent = (AnonymizeExecutionStudentEvent) event;
-                tournament = (Tournament) this.subscriberAggregate;
-                return checkTournamentSpecialCase(tournament, anonymizeExecutionStudentEvent.getUserAggregateId());
+                return checkSpecialCases(anonymizeExecutionStudentEvent.getUserAggregateId());
             case UNENROLL_STUDENT:
                 UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent = (UnerollStudentFromCourseExecutionEvent) event;
-                tournament = (Tournament) this.subscriberAggregate;
-                return checkTournamentSpecialCase(tournament, unerollStudentFromCourseExecutionEvent.getUserAggregateId());
+                return checkSpecialCases(unerollStudentFromCourseExecutionEvent.getUserAggregateId());
             case UPDATE_EXECUTION_STUDENT_NAME:
                 UpdateExecutionStudentNameEvent updateExecutionStudentNameEvent = (UpdateExecutionStudentNameEvent) event;
-                tournament = (Tournament) this.subscriberAggregate;
-                return checkTournamentSpecialCase(tournament, updateExecutionStudentNameEvent.getUserAggregateId());
+                return checkSpecialCases(updateExecutionStudentNameEvent.getUserAggregateId());
             default:
                 return true;
         }
     }
 
-    private boolean checkTournamentSpecialCase(Tournament tournament, Integer executionStudentAggregateId) {
+    private boolean checkSpecialCases(Integer eventAdditionalAggregateId) {
+        switch (this.subscriberAggregate.getAggregateType()) {
+            case TOURNAMENT:
+                return checkTournamentSpecialCase(eventAdditionalAggregateId);
+            case ANSWER:
+                return checkAnswerSpecialCase(eventAdditionalAggregateId);
+            default:
+                return true;
+        }
+    }
+
+    private boolean checkTournamentSpecialCase(Integer eventAdditionalAggregateId) {
+        Tournament tournament = (Tournament) this.subscriberAggregate;
         boolean specialCases;
-        if(tournament.getCreator().getAggregateId().equals(executionStudentAggregateId)) {
+        if(tournament.getCreator().getAggregateId().equals(eventAdditionalAggregateId)) {
             specialCases = true;
         } else {
             specialCases = false;
             for(TournamentParticipant tournamentParticipant : tournament.getParticipants()) {
-                if(tournamentParticipant.getAggregateId().equals(executionStudentAggregateId)) {
+                if(tournamentParticipant.getAggregateId().equals(eventAdditionalAggregateId)) {
                     specialCases = true;
                 }
             }
         }
         return specialCases;
+    }
+
+    private boolean checkAnswerSpecialCase(Integer eventAdditionalAggregateId) {
+        Answer answer = (Answer) this.subscriberAggregate;
+        if(answer.getUser().getAggregateId().equals(eventAdditionalAggregateId)) {
+            return true;
+        }
+        return false;
     }
 
 

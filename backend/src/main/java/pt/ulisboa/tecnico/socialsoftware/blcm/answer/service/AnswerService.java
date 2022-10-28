@@ -6,10 +6,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerQuiz;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.AnswerUser;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
@@ -29,6 +26,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -100,16 +98,22 @@ public class AnswerService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuizAnswerDto startQuiz(Integer quizAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
+    public QuizAnswerDto startQuiz(Integer quizAggregateId, Integer courseExecutionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
         QuizDto quizDto = quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
 
-        // QUIZ_COURSE_EXECUTION_SAME_AS_USER
+        // COURSE_EXECUTION_SAME_QUIZ_COURSE_EXECUTION
+        if(!courseExecutionAggregateId.equals(quizDto.getAggregateId())) {
+            throw new TutorException(QUIZ_DOES_NOT_BELONG_TO_COURSE_EXECUTION, quizAggregateId, courseExecutionAggregateId);
+        }
+
+        // QUIZ_COURSE_EXECUTION_SAME_AS_USER_COURSE_EXECUTION
+        // COURSE_EXECUTION_SAME_AS_USER_COURSE_EXECUTION
         UserDto userDto = courseExecutionService.getStudentByExecutionIdAndUserId(userAggregateId, quizDto.getCourseExecutionAggregateId(), unitOfWork);
 
-        // QUIZ_COURSE_EXECUTION_SAME_AS_QUESTION_COURSE because questions come from the quiz
-        Answer answer = new Answer(aggregateId, new AnswerUser(userDto), new AnswerQuiz(quizDto));
-
+        // QUESTIONS_ANSWER_QUESTIONS_BELONG_TO_QUIZ because questions come from the quiz
+        Answer answer = new Answer(aggregateId, new AnswerCourseExecution(quizDto.getCourseExecutionAggregateId(), quizDto.getCourseExecutionVersion()), new AnswerUser(userDto), new AnswerQuiz(quizDto));
+        answer.setAnswerDate(LocalDateTime.now());
         unitOfWork.registerChanged(answer);
         return new QuizAnswerDto(answer);
     }

@@ -14,43 +14,34 @@ import java.util.stream.Collectors;
 @Embeddable
 public class AnswerQuiz {
     @Column(name = "quiz_aggregate_id")
-    private Integer aggregateId;
+    private final Integer aggregateId;
 
     @Column(name = "quiz_version")
     private Integer version;
-
-    @Embedded
-    private AnswerQuizExecution courseExecution;
 
     @ElementCollection
     private List<Integer> quizQuestionsAggregateIds;
 
     public AnswerQuiz() {
-
+        this.aggregateId = 0;
     }
 
     public AnswerQuiz(QuizDto quizDto) {
-        setAggregateId(quizDto.getAggregateId());
+        this.aggregateId = quizDto.getAggregateId();
         setVersion(quizDto.getVersion());
         setQuizQuestionsAggregateIds(quizDto.getQuestionDtos().stream()
                 .map(QuestionDto::getAggregateId)
                 .collect(Collectors.toList()));
-        setCourseExecution(new AnswerQuizExecution(quizDto.getCourseExecutionAggregateId(), quizDto.getCourseExecutionVersion()));
     }
 
     public AnswerQuiz(AnswerQuiz other) {
-        setAggregateId(other.getAggregateId());
+        this.aggregateId = other.getAggregateId();
         setVersion(other.getVersion());
         setQuizQuestionsAggregateIds(new ArrayList<>(other.getQuizQuestionsAggregateIds()));
-        setCourseExecution(new AnswerQuizExecution(other.getCourseExecution()));
     }
 
     public Integer getAggregateId() {
         return aggregateId;
-    }
-
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
     }
 
     public Integer getVersion() {
@@ -67,13 +58,5 @@ public class AnswerQuiz {
 
     public void setQuizQuestionsAggregateIds(List<Integer> quizQuestionsAggregateIds) {
         this.quizQuestionsAggregateIds = quizQuestionsAggregateIds;
-    }
-
-    public AnswerQuizExecution getCourseExecution() {
-        return courseExecution;
-    }
-
-    public void setCourseExecution(AnswerQuizExecution courseExecution) {
-        this.courseExecution = courseExecution;
     }
 }

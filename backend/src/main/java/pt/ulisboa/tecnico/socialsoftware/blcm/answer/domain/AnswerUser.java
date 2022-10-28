@@ -10,27 +10,22 @@ import javax.persistence.Embedded;
 @Embeddable
 public class AnswerUser {
     @Column(name = "user_aggregate_id")
-    private Integer aggregateId;
-
-    @Column(name = "user_aggregate_version")
-    private Integer version;
+    private final Integer aggregateId;
 
     @Column(name = "user_state")
     private Aggregate.AggregateState state;
 
     public AnswerUser() {
-
+        this.aggregateId = 0;
     }
 
     public AnswerUser(UserDto userDto) {
-        setAggregateId(userDto.getAggregateId());
-        setVersion(userDto.getVersion());
+        this.aggregateId = userDto.getAggregateId();
         setState(Aggregate.AggregateState.valueOf(userDto.getState()));
     }
 
     public AnswerUser(AnswerUser other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        this.aggregateId = other.getAggregateId();
         setState(other.getState());
     }
 
@@ -38,17 +33,6 @@ public class AnswerUser {
         return aggregateId;
     }
 
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
 
     public Aggregate.AggregateState getState() {
         return state;

@@ -21,12 +21,16 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUES
         FINAL_CREATION_DATE
         FINAL_USER
         FINAL_QUIZ
+        FINAL_COURSE_EXECUTION
     INTER-INVARIANTS:
         USER_EXISTS
         QUIZ_EXISTS
         QUESTION_EXISTS
-        QUIZ_COURSE_EXECUTION_SAME_AS_QUESTION_COURSE
-        QUIZ_COURSE_EXECUTION_SAME_AS_USER
+        COURSE_EXECUTION_EXISTS
+        QUESTION_ANSWERS_QUESTION_BELONGS_TO_QUIZ
+        QUIZ_COURSE_EXECUTION_SAME_AS_USER_COURSE_EXECUTION
+        COURSE_EXECUTION_SAME_AS_USER_COURSE_EXECUTION
+        COURSE_EXECUTION_SAME_QUIZ_COURSE_EXECUTION (verified at the service and the quiz doesnt change execution)
 
  */
 @Entity
@@ -38,29 +42,40 @@ public class Answer extends Aggregate {
     @Column(name = "answer_date")
     private LocalDateTime answerDate;
 
+    @Column
     private boolean completed;
 
     @Embedded
-    private AnswerUser user;
+    private final AnswerCourseExecution courseExecution;
 
+    @Embedded
+    private final AnswerUser user;
+
+    /* it is not final because of the question ids inside*/
     @Embedded
     private AnswerQuiz quiz;
 
     @ElementCollection
     private List<QuestionAnswer> questionAnswers;
 
-    public Answer() { }
+    public Answer() {
+        this.courseExecution = new AnswerCourseExecution();
+        this.quiz = new AnswerQuiz();
+        this.user = new AnswerUser();
+    }
 
-    public Answer(Integer aggregateId, AnswerUser answerUser, AnswerQuiz answerQuiz) {
+    public Answer(Integer aggregateId, AnswerCourseExecution courseExecution, AnswerUser answerUser, AnswerQuiz answerQuiz) {
         super(aggregateId, ANSWER);
-        setUser(answerUser);
-        setQuiz(answerQuiz);
+        this.courseExecution = courseExecution;
+        this.user = answerUser;
+        this.quiz = answerQuiz;
     }
 
     public Answer(Answer other) {
         super(other);
-        setUser(new AnswerUser(other.getUser()));
-        setQuiz(new AnswerQuiz(other.getQuiz()));
+        this.user = new AnswerUser(other.getUser());
+        this.quiz = new AnswerQuiz(other.getQuiz());
+        this.courseExecution = new AnswerCourseExecution(other.getCourseExecution());
         setAnswerDate(other.getAnswerDate());
         setCreationDate(other.getCreationDate());
         setQuestionAnswers(other.getQuestionAnswers().stream().map(QuestionAnswer::new).collect(Collectors.toList()));
@@ -76,23 +91,32 @@ public class Answer extends Aggregate {
     @Override
     public Set<EventSubscription> getEventSubscriptions() {
         //return Set.of(REMOVE_USER, UNENROLL_STUDENT, INVALIDATE_QUIZ/*, REMOVE_QUIZ*/);
-        // TODO should we add remove quiz???
         Set<EventSubscription> eventSubscriptions = new HashSet<>();
         if(getState() == ACTIVE) {
+            interInvariantCourseExecutionExists(eventSubscriptions);
+            interInvariantQuizExists(eventSubscriptions);
             interInvariantUserExists(eventSubscriptions);
-            interInvariantQuizCourseExecutionSameAsUsers(eventSubscriptions);
         }
         return eventSubscriptions;
+    }
 
+    private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION, this));
+    }
+
+    private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
+        // also verifies QUESTION_EXISTS because if the question is DELETED the quiz sends this event
+        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), this.quiz.getVersion(), INVALIDATE_QUIZ, this));
+        // TODO add remove quiz
     }
 
     private void interInvariantUserExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.user.getAggregateId(), this.user.getVersion(), REMOVE_USER, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, this));
     }
 
-    private void interInvariantQuizCourseExecutionSameAsUsers(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.quiz.getCourseExecution().getAggregateId(), this.quiz.getCourseExecution().getVersion(), UNENROLL_STUDENT, this));
-    }
+
 
     @Override
     public Set<String> getFieldsChangedByFunctionalities() {
@@ -106,36 +130,48 @@ public class Answer extends Aggregate {
 
     @Override
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
-        Answer mergedAnswer = new Answer(this);
+        Answer toCommitAnswer = new Answer(this);
         Answer committedAnswer = (Answer) committedVersion;
-        mergeUser(mergedAnswer, committedAnswer);
-        mergeQuiz(mergedAnswer, committedAnswer);
-        mergeAnswerDate(toCommitVersionChangedFields, mergedAnswer, committedAnswer);
-        mergeQuestionAnswers((Answer)getPrev(), this, committedAnswer, mergedAnswer);
-        return mergedAnswer;
+        mergeCourseExecution(toCommitAnswer, committedAnswer);
+        mergeUser(toCommitAnswer, committedAnswer);
+        mergeQuiz(toCommitAnswer, committedAnswer);
+        mergeAnswerDate(toCommitVersionChangedFields, toCommitAnswer, committedAnswer);
+        mergeQuestionAnswers((Answer)getPrev(), this, committedAnswer, toCommitAnswer);
+        return toCommitAnswer;
     }
 
-    private void mergeUser(Answer mergedAnswer, Answer committedAnswer) {
-        if(getUser().getVersion() >= committedAnswer.getUser().getVersion()) {
-            mergedAnswer.setUser(getUser());
+    private void mergeCourseExecution(Answer toCommitAnswer, Answer committedAnswer) {
+        // The course execution version determines which user is more recent because the user is an execution student
+        if(toCommitAnswer.getCourseExecution().getVersion() >= committedAnswer.getCourseExecution().getVersion()) {
+            toCommitAnswer.getCourseExecution().setVersion(toCommitAnswer.getCourseExecution().getVersion());
         } else {
-            mergedAnswer.setUser(committedAnswer.getUser());
+            toCommitAnswer.getCourseExecution().setVersion(committedAnswer.getCourseExecution().getVersion());
         }
     }
 
-    private void mergeQuiz(Answer mergedAnswer, Answer committedAnswer) {
+    private void mergeUser(Answer toCommitAnswer, Answer committedAnswer) {
+        // The course execution version determines which user is more recent because the user is an execution student
+        /*if(toCommitAnswer.getCourseExecution().getVersion() >= committedAnswer.getCourseExecution().getVersion()) {
+            toCommitAnswer.getUser(getUser());
+        } else {
+            toCommitAnswer.getUser().(committedAnswer.getUser());
+        }*/
+    }
+
+    private void mergeQuiz(Answer toCommitAnswer, Answer committedAnswer) {
         if(getQuiz().getVersion() >= committedAnswer.getQuiz().getVersion()) {
-            mergedAnswer.setQuiz(getQuiz());
+            toCommitAnswer.setQuiz(new AnswerQuiz(toCommitAnswer.getQuiz()));
         } else {
-            mergedAnswer.setQuiz(committedAnswer.getQuiz());
+            toCommitAnswer.setQuiz(new AnswerQuiz(committedAnswer.getQuiz()));
+
         }
     }
 
-    private void mergeAnswerDate(Set<String> toCommitVersionChangedFields, Answer mergedAnswer, Answer committedAnswer) {
+    private void mergeAnswerDate(Set<String> toCommitVersionChangedFields, Answer toCommitAnswer, Answer committedAnswer) {
         if(toCommitVersionChangedFields.contains("answerDate")) {
-            mergedAnswer.setAnswerDate(getAnswerDate());
+            toCommitAnswer.setAnswerDate(getAnswerDate());
         } else {
-            mergedAnswer.setAnswerDate(committedAnswer.getAnswerDate());
+            toCommitAnswer.setAnswerDate(committedAnswer.getAnswerDate());
         }
     }
 
@@ -194,12 +230,16 @@ public class Answer extends Aggregate {
         this.completed = completed;
     }
 
-    public AnswerUser getUser() {
-        return user;
+    public AnswerCourseExecution getCourseExecution() {
+        return courseExecution;
     }
 
-    public void setUser(AnswerUser user) {
-        this.user = user;
+    /*public void setCourseExecution(AnswerCourseExecution courseExecution) {
+        this.courseExecution = courseExecution;
+    }*/
+
+    public AnswerUser getUser() {
+        return user;
     }
 
     public AnswerQuiz getQuiz() {
