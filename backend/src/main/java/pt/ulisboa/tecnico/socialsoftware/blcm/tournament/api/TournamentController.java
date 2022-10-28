@@ -68,6 +68,11 @@ public class TournamentController {
         tournamentFunctionalities.leaveTournament(tournamentAggregateId, userAggregateId);
     }
 
+    @PostMapping("/tournaments/{tournamentAggregate}/remove")
+    public void removeTournament(@PathVariable Integer tournamentAggregate) {
+        tournamentFunctionalities.removeTournament(tournamentAggregate);
+    }
+
 
     /*********************************** ONLY FOR EVENT PROCESSING TESTING PURPOSES ***********************************/
 

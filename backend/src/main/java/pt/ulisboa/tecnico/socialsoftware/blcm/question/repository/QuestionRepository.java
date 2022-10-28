@@ -13,7 +13,7 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface QuestionRepository extends JpaRepository<Question, Integer> {
-    @Query(value = "select * from questions q where q.aggregate_id = :aggregateId AND q.version < :maxVersion AND q.state = 'ACTIVE' AND q.version >= (select max(version) from questions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
+    @Query(value = "select * from questions q where q.aggregate_id = :aggregateId AND q.version < :maxVersion AND q.state != 'DELETED' AND q.version >= (select max(version) from questions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Question> findCausal(Integer aggregateId, Integer maxVersion);
 
     @Query(value = "select * from questions q where q.aggregate_id = :aggregateId AND q.version < :maxVersion AND q.version >= (select max(version) from questions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)

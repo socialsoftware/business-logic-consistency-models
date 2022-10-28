@@ -299,6 +299,7 @@ public class TournamentService {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
             newTournament.getCourseExecution().setVersion(eventVersion);
+            newTournament.setState(INACTIVE);
             unitOfWork.registerChanged(newTournament);
         }
 

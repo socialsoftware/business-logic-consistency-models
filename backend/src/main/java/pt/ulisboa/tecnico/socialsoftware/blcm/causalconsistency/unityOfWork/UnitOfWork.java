@@ -60,9 +60,6 @@ public class UnitOfWork {
 
 
     public void registerChanged(Aggregate aggregate) {
-        if(aggregate.getState() == Aggregate.AggregateState.INACTIVE) {
-            throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregate.getAggregateId());
-        }
         // the id set to null to force a new entry in the db
         aggregate.setId(null);
         this.aggregatesToCommit.put(aggregate.getAggregateId(), aggregate);
@@ -89,6 +86,7 @@ public class UnitOfWork {
                 List<Event> snapshotAggregateEmittedEvents = allEvents.stream()
                         .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
                         .filter(e -> e.getType().equals(es.getEventType()))
+                        .filter(e -> e.getAggregateVersion() <= snapshotAggregate.getVersion())
                         .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
                         .collect(Collectors.toList());
                 // snapshotAggregateEmittedEvents is a list of emitted events of the same type of the current sub emitted
@@ -110,6 +108,7 @@ public class UnitOfWork {
                 List<Event> aggregateEmittedEvents = allEvents.stream()
                         .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
                         .filter(e -> e.getType().equals(es.getEventType()))
+                        .filter(e -> e.getAggregateVersion() <= snapshotAggregate.getVersion())
                         .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
                         .collect(Collectors.toList());
                 for(Event snapshotAggregateEmittedEvent : aggregateEmittedEvents) {

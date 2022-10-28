@@ -180,9 +180,9 @@ public abstract class Aggregate {
             throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
         }
 
-        if(toCommitVersion.getState() == DELETED) {
+        /*if(toCommitVersion.getState() == DELETED) {
             throw new TutorException(AGGREGATE_DELETED, toCommitVersion.getAggregateId());
-        }
+        }*/
         /* take the state into account because we don't want to override a deleted object*/
 
         if(committedVersion.getState() == DELETED) {
@@ -196,7 +196,7 @@ public abstract class Aggregate {
 
         Aggregate mergedAggregate = mergeFields(toCommitVersionChangedFields, committedVersion, committedVersionChangedFields);
 
-        mergeEmittedEvents(toCommitVersion, committedVersion, mergedAggregate);
+        //mergeEmittedEvents(toCommitVersion, committedVersion, mergedAggregate);
 
         // TODO see explanation for prev assignment in Quiz
         mergedAggregate.setPrev(getPrev());

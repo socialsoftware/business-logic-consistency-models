@@ -51,37 +51,35 @@ public class EventSubscription {
     public boolean subscribesEvent(Event event) {
         boolean specialCases;
         Tournament tournament;
+        if (!(getSenderAggregateId().equals(event.getAggregateId()) && getSenderLastVersion() < event.getAggregateVersion())) {
+            return false;
+        }
         switch (event.getType()) {
             case ANONYMIZE_EXECUTION_STUDENT:
                 AnonymizeExecutionStudentEvent anonymizeExecutionStudentEvent = (AnonymizeExecutionStudentEvent) event;
                 tournament = (Tournament) this.subscriberAggregate;
-                specialCases = checkTournamentSpecialCase(tournament, anonymizeExecutionStudentEvent.getUserAggregateId());
-                break;
+                return checkTournamentSpecialCase(tournament, anonymizeExecutionStudentEvent.getUserAggregateId());
             case UNENROLL_STUDENT:
                 UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent = (UnerollStudentFromCourseExecutionEvent) event;
                 tournament = (Tournament) this.subscriberAggregate;
-                specialCases = checkTournamentSpecialCase(tournament, unerollStudentFromCourseExecutionEvent.getUserAggregateId());
-                break;
+                return checkTournamentSpecialCase(tournament, unerollStudentFromCourseExecutionEvent.getUserAggregateId());
             case UPDATE_EXECUTION_STUDENT_NAME:
                 UpdateExecutionStudentNameEvent updateExecutionStudentNameEvent = (UpdateExecutionStudentNameEvent) event;
                 tournament = (Tournament) this.subscriberAggregate;
-                specialCases = checkTournamentSpecialCase(tournament, updateExecutionStudentNameEvent.getUserAggregateId());
-                break;
+                return checkTournamentSpecialCase(tournament, updateExecutionStudentNameEvent.getUserAggregateId());
             default:
-                specialCases = true;
-                break;
+                return true;
         }
-        return specialCases && getSenderAggregateId().equals(event.getAggregateId()) && getSenderLastVersion().equals(event.getAggregateVersion());
     }
 
-    private boolean checkTournamentSpecialCase(Tournament tournament, Integer anonymizeExecutionStudentEvent) {
+    private boolean checkTournamentSpecialCase(Tournament tournament, Integer executionStudentAggregateId) {
         boolean specialCases;
-        if(tournament.getCreator().getAggregateId().equals(anonymizeExecutionStudentEvent)) {
+        if(tournament.getCreator().getAggregateId().equals(executionStudentAggregateId)) {
             specialCases = true;
         } else {
             specialCases = false;
             for(TournamentParticipant tournamentParticipant : tournament.getParticipants()) {
-                if(tournamentParticipant.getAggregateId().equals(anonymizeExecutionStudentEvent)) {
+                if(tournamentParticipant.getAggregateId().equals(executionStudentAggregateId)) {
                     specialCases = true;
                 }
             }

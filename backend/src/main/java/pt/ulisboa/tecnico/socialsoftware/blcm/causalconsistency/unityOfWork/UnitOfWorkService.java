@@ -99,7 +99,7 @@ public class UnitOfWorkService {
             concurrentAggregates = false;
             for (Integer aggregateId : originalAggregatesToCommit.keySet()) {
                 Aggregate aggregateToWrite = originalAggregatesToCommit.get(aggregateId);
-                if(aggregateToWrite.getState() == INACTIVE) {
+                if(aggregateToWrite.getPrev() != null && aggregateToWrite.getPrev().getState() == INACTIVE) {
                     throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregateToWrite.getAggregateId());
                 }
                 aggregateToWrite.verifyInvariants();

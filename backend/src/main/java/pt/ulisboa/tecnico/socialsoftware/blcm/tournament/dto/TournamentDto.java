@@ -34,6 +34,8 @@ public class TournamentDto implements Serializable {
 
     private QuizDto quiz;
 
+    private String state;
+
     public TournamentDto() {
 
     }
@@ -50,6 +52,7 @@ public class TournamentDto implements Serializable {
         setCourseExecution(tournament.getCourseExecution().buildDto());
         setTopics(tournament.getTopics().stream().map(TournamentTopic::buildDto).collect(Collectors.toSet()));
         setQuiz(tournament.getQuiz().buidlDto());
+        setState(tournament.getState().toString());
     }
 
     public Integer getAggregateId() {
@@ -138,5 +141,13 @@ public class TournamentDto implements Serializable {
 
     public void setQuiz(QuizDto quiz) {
         this.quiz = quiz;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

@@ -31,7 +31,7 @@ public class CourseExecutionController {
         return courseExecutionFunctionalities.getCourseExecutions();
     }
 
-    @PostMapping(value = "/executions/{executionAggregateId}/delete")
+    @PostMapping("/executions/{executionAggregateId}/delete")
     public void removeCourseExecution(@PathVariable Integer executionAggregateId) {
         courseExecutionFunctionalities.removeCourseExecution(executionAggregateId);
     }
