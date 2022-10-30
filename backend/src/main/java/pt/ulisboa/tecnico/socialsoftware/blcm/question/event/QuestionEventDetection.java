@@ -52,6 +52,7 @@ public class QuestionEventDetection {
      */
     @Scheduled(fixedDelay = 1000)
     public void detectUpdateTopicEvents() {
+        //System.out.println("Update Topic Detection");
         Set<Integer> aggregateIds = questionRepository.findAll().stream().map(Question::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : aggregateIds) {
             Question question = questionRepository.findLastQuestionVersion(aggregateId).orElse(null);

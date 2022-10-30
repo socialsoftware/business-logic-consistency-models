@@ -51,7 +51,7 @@ public class Quiz extends Aggregate {
     @Column(nullable = false)
     private String title = "Title";
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<QuizQuestion> quizQuestions = new HashSet<>();
 
     @Enumerated(EnumType.STRING)

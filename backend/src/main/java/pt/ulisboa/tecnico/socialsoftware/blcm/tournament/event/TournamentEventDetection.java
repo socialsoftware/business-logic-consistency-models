@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
@@ -42,8 +44,9 @@ public class TournamentEventDetection {
 					p.state = INACTIVE
 	*/
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectAnonymizeStudentEvents() {
+        //System.out.println("Anonymize Detection");
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
             Optional<Tournament> tournamentOp = tournamentRepository.findLastTournamentVersion(aggregateId);
@@ -200,7 +203,7 @@ public class TournamentEventDetection {
         }
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void detectUpdateExecutionStudentNameEvent() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {

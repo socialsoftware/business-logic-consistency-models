@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.event;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
@@ -18,18 +19,10 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.REMOVE_USER;
 
+@Component
 public class CourseExecutionEventDetection {
     @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
-
-    @Autowired
-    private UnitOfWorkService unitOfWorkService;
-
-    @Autowired
-    private CourseExecutionService courseExecutionService;
 
     @Autowired
     private CourseExecutionFunctionalities courseExecutionFunctionalities;

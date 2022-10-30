@@ -147,11 +147,17 @@ public class TournamentParticipant {
         return userDto;
     }
 
-    public static void syncParticipantsVersions(Set<TournamentParticipant> prevParticipants, Set<TournamentParticipant> v1Participants, Set<TournamentParticipant> v2Participants/*, TournamentCreator v1Creator, TournamentCreator v2Creator*/) {
+    public static void syncParticipantsVersions(Set<TournamentParticipant> prevParticipants,
+                                                Set<TournamentParticipant> v1Participants,
+                                                Set<TournamentParticipant> v2Participants,
+                                                Integer prevCourseExecutionVersion,
+                                                Integer v1CourseExecutionVersion,
+                                                Integer v2CourseExecutionVersion) {
+
         for(TournamentParticipant tp1 : v1Participants) {
             for(TournamentParticipant tp2 : v2Participants) {
                 if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
-                    if(tp1.getVersion() > tp2.getVersion()) {
+                    if(v1CourseExecutionVersion > v2CourseExecutionVersion) {
                         tp2.setVersion(tp1.getVersion());
                         tp2.setName(tp1.getName());
                         tp2.setUsername(tp1.getUsername());
@@ -160,7 +166,7 @@ public class TournamentParticipant {
                         }
                     }
 
-                    if(tp2.getVersion() > tp1.getVersion()) {
+                    if(v2CourseExecutionVersion > v1CourseExecutionVersion) {
                         tp1.setVersion(tp2.getVersion());
                         tp1.setName(tp2.getName());
                         tp1.setUsername(tp2.getUsername());
@@ -174,7 +180,7 @@ public class TournamentParticipant {
             // no need to check again because the prev does not contain any newer version than v1 an v2
             for(TournamentParticipant prevParticipant : prevParticipants) {
                 if(tp1.getAggregateId().equals(prevParticipant.getAggregateId())) {
-                    if(tp1.getVersion() > prevParticipant.getVersion()) {
+                    if(v1CourseExecutionVersion > prevCourseExecutionVersion) {
                         prevParticipant.setVersion(tp1.getVersion());
                         prevParticipant.setName(tp1.getName());
                         prevParticipant.setUsername(tp1.getUsername());
@@ -183,7 +189,7 @@ public class TournamentParticipant {
                         }
                     }
 
-                    if(prevParticipant.getVersion() > tp1.getVersion()) {
+                    if(prevCourseExecutionVersion > v1CourseExecutionVersion) {
                         tp1.setVersion(prevParticipant.getVersion());
                         tp1.setName(prevParticipant.getName());
                         tp1.setUsername(prevParticipant.getUsername());

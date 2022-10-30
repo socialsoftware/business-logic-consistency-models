@@ -293,7 +293,7 @@ public class Tournament extends Aggregate {
     }
 
     public Set<String> getFieldsChangedByFunctionalities()  {
-        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants", "cancelled", "courseExecution");
+        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants", "cancelled", "courseExecution", "creator");
     }
 
     public Set<String[]> getIntentions() {
@@ -315,7 +315,7 @@ public class Tournament extends Aggregate {
         // merge of creator is built in the participants dont know yet
         mergeCreator(committedTournament, mergedTournament);
         //mergeCourseExecution(committedTournament, mergedTournament);
-        mergeCourseExecution(toCommitVersionChangedFields, committedTournament, mergedTournament);
+        mergeCourseExecution(committedTournament, mergedTournament);
         mergeQuiz(committedTournament, mergedTournament);
         mergeCancelled(toCommitVersionChangedFields, committedTournament, mergedTournament);
         mergeStartTime(toCommitVersionChangedFields, committedTournament, mergedTournament);
@@ -348,8 +348,8 @@ public class Tournament extends Aggregate {
         }
     }*/
 
-    private void mergeCourseExecution(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
-        if(toCommitVersionChangedFields.contains("courseExecution")) {
+    private void mergeCourseExecution(Tournament committedTournament, Tournament mergedTournament) {
+        if(getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
             mergedTournament.getCourseExecution().setVersion(getCourseExecution().getVersion());
         } else {
             mergedTournament.getCourseExecution().setVersion(committedTournament.getCourseExecution().getVersion());
@@ -408,7 +408,7 @@ public class Tournament extends Aggregate {
         Set<TournamentParticipant> v1ParticipantsPre = new HashSet<>(v1.getParticipants());
         Set<TournamentParticipant> v2ParticipantsPre = new HashSet<>(v2.getParticipants());
 
-        TournamentParticipant.syncParticipantsVersions(prevParticipantsPre, v1ParticipantsPre, v2ParticipantsPre);
+        TournamentParticipant.syncParticipantsVersions(prevParticipantsPre, v1ParticipantsPre, v2ParticipantsPre, prev.getCourseExecution().getVersion(), v1.getCourseExecution().getVersion(), v2.getCourseExecution().getAggregateId());
 
         Set<TournamentParticipant> prevParticipants = new HashSet<>(prevParticipantsPre);
         Set<TournamentParticipant> v1Participants = new HashSet<>(v1ParticipantsPre);

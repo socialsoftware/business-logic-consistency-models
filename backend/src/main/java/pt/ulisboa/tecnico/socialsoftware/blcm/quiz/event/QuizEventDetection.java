@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 
+@Component
 public class QuizEventDetection {
     @Autowired
     private UnitOfWorkService unitOfWorkService;
@@ -29,9 +31,6 @@ public class QuizEventDetection {
 
     @Autowired
     private QuizFunctionalities quizFunctionalities;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
 
     @Autowired
     private QuizRepository quizRepository;
