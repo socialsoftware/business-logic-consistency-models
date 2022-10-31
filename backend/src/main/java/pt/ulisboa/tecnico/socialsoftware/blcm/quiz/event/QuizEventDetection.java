@@ -13,6 +13,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +47,10 @@ public class QuizEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(REMOVE_COURSE_EXECUTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     quizFunctionalities.processRemoveCourseExecutionEvent(aggregateId, eventToProcess);
                 }
@@ -67,7 +71,10 @@ public class QuizEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(UPDATE_QUESTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     quizFunctionalities.processUpdateQuestion(aggregateId, eventToProcess);
                 }
@@ -88,7 +95,10 @@ public class QuizEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(REMOVE_QUESTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     quizFunctionalities.processRemoveQuestion(aggregateId, eventToProcess);
                 }

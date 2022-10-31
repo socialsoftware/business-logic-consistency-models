@@ -50,7 +50,7 @@ public class EventSubscription {
 
 
     public boolean subscribesEvent(Event event) {
-        if (!(getSenderAggregateId().equals(event.getAggregateId()) && getSenderLastVersion() < event.getAggregateVersion())) {
+        if (!(getSenderAggregateId().equals(event.getAggregateId()) && getEventType().equals(event.getType()) && getSenderLastVersion() < event.getAggregateVersion())) {
             return false;
         }
         switch (event.getType()) {

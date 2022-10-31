@@ -10,6 +10,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,7 +42,10 @@ public class QuestionEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = question.getEventSubscriptionsByEventType(UPDATE_TOPIC);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     questionFunctionalities.processUpdateTopic(aggregateId, eventToProcess);
                 }
@@ -64,7 +68,10 @@ public class QuestionEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = question.getEventSubscriptionsByEventType(DELETE_TOPIC);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event e : eventsToProcess) {
                     questionFunctionalities.processRemoveTopic(aggregateId, e);
                 }

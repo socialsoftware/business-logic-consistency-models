@@ -56,7 +56,11 @@ public class TournamentEventDetection {
             Tournament tournament = tournamentOp.get();
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(ANONYMIZE_EXECUTION_STUDENT);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
+
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processAnonymizeStudentEvent(aggregateId, eventToProcess);
                 }
@@ -82,7 +86,10 @@ public class TournamentEventDetection {
             Tournament tournament = tournamentOp.get();
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(REMOVE_COURSE_EXECUTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processRemoveCourseExecution(aggregateId, eventToProcess);
                 }
@@ -104,7 +111,10 @@ public class TournamentEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(UPDATE_TOPIC);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processUpdateTopic(aggregateId, eventToProcess);
                 }
@@ -128,7 +138,10 @@ public class TournamentEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(DELETE_TOPIC);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processDeleteTopic(aggregateId, eventToProcess);
                 }
@@ -150,7 +163,10 @@ public class TournamentEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(ANSWER_QUESTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processAnswerQuestion(aggregateId, eventToProcess);
                 }
@@ -173,7 +189,10 @@ public class TournamentEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(UNENROLL_STUDENT);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processUnenrollStudent(aggregateId, eventToProcess);
                 }
@@ -195,7 +214,10 @@ public class TournamentEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(INVALIDATE_QUIZ);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processInvalidateQuizEvent(aggregateId, eventToProcess);
                 }
@@ -213,7 +235,10 @@ public class TournamentEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(UPDATE_EXECUTION_STUDENT_NAME);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     tournamentFunctionalities.processUpdateExecutionStudentNameEvent(aggregateId, eventToProcess);
                 }

@@ -12,6 +12,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,7 +53,10 @@ public class AnswerEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(REMOVE_USER);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     answerFunctionalities.processRemoveUser(aggregateId, eventToProcess);
                 }
@@ -80,7 +84,10 @@ public class AnswerEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(REMOVE_QUESTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     answerFunctionalities.processRemoveQuestion(aggregateId, eventToProcess);
                 }
@@ -102,7 +109,10 @@ public class AnswerEventDetection {
             }
             Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(UNENROLL_STUDENT);
             for (EventSubscription eventSubscription : eventSubscriptions) {
-                List<Event> eventsToProcess = eventRepository.findByIdVersionType(eventSubscription.getSenderAggregateId(), eventSubscription.getSenderLastVersion(), eventSubscription.getEventType());
+                List<Event> eventsToProcess = eventRepository.findAll().stream()
+                        .filter(eventSubscription::subscribesEvent)
+                        .sorted(Comparator.comparing(Event::getTs).reversed())
+                        .collect(Collectors.toList());
                 for (Event eventToProcess : eventsToProcess) {
                     answerFunctionalities.processUnenrollStudent(aggregateId, eventToProcess);
                 }
