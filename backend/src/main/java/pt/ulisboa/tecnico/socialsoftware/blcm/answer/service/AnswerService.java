@@ -14,7 +14,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.servic
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnswerQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -28,7 +27,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
@@ -50,13 +48,7 @@ public class AnswerService {
     private CourseExecutionService courseExecutionService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
 
     @Retryable(
             value = { SQLException.class },

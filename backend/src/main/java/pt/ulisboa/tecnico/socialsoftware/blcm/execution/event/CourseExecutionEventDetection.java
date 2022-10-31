@@ -6,12 +6,9 @@ import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 
 import java.util.List;
 import java.util.Set;

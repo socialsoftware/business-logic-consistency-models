@@ -12,13 +12,5 @@ public class CourseFunctionalities {
 
     @Autowired
     private UnitOfWorkService unitOfWorkService;
-/*
-    public CourseDto createCourse(CourseDto courseDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        CourseDto courseDto1 = courseService.getAndOrCreateCourseRemote(courseDto, unitOfWork);
-        unitOfWorkService.commit(unitOfWork);
-        return courseDto1;
-    }
 
- */
 }

@@ -64,8 +64,6 @@ public class UserFunctionalities {
         return userService.getTeachers(unitOfWork);
     }
 
-    //TODO add null dto verification in all check inputs
-
     private void checkInput(UserDto userDto) {
         if (userDto.getName() == null) {
             throw new TutorException(ErrorMessage.USER_MISSING_NAME);

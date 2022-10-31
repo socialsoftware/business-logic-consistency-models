@@ -16,9 +16,6 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     @Query(value = "select * from questions q where q.aggregate_id = :aggregateId AND q.version < :maxVersion AND q.state != 'DELETED' AND q.version >= (select max(version) from questions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Question> findCausal(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from questions q where q.aggregate_id = :aggregateId AND q.version < :maxVersion AND q.version >= (select max(version) from questions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
-    Optional<Question> findCausalInactiveIncluded(Integer aggregateId, Integer maxVersion);
-
     @Query(value = "select * from questions where id = (select max(id) from questions where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
     Optional<Question> findConcurrentVersions(Integer aggregateId, Integer version);
 

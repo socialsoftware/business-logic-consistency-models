@@ -37,16 +37,21 @@ public class AnswerFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public void startQuiz(Integer quizAggregateId) {
-
+    public void startQuiz(Integer quizAggregateId, Integer courseExecutionAggregateId, Integer userAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        answerService.startQuiz(quizAggregateId, courseExecutionAggregateId, userAggregateId, unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
     }
 
-    public void concludeQuiz(Integer quizAggregateId) {
-
+    public void concludeQuiz(Integer quizAggregateId, Integer courseExecutionAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        answerService.concludeQuiz(quizAggregateId, courseExecutionAggregateId, unitOfWork);
+        unitOfWorkService.commit(unitOfWork);
     }
 
     public void getSolvedQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {
-
+        /*UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        return answerService.getSolvedQuizzes()*/
     }
 
     /************************************************ EVENT PROCESSING ************************************************/

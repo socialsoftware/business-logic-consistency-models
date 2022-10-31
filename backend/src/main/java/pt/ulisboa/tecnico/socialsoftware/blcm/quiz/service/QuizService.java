@@ -10,7 +10,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.servic
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.InvalidateQuizEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
@@ -205,6 +204,21 @@ public class QuizService {
 
         return new QuizDto(newQuiz);
     }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public List<QuizDto> getAvailableQuizzes(Integer courseExecutionAggregateId, UnitOfWork unitOfWork) {
+        LocalDateTime now = LocalDateTime.now();
+       return quizRepository.findAllAggregateIdsByCourseExecution(courseExecutionAggregateId).stream()
+               .map(id -> getCausalQuizLocal(id, unitOfWork))
+               .filter(quiz -> quiz.getAvailableDate().isAfter(now) && quiz.getConclusionDate().isBefore(now) && quiz.getQuizType() != GENERATED)
+               .map(QuizDto::new)
+               .collect(Collectors.toList());
+
+    }
+
     /************************************************ EVENT PROCESSING ************************************************/
 
     @Retryable(
@@ -264,6 +278,4 @@ public class QuizService {
         unitOfWork.addEvent(new InvalidateQuizEvent(newQuiz.getAggregateId()));
         return newQuiz;
     }
-
-
 }

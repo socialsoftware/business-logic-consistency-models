@@ -113,50 +113,6 @@ public class QuizQuestion {
 
         return questionDto;
     }
-    
-    public static void syncQuestionVersions(Set<QuizQuestion> prevQuestions, Set<QuizQuestion> v1Questions, Set<QuizQuestion> v2Questions) {
-        for (QuizQuestion qq1 : v1Questions) {
-            for (QuizQuestion qq2 : v2Questions) {
-                if (qq1.getAggregateId().equals(qq2.getAggregateId())) {
-                    if (qq1.getVersion() > qq2.getVersion()) {
-                        qq2.setVersion(qq1.getVersion());
-                        qq2.setTitle(qq1.getTitle());
-                        qq2.setContent(qq1.getContent());
-                        qq2.setSequence(qq1.getSequence());
-
-                    }
-
-                    if (qq2.getVersion() > qq1.getVersion()) {
-                        qq1.setVersion(qq2.getVersion());
-                        qq1.setTitle(qq2.getTitle());
-                        qq1.setContent(qq2.getContent());
-                        qq1.setSequence(qq2.getSequence());
-                    }
-                }
-            }
-
-            // no need to check again because the prev does not contain any newer version than v1 an v2
-            for (QuizQuestion prevQuestion : prevQuestions) {
-                if (qq1.getAggregateId().equals(prevQuestion.getAggregateId())) {
-                    if (qq1.getVersion() > prevQuestion.getVersion()) {
-                        prevQuestion.setVersion(qq1.getVersion());
-                        prevQuestion.setTitle(qq1.getTitle());
-                        prevQuestion.setContent(qq1.getContent());
-                        prevQuestion.setSequence(qq1.getSequence());
-
-
-                    }
-
-                    if (prevQuestion.getVersion() > qq1.getVersion()) {
-                        qq1.setVersion(prevQuestion.getVersion());
-                        qq1.setTitle(prevQuestion.getTitle());
-                        qq1.setContent(prevQuestion.getContent());
-                        qq1.setSequence(prevQuestion.getSequence());
-                    }
-                }
-            }
-        }
-    }
 
     @Override
     public boolean equals(Object obj) {

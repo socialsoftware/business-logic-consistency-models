@@ -10,7 +10,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.AnswerService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 
 import java.util.List;
@@ -26,23 +25,15 @@ public class AnswerEventDetection {
     private EventRepository eventRepository;
 
     @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
-
-    @Autowired
-    private UnitOfWorkService unitOfWorkService;
-
-    @Autowired
     private AnswerRepository answerRepository;
-
-    @Autowired
-    private AnswerService answerService;
 
     @Autowired
     private AnswerFunctionalities answerFunctionalities;
     /*
         QUIZ_COURSE_EXECUTION_SAME_AS_QUESTION_COURSE
      */
-        /** NO EVENT FOR THESE neither question course or quiz course execution changed**/
+
+    /** NO EVENT FOR THESE neither question course or quiz course execution changed**/
 
     /*
         USER_EXISTS

@@ -183,9 +183,6 @@ public class Answer extends Aggregate {
         Set<QuestionAnswer> v1QuestionAnswersPre = new HashSet<>(v1.getQuestionAnswers());
         Set<QuestionAnswer> v2QuestionAnswersPre = new HashSet<>(v2.getQuestionAnswers());
 
-        /*is this necessary*/
-        //QuestionAnswer.syncQuestionVersions(prevQuestionAnswersPre, v1QuestionAnswersPre, v2QuestionAnswersPre);
-
         Set<QuestionAnswer> prevQuestionAnswers = new HashSet<>(prevQuestionAnswersPre);
         Set<QuestionAnswer> v1QuestionAnswers = new HashSet<>(v1QuestionAnswersPre);
         Set<QuestionAnswer> v2QuestionAnswers = new HashSet<>(v2QuestionAnswersPre);
@@ -233,10 +230,6 @@ public class Answer extends Aggregate {
     public AnswerCourseExecution getCourseExecution() {
         return courseExecution;
     }
-
-    /*public void setCourseExecution(AnswerCourseExecution courseExecution) {
-        this.courseExecution = courseExecution;
-    }*/
 
     public AnswerUser getUser() {
         return user;

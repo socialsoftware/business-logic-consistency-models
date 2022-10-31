@@ -11,7 +11,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopi
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
@@ -37,9 +36,6 @@ public class TopicService {
 
     @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
 
     @Retryable(
             value = { SQLException.class },

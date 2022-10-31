@@ -90,7 +90,7 @@ public class UnitOfWorkService {
 
         Map<Integer, Aggregate> originalAggregatesToCommit = new HashMap<>(unitOfWork.getAggregatesToCommit());
 
-        // may contains merged aggregates
+        // may contain merged aggregates
         // we do not want to compare intermediate merged aggregates with concurrent aggregate so we separate
         // the comparison is always between the original written by the functionality and the concurrent
         Map<Integer, Aggregate> modifiedAggregatesToCommit = new HashMap<>(unitOfWork.getAggregatesToCommit());
@@ -120,15 +120,6 @@ public class UnitOfWorkService {
                 // the service to get a new version must also increment it to guarantee two transactions do run with the same version number
                 // a number must be requested every time a concurrent version is detected
                 unitOfWork.setVersion(versionService.incrementAndGetVersionNumber());
-            }
-        }
-
-        // registering the emitted events on the committed aggregates
-        for(Aggregate a : modifiedAggregatesToCommit.values()) {
-            for(Event e : unitOfWork.getEventsToEmit()) {
-                if(a.getAggregateId().equals(e.getAggregateId())) {
-                    a.addEmittedEvent(e.getClass().getAnnotation( DiscriminatorValue.class ).value(), unitOfWork.getVersion());
-                }
             }
         }
 

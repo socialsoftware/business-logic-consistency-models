@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
@@ -34,22 +33,13 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Service
 public class CourseExecutionService {
     @Autowired
-    private VersionService versionService;
-
-    @Autowired
     private CourseExecutionRepository courseExecutionRepository;
 
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
     @Autowired
-    private UnitOfWorkService unitOfWorkService;
-
-    @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
 
     @Retryable(
             value = { SQLException.class },

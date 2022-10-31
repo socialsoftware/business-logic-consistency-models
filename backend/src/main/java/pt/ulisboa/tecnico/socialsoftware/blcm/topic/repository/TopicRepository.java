@@ -15,9 +15,6 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
     @Query(value = "select * from topics t where t.aggregate_id = :aggregateId AND t.version < :maxVersion AND t.state != 'DELETED' AND t.version >= (select max(version) from topics where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<Topic> findCausal(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from topics t where t.aggregate_id = :aggregateId AND t.version < :maxVersion AND t.version >= (select max(version) from topics where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
-    Optional<Topic> findCausalInactiveIncluded(Integer aggregateId, Integer maxVersion);
-
     @Query(value = "select * from topics  where id = (select max(id) from topics where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
     Optional<Topic> findConcurrentVersions(Integer aggregateId, Integer version);
 }

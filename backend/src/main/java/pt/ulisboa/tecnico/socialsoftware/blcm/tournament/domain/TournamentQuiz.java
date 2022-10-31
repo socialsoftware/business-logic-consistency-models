@@ -43,7 +43,7 @@ public class TournamentQuiz {
         this.version = version;
     }
 
-    public QuizDto buidlDto() {
+    public QuizDto buildDto() {
         QuizDto quizDto = new QuizDto();
         quizDto.setAggregateId(getAggregateId());
         quizDto.setVersion(quizDto.getVersion());

@@ -49,8 +49,9 @@ public class QuizFunctionalities {
         return quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
     }
 
-    public void getAvailableQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {
-
+    public List<QuizDto> getAvailableQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        return quizService.getAvailableQuizzes(courseExecutionAggregateId, unitOfWork);
     }
 
     public QuizDto updateQuiz(QuizDto quizDto) {

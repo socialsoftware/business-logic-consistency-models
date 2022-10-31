@@ -31,8 +31,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.uti
 @Entity
 @Table(name = "course_executions")
 public class CourseExecution extends Aggregate {
-    // TODO add course type??
-
     @Column
     private String acronym;
 

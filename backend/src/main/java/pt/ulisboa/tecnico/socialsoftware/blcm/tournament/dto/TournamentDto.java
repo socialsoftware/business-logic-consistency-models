@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
@@ -51,7 +50,7 @@ public class TournamentDto implements Serializable {
         setParticipants(tournament.getParticipants().stream().map(TournamentParticipant::buildDto).collect(Collectors.toSet()));
         setCourseExecution(tournament.getCourseExecution().buildDto());
         setTopics(tournament.getTopics().stream().map(TournamentTopic::buildDto).collect(Collectors.toSet()));
-        setQuiz(tournament.getQuiz().buidlDto());
+        setQuiz(tournament.getQuiz().buildDto());
         setState(tournament.getState().toString());
     }
 

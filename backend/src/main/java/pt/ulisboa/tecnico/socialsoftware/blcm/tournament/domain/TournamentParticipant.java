@@ -1,11 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
+
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_UPDATE_TOURNAMENT;
 
 @Embeddable
 public class TournamentParticipant {
@@ -97,17 +100,7 @@ public class TournamentParticipant {
     }
 
     public void setAnswer(TournamentParticipantAnswer answer) {
-        /*
-        AFTER_END
-		    now > this.endTime => p: this.participant | final p.answer
-		IS_CANCELED
-		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
 
-        */
-        // TODO cant access tournament fields such as prev
-        /*if(LocalDateTime.now().isAfter(getEndTime())) {
-            throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
-        }*/
         this.answer = answer;
     }
 
@@ -200,13 +193,6 @@ public class TournamentParticipant {
                 }
             }
         }
-
-
-
-        /*Integer maxCreatorVersion = Math.max(v1Creator.getVersion(), v2Creator.getVersion());
-        for()*/
-
-        // TODO in the end sync with the creator
     }
 
     @Override

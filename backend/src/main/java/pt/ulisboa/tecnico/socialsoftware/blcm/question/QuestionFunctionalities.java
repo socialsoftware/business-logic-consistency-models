@@ -50,7 +50,7 @@ public class QuestionFunctionalities {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         QuestionCourse course = new QuestionCourse(courseService.getCausalCourseRemote(courseAggregateId, unitOfWork));
         /*
-            // TODO COURSE_SAME_TOPICS_COURSE
+            COURSE_SAME_TOPICS_COURSE
          */
 
         for(TopicDto topicDto : questionDto.getTopicDto()) {

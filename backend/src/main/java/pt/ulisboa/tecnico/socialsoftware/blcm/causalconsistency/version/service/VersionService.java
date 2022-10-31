@@ -28,7 +28,6 @@ public class VersionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Integer getVersionNumber() {
-        //Optional<Version> versionOp = versionRepository.findAll().stream().findFirst();
         Optional<Version> versionOp = versionRepository.findAll().stream().findAny();
         Version version;
         if (versionOp.isEmpty()) {
@@ -37,7 +36,6 @@ public class VersionService {
         } else {
             version = versionOp.get();
         }
-        //version.incrementVersion();
         return version.getVersionNumber();
 
     }
@@ -50,13 +48,6 @@ public class VersionService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Integer incrementAndGetVersionNumber() {
         Version version = versionRepository.findAll().stream().findAny().orElseThrow(() -> new TutorException(ErrorMessage.VERSION_MANAGER_DOES_NOT_EXIST));
-        /*if(currentCommitVersionNumber + 1 <= version.getVersionNumber()) {
-            version.incrementVersion();
-            versionRepository.save(version);
-            return version.getVersionNumber();
-        } else {
-            return version.getVersionNumber()+1;
-        }*/
         version.incrementVersion();
         return version.getVersionNumber();
     }

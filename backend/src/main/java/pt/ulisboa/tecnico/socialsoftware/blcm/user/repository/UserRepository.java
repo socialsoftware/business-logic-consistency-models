@@ -17,9 +17,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "select * from users u where u.aggregate_id = :aggregateId AND u.version < :maxVersion AND u.state != 'DELETED' AND  u.version >= (select max(version) from users where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
     Optional<User> findCausal(Integer aggregateId, Integer maxVersion);
 
-    @Query(value = "select * from users u where u.aggregate_id = :aggregateId AND u.version < :maxVersion AND  u.version >= (select max(version) from users where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
-    Optional<User> findCausalInactiveIncluded(Integer aggregateId, Integer maxVersion);
-
     @Query(value = "select u.* from users u, user_course_executions uce where u.id = uce.user_id AND uce.course_execution_aggregate_id = :executionAggregateId AND u.id IN (select max(id) from users where version < :maxVersion AND aggregate_id NOT IN (" + NON_ACTIVE_USERS + ") group by aggregate_id)", nativeQuery = true)
     Set<User> findCausalByExecution(Integer executionAggregateId, Integer maxVersion);
 

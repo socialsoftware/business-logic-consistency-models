@@ -11,7 +11,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
@@ -41,9 +40,6 @@ public class QuestionService {
 
     @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
 
     @Retryable(
             value = { SQLException.class },
@@ -94,7 +90,6 @@ public class QuestionService {
     }
 
     private void checkInput(QuestionCourse course, QuestionDto questionDto) {
-        // TODO
     }
 
     @Retryable(

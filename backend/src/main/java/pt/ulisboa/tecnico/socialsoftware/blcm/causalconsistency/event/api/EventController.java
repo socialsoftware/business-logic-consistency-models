@@ -40,6 +40,7 @@ public class EventController {
     public String stopSchedule() {
         postProcessor.postProcessBeforeDestruction(questionEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessBeforeDestruction(topicEventDetection, SCHEDULED_TASKS);
+        postProcessor.postProcessBeforeDestruction(executionEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessBeforeDestruction(answerEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessBeforeDestruction(quizEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessBeforeDestruction(tournamentEventDetection, SCHEDULED_TASKS);
@@ -51,6 +52,7 @@ public class EventController {
     public String startSchedule() {
         postProcessor.postProcessAfterInitialization(questionEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessAfterInitialization(topicEventDetection, SCHEDULED_TASKS);
+        postProcessor.postProcessAfterInitialization(executionEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessAfterInitialization(answerEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessAfterInitialization(quizEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessAfterInitialization(tournamentEventDetection, SCHEDULED_TASKS);

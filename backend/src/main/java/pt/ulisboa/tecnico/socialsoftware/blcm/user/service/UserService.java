@@ -10,7 +10,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.servic
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
@@ -38,9 +37,6 @@ public class UserService {
 
     @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
 
     @Retryable(
             value = { SQLException.class },
@@ -131,27 +127,4 @@ public class UserService {
                 .map(UserDto::new)
                 .collect(Collectors.toList());
     }
-
-    /*
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    public User removeCourseExecutionsFromUser(Integer userAggregateId, List<Integer> courseExecutionsAggregateIds, UnitOfWork unitOfWork) {
-        User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
-        Set<UserCourseExecution> courseExecutionsToRemove = oldUser.getCourseExecutions().stream()
-                .filter(uce -> courseExecutionsAggregateIds.contains(uce.getAggregateId()))
-                .collect(Collectors.toSet());
-
-        if(!courseExecutionsToRemove.isEmpty()) {
-            User newUser = new User(oldUser);
-            for (UserCourseExecution userCourseExecution : courseExecutionsToRemove) {
-                newUser.removeCourseExecution(userCourseExecution);
-            }
-
-            unitOfWork.registerChanged(newUser);
-            return newUser;
-        }
-        return null;
-    }*/
 }

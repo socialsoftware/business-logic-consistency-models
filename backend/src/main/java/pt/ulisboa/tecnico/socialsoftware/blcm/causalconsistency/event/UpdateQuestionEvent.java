@@ -12,8 +12,6 @@ public class UpdateQuestionEvent extends Event {
 
     private String content;
 
-    // TODO put OPTION
-
     public UpdateQuestionEvent() {
         super();
     }

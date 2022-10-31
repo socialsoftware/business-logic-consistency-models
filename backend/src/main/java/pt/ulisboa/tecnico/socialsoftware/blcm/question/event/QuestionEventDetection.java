@@ -4,22 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEvents;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,16 +21,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.uti
 public class QuestionEventDetection {
     @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
-
-    @Autowired
-    private UnitOfWorkService unitOfWorkService;
-
-    @Autowired
-    private QuestionService questionService;
-
     @Autowired
     private QuestionFunctionalities questionFunctionalities;
 

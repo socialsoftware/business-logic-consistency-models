@@ -8,11 +8,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CourseController {
 
-    /*@Autowired
-    private CourseFunctionalities courseFunctionalities;*/
-
-    /*@PostMapping("/course")
-    public CourseDto createCourse(@RequestBody CourseDto courseDto) {
-        return courseFunctionalities.createCourse(courseDto);
-    }*/
 }

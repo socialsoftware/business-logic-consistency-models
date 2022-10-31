@@ -37,9 +37,6 @@ public class TournamentFunctionalities {
     private TournamentService tournamentService;
 
     @Autowired
-    private VersionService versionService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -50,9 +47,6 @@ public class TournamentFunctionalities {
 
     @Autowired
     private QuizService quizService;
-
-    @Autowired
-    private QuestionService questionService;
 
     @Autowired
     private AnswerService answerService;
@@ -265,16 +259,6 @@ public class TournamentFunctionalities {
 
     public void processAnonymizeStudentEvent(Integer aggregateId, Event eventToProcess) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-
-        // TODO is this actually necessary? Dont think so can't anonymize a user if it doesnt exist in the current tournament version. Will do in the following.
-        /*Tournament tournament = tournamentService.getCausalTournamentLocal(aggregateId, unitOfWork);
-        Optional<EventSubscription> eventSubscriptionOp = tournament.getEventSubscriptionsByAggregateIdAndType(eventToProcess.getAggregateId(), eventToProcess.getType());
-        if(eventSubscriptionOp.isPresent()) {
-            if(eventSubscriptionOp.get().getSenderLastVersion() <= eventToProcess.getAggregateVersion()) {
-                return;
-            }
-        }*/
-
         System.out.printf("Processing anonymize a user for course execution %d event for tournament %d\n", eventToProcess.getAggregateId(), aggregateId);
         AnonymizeExecutionStudentEvent anonymizeEvent = (AnonymizeExecutionStudentEvent) eventToProcess;
         tournamentService.anonymizeUser(aggregateId, anonymizeEvent.getAggregateId(), anonymizeEvent.getUserAggregateId(), anonymizeEvent.getName(), anonymizeEvent.getUsername(), anonymizeEvent.getAggregateVersion(), unitOfWork);

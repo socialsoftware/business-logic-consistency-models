@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizFunctionalities;
@@ -23,12 +22,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.uti
 
 @Component
 public class QuizEventDetection {
-    @Autowired
-    private UnitOfWorkService unitOfWorkService;
-
-    @Autowired
-    private QuizService quizService;
-
     @Autowired
     private QuizFunctionalities quizFunctionalities;
 
@@ -101,27 +94,5 @@ public class QuizEventDetection {
                 }
             }
         }
-    }
-
-    private Set<Integer> processRemoveQuestionEvents(java.lang.Integer quizAggregateId, List<Event> events) {
-        Set<java.lang.Integer> newlyProcessedEventVersions = new HashSet<>();
-        Set<RemoveQuestionEvent> removeQuestionEvents = events.stream()
-                .map(e -> RemoveQuestionEvent.class.cast(e))
-                .collect(Collectors.toSet());
-        for(RemoveQuestionEvent e : removeQuestionEvents) {
-            Set<Integer> tournamentIdsByCourseExecution = quizRepository.findAllAggregateIdsByQuestion(e.getAggregateId());
-            if(!tournamentIdsByCourseExecution.contains(quizAggregateId)) {
-                continue;
-            }
-            System.out.printf("Processing remove question %d event for quiz %d\n", e.getAggregateId(), quizAggregateId);
-            UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-            Quiz updatedQuiz = quizService.removeQuestion(quizAggregateId, e.getAggregateId(), e.getAggregateVersion(), unitOfWork);
-            if(updatedQuiz != null) {
-                //updatedQuiz.addProcessedEvent(e.getType(), e.getAggregateVersion());
-                unitOfWorkService.commit(unitOfWork);
-            }
-            newlyProcessedEventVersions.add(e.getAggregateVersion());
-        }
-        return newlyProcessedEventVersions;
     }
 }

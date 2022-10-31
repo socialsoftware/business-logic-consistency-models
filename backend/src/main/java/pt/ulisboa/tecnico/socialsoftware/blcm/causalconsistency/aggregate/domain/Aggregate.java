@@ -38,9 +38,6 @@ public abstract class Aggregate {
     @Column(name = "aggregate_type")
     private AggregateType aggregateType;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Map<String, Integer> emittedEvents;
-
     @ManyToOne
     private Aggregate prev;
 
@@ -66,7 +63,6 @@ public abstract class Aggregate {
         setAggregateId(aggregateId);
         setState(AggregateState.ACTIVE);
         setAggregateType(aggregateType);
-        setEmittedEvents(new HashMap<>());
     }
 
     public Aggregate(Aggregate other) {
@@ -74,7 +70,6 @@ public abstract class Aggregate {
         setAggregateId(other.getAggregateId());
         setAggregateType(other.getAggregateType());
         setState(other.getState());
-        setEmittedEvents(new HashMap<>(other.getEmittedEvents()));
         setPrev(other);
     }
 
@@ -156,21 +151,6 @@ public abstract class Aggregate {
                 .findAny();
     }
 
-    public Map<String, Integer> getEmittedEvents() {
-        return this.emittedEvents;
-    }
-
-    public void setEmittedEvents(Map<String, Integer> emittedEvents) {
-        this.emittedEvents = emittedEvents;
-    }
-
-    public void addEmittedEvent(String eventType, Integer eventVersion) {
-        if(this.emittedEvents.containsKey(eventType) && this.emittedEvents.get(eventType) >= eventVersion) {
-            return;
-        }
-        this.emittedEvents.put(eventType, eventVersion);
-    }
-
     public Aggregate merge(Aggregate other) {
         Aggregate prev = getPrev();
         Aggregate toCommitVersion = this;
@@ -196,27 +176,8 @@ public abstract class Aggregate {
 
         Aggregate mergedAggregate = mergeFields(toCommitVersionChangedFields, committedVersion, committedVersionChangedFields);
 
-        //mergeEmittedEvents(toCommitVersion, committedVersion, mergedAggregate);
-
-        // TODO see explanation for prev assignment in Quiz
         mergedAggregate.setPrev(getPrev());
         return mergedAggregate;
-    }
-
-
-    private static void mergeEmittedEvents(Aggregate toCommitVersion, Aggregate committedVersion, Aggregate mergedAggregate) {
-        Map<String, Integer> mergedEmittedEvents = new HashMap<>();
-        toCommitVersion.getEmittedEvents().forEach((eventType, eventVersion) -> {
-            if(!mergedEmittedEvents.containsKey(eventType) || (mergedEmittedEvents.containsKey(eventType) && eventVersion > mergedEmittedEvents.get(eventType))) {
-                mergedEmittedEvents.put(eventType, eventVersion);
-            }
-        });
-        committedVersion.getEmittedEvents().forEach((eventType, eventVersion) -> {
-            if(!mergedEmittedEvents.containsKey(eventType) || (mergedEmittedEvents.containsKey(eventType) && eventVersion > mergedEmittedEvents.get(eventType))) {
-                mergedEmittedEvents.put(eventType, eventVersion);
-            }
-        });
-        mergedAggregate.setEmittedEvents(mergedEmittedEvents);
     }
 
     private Set<String> getChangedFields(Object prevObj, Object obj) {

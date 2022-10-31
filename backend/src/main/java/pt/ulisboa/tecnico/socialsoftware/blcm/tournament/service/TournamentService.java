@@ -6,7 +6,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
@@ -16,7 +15,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.ProcessedEventsRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
@@ -26,9 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.*;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.Role.STUDENT;
 
 @Service
 public class TournamentService {
@@ -40,9 +36,6 @@ public class TournamentService {
 
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
-
-    @Autowired
-    private ProcessedEventsRepository processedEventsRepository;
 
     @Autowired
     private EventRepository eventRepository;
@@ -125,33 +118,6 @@ public class TournamentService {
         unitOfWork.registerChanged(newTournament);
     }
 
-    // TODO ditch these method
-    private Set<Tournament> findAllTournamentByVersion(UnitOfWork unitOfWork) {
-        Set<Tournament> tournaments = tournamentRepository.findAll()
-                .stream()
-                .filter(t -> t.getVersion() < unitOfWork.getVersion())
-                .collect(Collectors.toSet());
-
-        Map<Integer, Tournament> tournamentPerAggregateId = new HashMap<>();
-        for(Tournament t : tournaments) {
-            if(t.getState() == DELETED) {
-                throw new TutorException(TOURNAMENT_DELETED, t.getAggregateId());
-            }
-
-            List<Event> allEvents = eventRepository.findAll();
-            unitOfWork.addToCausalSnapshot(t, allEvents);
-
-            if (!tournamentPerAggregateId.containsKey(t.getAggregateId())) {
-                tournamentPerAggregateId.put(t.getAggregateId(), t);
-            } else {
-                if(tournamentPerAggregateId.get(t.getAggregateId()).getCreationTs().isBefore(t.getCreationTs())) {
-                    tournamentPerAggregateId.put(t.getAggregateId(), t);
-                }
-            }
-        }
-        return (Set<Tournament>) tournamentPerAggregateId.values();
-    }
-
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -189,11 +155,11 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
-        /*switch this to query???*/
-        return findAllTournamentByVersion(unitOfWork).stream()
-                .filter(t -> t.getCourseExecution().getAggregateId() == executionAggregateId)
+        return tournamentRepository.findAllAggregateIdsByCourseExecution(executionAggregateId).stream()
+                .map(aggregateId -> getCausalTournamentLocal(aggregateId, unitOfWork))
                 .map(TournamentDto::new)
                 .collect(Collectors.toList());
+
     }
 
     @Retryable(
@@ -201,10 +167,9 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
-        /*switch this to query???*/
         LocalDateTime now = LocalDateTime.now();
-        return findAllTournamentByVersion(unitOfWork).stream()
-                .filter(t -> t.getCourseExecution().getAggregateId() == executionAggregateId)
+        return tournamentRepository.findAllAggregateIdsByCourseExecution(executionAggregateId).stream()
+                .map(aggregateId -> getCausalTournamentLocal(aggregateId, unitOfWork))
                 .filter(t -> now.isBefore(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
                 .map(TournamentDto::new)
@@ -216,10 +181,9 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getClosedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
-        /*switch this to query???*/
         LocalDateTime now = LocalDateTime.now();
-        return findAllTournamentByVersion(unitOfWork).stream()
-                .filter(t -> t.getCourseExecution().getAggregateId() == executionAggregateId)
+        return tournamentRepository.findAllAggregateIdsByCourseExecution(executionAggregateId).stream()
+                .map(aggregateId -> getCausalTournamentLocal(aggregateId, unitOfWork))
                 .filter(t -> now.isAfter(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
                 .map(TournamentDto::new)
@@ -265,7 +229,6 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.cancel();
-        // TODO should we cancel all subscriptions??
         unitOfWork.registerChanged(newTournament);
     }
 
@@ -277,7 +240,6 @@ public class TournamentService {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.remove();
-        // TODO should we cancel all subscriptions??
         unitOfWork.registerChanged(newTournament);
     }
 
@@ -425,6 +387,17 @@ public class TournamentService {
         if(tournamentParticipant == null) {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
         }
+        /*
+            AFTER_END
+                now > this.endTime => p: this.participant | final p.answer
+            IS_CANCELED
+                this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
+        */
+        if(oldTournament != null) {
+            if((oldTournament.getStartTime() != null && LocalDateTime.now().isAfter(oldTournament.getStartTime())) || oldTournament.isCancelled()) {
+                throw new TutorException(CANNOT_UPDATE_TOURNAMENT, oldTournament.getAggregateId());
+            }
+        }
         tournamentParticipant.updateAnswerWithQuestion(answerAggregateId, isCorrect, eventVersion);
         unitOfWork.registerChanged(newTournament);
         return newTournament;
@@ -437,9 +410,6 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament invalidateQuiz(Integer tournamentAggregateId, Integer aggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
-        /* TODO try to regenerate quiz if possible
-            if not possible make tournament inactive
-         */
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
         List<Integer> topicsIds = newTournament.getTopics().stream().map(TournamentTopic::getAggregateId).collect(Collectors.toList());
