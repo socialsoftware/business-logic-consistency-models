@@ -23,7 +23,7 @@ public class Topic extends Aggregate {
     @Column
     private String name;
 
-    @Embedded
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private TopicCourse course;
 
     public Topic() {}

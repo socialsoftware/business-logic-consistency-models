@@ -36,10 +36,10 @@ public class Question extends Aggregate {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
-    @Embedded
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private QuestionCourse course;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<QuestionTopic> topics;
 
     @ElementCollection(fetch = FetchType.EAGER)

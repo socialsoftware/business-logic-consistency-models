@@ -8,6 +8,7 @@ public class TournamentParticipantAnswer {
     @Column(name = "answer_aggregate_id")
     private Integer aggregateId;
 
+    @Column(name = "answer_version")
     private Integer version;
 
     @Column(name = "answer_number_of_answered")

@@ -1,42 +1,34 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.CourseType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
-@Embeddable
-public class ExecutionCourse {
+@Entity
+public class ExecutionCourse extends AggregateComponent {
 
-    @Column(name = "course_aggregate_id")
-    private Integer courseAggregateId;
-
+    @Column
     private String name;
 
     @Enumerated(EnumType.STRING)
     private CourseType type;
 
-    @Column(name = "course_version")
-    private Integer version;
-
-    public ExecutionCourse() {}
+    public ExecutionCourse() {
+        super();
+    }
 
     public ExecutionCourse(CourseExecutionDto courseExecutionDto) {
-        setAggregateId(courseExecutionDto.getCourseAggregateId());
+        super(courseExecutionDto.getCourseAggregateId(), courseExecutionDto.getCourseVersion());
         setName(courseExecutionDto.getName());
         setType(CourseType.valueOf(courseExecutionDto.getType()));
-        setVersion(courseExecutionDto.getCourseVersion());
     }
 
-    public Integer getAggregateId() {
-        return courseAggregateId;
-    }
-
-    public void setAggregateId(Integer aggregateId) {
-        this.courseAggregateId = aggregateId;
+    public ExecutionCourse(ExecutionCourse other) {
+        super(other.getAggregateId(), other.getVersion());
+        setName(other.getName());
+        setType(other.getType());
     }
 
     public String getName() {
@@ -55,11 +47,4 @@ public class ExecutionCourse {
         this.type = type;
     }
 
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
 }

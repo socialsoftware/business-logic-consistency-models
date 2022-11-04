@@ -51,7 +51,7 @@ public class Quiz extends Aggregate {
     @Column(nullable = false)
     private String title = "Title";
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<QuizQuestion> quizQuestions = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
@@ -60,7 +60,7 @@ public class Quiz extends Aggregate {
     /*
         COURSE_EXECUTION_FINAL
      */
-    @Embedded
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private final QuizCourseExecution courseExecution;
 
     public Quiz() {

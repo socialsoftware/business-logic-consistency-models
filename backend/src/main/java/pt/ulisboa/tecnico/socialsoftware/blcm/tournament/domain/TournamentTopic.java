@@ -1,19 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Embeddable
-public class TournamentTopic {
-    @Column(name = "topic_aggregate_id")
-    private Integer aggregateId;
+
+@Entity
+public class TournamentTopic extends AggregateComponent {
 
     @Column(name = "topic_name")
     private String name;
@@ -21,39 +18,26 @@ public class TournamentTopic {
     @Column(name = "topic_course_aggregate_id")
     private Integer courseAggregateId;
 
-    @Column(name = "topic_version")
-    private Integer version;
-
     @Enumerated(EnumType.STRING)
     private Aggregate.AggregateState state;
 
     public TournamentTopic() {
-
+        super();
     }
     public TournamentTopic(TopicDto topicDto) {
-        setAggregateId(topicDto.getAggregateId());
-        setVersion(topicDto.getVersion());
+        super(topicDto.getAggregateId(), topicDto.getVersion());
         setName(topicDto.getName());
         setCourseAggregateId(topicDto.getCourseId());
         setState(Aggregate.AggregateState.ACTIVE);
     }
 
     public TournamentTopic(TournamentTopic other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        super(other.getAggregateId(), other.getVersion());
         setName(other.getName());
         setCourseAggregateId(other.getCourseAggregateId());
         setState(other.getState());
     }
 
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
-    }
 
     public String getName() {
         return name;
@@ -69,14 +53,6 @@ public class TournamentTopic {
 
     public void setCourseAggregateId(Integer courseId) {
         this.courseAggregateId = courseId;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public Aggregate.AggregateState getState() {

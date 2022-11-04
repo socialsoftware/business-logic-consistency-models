@@ -12,8 +12,13 @@ import javax.persistence.*;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 
-@Embeddable
+@Entity
 public class EventSubscription {
+
+    @Id
+    @GeneratedValue
+    private Integer id;
+
     @Column
     private Integer senderAggregateId;
 
@@ -23,7 +28,7 @@ public class EventSubscription {
     @Column
     private String eventType;
 
-    @Embedded
+    @ManyToOne
     private Aggregate subscriberAggregate;
 
     public EventSubscription() {
@@ -103,6 +108,13 @@ public class EventSubscription {
         return false;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Aggregate getSubscriberAggregate() {
         return subscriberAggregate;

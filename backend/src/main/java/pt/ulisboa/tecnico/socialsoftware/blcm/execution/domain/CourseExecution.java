@@ -40,10 +40,10 @@ public class CourseExecution extends Aggregate {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
-    @Embedded
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ExecutionCourse course;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ExecutionStudent> students;
 
     public CourseExecution() {
@@ -66,7 +66,7 @@ public class CourseExecution extends Aggregate {
         setAcronym(other.getAcronym());
         setAcademicTerm(other.getAcademicTerm());
         setEndDate(other.getEndDate());
-        setCourse(other.getCourse());
+        setCourse(new ExecutionCourse(other.getCourse()));
         setStudents(new HashSet<>(other.getStudents().stream().map(ExecutionStudent::new).collect(Collectors.toSet())));
 
     }

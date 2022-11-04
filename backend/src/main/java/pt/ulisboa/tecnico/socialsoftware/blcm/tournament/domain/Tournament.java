@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import org.apache.commons.collections4.SetUtils;
+import org.springframework.data.repository.cdi.Eager;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
@@ -76,32 +77,30 @@ public class Tournament extends Aggregate {
     CREATOR_IS_FINAL
 		final this.creator.id
      */
-    @Embedded
-    @Column(name = "creator")
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private final TournamentCreator creator;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tournament_participants")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<TournamentParticipant> participants;
 
     /*
     COURSE_EXECUTION_IS_FINAL
 		final this.courseExecution.id
      */
-    @Embedded
-    @Column(name = "course_execution")
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private final TournamentCourseExecution courseExecution;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tournament_topics")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<TournamentTopic> topics;
 
     /*
     QUIZ_IS_FINAL
 		final this.tournamentQuiz.id
      */
-    @Embedded
-    @Column(name = "tournament_quiz")
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private final TournamentQuiz quiz;
 
 

@@ -1,15 +1,17 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import java.util.Set;
 
-@Embeddable
-public class QuestionTopic {
+@Entity
+public class QuestionTopic extends AggregateComponent {
     @Column(name = "topic_aggregate_id")
     private Integer aggregateId;
 
@@ -18,22 +20,21 @@ public class QuestionTopic {
     @Column(name = "topic_version")
     private Integer version;
 
+    @Column(name = "topic_state")
     private Aggregate.AggregateState state;
 
     public QuestionTopic() {
-
+        super();
     }
 
     public QuestionTopic (TopicDto topicDto) {
-        setAggregateId(topicDto.getAggregateId());
+        super(topicDto.getAggregateId(), topicDto.getVersion());
         setName(topicDto.getName());
-        setVersion(topicDto.getVersion());
     }
 
     public QuestionTopic(QuestionTopic other) {
-        setAggregateId(other.getAggregateId());
+        super(other.getAggregateId(), other.getVersion());
         setName(other.getName());
-        setVersion(other.getVersion());
     }
 
     public Integer getAggregateId() {

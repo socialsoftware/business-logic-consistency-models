@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
@@ -10,10 +12,9 @@ import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_UPDATE_TOURNAMENT;
 
-@Embeddable
-public class TournamentParticipant {
-    @Column(name = "participant_aggregate_id")
-    private Integer aggregateId;
+
+@Entity
+public class TournamentParticipant extends AggregateComponent {
 
     @Column(name = "participant_name")
     private String name;
@@ -28,31 +29,27 @@ public class TournamentParticipant {
     @Column(name = "tournament_answer")
     private TournamentParticipantAnswer answer;
 
-    @Column(name = "participant_version")
-    private Integer version;
-
     @Enumerated(EnumType.STRING)
     private AggregateState state;
 
     public TournamentParticipant() {
+        super();
         setEnrollTime(LocalDateTime.now());
     }
 
     public TournamentParticipant(UserDto userDto) {
-        setAggregateId(userDto.getAggregateId());
+        super(userDto.getAggregateId(), userDto.getVersion());
         setName(userDto.getName());
         setUsername(userDto.getUsername());
-        setVersion(userDto.getVersion());
         setAnswer(new TournamentParticipantAnswer());
         setEnrollTime(LocalDateTime.now());
         setState(AggregateState.ACTIVE);
     }
 
     public TournamentParticipant(TournamentParticipant other) {
-        setAggregateId(other.getAggregateId());
+        super(other.getAggregateId(), other.getVersion());
         setName(other.getName());
         setUsername(other.getUsername());
-        setVersion(other.getVersion());
         setAnswer(new TournamentParticipantAnswer(other.getAnswer()));
         setEnrollTime(other.getEnrollTime());
         setState(other.getState());
@@ -61,14 +58,6 @@ public class TournamentParticipant {
 
     public void answerQuiz() {
         this.answer.setAnswered(true);
-    }
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
     }
 
     public String getName() {
@@ -102,14 +91,6 @@ public class TournamentParticipant {
     public void setAnswer(TournamentParticipantAnswer answer) {
 
         this.answer = answer;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public AggregateState getState() {

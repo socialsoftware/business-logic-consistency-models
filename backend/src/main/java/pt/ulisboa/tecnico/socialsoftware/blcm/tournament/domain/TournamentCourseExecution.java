@@ -1,15 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 
-@Embeddable
-public class TournamentCourseExecution {
-    @Column(name = "course_execution_aggregate_id")
-    private Integer aggregateId;
+@Entity
+public class TournamentCourseExecution extends AggregateComponent {
+
 
     @Column(name = "course_execution_course_id")
     private Integer courseId;
@@ -21,13 +22,13 @@ public class TournamentCourseExecution {
     private String status;
 
 
-    @Column(name = "course_execution_version")
-    private Integer version;
 
-    public TournamentCourseExecution() { }
+
+    public TournamentCourseExecution() {
+        super();
+    }
     public TournamentCourseExecution(CourseExecutionDto courseExecutionDto) {
-        setAggregateId(courseExecutionDto.getAggregateId());
-        setVersion(courseExecutionDto.getVersion());
+        super(courseExecutionDto.getAggregateId(), courseExecutionDto.getVersion());
         setCourseId(courseExecutionDto.getCourseAggregateId());
         setAcronym(courseExecutionDto.getAcronym());
         setStatus(courseExecutionDto.getStatus());
@@ -39,15 +40,6 @@ public class TournamentCourseExecution {
         setCourseId(other.getCourseId());
         setAcronym(other.getAcronym());
         setStatus(other.getStatus());
-    }
-
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
     }
 
     public Integer getCourseId() {
@@ -72,14 +64,6 @@ public class TournamentCourseExecution {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer courseExecutionVersion) {
-        this.version = courseExecutionVersion;
     }
 
     public CourseExecutionDto buildDto() {

@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
@@ -9,19 +10,14 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentPartic
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Embeddable
-public class QuizQuestion {
-    @Column(name = "question_aggregate_id")
-    private Integer aggregateId;
-
-    @Column(name = "question_version")
-    private Integer version;
-
+@Entity
+public class QuizQuestion extends AggregateComponent {
     private String title;
 
     private String content;
@@ -32,13 +28,12 @@ public class QuizQuestion {
 
 
     public QuizQuestion() {
-
+        super();
     }
 
 
     public QuizQuestion(QuestionDto questionDto) {
-        setAggregateId(questionDto.getAggregateId());
-        setVersion(questionDto.getVersion());
+        super(questionDto.getAggregateId(), questionDto.getVersion());
         setTitle(questionDto.getTitle());
         setContent(questionDto.getContent());
         setSequence(questionDto.getSequence());
@@ -46,30 +41,13 @@ public class QuizQuestion {
     }
 
     public QuizQuestion(QuizQuestion other) {
+        super(other.getAggregateId(), other.getVersion());
         setAggregateId(other.getAggregateId());
         setVersion(other.getVersion());
         setTitle(other.getTitle());
         setContent(other.getContent());
         setSequence(other.getSequence());
         setState(other.getState());
-    }
-
-    
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public String getTitle() {

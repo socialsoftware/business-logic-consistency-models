@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
 import org.apache.commons.collections4.SetUtils;
+import org.springframework.data.repository.cdi.Eager;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -45,14 +46,14 @@ public class Answer extends Aggregate {
     @Column
     private boolean completed;
 
-    @Embedded
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private final AnswerCourseExecution courseExecution;
 
-    @Embedded
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private final AnswerUser user;
 
     /* it is not final because of the question ids inside*/
-    @Embedded
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private AnswerQuiz quiz;
 
     @ElementCollection

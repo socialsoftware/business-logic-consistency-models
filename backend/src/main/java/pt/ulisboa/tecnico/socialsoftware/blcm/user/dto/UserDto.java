@@ -1,12 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 
 import java.io.Serializable;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class UserDto implements Serializable {
     private Integer aggregateId;

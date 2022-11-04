@@ -1,46 +1,23 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 
-@Embeddable
-public class TournamentQuiz {
-    @Column(name = "quiz_aggregate_id")
-    private Integer aggregateId;
-
-    @Column(name = "quiz_version")
-    private Integer version;
-
+@Entity
+public class TournamentQuiz extends AggregateComponent {
     public TournamentQuiz() {
-
+        super();
     }
     public TournamentQuiz(Integer aggregateId, Integer version) {
-        setAggregateId(aggregateId);
-        setVersion(version);
+        super(aggregateId, version);
     }
 
     public TournamentQuiz(TournamentQuiz other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
-    }
-
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
+        super(other.getAggregateId(), other.getVersion());
     }
 
     public QuizDto buildDto() {

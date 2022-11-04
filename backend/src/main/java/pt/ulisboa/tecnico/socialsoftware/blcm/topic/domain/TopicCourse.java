@@ -1,44 +1,26 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 
-@Embeddable
-public class TopicCourse {
-    @Column(name = "course_aggregate_id")
-    private Integer aggregateId;
+@Entity
+public class TopicCourse extends AggregateComponent {
 
-    @Column(name = "course_version")
-    private Integer version;
-
-    public TopicCourse() {}
+    public TopicCourse() {
+        super();
+    }
 
     public TopicCourse(CourseDto courseDto) {
-        setAggregateId(courseDto.getAggregateId());
-        setVersion(courseDto.getVersion());
+        super(courseDto.getAggregateId(), courseDto.getVersion());
     }
 
     public TopicCourse(TopicCourse other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        super(other.getAggregateId(), other.getVersion());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer courseAggregateId) {
-        this.aggregateId = courseAggregateId;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
 }

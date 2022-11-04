@@ -1,55 +1,34 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Embeddable
-public class AnswerQuiz {
-    @Column(name = "quiz_aggregate_id")
-    private final Integer aggregateId;
-
-    @Column(name = "quiz_version")
-    private Integer version;
+@Entity
+public class AnswerQuiz extends AggregateComponent {
 
     @ElementCollection
     private List<Integer> quizQuestionsAggregateIds;
 
     public AnswerQuiz() {
-        this.aggregateId = 0;
+        super();
     }
 
     public AnswerQuiz(QuizDto quizDto) {
-        this.aggregateId = quizDto.getAggregateId();
-        setVersion(quizDto.getVersion());
+        super(quizDto.getAggregateId(), quizDto.getVersion());
         setQuizQuestionsAggregateIds(quizDto.getQuestionDtos().stream()
                 .map(QuestionDto::getAggregateId)
                 .collect(Collectors.toList()));
     }
 
     public AnswerQuiz(AnswerQuiz other) {
-        this.aggregateId = other.getAggregateId();
-        setVersion(other.getVersion());
+        super(other.getAggregateId(), other.getVersion());
         setQuizQuestionsAggregateIds(new ArrayList<>(other.getQuizQuestionsAggregateIds()));
-    }
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public List<Integer> getQuizQuestionsAggregateIds() {

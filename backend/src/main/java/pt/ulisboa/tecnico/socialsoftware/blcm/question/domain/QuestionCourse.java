@@ -1,43 +1,29 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 
-@Embeddable
-public class QuestionCourse {
-    @Column(name = "course_aggregate_id")
-    private Integer aggregateId;
-
+@Entity
+public class QuestionCourse extends AggregateComponent {
     @Column(name = "course_name")
     private String name;
 
-    @Column(name = "course_version")
-    private Integer version;
-
 
     public QuestionCourse() {
-
+        super();
     }
-    public QuestionCourse(CourseDto causalCourseRemote) {
-        setAggregateId(causalCourseRemote.getAggregateId());
-        setName(causalCourseRemote.getName());
-        setVersion(causalCourseRemote.getVersion());
+    public QuestionCourse(CourseDto courseDto) {
+        super(courseDto.getAggregateId(), courseDto.getVersion());
+        setName(courseDto.getName());
     }
 
     public QuestionCourse(QuestionCourse other) {
-        setAggregateId(other.getAggregateId());
+        super(other.getAggregateId(), other.getVersion());
         setName(other.getName());
-        setVersion(other.getVersion());
-    }
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
     }
 
     public String getName() {
@@ -48,17 +34,9 @@ public class QuestionCourse {
         this.name = name;
     }
 
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
     public CourseDto buildDto() {
         CourseDto dto = new CourseDto();
-        dto.setAggregateId(this.aggregateId);
+        dto.setAggregateId(getAggregateId());
         setName(this.name);
         return dto;
     }

@@ -1,20 +1,18 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateComponent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipantAnswer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import java.util.Set;
 
-@Embeddable
-public class ExecutionStudent {
-    @Column(name = "user_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "user_aggregate_version")
-    private Integer version;
+@Entity
+public class ExecutionStudent extends AggregateComponent {
 
     private String name;
 
@@ -25,12 +23,11 @@ public class ExecutionStudent {
     private Aggregate.AggregateState state;
 
     public ExecutionStudent() {
-
+        super();
     }
 
     public ExecutionStudent(UserDto userDto) {
-        setAggregateId(userDto.getAggregateId());
-        setVersion(userDto.getVersion());
+        super(userDto.getAggregateId(), userDto.getVersion());
         setName(userDto.getName());
         setUsername(userDto.getUsername());
         setActive(userDto.isActive());
@@ -38,8 +35,7 @@ public class ExecutionStudent {
     }
 
     public ExecutionStudent(ExecutionStudent other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        super(other.getAggregateId(), other.getVersion());
         setName(other.getName());
         setUsername(other.getUsername());
         setActive(other.isActive());
@@ -49,22 +45,6 @@ public class ExecutionStudent {
     public void anonymize() {
         setName("ANONYMOUS");
         setUsername("ANONYMOUS");
-    }
-
-    public Integer getAggregateId() {
-        return aggregateId;
-    }
-
-    public void setAggregateId(Integer userAggregateId) {
-        this.aggregateId = userAggregateId;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer userVersion) {
-        this.version = userVersion;
     }
 
     public String getName() {
