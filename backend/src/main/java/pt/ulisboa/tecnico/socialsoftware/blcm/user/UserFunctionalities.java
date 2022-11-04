@@ -8,7 +8,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.UserCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 

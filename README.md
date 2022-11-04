@@ -44,3 +44,18 @@ jmeter -n -t TEST.jmx
 ```
 
 * **TEST** is replaced with actual name of a test
+* The cases described in section VII of the paper are, presented in the same:
+  * [5a-updateStudentName-addParticipant-processUpdateNameEvent.jmx](backend/jmeter/tournament/thesis-cases/5a-updateStudentName-addParticipant-processUpdateNameEvent.jmx)
+  * [5b-addParticipant-updateStudentName-processUpdateNameEvent.jmx](backend/jmeter/tournament/thesis-cases/5b-addParticipant-updateStudentName-processUpdateNameEvent.jmx)
+  * [5c-updateStudentName1-addParticipant-updateStudentName2-processUpdateNameEvent.jmx](backend/jmeter/tournament/thesis-cases/5c-updateStudentName1-addParticipant-updateStudentName2-processUpdateNameEvent.jmx)
+  * [5d-addParticipant1-updateStudentName-processUpdateNameEvent1-addParticipant2-processUpdateNameEvent2.jmx](backend/jmeter/tournament/thesis-cases/5d-addParticipant1-updateStudentName-processUpdateNameEvent1-addParticipant2-processUpdateNameEvent2.jmx)
+  * [8-5-update-tournament-concurrent-intention-pass.jmx](backend/jmeter/tournament/thesis-cases/8-5-update-tournament-concurrent-intention-pass.jmx)
+
+* The folder contains additional test cases not described in the paper.
+## Viewing JMeter tests strucure
+
+```
+cd backend/jmeter/tournament/thesis-cases/
+jmeter
+```
+* The command launches JMeter GUI. By clicking `File > Open` and selecting a test file it is possible to observe the test structure.  
