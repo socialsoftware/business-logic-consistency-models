@@ -58,4 +58,5 @@ jmeter -n -t TEST.jmx
 cd backend/jmeter/tournament/thesis-cases/
 jmeter
 ```
-* The command launches JMeter GUI. By clicking `File > Open` and selecting a test file it is possible to observe the test structure.  
+* The command launches JMeter GUI. By clicking `File > Open` and selecting a test file it is possible to observe the test structure.
+* Tests can also be run using the GUI, by clicking on the `Start` button.
