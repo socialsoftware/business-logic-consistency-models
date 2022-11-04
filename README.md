@@ -58,14 +58,14 @@ jmeter -n -t TEST.jmx
     * Tests the the concurrent execution of add participant and update student, where the event is processed after add participant commits.
   
   * [8-8-update-execution-student-add-participant-process-event-add-participant.jmx](backend/jmeter/tournament/thesis-cases/8-8-update-execution-student-add-participant-process-event-add-participant.jmx)
-    * Tests adding the creator student as participant and the tournament did not process all subscribed events from course execution.  
+    * Tests adding the creator student as participant before the tournament processing all subscribed events from the course execution.
   
   * [8-9-add-participant-concurrent-anonymize-event-processing-processing-ends-first.jmx](backend/jmeter/tournament/thesis-cases/8-9-add-participant-concurrent-anonymize-event-processing-processing-ends-first.jmx)
-    * Tests a situation where a student is anonymized in a course execution, which is the tournament creator, whereas, concurrently, the creator is added as a participant. 
+    * Tests a situation where a student is anonymized in a course execution, which is the tournament creator, while, concurrently, the creator is added as a participant. 
   
   * [8-10-concurrent-delete-tournament-add-participant.jmx](backend/jmeter/tournament/thesis-cases/8-10-concurrent-delete-tournament-add-participant.jmx)
     * Tests a  a scenario where a tournament is deleted while a participant is being added. 
-## Viewing JMeter tests strucure
+## Viewing JMeter tests structure
 
 ```
 cd backend/jmeter/tournament/thesis-cases/
