@@ -2,9 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.GeneratedValue;
 
 @Embeddable
 public class Option {

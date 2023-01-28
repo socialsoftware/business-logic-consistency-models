@@ -1,12 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.UNENROLL_STUDENT;
-
 @Entity
-@DiscriminatorValue(UNENROLL_STUDENT)
+@DiscriminatorValue(EventType.UNENROLL_STUDENT)
 public class UnerollStudentFromCourseExecutionEvent extends Event {
 
     private Integer userAggregateId;

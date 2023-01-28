@@ -5,10 +5,10 @@ import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProc
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.event.AnswerEventDetection;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.CourseExecutionEventDetection;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.QuestionEventDetection;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event.QuizEventDetection;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.event.TopicEventDetection;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.CourseExecutionEventDetection;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event.QuizEventDetection;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventDetection;
 
 @RestController

@@ -6,10 +6,9 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnswerQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
@@ -22,15 +21,12 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.*;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class AnswerService {
@@ -60,9 +56,9 @@ public class AnswerService {
 
     public Answer getCausalQuizAnswerLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         Answer answer = answerRepository.findCausal(aggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(QUIZ_ANSWER_NOT_FOUND, aggregateId));
+                .orElseThrow(() -> new TutorException(ErrorMessage.QUIZ_ANSWER_NOT_FOUND, aggregateId));
 
-        if(answer.getState() == DELETED) {
+        if(answer.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
@@ -73,9 +69,9 @@ public class AnswerService {
 
     public Answer getCausalQuizAnswerLocalByQuizAndUser(Integer quizAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
         Answer answer = answerRepository.findCausalByQuizAndUser(quizAggregateId, userAggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(NO_USER_ANSWER_FOR_QUIZ, quizAggregateId, userAggregateId));
+                .orElseThrow(() -> new TutorException(ErrorMessage.NO_USER_ANSWER_FOR_QUIZ, quizAggregateId, userAggregateId));
 
-        if(answer.getState() == DELETED) {
+        if(answer.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(ErrorMessage.QUIZ_ANSWER_DELETED, answer.getAggregateId());
         }
 
@@ -96,7 +92,7 @@ public class AnswerService {
 
         // COURSE_EXECUTION_SAME_QUIZ_COURSE_EXECUTION
         if(!courseExecutionAggregateId.equals(quizDto.getAggregateId())) {
-            throw new TutorException(QUIZ_DOES_NOT_BELONG_TO_COURSE_EXECUTION, quizAggregateId, courseExecutionAggregateId);
+            throw new TutorException(ErrorMessage.QUIZ_DOES_NOT_BELONG_TO_COURSE_EXECUTION, quizAggregateId, courseExecutionAggregateId);
         }
 
         // QUIZ_COURSE_EXECUTION_SAME_AS_USER_COURSE_EXECUTION
@@ -149,8 +145,8 @@ public class AnswerService {
         }
 
         Answer newAnswer = new Answer(oldAnswer);
-        newAnswer.getUser().setState(DELETED);
-        newAnswer.setState(INACTIVE);
+        newAnswer.getUser().setState(Aggregate.AggregateState.DELETED);
+        newAnswer.setState(Aggregate.AggregateState.INACTIVE);
         unitOfWork.registerChanged(newAnswer);
         return newAnswer;
     }
@@ -164,8 +160,8 @@ public class AnswerService {
         }
 
         Answer newAnswer = new Answer(oldAnswer);
-        questionAnswer.setState(DELETED);
-        newAnswer.setState(INACTIVE);
+        questionAnswer.setState(Aggregate.AggregateState.DELETED);
+        newAnswer.setState(Aggregate.AggregateState.INACTIVE);
         unitOfWork.registerChanged(newAnswer);
         return newAnswer;
     }

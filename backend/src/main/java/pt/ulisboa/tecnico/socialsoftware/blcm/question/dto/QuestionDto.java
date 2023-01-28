@@ -1,9 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Option;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
 import java.io.Serializable;

@@ -1,12 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.UPDATE_EXECUTION_STUDENT_NAME;
-
 @Entity
-@DiscriminatorValue(UPDATE_EXECUTION_STUDENT_NAME)
+@DiscriminatorValue(EventType.UPDATE_EXECUTION_STUDENT_NAME)
 public class UpdateExecutionStudentNameEvent extends Event{
 
     private Integer userAggregateId;

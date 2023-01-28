@@ -2,7 +2,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizCourseExecution;

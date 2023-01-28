@@ -1,12 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.ANONYMIZE_EXECUTION_STUDENT;
-
 @Entity
-@DiscriminatorValue(ANONYMIZE_EXECUTION_STUDENT)
+@DiscriminatorValue(EventType.ANONYMIZE_EXECUTION_STUDENT)
 public class AnonymizeExecutionStudentEvent extends Event {
     private String name;
     private String username;

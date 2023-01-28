@@ -6,8 +6,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.domain.Version;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.repository.VersionRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.domain.Version;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 

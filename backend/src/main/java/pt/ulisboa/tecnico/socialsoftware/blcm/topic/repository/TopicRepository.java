@@ -7,7 +7,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
-import java.util.Set;
 
 @Transactional
 @Repository

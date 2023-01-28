@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.Column;

@@ -6,16 +6,17 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import java.sql.SQLException;
@@ -23,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -55,7 +55,7 @@ public class TournamentService {
         Tournament tournament = tournamentRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, aggregateId));
 
-        if(tournament.getState() == DELETED) {
+        if(tournament.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(TOURNAMENT_DELETED, tournament.getAggregateId());
         }
 
@@ -261,7 +261,7 @@ public class TournamentService {
             newTournament.getCreator().setName(name);
             newTournament.getCreator().setUsername(username);
             newTournament.getCourseExecution().setVersion(eventVersion);
-            newTournament.setState(INACTIVE);
+            newTournament.setState(Aggregate.AggregateState.INACTIVE);
             unitOfWork.registerChanged(newTournament);
         }
 
@@ -289,7 +289,7 @@ public class TournamentService {
 
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCourseExecution().getAggregateId().equals(courseExecutionId)) {
-            newTournament.setState(INACTIVE);
+            newTournament.setState(Aggregate.AggregateState.INACTIVE);
             unitOfWork.registerChanged(newTournament);
         }
         return newTournament;
@@ -305,15 +305,15 @@ public class TournamentService {
 
         Tournament newTournament = new Tournament(oldTournament);
         if(newTournament.getCreator().getAggregateId().equals(userAggregateId)) {
-            newTournament.getCreator().setState(INACTIVE);
-            newTournament.setState(INACTIVE);
+            newTournament.getCreator().setState(Aggregate.AggregateState.INACTIVE);
+            newTournament.setState(Aggregate.AggregateState.INACTIVE);
             newTournament.getCourseExecution().setVersion(eventVersion);
             unitOfWork.registerChanged(newTournament);
         }
 
         TournamentParticipant tournamentParticipant  = newTournament.findParticipant(userAggregateId);
         if(tournamentParticipant != null) {
-            tournamentParticipant.setState(DELETED);
+            tournamentParticipant.setState(Aggregate.AggregateState.DELETED);
             newTournament.getCourseExecution().setVersion(eventVersion);
             //tournamentParticipant.setVersion(eventVersion);
             unitOfWork.registerChanged(newTournament);
@@ -363,9 +363,9 @@ public class TournamentService {
         quizDto.setConclusionDate(newTournament.getEndTime().toString());
         quizDto.setResultsDate(newTournament.getEndTime().toString());
         try {
-            quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState() == ACTIVE).map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(), unitOfWork);
+            quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState() == Aggregate.AggregateState.ACTIVE).map(TournamentTopic::getAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(), unitOfWork);
         } catch (TutorException e) {
-            newTournament.setState(INACTIVE);
+            newTournament.setState(Aggregate.AggregateState.INACTIVE);
         }
 
         unitOfWork.registerChanged(newTournament);
@@ -423,7 +423,7 @@ public class TournamentService {
         try {
             quizDto1 = quizService.generateQuiz(newTournament.getCourseExecution().getAggregateId(), quizDto, topicsIds, newTournament.getNumberOfQuestions(), unitOfWork);
         } catch (TutorException e) {
-            newTournament.setState(INACTIVE);
+            newTournament.setState(Aggregate.AggregateState.INACTIVE);
         }
 
         if(quizDto1 != null) {

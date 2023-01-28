@@ -1,15 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.course.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import javax.persistence.*;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE;
 
 /*
     INTRA-INVARIANTS:
@@ -38,7 +37,7 @@ public class Course extends Aggregate {
     }
 
     public Course(Integer aggregateId, CourseExecutionDto courseExecutionDto) {
-        super(aggregateId, COURSE);
+        super(aggregateId, AggregateType.COURSE);
         this.name = courseExecutionDto.getName();
         this.type = CourseType.valueOf(courseExecutionDto.getType());
     }

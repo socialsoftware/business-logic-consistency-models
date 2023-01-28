@@ -6,6 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ public class CourseExecution extends Aggregate {
         super(aggregateId, COURSE_EXECUTION);
         setAcronym(courseExecutionDto.getAcronym());
         setAcademicTerm(courseExecutionDto.getAcademicTerm());
-        setEndDate(LocalDateTime.parse(courseExecutionDto.getEndDate()));
+        setEndDate(DateHandler.toLocalDateTime(courseExecutionDto.getEndDate()));
         setCourse(executionCourse);
         setStudents(new HashSet<>());
     }

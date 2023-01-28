@@ -6,6 +6,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
@@ -16,7 +17,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.TopicCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import java.sql.SQLException;

@@ -1,12 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateExecutionStudentNameEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 
 import javax.persistence.*;
 

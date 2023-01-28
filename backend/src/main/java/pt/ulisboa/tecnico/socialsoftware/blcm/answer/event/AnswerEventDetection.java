@@ -3,14 +3,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.answer.event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.AnswerFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.AnswerFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.AnswerService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 
 import java.util.Comparator;
 import java.util.List;

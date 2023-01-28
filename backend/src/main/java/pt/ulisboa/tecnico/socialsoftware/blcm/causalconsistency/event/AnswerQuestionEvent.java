@@ -2,14 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.ANSWER_QUESTION;
-
 @Entity
-@DiscriminatorValue(ANSWER_QUESTION)
+@DiscriminatorValue(EventType.ANSWER_QUESTION)
 public class AnswerQuestionEvent extends Event {
 
     private Integer questionAggregateId;

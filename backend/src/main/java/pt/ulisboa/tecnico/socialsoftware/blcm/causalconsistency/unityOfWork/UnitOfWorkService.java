@@ -5,30 +5,27 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.EntityManager;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -99,7 +96,7 @@ public class UnitOfWorkService {
             concurrentAggregates = false;
             for (Integer aggregateId : originalAggregatesToCommit.keySet()) {
                 Aggregate aggregateToWrite = originalAggregatesToCommit.get(aggregateId);
-                if(aggregateToWrite.getPrev() != null && aggregateToWrite.getPrev().getState() == INACTIVE) {
+                if(aggregateToWrite.getPrev() != null && aggregateToWrite.getPrev().getState() == Aggregate.AggregateState.INACTIVE) {
                     throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregateToWrite.getAggregateId());
                 }
                 aggregateToWrite.verifyInvariants();
@@ -197,7 +194,7 @@ public class UnitOfWorkService {
         }
 
         // if a concurrent version is deleted it means the object has been deleted in the meanwhile
-        if(concurrentAggregate != null && (concurrentAggregate.getState() == DELETED || concurrentAggregate.getState() == INACTIVE)) {
+        if(concurrentAggregate != null && (concurrentAggregate.getState() == Aggregate.AggregateState.DELETED || concurrentAggregate.getState() == Aggregate.AggregateState.INACTIVE)) {
             throw new TutorException(ErrorMessage.AGGREGATE_DELETED, concurrentAggregate.getAggregateId());
         }
 

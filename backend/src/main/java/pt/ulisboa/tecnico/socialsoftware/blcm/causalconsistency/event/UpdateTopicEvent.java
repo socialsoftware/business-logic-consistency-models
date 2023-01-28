@@ -1,14 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.UPDATE_TOPIC;
-
 @Entity
-@DiscriminatorValue(UPDATE_TOPIC)
+@DiscriminatorValue(EventType.UPDATE_TOPIC)
 public class UpdateTopicEvent extends Event {
 
     private String topicName;

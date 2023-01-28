@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

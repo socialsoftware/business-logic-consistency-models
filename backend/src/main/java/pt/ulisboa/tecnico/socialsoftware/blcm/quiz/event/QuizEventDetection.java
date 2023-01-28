@@ -4,22 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 
 @Component
 public class QuizEventDetection {
@@ -45,7 +40,7 @@ public class QuizEventDetection {
             if (quiz == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(REMOVE_COURSE_EXECUTION);
+            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(EventType.REMOVE_COURSE_EXECUTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -69,7 +64,7 @@ public class QuizEventDetection {
             if (quiz == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(UPDATE_QUESTION);
+            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(EventType.UPDATE_QUESTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -93,7 +88,7 @@ public class QuizEventDetection {
             if (quiz == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(REMOVE_QUESTION);
+            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(EventType.REMOVE_QUESTION);
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)

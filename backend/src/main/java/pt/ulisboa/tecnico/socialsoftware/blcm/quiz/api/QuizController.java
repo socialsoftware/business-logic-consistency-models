@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizFunctionalities;
 

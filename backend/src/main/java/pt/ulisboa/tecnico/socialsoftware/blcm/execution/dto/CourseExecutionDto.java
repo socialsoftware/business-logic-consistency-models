@@ -5,7 +5,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 

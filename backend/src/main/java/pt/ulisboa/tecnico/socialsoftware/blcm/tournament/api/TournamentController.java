@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventDetection;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 
 import java.util.List;
 import java.util.Set;

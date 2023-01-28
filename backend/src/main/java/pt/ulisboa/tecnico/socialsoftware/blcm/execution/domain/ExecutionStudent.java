@@ -1,12 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipantAnswer;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
+
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+
 import java.util.Set;
 
 @Embeddable

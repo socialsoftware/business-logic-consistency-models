@@ -6,11 +6,13 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
@@ -18,16 +20,11 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class QuestionService {
@@ -52,9 +49,9 @@ public class QuestionService {
 
     public Question getCausalQuestionLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         Question question = questionRepository.findCausal(aggregateId, unitOfWork.getVersion())
-                .orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, aggregateId));
+                .orElseThrow(() -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, aggregateId));
 
-        if(question.getState() == DELETED) {
+        if(question.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(ErrorMessage.QUESTION_DELETED, question.getAggregateId());
         }
 
@@ -185,7 +182,7 @@ public class QuestionService {
             return null;
         }
 
-        questionTopic.setState(INACTIVE);
+        questionTopic.setState(Aggregate.AggregateState.INACTIVE);
         unitOfWork.registerChanged(newQuestion);
         return newQuestion;
     }

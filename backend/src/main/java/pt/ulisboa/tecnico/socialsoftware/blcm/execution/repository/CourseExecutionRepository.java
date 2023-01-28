@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 
 import javax.transaction.Transactional;
+
 import java.util.Optional;
 import java.util.Set;
 

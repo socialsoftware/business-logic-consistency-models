@@ -1,8 +1,7 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.tournament
+package pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.tournament
 
 
 import org.springframework.boot.test.context.SpringBootTest
-import pt.ulisboa.tecnico.socialsoftware.blcm.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament
@@ -12,12 +11,12 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentPartic
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipantAnswer
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentQuiz
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic
+import pt.ulisboa.tecnico.socialsoftware.blcm.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto
 import spock.lang.Shared
 import spock.lang.Unroll
 
 import java.time.LocalDateTime
-import java.util.stream.Collectors
 
 @SpringBootTest
 class MergeUnitTest extends SpockTest {

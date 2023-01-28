@@ -7,7 +7,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Set;
+
 @Repository
 @Transactional
 public interface EventRepository extends JpaRepository<Event, Integer> {

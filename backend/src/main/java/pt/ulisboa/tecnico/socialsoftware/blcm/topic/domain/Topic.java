@@ -4,7 +4,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 
 import javax.persistence.*;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 

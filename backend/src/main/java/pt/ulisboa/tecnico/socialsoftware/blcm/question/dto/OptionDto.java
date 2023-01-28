@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.dto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Option;
 
 import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
+
 import java.io.Serializable;
 
 @Embeddable

@@ -6,28 +6,25 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
@@ -56,7 +53,7 @@ public class CourseExecutionService {
         CourseExecution execution = courseExecutionRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, aggregateId));
 
-        if(execution.getState() == DELETED) {
+        if(execution.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(COURSE_EXECUTION_DELETED, execution.getAggregateId());
         }
 
@@ -208,7 +205,7 @@ public class CourseExecutionService {
     public CourseExecution removeUser(Integer executionAggregateId, Integer userAggregateId, Integer aggregateEventVersion, UnitOfWork unitOfWork) {
         CourseExecution oldExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
         CourseExecution newExecution = new CourseExecution(oldExecution);
-        newExecution.findStudent(userAggregateId).setState(INACTIVE);
+        newExecution.findStudent(userAggregateId).setState(Aggregate.AggregateState.INACTIVE);
         unitOfWork.registerChanged(newExecution);
         unitOfWork.addEvent(new UnerollStudentFromCourseExecutionEvent(executionAggregateId, userAggregateId));
         return newExecution;

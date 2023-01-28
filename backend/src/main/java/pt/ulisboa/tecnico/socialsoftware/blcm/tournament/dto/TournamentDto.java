@@ -3,7 +3,9 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.io.Serializable;

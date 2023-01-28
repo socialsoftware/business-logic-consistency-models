@@ -1,7 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
-
 import java.io.Serializable;
 
 public class QuestionAnswerDto implements Serializable {

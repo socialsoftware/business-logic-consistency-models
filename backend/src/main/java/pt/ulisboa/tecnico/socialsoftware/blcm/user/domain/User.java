@@ -1,18 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import javax.persistence.*;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.USER;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.REMOVE_COURSE_EXECUTION;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /*
@@ -55,7 +53,7 @@ public class User extends Aggregate {
     }
 
     public User(Integer aggregateId, UserDto userDto) {
-        super(aggregateId, USER);
+        super(aggregateId, AggregateType.USER);
         setName(userDto.getName());
         setUsername(userDto.getUsername());
         this.role = Role.valueOf(userDto.getRole());
@@ -66,7 +64,7 @@ public class User extends Aggregate {
         DELETED_STATE
      */
     public boolean deletedState() {
-        if(getState() == DELETED) {
+        if(getState() == AggregateState.DELETED) {
             return !isActive();
         }
         return true;

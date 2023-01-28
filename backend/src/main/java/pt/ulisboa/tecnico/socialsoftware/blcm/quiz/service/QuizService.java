@@ -6,21 +6,22 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.InvalidateQuizEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
-import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -31,8 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.INACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizType.GENERATED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizType.IN_CLASS;
@@ -69,7 +68,7 @@ public class QuizService {
         Quiz quiz = quizRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(QUIZ_NOT_FOUND, aggregateId));
 
-        if(quiz.getState() == DELETED) {
+        if(quiz.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(QUIZ_DELETED, quiz.getAggregateId());
         }
 
@@ -230,7 +229,7 @@ public class QuizService {
         Quiz newQuiz = new Quiz(oldQuiz);
         
         if(newQuiz.getCourseExecution().getAggregateId().equals(courseExecutionId)) {
-            newQuiz.setState(INACTIVE);
+            newQuiz.setState(Aggregate.AggregateState.INACTIVE);
             unitOfWork.registerChanged(newQuiz);
             return newQuiz;
         }
@@ -273,8 +272,8 @@ public class QuizService {
             return null;
         }
 
-        newQuiz.setState(INACTIVE);
-        quizQuestion.setState(DELETED);
+        newQuiz.setState(Aggregate.AggregateState.INACTIVE);
+        quizQuestion.setState(Aggregate.AggregateState.DELETED);
         unitOfWork.addEvent(new InvalidateQuizEvent(newQuiz.getAggregateId()));
         return newQuiz;
     }

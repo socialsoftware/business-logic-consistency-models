@@ -6,16 +6,15 @@ import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.REMOVE_USER;
 
 @Component
 public class CourseExecutionEventDetection {
@@ -39,7 +38,7 @@ public class CourseExecutionEventDetection {
             if (courseExecution == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = courseExecution.getEventSubscriptionsByEventType(REMOVE_USER);
+            Set<EventSubscription> eventSubscriptions = courseExecution.getEventSubscriptionsByEventType(EventType.REMOVE_USER);
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
