@@ -2,8 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,7 +16,6 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.*;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 /*
@@ -75,9 +78,9 @@ public class Quiz extends Aggregate {
         setQuizQuestions(quizQuestions);
         setTitle(quizDto.getTitle());
         this.creationDate = LocalDateTime.now();
-        setAvailableDate(LocalDateTime.parse(quizDto.getAvailableDate()));
-        setConclusionDate(LocalDateTime.parse(quizDto.getConclusionDate()));
-        setResultsDate(LocalDateTime.parse(quizDto.getResultsDate()));
+        setAvailableDate(DateHandler.toLocalDateTime(quizDto.getAvailableDate()));
+        setConclusionDate(DateHandler.toLocalDateTime(quizDto.getConclusionDate()));
+        setResultsDate(DateHandler.toLocalDateTime(quizDto.getResultsDate()));
         setQuizType(quizType);
         setPrev(null);
     }
@@ -122,13 +125,13 @@ public class Quiz extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantQuestionsExist(Set<EventSubscription> eventSubscriptions) {
         for (QuizQuestion quizQuestion : this.quizQuestions) {
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), UPDATE_QUESTION, this));
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), REMOVE_QUESTION, this));
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), UpdateQuestionEvent.class.getSimpleName(), this));
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), RemoveQuestionEvent.class.getSimpleName(), this));
         }
     }
 

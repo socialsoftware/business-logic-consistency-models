@@ -5,8 +5,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
@@ -38,7 +38,7 @@ public class CourseExecutionEventDetection {
             if (courseExecution == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = courseExecution.getEventSubscriptionsByEventType(EventType.REMOVE_USER);
+            Set<EventSubscription> eventSubscriptions = courseExecution.getEventSubscriptionsByEventType(RemoveUserEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)

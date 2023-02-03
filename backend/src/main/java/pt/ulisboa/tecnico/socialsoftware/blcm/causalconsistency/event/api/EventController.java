@@ -36,18 +36,6 @@ public class EventController {
     @Autowired
     private TournamentEventDetection tournamentEventDetection;
 
-    @GetMapping(value = "/scheduler/stop")
-    public String stopSchedule() {
-        postProcessor.postProcessBeforeDestruction(questionEventDetection, SCHEDULED_TASKS);
-        postProcessor.postProcessBeforeDestruction(topicEventDetection, SCHEDULED_TASKS);
-        postProcessor.postProcessBeforeDestruction(executionEventDetection, SCHEDULED_TASKS);
-        postProcessor.postProcessBeforeDestruction(answerEventDetection, SCHEDULED_TASKS);
-        postProcessor.postProcessBeforeDestruction(quizEventDetection, SCHEDULED_TASKS);
-        postProcessor.postProcessBeforeDestruction(tournamentEventDetection, SCHEDULED_TASKS);
-        System.out.println("Stopped event detection");
-        return "OK";
-    }
-
     @GetMapping(value = "/scheduler/start")
     public String startSchedule() {
         postProcessor.postProcessAfterInitialization(questionEventDetection, SCHEDULED_TASKS);
@@ -57,6 +45,18 @@ public class EventController {
         postProcessor.postProcessAfterInitialization(quizEventDetection, SCHEDULED_TASKS);
         postProcessor.postProcessAfterInitialization(tournamentEventDetection, SCHEDULED_TASKS);
         System.out.println("Started event detection");
+        return "OK";
+    }
+
+    @GetMapping(value = "/scheduler/stop")
+    public String stopSchedule() {
+        postProcessor.postProcessBeforeDestruction(questionEventDetection, SCHEDULED_TASKS);
+        postProcessor.postProcessBeforeDestruction(topicEventDetection, SCHEDULED_TASKS);
+        postProcessor.postProcessBeforeDestruction(executionEventDetection, SCHEDULED_TASKS);
+        postProcessor.postProcessBeforeDestruction(answerEventDetection, SCHEDULED_TASKS);
+        postProcessor.postProcessBeforeDestruction(quizEventDetection, SCHEDULED_TASKS);
+        postProcessor.postProcessBeforeDestruction(tournamentEventDetection, SCHEDULED_TASKS);
+        System.out.println("Stopped event detection");
         return "OK";
     }
 }

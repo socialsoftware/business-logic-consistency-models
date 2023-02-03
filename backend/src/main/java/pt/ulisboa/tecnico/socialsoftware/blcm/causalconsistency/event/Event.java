@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="type",
-        discriminatorType = DiscriminatorType.STRING)
 @Table(name = "events")
 public abstract class Event {
     @Id
@@ -20,10 +18,6 @@ public abstract class Event {
     private Integer  aggregateVersion;
 
     private LocalDateTime ts;
-
-
-    @Column(name = "type", insertable = false, updatable = false)
-    private String type;
 
     public Event() {
         setTs(LocalDateTime.now());
@@ -66,11 +60,4 @@ public abstract class Event {
         this.ts = ts;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 }

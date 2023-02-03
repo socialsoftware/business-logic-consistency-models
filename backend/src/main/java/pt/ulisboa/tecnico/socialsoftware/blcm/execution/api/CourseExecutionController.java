@@ -38,7 +38,7 @@ public class CourseExecutionController {
 
     @PostMapping("/executions/{executionAggregateId}/students/add")
     public void enrollStudent(@PathVariable Integer executionAggregateId, @RequestParam Integer userAggregateId) {
-        courseExecutionFunctionalities.addCourseExecution(executionAggregateId, userAggregateId);
+        courseExecutionFunctionalities.addStudent(executionAggregateId, userAggregateId);
     }
 
     @GetMapping("/users/{userAggregateId}/executions")

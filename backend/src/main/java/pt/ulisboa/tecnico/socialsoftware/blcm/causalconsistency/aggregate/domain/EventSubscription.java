@@ -10,8 +10,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
 import javax.persistence.*;
 
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
-
 @Embeddable
 public class EventSubscription {
     @Column
@@ -50,22 +48,39 @@ public class EventSubscription {
 
 
     public boolean subscribesEvent(Event event) {
-        if (!(getSenderAggregateId().equals(event.getAggregateId()) && getEventType().equals(event.getType()) && getSenderLastVersion() < event.getAggregateVersion())) {
+        if (!(getSenderAggregateId().equals(event.getAggregateId()) && getEventType().equals(event.getClass().getSimpleName()) && getSenderLastVersion() < event.getAggregateVersion())) {
             return false;
         }
-        switch (event.getType()) {
-            case ANONYMIZE_EXECUTION_STUDENT:
-                AnonymizeExecutionStudentEvent anonymizeExecutionStudentEvent = (AnonymizeExecutionStudentEvent) event;
-                return checkSpecialCases(anonymizeExecutionStudentEvent.getUserAggregateId());
-            case UNENROLL_STUDENT:
-                UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent = (UnerollStudentFromCourseExecutionEvent) event;
-                return checkSpecialCases(unerollStudentFromCourseExecutionEvent.getUserAggregateId());
-            case UPDATE_EXECUTION_STUDENT_NAME:
-                UpdateExecutionStudentNameEvent updateExecutionStudentNameEvent = (UpdateExecutionStudentNameEvent) event;
-                return checkSpecialCases(updateExecutionStudentNameEvent.getUserAggregateId());
-            default:
-                return true;
+//        return switch (event) {
+//            case AnonymizeExecutionStudentEvent anonymizeExecutionStudentEvent -> checkSpecialCases(anonymizeExecutionStudentEvent.getUserAggregateId());
+//            case UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent -> checkSpecialCases(unerollStudentFromCourseExecutionEvent.getUserAggregateId());
+//            case UpdateExecutionStudentNameEvent updateExecutionStudentNameEvent -> checkSpecialCases(updateExecutionStudentNameEvent.getUserAggregateId());
+//            default -> true;
+//        };
+
+        if (event instanceof AnonymizeExecutionStudentEvent anonymizeExecutionStudentEvent) {
+            return checkSpecialCases(anonymizeExecutionStudentEvent.getUserAggregateId());
+        } else if (event instanceof UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent) {
+            return checkSpecialCases(unerollStudentFromCourseExecutionEvent.getUserAggregateId());
+        } else if (event instanceof UpdateExecutionStudentNameEvent updateExecutionStudentNameEvent) {
+            return checkSpecialCases(updateExecutionStudentNameEvent.getUserAggregateId());
+        } else {
+            return true;
         }
+
+//        switch (event.getType()) {
+//            case ANONYMIZE_EXECUTION_STUDENT:
+//                AnonymizeExecutionStudentEvent anonymizeExecutionStudentEvent = (AnonymizeExecutionStudentEvent) event;
+//                return checkSpecialCases(anonymizeExecutionStudentEvent.getUserAggregateId());
+//            case UNENROLL_STUDENT:
+//                UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent = (UnerollStudentFromCourseExecutionEvent) event;
+//                return checkSpecialCases(unerollStudentFromCourseExecutionEvent.getUserAggregateId());
+//            case UPDATE_EXECUTION_STUDENT_NAME:
+//                UpdateExecutionStudentNameEvent updateExecutionStudentNameEvent = (UpdateExecutionStudentNameEvent) event;
+//                return checkSpecialCases(updateExecutionStudentNameEvent.getUserAggregateId());
+//            default:
+//                return true;
+//        }
     }
 
     private boolean checkSpecialCases(Integer eventAdditionalAggregateId) {
@@ -82,7 +97,7 @@ public class EventSubscription {
     private boolean checkTournamentSpecialCase(Integer eventAdditionalAggregateId) {
         Tournament tournament = (Tournament) this.subscriberAggregate;
         boolean specialCases;
-        if(tournament.getCreator().getAggregateId().equals(eventAdditionalAggregateId)) {
+        if (tournament.getCreator().getAggregateId().equals(eventAdditionalAggregateId)) {
             specialCases = true;
         } else {
             specialCases = false;
@@ -97,7 +112,7 @@ public class EventSubscription {
 
     private boolean checkAnswerSpecialCase(Integer eventAdditionalAggregateId) {
         Answer answer = (Answer) this.subscriberAggregate;
-        if(answer.getUser().getAggregateId().equals(eventAdditionalAggregateId)) {
+        if (answer.getUser().getAggregateId().equals(eventAdditionalAggregateId)) {
             return true;
         }
         return false;
@@ -138,7 +153,7 @@ public class EventSubscription {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof EventSubscription)) {
+        if (!(obj instanceof EventSubscription)) {
             return false;
         }
         EventSubscription other = (EventSubscription) obj;

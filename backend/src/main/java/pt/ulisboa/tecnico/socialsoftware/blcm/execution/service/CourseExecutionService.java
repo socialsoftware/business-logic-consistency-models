@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
@@ -158,7 +158,7 @@ public class CourseExecutionService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public UserDto getStudentByExecutionIdAndUserId(Integer executionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
         CourseExecution courseExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
-        if(!courseExecution.hasStudent(userAggregateId)) {
+        if (!courseExecution.hasStudent(userAggregateId)) {
             throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
         }
         return courseExecution.findStudent(userAggregateId).buildDto();
@@ -185,7 +185,7 @@ public class CourseExecutionService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateExecutionStudentName(Integer executionAggregateId, Integer userAggregateId, String name, UnitOfWork unitOfWork) {
         CourseExecution oldExecution = getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
-        if(!oldExecution.hasStudent(userAggregateId)) {
+        if (!oldExecution.hasStudent(userAggregateId)) {
             throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
         }
         CourseExecution newExecution = new CourseExecution(oldExecution);

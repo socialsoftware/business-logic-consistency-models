@@ -13,6 +13,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentQuiz
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic
 import pt.ulisboa.tecnico.socialsoftware.blcm.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -53,10 +54,10 @@ class MergeUnitTest extends SpockTest {
     public static final String TOPIC_NAME_2 = "TOPIC_NAME_2"
     public static final String TOPIC_NAME_3 = "TOPIC_NAME_3"
 
-    public static final LocalDateTime TIME_1 = LocalDateTime.of(2023, 8, 15, 22, 0)
-    public static final LocalDateTime TIME_2 = LocalDateTime.of(2023, 8, 15, 22, 20)
-    public static final LocalDateTime TIME_3 = LocalDateTime.of(2023, 8, 15, 23, 00)
-    public static final LocalDateTime TIME_4 = LocalDateTime.of(2023, 8, 15, 23, 20)
+    public static final LocalDateTime TIME_1 = DateHandler.now()
+    public static final LocalDateTime TIME_2 = DateHandler.now().plusMinutes(20)
+    public static final LocalDateTime TIME_3 = DateHandler.now().plusHours(1)
+    public static final LocalDateTime TIME_4 = DateHandler.now().plusHours(1).plusMinutes(20)
 
     public static final String EVENT_1 = "EVENT_1"
     public static final String EVENT_2 = "EVENT_2"
@@ -267,7 +268,7 @@ class MergeUnitTest extends SpockTest {
         def mergedTournament = (Tournament)v1.merge(v2)
 
         then:
-        mergedTournament.getStartTime() == TIME_3 // merge is possible so it prevails the mos recent version, v1 which isnt committed yet
+        mergedTournament.getStartTime() == TIME_3 // merge is possible so it prevails the most recent version, v1 which isnt committed yet
     }
 
     def 'endTime intention' () {
@@ -283,7 +284,7 @@ class MergeUnitTest extends SpockTest {
         def mergedTournament = (Tournament)v1.merge(v2)
 
         then:
-        mergedTournament.getEndTime() == TIME_3 // merge is possible so it prevails the mos recent version, v1 which isnt committed yet
+        mergedTournament.getEndTime() == TIME_3 // merge is possible so it prevails the most recent version, v1 which isnt committed yet
     }
 
     def 'number of questions intention' () {

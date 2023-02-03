@@ -62,7 +62,7 @@ public class CourseExecutionFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public void addCourseExecution(Integer executionAggregateId, Integer userAggregateId) {
+    public void addStudent(Integer executionAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
         ExecutionStudent executionUser = new ExecutionStudent(userDto);
@@ -93,7 +93,6 @@ public class CourseExecutionFunctionalities {
         if (userDto.getName() == null) {
             throw new TutorException(USER_MISSING_NAME);
         }
-
 
         courseExecutionService.updateExecutionStudentName(executionAggregateId, userAggregateId, userDto.getName(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);

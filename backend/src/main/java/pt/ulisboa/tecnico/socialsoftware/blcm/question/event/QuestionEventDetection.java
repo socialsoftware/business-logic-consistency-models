@@ -3,10 +3,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
 
@@ -14,9 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.DELETE_TOPIC;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.UPDATE_TOPIC;
 
 @Component
 public class QuestionEventDetection {
@@ -40,7 +39,7 @@ public class QuestionEventDetection {
             if (question == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = question.getEventSubscriptionsByEventType(UPDATE_TOPIC);
+            Set<EventSubscription> eventSubscriptions = question.getEventSubscriptionsByEventType(UpdateTopicEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -66,7 +65,7 @@ public class QuestionEventDetection {
             if (question == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = question.getEventSubscriptionsByEventType(DELETE_TOPIC);
+            Set<EventSubscription> eventSubscriptions = question.getEventSubscriptionsByEventType(DeleteTopicEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)

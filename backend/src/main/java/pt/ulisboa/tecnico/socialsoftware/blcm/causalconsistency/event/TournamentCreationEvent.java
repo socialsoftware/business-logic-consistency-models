@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 /* EXISTS FOR EXAMPLE ONLY. MAY NEED TO DELETE LATER*/
 @Entity
-@DiscriminatorValue("CREATE_TOURNAMENT")
 public class TournamentCreationEvent extends Event {
     private LocalDateTime startTime;
 

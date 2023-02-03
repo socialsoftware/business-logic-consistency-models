@@ -4,9 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
@@ -51,7 +50,7 @@ public class TournamentEventDetection {
                 continue;
             }
             Tournament tournament = tournamentOp.get();
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.ANONYMIZE_EXECUTION_STUDENT);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(AnonymizeExecutionStudentEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -81,7 +80,7 @@ public class TournamentEventDetection {
                 continue;
             }
             Tournament tournament = tournamentOp.get();
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.REMOVE_COURSE_EXECUTION);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(RemoveCourseExecutionEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -106,7 +105,7 @@ public class TournamentEventDetection {
             if (tournament == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.UPDATE_TOPIC);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(UpdateTopicEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -133,7 +132,7 @@ public class TournamentEventDetection {
             if (tournament == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.DELETE_TOPIC);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(DeleteTopicEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -158,7 +157,7 @@ public class TournamentEventDetection {
             if (tournament == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.ANSWER_QUESTION);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(AnswerQuestionEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -184,7 +183,7 @@ public class TournamentEventDetection {
             if (tournament == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.UNENROLL_STUDENT);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(UnerollStudentFromCourseExecutionEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -209,7 +208,7 @@ public class TournamentEventDetection {
             if (tournament == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.INVALIDATE_QUIZ);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(InvalidateQuizEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -230,7 +229,7 @@ public class TournamentEventDetection {
             if (tournament == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(EventType.UPDATE_EXECUTION_STUDENT_NAME);
+            Set<EventSubscription> eventSubscriptions = tournament.getEventSubscriptionsByEventType(UpdateExecutionStudentNameEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)

@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
@@ -16,7 +17,6 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.REMOVE_USER;
 
 /*
     INTRA-INVARIANTS
@@ -84,7 +84,7 @@ public class CourseExecution extends Aggregate {
     }
 
     private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions, ExecutionStudent student) {
-        eventSubscriptions.add(new EventSubscription(student.getAggregateId(), student.getVersion(), REMOVE_USER, this));
+        eventSubscriptions.add(new EventSubscription(student.getAggregateId(), student.getVersion(), RemoveUserEvent.class.getSimpleName(), this));
     }
 
     @Override
@@ -225,7 +225,7 @@ public class CourseExecution extends Aggregate {
     }
 
     public boolean hasStudent(Integer userAggregateId) {
-        for(ExecutionStudent student : this.students) {
+        for (ExecutionStudent student : this.students) {
             if (student.getAggregateId().equals(userAggregateId)) {
                 return true;
             }
@@ -244,7 +244,7 @@ public class CourseExecution extends Aggregate {
 
     public void removeStudent(Integer userAggregateId) {
         ExecutionStudent studentToRemove = null;
-        if(!hasStudent(userAggregateId)) {
+        if (!hasStudent(userAggregateId)) {
             throw new TutorException(ErrorMessage.COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, getAggregateId());
         }
         for(ExecutionStudent student : this.students) {

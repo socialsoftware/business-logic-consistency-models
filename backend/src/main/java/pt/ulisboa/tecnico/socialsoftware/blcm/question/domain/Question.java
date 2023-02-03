@@ -3,6 +3,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
 import javax.persistence.*;
@@ -12,8 +14,6 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.QUESTION;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.DELETE_TOPIC;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.UPDATE_TOPIC;
 
 /*
     INTRA-INVARIANTS:
@@ -95,8 +95,8 @@ public class Question extends Aggregate {
     }
 
     private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions, QuestionTopic topic) {
-        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DELETE_TOPIC, this));
-        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UPDATE_TOPIC, this));
+        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DeleteTopicEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UpdateTopicEvent.class.getSimpleName(), this));
     }
 
     @Override

@@ -6,16 +6,11 @@ import java.io.Serializable;
 
 public class TopicDto implements Serializable {
     private Integer aggregateId;
-
     private Integer version;
     private Integer courseId;
-
     private String name;
-
     private String state;
-
     public TopicDto() {
-
     }
 
     public TopicDto(Topic topic) {

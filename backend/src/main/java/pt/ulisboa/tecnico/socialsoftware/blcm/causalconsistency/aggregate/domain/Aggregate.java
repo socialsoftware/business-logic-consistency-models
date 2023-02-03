@@ -156,7 +156,7 @@ public abstract class Aggregate {
         Aggregate toCommitVersion = this;
         Aggregate committedVersion = other;
 
-        if(prev.getClass() != toCommitVersion.getClass() || prev.getClass() != committedVersion.getClass() || toCommitVersion.getClass() != committedVersion.getClass()) {
+        if (prev.getClass() != toCommitVersion.getClass() || prev.getClass() != committedVersion.getClass() || toCommitVersion.getClass() != committedVersion.getClass()) {
             throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
         }
 
@@ -165,7 +165,7 @@ public abstract class Aggregate {
         }*/
         /* take the state into account because we don't want to override a deleted object*/
 
-        if(committedVersion.getState() == DELETED) {
+        if (committedVersion.getState() == DELETED) {
             throw new TutorException(AGGREGATE_DELETED, committedVersion.getAggregateId());
         }
 

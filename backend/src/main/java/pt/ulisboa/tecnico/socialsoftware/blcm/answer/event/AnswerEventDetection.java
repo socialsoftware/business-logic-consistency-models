@@ -8,14 +8,14 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.AnswerFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 
 @Component
 public class AnswerEventDetection {
@@ -49,7 +49,7 @@ public class AnswerEventDetection {
             if (answer == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(REMOVE_USER);
+            Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(RemoveUserEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -80,7 +80,7 @@ public class AnswerEventDetection {
             if (answer == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(REMOVE_QUESTION);
+            Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(RemoveUserEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -105,7 +105,7 @@ public class AnswerEventDetection {
             if (answer == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(UNENROLL_STUDENT);
+            Set<EventSubscription> eventSubscriptions = answer.getEventSubscriptionsByEventType(UnerollStudentFromCourseExecutionEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)

@@ -4,9 +4,10 @@ import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import javax.persistence.*;
 
@@ -114,8 +115,8 @@ public class Tournament extends Aggregate {
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
                       TournamentCourseExecution execution, Set<TournamentTopic> topics, TournamentQuiz quiz) {
         super(aggregateId, AggregateType.TOURNAMENT);
-        setStartTime(LocalDateTime.parse(tournamentDto.getStartTime()));
-        setEndTime(LocalDateTime.parse(tournamentDto.getEndTime()));
+        setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
+        setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
         setCancelled(tournamentDto.isCancelled());
         this.creator = creator;
@@ -167,38 +168,38 @@ public class Tournament extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), EventType.REMOVE_COURSE_EXECUTION, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantCreatorExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), EventType.UNENROLL_STUDENT, this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), EventType.ANONYMIZE_EXECUTION_STUDENT, this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), EventType.UPDATE_EXECUTION_STUDENT_NAME, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantParticipantExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), EventType.UNENROLL_STUDENT, this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), EventType.ANONYMIZE_EXECUTION_STUDENT, this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), EventType.UPDATE_EXECUTION_STUDENT_NAME, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantQuizAnswersExist(Set<EventSubscription> eventSubscriptions) {
         for (TournamentParticipant participant : this.participants) {
             if (participant.getAnswer().getAggregateId() != null) {
-                eventSubscriptions.add(new EventSubscription(participant.getAnswer().getAggregateId(), participant.getAnswer().getVersion(), EventType.ANSWER_QUESTION, this));
+                eventSubscriptions.add(new EventSubscription(participant.getAnswer().getAggregateId(), participant.getAnswer().getVersion(), AnswerQuestionEvent.class.getSimpleName(), this));
             }
         }
     }
 
     private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions) {
         for (TournamentTopic topic : this.topics) {
-            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), EventType.DELETE_TOPIC, this));
-            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), EventType.UPDATE_TOPIC, this));
+            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DeleteTopicEvent.class.getSimpleName(), this));
+            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UpdateTopicEvent.class.getSimpleName(), this));
         }
     }
 
     private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), getVersion(), EventType.INVALIDATE_QUIZ, this));
+        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), getVersion(), InvalidateQuizEvent.class.getSimpleName(), this));
     }
 
     /* ----------------------------------------- INTRA-AGGREGATE INVARIANTS ----------------------------------------- */
@@ -368,7 +369,7 @@ public class Tournament extends Aggregate {
     }
 
     private void mergeCancelled(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
-        if(toCommitVersionChangedFields.contains("cancelled")) {
+        if (toCommitVersionChangedFields.contains("cancelled")) {
             mergedTournament.setCancelled(isCancelled());
         } else {
             mergedTournament.setCancelled(committedTournament.isCancelled());
@@ -376,7 +377,7 @@ public class Tournament extends Aggregate {
     }
 
     private void mergeNumberOfQuestions(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
-        if(toCommitVersionChangedFields.contains("numberOfQuestions")) {
+        if (toCommitVersionChangedFields.contains("numberOfQuestions")) {
             mergedTournament.setNumberOfQuestions(getNumberOfQuestions());
         } else {
             mergedTournament.setNumberOfQuestions(committedTournament.getNumberOfQuestions());
@@ -384,7 +385,7 @@ public class Tournament extends Aggregate {
     }
 
     private void mergeEndTime(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
-        if(toCommitVersionChangedFields.contains("endTime")) {
+        if (toCommitVersionChangedFields.contains("endTime")) {
             mergedTournament.setEndTime(getEndTime());
         } else {
             mergedTournament.setEndTime(committedTournament.getEndTime());
@@ -392,7 +393,7 @@ public class Tournament extends Aggregate {
     }
 
     private void mergeStartTime(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
-        if(toCommitVersionChangedFields.contains("startTime")) {
+        if (toCommitVersionChangedFields.contains("startTime")) {
             mergedTournament.setStartTime(getStartTime());
         } else {
             mergedTournament.setStartTime(committedTournament.getStartTime());

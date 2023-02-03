@@ -84,7 +84,7 @@ public class UnitOfWork {
             for (Aggregate snapshotAggregate : this.causalSnapshot.values()) {
                 List<Event> snapshotAggregateEmittedEvents = allEvents.stream()
                         .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
-                        .filter(e -> e.getType().equals(es.getEventType()))
+                        .filter(e -> e.getClass().getSimpleName().equals(es.getEventType()))
                         .filter(e -> e.getAggregateVersion() <= snapshotAggregate.getVersion())
                         .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
                         .collect(Collectors.toList());
@@ -92,8 +92,8 @@ public class UnitOfWork {
                 // by the current snapshot aggregate emitted after the version of the current subscription
 
                 // if there are events in those situations we verify whether they are relevant or not for the subscription
-                for(Event snapshotAggregateEmittedEvent : snapshotAggregateEmittedEvents) {
-                    if(es.subscribesEvent(snapshotAggregateEmittedEvent)) {
+                for (Event snapshotAggregateEmittedEvent : snapshotAggregateEmittedEvents) {
+                    if (es.subscribesEvent(snapshotAggregateEmittedEvent)) {
                         throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
                     }
                 }
@@ -106,12 +106,12 @@ public class UnitOfWork {
             for (EventSubscription es : snapshotAggregate.getEventSubscriptions()) {
                 List<Event> aggregateEmittedEvents = allEvents.stream()
                         .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
-                        .filter(e -> e.getType().equals(es.getEventType()))
+                        .filter(e -> e.getClass().getSimpleName().equals(es.getEventType()))
                         .filter(e -> e.getAggregateVersion() <= snapshotAggregate.getVersion())
                         .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
                         .collect(Collectors.toList());
-                for(Event snapshotAggregateEmittedEvent : aggregateEmittedEvents) {
-                    if(es.subscribesEvent(snapshotAggregateEmittedEvent)) {
+                for (Event snapshotAggregateEmittedEvent : aggregateEmittedEvents) {
+                    if (es.subscribesEvent(snapshotAggregateEmittedEvent)) {
                         throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
                     }
                 }
@@ -130,7 +130,7 @@ public class UnitOfWork {
                         Integer maxVersion = Math.max(es1.getSenderLastVersion(), es2.getSenderLastVersion());
                         List<Event> eventsBetweenAggregates = allEvents.stream()
                                 .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
-                                .filter(event -> event.getType().equals(es1.getEventType()))
+                                .filter(event -> event.getClass().getSimpleName().equals(es1.getEventType()))
                                 .filter(event -> minVersion < event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
                                 .collect(Collectors.toList());
                         for (Event eventBetweenAggregates : eventsBetweenAggregates) {

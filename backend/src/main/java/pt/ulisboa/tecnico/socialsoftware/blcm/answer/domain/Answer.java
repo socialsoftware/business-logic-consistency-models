@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import javax.persistence.*;
@@ -12,7 +13,6 @@ import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType.ANSWER;
-import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.utils.EventType.*;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
 /*
@@ -101,19 +101,19 @@ public class Answer extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), REMOVE_COURSE_EXECUTION, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
         // also verifies QUESTION_EXISTS because if the question is DELETED the quiz sends this event
-        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), this.quiz.getVersion(), INVALIDATE_QUIZ, this));
+        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), this.quiz.getVersion(), InvalidateQuizEvent.class.getSimpleName(), this));
         // TODO add remove quiz
     }
 
     private void interInvariantUserExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UNENROLL_STUDENT, this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), ANONYMIZE_EXECUTION_STUDENT, this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UPDATE_EXECUTION_STUDENT_NAME, this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
     }
 
 
