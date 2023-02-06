@@ -458,8 +458,8 @@ public class Tournament extends Aggregate {
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
         Tournament prev = (Tournament) getPrev();
-        if(prev != null) {
-            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+        if (prev != null) {
+            if ((prev.getStartTime() != null && DateHandler.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
                 throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
             }
         }
@@ -480,7 +480,7 @@ public class Tournament extends Aggregate {
          */
         Tournament prev = (Tournament) getPrev();
         if(prev != null) {
-            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+            if((prev.getStartTime() != null && DateHandler.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
                 throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
             }
         }

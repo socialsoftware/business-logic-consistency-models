@@ -156,7 +156,7 @@ public abstract class Aggregate {
         Aggregate toCommitVersion = this;
         Aggregate committedVersion = other;
 
-        if (prev.getClass() != toCommitVersion.getClass() || prev.getClass() != committedVersion.getClass() || toCommitVersion.getClass() != committedVersion.getClass()) {
+        if (prev.getClass() != toCommitVersion.getClass() || prev.getClass() != committedVersion.getClass()) {
             throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
         }
 
@@ -177,17 +177,18 @@ public abstract class Aggregate {
         Aggregate mergedAggregate = mergeFields(toCommitVersionChangedFields, committedVersion, committedVersionChangedFields);
 
         mergedAggregate.setPrev(getPrev());
+
         return mergedAggregate;
     }
 
     private Set<String> getChangedFields(Object prevObj, Object obj) {
         Set<String> changedFields = new HashSet<>();
-        if(prevObj.getClass() != obj.getClass()) {
+        if (prevObj.getClass() != obj.getClass()) {
             throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
         }
 
         try {
-            for(String fieldName : getFieldsChangedByFunctionalities()) {
+            for (String fieldName : getFieldsChangedByFunctionalities()) {
 
                 Field field = obj.getClass().getDeclaredField(fieldName);
                 field.setAccessible(true);
@@ -195,8 +196,8 @@ public abstract class Aggregate {
                 Object currentFieldValue = field.get(obj);
                 Object prevFieldValue = field.get(prevObj);
 
-
-                if(currentFieldValue != null && prevFieldValue != null && !(currentFieldValue.equals(prevFieldValue))) {
+                if (currentFieldValue != null && prevFieldValue != null && !(currentFieldValue.equals(prevFieldValue))) {
+                    System.out.println("changed: " + fieldName);
                     changedFields.add(fieldName);
                 }
             }
@@ -208,7 +209,7 @@ public abstract class Aggregate {
 
     private void checkIntentions(Set<String> changedFields1, Set<String> changedFields2) {
         for (String [] intention : getIntentions()) {
-            if((changedFields1.contains(intention[0]) && changedFields2.contains(intention[1])) || (changedFields1.contains(intention[1]) && changedFields2.contains(intention[0]))) {
+            if ((changedFields1.contains(intention[0]) && changedFields2.contains(intention[1])) || (changedFields1.contains(intention[1]) && changedFields2.contains(intention[0]))) {
                 throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
             }
         }
