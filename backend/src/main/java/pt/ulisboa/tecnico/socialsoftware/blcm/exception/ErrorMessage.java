@@ -8,6 +8,7 @@ public enum ErrorMessage {
     VERSION_MANAGER_DOES_NOT_EXIST("Version manager does not exist."),
 
     AGGREGATE_MERGE_FAILURE("Two versions of aggregate %d cannot be merged."),
+    AGGREGATE_MERGE_FAILURE_DUE_TO_INTENSIONS_CONFLICT("Two versions of aggregate cannot be merged due to intensions conflict: %s"),
 
     TOURNAMENT_NOT_FOUND("Tournament with aggregate Id %d does not exist."),
     TOURNAMENT_INVALID("Tournament version with aggregate id %d and version %d breaks invariants."),

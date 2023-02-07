@@ -230,8 +230,8 @@ public class Tournament extends Aggregate {
 		p : this.participants | p.enrollTime < this.startTime
      */
     public boolean invariantParticipantsEnrolledBeforeStarTime() {
-        for(TournamentParticipant p : this.participants) {
-            if(p.getEnrollTime().isAfter(this.startTime)) {
+        for (TournamentParticipant p : this.participants) {
+            if (p.getEnrollTime().isAfter(this.startTime)) {
                 return false;
             }
         }
@@ -243,9 +243,9 @@ public class Tournament extends Aggregate {
 		now < this.startTime => p: this.participant | p.answer.isEmpty
      */
     public boolean invariantAnswerBeforeStart() {
-        if(LocalDateTime.now().isBefore(this.startTime)) {
-            for(TournamentParticipant t : this.participants) {
-                if(t.getAnswer().getAggregateId() != null) {
+        if (LocalDateTime.now().isBefore(this.startTime)) {
+            for (TournamentParticipant t : this.participants) {
+                if (t.getAnswer().getAggregateId() != null) {
                     return false;
                 }
             }
@@ -258,7 +258,7 @@ public class Tournament extends Aggregate {
 		this.state == DELETED => this.participants.empty
      */
     private boolean invariantDeleteCondition() {
-        if(getState() == AggregateState.DELETED) {
+        if (getState() == AggregateState.DELETED) {
             return getParticipants().size() == 0;
         }
         return true;
@@ -269,9 +269,9 @@ public class Tournament extends Aggregate {
      */
 
     private boolean invariantCreatorParticipantConsistency() {
-        for(TournamentParticipant participant : this.participants) {
-            if(participant.getAggregateId().equals(this.creator.getAggregateId())) {
-                if(!participant.getVersion().equals(this.creator.getVersion())
+        for (TournamentParticipant participant : this.participants) {
+            if (participant.getAggregateId().equals(this.creator.getAggregateId())) {
+                if (!participant.getVersion().equals(this.creator.getVersion())
                         || !participant.getName().equals(this.creator.getName())
                         || !participant.getUsername().equals(this.creator.getUsername())) {
                     return false;
@@ -282,7 +282,7 @@ public class Tournament extends Aggregate {
     }
     @Override
     public void verifyInvariants() {
-        if(!(invariantAnswerBeforeStart()
+        if (!(invariantAnswerBeforeStart()
                 && invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
                 && invariantStartTimeBeforeEndTime()
@@ -305,7 +305,7 @@ public class Tournament extends Aggregate {
     }
 
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields){
-        if(!(committedVersion instanceof Tournament)) {
+        if (!(committedVersion instanceof Tournament)) {
             throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
         }
 
@@ -329,7 +329,7 @@ public class Tournament extends Aggregate {
     }
 
     private void mergeCreator(Tournament committedTournament, Tournament mergedTournament) {
-        if(getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
+        if (getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
             mergedTournament.getCreator().setName(getCreator().getName());
             mergedTournament.getCreator().setUsername(getCreator().getUsername());
             mergedTournament.getCreator().setVersion(getCreator().getVersion());
@@ -349,7 +349,7 @@ public class Tournament extends Aggregate {
     }*/
 
     private void mergeCourseExecution(Tournament committedTournament, Tournament mergedTournament) {
-        if(getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
+        if (getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
             mergedTournament.getCourseExecution().setVersion(getCourseExecution().getVersion());
         } else {
             mergedTournament.getCourseExecution().setVersion(committedTournament.getCourseExecution().getVersion());
@@ -479,8 +479,8 @@ public class Tournament extends Aggregate {
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
         Tournament prev = (Tournament) getPrev();
-        if(prev != null) {
-            if((prev.getStartTime() != null && DateHandler.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+        if (prev != null) {
+            if ((prev.getStartTime() != null && DateHandler.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
                 throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
             }
         }

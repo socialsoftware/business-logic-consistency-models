@@ -51,4 +51,11 @@ public class VersionService {
         version.incrementVersion();
         return version.getVersionNumber();
     }
+
+    // It is only in tests to simulate concurrent execution of functionalities
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public void decrementVersionNumber() {
+        Version version = versionRepository.findAll().stream().findAny().orElseThrow(() -> new TutorException(ErrorMessage.VERSION_MANAGER_DOES_NOT_EXIST));
+        version.decrementVersion();
+    }
 }

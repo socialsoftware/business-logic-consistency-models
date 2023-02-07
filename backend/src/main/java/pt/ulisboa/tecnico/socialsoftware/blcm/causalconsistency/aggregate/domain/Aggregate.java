@@ -197,7 +197,6 @@ public abstract class Aggregate {
                 Object prevFieldValue = field.get(prevObj);
 
                 if (currentFieldValue != null && prevFieldValue != null && !(currentFieldValue.equals(prevFieldValue))) {
-                    System.out.println("changed: " + fieldName);
                     changedFields.add(fieldName);
                 }
             }
@@ -209,8 +208,10 @@ public abstract class Aggregate {
 
     private void checkIntentions(Set<String> changedFields1, Set<String> changedFields2) {
         for (String [] intention : getIntentions()) {
-            if ((changedFields1.contains(intention[0]) && changedFields2.contains(intention[1])) || (changedFields1.contains(intention[1]) && changedFields2.contains(intention[0]))) {
-                throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
+            if (!(changedFields1.contains(intention[0]) && changedFields1.contains(intention[1]))
+                    && ((changedFields1.contains(intention[0]) && changedFields2.contains(intention[1]))
+                        || (changedFields1.contains(intention[1]) && changedFields2.contains(intention[0])))) {
+                throw new TutorException(AGGREGATE_MERGE_FAILURE_DUE_TO_INTENSIONS_CONFLICT, intention[0] + ":" + intention[1]);
             }
         }
     }

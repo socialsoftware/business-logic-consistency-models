@@ -28,4 +28,7 @@ public class Version {
         versionNumber++;
     }
 
+    public void decrementVersion() {
+        versionNumber--;
+    }
 }

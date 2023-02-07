@@ -254,9 +254,6 @@ class MergeUnitTest extends SpockTest {
     def cleanup() {
     }
 
-    def "intention pass combination" () {
-    }
-
     @Unroll
     def 'intention fail combination' () {
         given:
@@ -281,17 +278,54 @@ class MergeUnitTest extends SpockTest {
 
         then:
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.AGGREGATE_MERGE_FAILURE
+        error.errorMessage == ErrorMessage.AGGREGATE_MERGE_FAILURE_DUE_TO_INTENSIONS_CONFLICT
 
         where:
-        /** Prev values
-         TIME_1          | TIME_1            | TIME_2        | TIME_2        | 5                 | 5                 | Set.of(topic1, topic2)    | Set.of(topic1, topic2)
-         **/
-        v1StartTime | v2StartTime   | v1EndTime | v2EndTime | v1NoQuestions | v2NoQuestions | v1Topics               | v2Topics
-        TIME_3      | TIME_1        | TIME_2    | TIME_4    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/end
-        TIME_3      | TIME_1        | TIME_2    | TIME_2    | 3             | 4             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/no
-        TIME_1      | TIME_1        | TIME_3    | TIME_4    | 2             | 6             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // end/no
-        TIME_1      | TIME_1        | TIME_2    | TIME_2    | 1             | 4             | topicSetHasTopics1     | topicSetHasTopics2 // no/topics
+//      Prev values
+//      TIME_1      | TIME_1      | TIME_2    | TIME_2    | 5             | 5             | Set.of(topic1, topic2) | Set.of(topic1, topic2)
+        v1StartTime | v2StartTime | v1EndTime | v2EndTime | v1NoQuestions | v2NoQuestions | v1Topics               | v2Topics
+        TIME_3      | TIME_1      | TIME_2    | TIME_4    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/end
+        TIME_3      | TIME_1      | TIME_2    | TIME_2    | 5             | 4             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/numberofquestions
+        TIME_1      | TIME_1      | TIME_3    | TIME_2    | 5             | 6             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // end/numberofquestions
+        TIME_1      | TIME_1      | TIME_2    | TIME_2    | 1             | 5             | topicSetHasTopics1and2 | topicSetHasTopics2 // numberofquestions/topics
+    }
+
+
+    @Unroll
+    def 'intention pass combination' () {
+        given:
+        def prev = tournament1
+        def v1 = tournament2
+        def v2 = tournament3
+
+        v1.setStartTime(v1StartTime)
+        v2.setStartTime(v2StartTime)
+
+        v1.setEndTime(v1EndTime)
+        v2.setEndTime(v2EndTime)
+
+        v1.setNumberOfQuestions(v1NoQuestions)
+        v2.setNumberOfQuestions(v2NoQuestions)
+
+        v1.setTopics(v1Topics)
+        v2.setTopics(v2Topics)
+
+        when:
+        def mergedTournament = (Tournament)v1.merge(v2)
+
+        then:
+        mergedTournament != null
+
+        where:
+//      Prev values
+//      TIME_1      | TIME_1      | TIME_2    | TIME_2    | 5             | 5             | Set.of(topic1, topic2) | Set.of(topic1, topic2)
+        v1StartTime | v2StartTime | v1EndTime | v2EndTime | v1NoQuestions | v2NoQuestions | v1Topics               | v2Topics
+        TIME_3      | TIME_1      | TIME_4    | TIME_4    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start && end/end
+        TIME_3      | TIME_1      | TIME_2    | TIME_2    | 3             | 4             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start && numberofquestions/numberofquestions
+        TIME_1      | TIME_1      | TIME_3    | TIME_2    | 3             | 6             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // end && numberofquestions/numberofquestions
+        TIME_1      | TIME_1      | TIME_2    | TIME_2    | 1             | 5             | topicSetHasTopics1     | topicSetHasTopics2 // numberofquestions && topics/topics
+        TIME_3      | TIME_1      | TIME_2    | TIME_2    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1 // start / topics
+        TIME_1      | TIME_1      | TIME_3    | TIME_2    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1 // end / topics
     }
 
     def 'startTime merge' () {

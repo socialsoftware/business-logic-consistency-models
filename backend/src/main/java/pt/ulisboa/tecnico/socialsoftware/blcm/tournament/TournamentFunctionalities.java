@@ -81,17 +81,17 @@ public class TournamentFunctionalities {
 
 
 
-        /*
-        NUMBER_OF_QUESTIONS
-            this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
-            Quiz(this.tournamentQuiz.id) DEPENDS ON this.numberOfQuestions
-        QUIZ_TOPICS
-            Quiz(this.tournamentQuiz.id) DEPENDS ON this.topics // the topics of the quiz questions are related to the tournament topics
-        START_TIME_AVAILABLE_DATE
-            this.startTime == Quiz(tournamentQuiz.id).availableDate
-        END_TIME_CONCLUSION_DATE
-            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
-         */
+
+//        NUMBER_OF_QUESTIONS
+//            this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
+//            Quiz(this.tournamentQuiz.id) DEPENDS ON this.numberOfQuestions
+//        QUIZ_TOPICS
+//            Quiz(this.tournamentQuiz.id) DEPENDS ON this.topics // the topics of the quiz questions are related to the tournament topics
+//        START_TIME_AVAILABLE_DATE
+//            this.startTime == Quiz(tournamentQuiz.id).availableDate
+//        END_TIME_CONCLUSION_DATE
+//            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
+
         QuizDto quizDto1 = quizService.generateQuiz(executionId, quizDto, topicsId, tournamentDto.getNumberOfQuestions(), unitOfWork);
 
         TournamentDto tournamentDto2 = tournamentService.createTournament(tournamentDto, creator, tournamentCourseExecution, tournamentTopics, new TournamentQuiz(quizDto1.getAggregateId(), quizDto1.getVersion()), unitOfWork);
@@ -131,28 +131,25 @@ public class TournamentFunctionalities {
         quizDto.setConclusionDate(newTournamentDto.getEndTime());
         quizDto.setResultsDate(newTournamentDto.getEndTime());
 
-        /*
-        NUMBER_OF_QUESTIONS
-		    this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
-		    Quiz(this.tournamentQuiz.id) DEPENDS ON this.numberOfQuestions
-        QUIZ_TOPICS
-            Quiz(this.tournamentQuiz.id) DEPENDS ON this.topics // the topics of the quiz questions are related to the tournament topics
-        START_TIME_AVAILABLE_DATE
-            this.startTime == Quiz(tournamentQuiz.id).availableDate
-        END_TIME_CONCLUSION_DATE
-            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
-         */
+//        NUMBER_OF_QUESTIONS
+//		    this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
+//		    Quiz(this.tournamentQuiz.id) DEPENDS ON this.numberOfQuestions
+//        QUIZ_TOPICS
+//            Quiz(this.tournamentQuiz.id) DEPENDS ON this.topics // the topics of the quiz questions are related to the tournament topics
+//        START_TIME_AVAILABLE_DATE
+//            this.startTime == Quiz(tournamentQuiz.id).availableDate
+//        END_TIME_CONCLUSION_DATE
+//            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
 
         /*this if is required for the case of updating a quiz and not altering neither the number of questions neither the topics */
-        if(topicsAggregateIds != null || tournamentDto.getNumberOfQuestions() != null) {
-            if(topicsAggregateIds == null) {
+        if (topicsAggregateIds != null || tournamentDto.getNumberOfQuestions() != null) {
+            if (topicsAggregateIds == null) {
                 quizService.updateGeneratedQuiz(quizDto, newTournamentDto.getTopics().stream().filter(t -> t.getState().equals(Aggregate.AggregateState.ACTIVE.toString())).map(TopicDto::getAggregateId).collect(Collectors.toSet()), newTournamentDto.getNumberOfQuestions(), unitOfWork);
             } else {
                 quizService.updateGeneratedQuiz(quizDto, topicsAggregateIds, newTournamentDto.getNumberOfQuestions(), unitOfWork);
             }
         }
         //quizService.updateGeneratedQuiz(quizDto, topicsAggregateIds, newTournamentDto.getNumberOfQuestions(), unitOfWork);
-
 
         unitOfWorkService.commit(unitOfWork);
     }
