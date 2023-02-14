@@ -144,23 +144,23 @@ public class TournamentParticipant {
                                                 Integer v1CourseExecutionVersion,
                                                 Integer v2CourseExecutionVersion) {
 
-        for(TournamentParticipant tp1 : v1Participants) {
-            for(TournamentParticipant tp2 : v2Participants) {
-                if(tp1.getAggregateId().equals(tp2.getAggregateId())) {
-                    if(v1CourseExecutionVersion > v2CourseExecutionVersion) {
+        for (TournamentParticipant tp1 : v1Participants) {
+            for (TournamentParticipant tp2 : v2Participants) {
+                if (tp1.getAggregateId().equals(tp2.getAggregateId())) {
+                    if (v1CourseExecutionVersion > v2CourseExecutionVersion) {
                         tp2.setVersion(tp1.getVersion());
                         tp2.setName(tp1.getName());
                         tp2.setUsername(tp1.getUsername());
-                        if(tp1.getAnswer() != null) {
+                        if (tp1.getAnswer() != null) {
                             tp2.setAnswer(new TournamentParticipantAnswer(tp1.getAnswer()));
                         }
                     }
 
-                    if(v2CourseExecutionVersion > v1CourseExecutionVersion) {
+                    if (v2CourseExecutionVersion > v1CourseExecutionVersion) {
                         tp1.setVersion(tp2.getVersion());
                         tp1.setName(tp2.getName());
                         tp1.setUsername(tp2.getUsername());
-                        if(tp2.getAnswer() != null) {
+                        if (tp2.getAnswer() != null) {
                             tp1.setAnswer(new TournamentParticipantAnswer(tp2.getAnswer()));
                         }
                     }
@@ -168,22 +168,22 @@ public class TournamentParticipant {
             }
 
             // no need to check again because the prev does not contain any newer version than v1 an v2
-            for(TournamentParticipant prevParticipant : prevParticipants) {
-                if(tp1.getAggregateId().equals(prevParticipant.getAggregateId())) {
-                    if(v1CourseExecutionVersion > prevCourseExecutionVersion) {
+            for (TournamentParticipant prevParticipant : prevParticipants) {
+                if (tp1.getAggregateId().equals(prevParticipant.getAggregateId())) {
+                    if (v1CourseExecutionVersion > prevCourseExecutionVersion) {
                         prevParticipant.setVersion(tp1.getVersion());
                         prevParticipant.setName(tp1.getName());
                         prevParticipant.setUsername(tp1.getUsername());
-                        if(tp1.getAnswer() != null) {
+                        if (tp1.getAnswer() != null) {
                             prevParticipant.setAnswer(new TournamentParticipantAnswer(tp1.getAnswer()));
                         }
                     }
 
-                    if(prevCourseExecutionVersion > v1CourseExecutionVersion) {
+                    if (prevCourseExecutionVersion > v1CourseExecutionVersion) {
                         tp1.setVersion(prevParticipant.getVersion());
                         tp1.setName(prevParticipant.getName());
                         tp1.setUsername(prevParticipant.getUsername());
-                        if(prevParticipant.getAnswer() != null) {
+                        if (prevParticipant.getAnswer() != null) {
                             tp1.setAnswer(new TournamentParticipantAnswer(prevParticipant.getAnswer()));
                         }
                     }

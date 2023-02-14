@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
-
+import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED;
 
 
 public class UnitOfWork {
@@ -94,7 +94,7 @@ public class UnitOfWork {
                 // if there are events in those situations we verify whether they are relevant or not for the subscription
                 for (Event snapshotAggregateEmittedEvent : snapshotAggregateEmittedEvents) {
                     if (es.subscribesEvent(snapshotAggregateEmittedEvent)) {
-                        throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
+                        throw new TutorException(CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED, aggregate.getClass().getSimpleName(), snapshotAggregateEmittedEvent.getClass().getSimpleName());
                     }
                 }
             }

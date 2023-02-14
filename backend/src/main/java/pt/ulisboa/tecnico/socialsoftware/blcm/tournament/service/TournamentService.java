@@ -129,13 +129,12 @@ public class TournamentService {
         Tournament newTournament = new Tournament(oldTournament);
 
         if(tournamentDto.getStartTime() != null ) {
-            newTournament.setStartTime(LocalDateTime.
-                    parse(tournamentDto.getStartTime()));
+            newTournament.setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
             unitOfWork.registerChanged(newTournament);
         }
 
         if(tournamentDto.getEndTime() != null ) {
-            newTournament.setEndTime(LocalDateTime.parse(tournamentDto.getEndTime()));
+            newTournament.setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
             unitOfWork.registerChanged(newTournament);
         }
 

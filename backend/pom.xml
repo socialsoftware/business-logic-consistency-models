@@ -14,7 +14,7 @@
 	<name>BusinessLogicConsistencyModels</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>19</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -159,7 +159,7 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-					<compilerArgs>--enable-preview</compilerArgs>
+<!--					<compilerArgs>&#45;&#45;enable-preview</compilerArgs>-->
 				</configuration>
 			</plugin>
 		</plugins>

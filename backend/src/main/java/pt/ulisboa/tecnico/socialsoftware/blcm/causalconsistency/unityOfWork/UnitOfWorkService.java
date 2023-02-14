@@ -121,7 +121,7 @@ public class UnitOfWorkService {
         }
 
         Integer commitVersion;
-        if(versionService.getVersionNumber() < unitOfWork.getVersion()) {
+        if (versionService.getVersionNumber() < unitOfWork.getVersion()) {
             commitVersion = versionService.incrementAndGetVersionNumber();
         } else {
             commitVersion = unitOfWork.getVersion();

@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.tournament
 
-
 import org.springframework.boot.test.context.SpringBootTest
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException
@@ -17,14 +16,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import java.time.LocalDateTime
-
 @SpringBootTest
 class MergeUnitTest extends SpockTest {
-
     public static final Integer COURSE_EXECUTION_AGGREGATE_ID_1 = 1
-    public static final Integer COURSE_EXECUTION_AGGREGATE_ID_2 = 2
-    public static final Integer COURSE_EXECUTION_AGGREGATE_ID_3 = 3
     public static final Integer TOPIC_AGGREGATE_ID_1 = 4
     public static final Integer TOPIC_AGGREGATE_ID_2 = 5
     public static final Integer TOPIC_AGGREGATE_ID_3 = 6
@@ -32,11 +26,7 @@ class MergeUnitTest extends SpockTest {
     public static final Integer USER_AGGREGATE_ID_2 = 8
     public static final Integer USER_AGGREGATE_ID_3 = 9
     public static final Integer TOURNAMENT_AGGREGATE_ID_1 = 10
-    public static final Integer TOURNAMENT_AGGREGATE_ID_2 = 11
-    public static final Integer TOURNAMENT_AGGREGATE_ID_3 = 12
     public static final Integer QUIZ_AGGREGATE_ID_1 = 13
-    public static final Integer QUIZ_AGGREGATE_ID_2 = 14
-    public static final Integer QUIZ_AGGREGATE_ID_3 = 15
 
     public static final String USER_NAME_1 = "USER_NAME_1"
     public static final String USER_NAME_2 = "USER_NAME_2"
@@ -47,39 +37,14 @@ class MergeUnitTest extends SpockTest {
     public static final String USER_USERNAME_3 = "USER_USERNAME_3"
 
     public static final String ACRONYM_1 = "ACRONYM_1"
-    public static final String ACRONYM_2 = "ACRONYM_2"
-    public static final String ACRONYM_3 = "ACRONYM_3"
 
     public static final String TOPIC_NAME_1 = "TOPIC_NAME_1"
     public static final String TOPIC_NAME_2 = "TOPIC_NAME_2"
     public static final String TOPIC_NAME_3 = "TOPIC_NAME_3"
 
-    public static final LocalDateTime TIME_1 = DateHandler.now().plusMinutes(5)
-    public static final LocalDateTime TIME_2 = DateHandler.now().plusMinutes(25)
-    public static final LocalDateTime TIME_3 = DateHandler.now().plusHours(1).plusMinutes(5)
-    public static final LocalDateTime TIME_4 = DateHandler.now().plusHours(1).plusMinutes(25)
-
-    public static final String EVENT_1 = "EVENT_1"
-    public static final String EVENT_2 = "EVENT_2"
-    public static final String EVENT_3 = "EVENT_3"
-    public static final String EVENT_4 = "EVENT_4"
-
-
-
-    @Shared
-    Tournament tournament1
-    @Shared
-    Tournament tournament2
-    @Shared
-    Tournament tournament3
-
-
-    @Shared
-    TournamentTopic topic1
-    @Shared
-    TournamentTopic topic2
-    @Shared
-    TournamentTopic topic3
+    Tournament tournament1, tournament2, tournament3
+    TournamentTopic topic1, topic2, topic3
+    TournamentParticipant participant1, participant2, participant3
 
     @Shared
     Set<TournamentTopic> topicSetHasTopics1and2 = new HashSet<>()
@@ -96,30 +61,20 @@ class MergeUnitTest extends SpockTest {
     @Shared
     Set<TournamentTopic> topicSetIsEmpty = new HashSet<>()
 
-
-
     @Shared
-    TournamentParticipant participant1
+    Set<TournamentParticipant> participantSetHasParticipants1and2 = new HashSet<>()
     @Shared
-    TournamentParticipant participant2
+    Set<TournamentParticipant> participantSetHasParticipants1 = new HashSet<>()
     @Shared
-    TournamentParticipant participant3
-
+    Set<TournamentParticipant> participantSetHasParticipants2 = new HashSet<>()
     @Shared
-    Set<TournamentParticipant> participantSet1 = new HashSet<>()
+    Set<TournamentParticipant> participantSetHasParticipants1and2and3 = new HashSet<>()
     @Shared
-    Set<TournamentParticipant> participantSet2 = new HashSet<>()
+    Set<TournamentParticipant> participantSetHasParticipants1and3 = new HashSet<>()
     @Shared
-    Set<TournamentParticipant> participantSet3 = new HashSet<>()
+    Set<TournamentParticipant> participantSetHasParticipants2and3 = new HashSet<>()
     @Shared
-    Set<TournamentParticipant> participantSet4 = new HashSet<>()
-    @Shared
-    Set<TournamentParticipant> participantSet5 = new HashSet<>()
-    @Shared
-    Set<TournamentParticipant> participantSet6 = new HashSet<>()
-    @Shared
-    Set<TournamentParticipant> participantSet7 = new HashSet<>()
-
+    Set<TournamentParticipant> participantSetIsEmpty = new HashSet<>()
 
     def setup() {
         TournamentDto tournamentDto1 = new TournamentDto()
@@ -130,13 +85,12 @@ class MergeUnitTest extends SpockTest {
         TournamentCreator tournamentCreator1 = new TournamentCreator()
         tournamentCreator1.setAggregateId(USER_AGGREGATE_ID_1)
         tournamentCreator1.setName(USER_NAME_1)
-        tournamentCreator1.setUsername(USER_NAME_2)
+        tournamentCreator1.setUsername(USER_USERNAME_1)
 
         TournamentCourseExecution tournamentCourseExecution1 = new TournamentCourseExecution()
         tournamentCourseExecution1.setAggregateId(COURSE_EXECUTION_AGGREGATE_ID_1)
         tournamentCourseExecution1.setVersion(6)
         tournamentCourseExecution1.setAcronym(ACRONYM_1)
-
 
         topic1 = new TournamentTopic()
         topic1.setAggregateId(TOPIC_AGGREGATE_ID_1)
@@ -148,12 +102,10 @@ class MergeUnitTest extends SpockTest {
         topic2.setName(TOPIC_NAME_2)
         topic2.setVersion(2)
 
-
         topic3 = new TournamentTopic()
         topic3.setAggregateId(TOPIC_AGGREGATE_ID_3)
         topic3.setName(TOPIC_NAME_3)
         topic3.setVersion(3)
-
 
         topicSetHasTopics1and2.add(topic1)
         topicSetHasTopics1and2.add(topic2)
@@ -174,7 +126,6 @@ class MergeUnitTest extends SpockTest {
 
         topicSetIsEmpty.add(null)
 
-
         def ansId1 = 25
         def ansVer1 = 50
         def ansNoAnswered1 = 5
@@ -191,13 +142,11 @@ class MergeUnitTest extends SpockTest {
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
-        def answer1v2 = new TournamentParticipantAnswer()
-        answer1v2.setAggregateId(ansId1)
-        answer1v2.setVersion(ansVer2)
-        answer1v2.setNumberOfAnswered(ansNoAnswered2)
-        answer1v2.setNumberOfCorrect(ansNoCorrect2)
-
-
+        def answer1Committed = new TournamentParticipantAnswer()
+        answer1Committed.setAggregateId(ansId1)
+        answer1Committed.setVersion(ansVer2)
+        answer1Committed.setNumberOfAnswered(ansNoAnswered2)
+        answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
         participant1 = new TournamentParticipant()
         participant1.setAggregateId(USER_AGGREGATE_ID_1)
@@ -213,7 +162,6 @@ class MergeUnitTest extends SpockTest {
         participant2.setVersion(2)
         participant2.setAnswer(answer1)
 
-
         participant3 = new TournamentParticipant()
         participant3.setAggregateId(USER_AGGREGATE_ID_3)
         participant3.setName(USER_NAME_3)
@@ -221,25 +169,24 @@ class MergeUnitTest extends SpockTest {
         participant3.setVersion(3)
         participant3.setAnswer(answer1)
 
+        participantSetIsEmpty.add(null)
 
-        participantSet1.add(participant1)
-        participantSet1.add(participant2)
+        participantSetHasParticipants1.add(participant1)
 
-        participantSet2.add(participant1)
+        participantSetHasParticipants2.add(participant2)
 
-        participantSet3.add(participant2)
+        participantSetHasParticipants1and2.add(participant1)
+        participantSetHasParticipants1and2.add(participant2)
 
-        participantSet4.add(participant1)
-        participantSet4.add(participant2)
-        participantSet4.add(participant3)
+        participantSetHasParticipants1and3.add(participant1)
+        participantSetHasParticipants1and3.add(participant3)
 
-        participantSet5.add(participant1)
-        participantSet5.add(participant3)
+        participantSetHasParticipants2and3.add(participant2)
+        participantSetHasParticipants2and3.add(participant3)
 
-        participantSet6.add(participant2)
-        participantSet6.add(participant3)
-
-        participantSet7.add(null)
+        participantSetHasParticipants1and2and3.add(participant1)
+        participantSetHasParticipants1and2and3.add(participant2)
+        participantSetHasParticipants1and2and3.add(participant3)
 
         TournamentQuiz tournamentQuiz = new TournamentQuiz()
         tournamentQuiz.setAggregateId(QUIZ_AGGREGATE_ID_1)
@@ -254,27 +201,29 @@ class MergeUnitTest extends SpockTest {
     def cleanup() {
     }
 
+    // merge intentions
+
     @Unroll
     def 'intention fail combination' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def toCommit = tournament2
+        def committed = tournament3
 
-        v1.setStartTime(v1StartTime)
-        v2.setStartTime(v2StartTime)
+        toCommit.setStartTime(toCommitStartTime)
+        committed.setStartTime(committedStartTime)
 
-        v1.setEndTime(v1EndTime)
-        v2.setEndTime(v2EndTime)
+        toCommit.setEndTime(toCommitEndTime)
+        committed.setEndTime(committedEndTime)
 
-        v1.setNumberOfQuestions(v1NoQuestions)
-        v2.setNumberOfQuestions(v2NoQuestions)
+        toCommit.setNumberOfQuestions(toCommitNoQuestions)
+        committed.setNumberOfQuestions(committedNoQuestions)
 
-        v1.setTopics(v1Topics)
-        v2.setTopics(v2Topics)
+        toCommit.setTopics(toCommitTopics)
+        committed.setTopics(committedTopics)
 
         when:
-        def mergedTournament = (Tournament)v1.merge(v2)
+        toCommit.merge(committed)
 
         then:
         def error = thrown(TutorException)
@@ -282,12 +231,12 @@ class MergeUnitTest extends SpockTest {
 
         where:
 //      Prev values
-//      TIME_1      | TIME_1      | TIME_2    | TIME_2    | 5             | 5             | Set.of(topic1, topic2) | Set.of(topic1, topic2)
-        v1StartTime | v2StartTime | v1EndTime | v2EndTime | v1NoQuestions | v2NoQuestions | v1Topics               | v2Topics
-        TIME_3      | TIME_1      | TIME_2    | TIME_4    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/end
-        TIME_3      | TIME_1      | TIME_2    | TIME_2    | 5             | 4             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/numberofquestions
-        TIME_1      | TIME_1      | TIME_3    | TIME_2    | 5             | 6             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // end/numberofquestions
-        TIME_1      | TIME_1      | TIME_2    | TIME_2    | 1             | 5             | topicSetHasTopics1and2 | topicSetHasTopics2 // numberofquestions/topics
+//      TIME_1            | TIME_1             | TIME_2          | TIME_2           | 5                   | 5                    | Set.of(topic1, topic2) | Set.of(topic1, topic2)
+        toCommitStartTime | committedStartTime | toCommitEndTime | committedEndTime | toCommitNoQuestions | committedNoQuestions | toCommitTopics         | committedTopics
+        TIME_3            | TIME_1             | TIME_2          | TIME_4           | 5                   | 5                    | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/end
+        TIME_3            | TIME_1             | TIME_2          | TIME_2           | 5                   | 4                    | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start/numberofquestions
+        TIME_1            | TIME_1             | TIME_3          | TIME_2           | 5                   | 6                    | topicSetHasTopics1and2 | topicSetHasTopics1and2 // end/numberofquestions
+        TIME_1            | TIME_1             | TIME_2          | TIME_2           | 1                   | 5                    | topicSetHasTopics1and2 | topicSetHasTopics2 // numberofquestions/topics
     }
 
 
@@ -295,149 +244,172 @@ class MergeUnitTest extends SpockTest {
     def 'intention pass combination' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def toCommit = tournament2
+        def committed = tournament3
 
-        v1.setStartTime(v1StartTime)
-        v2.setStartTime(v2StartTime)
+        toCommit.setStartTime(toCommitStartTime)
+        committed.setStartTime(committedStartTime)
 
-        v1.setEndTime(v1EndTime)
-        v2.setEndTime(v2EndTime)
+        toCommit.setEndTime(toCommitEndTime)
+        committed.setEndTime(committedEndTime)
 
-        v1.setNumberOfQuestions(v1NoQuestions)
-        v2.setNumberOfQuestions(v2NoQuestions)
+        toCommit.setNumberOfQuestions(toCommitNoQuestions)
+        committed.setNumberOfQuestions(committedNoQuestions)
 
-        v1.setTopics(v1Topics)
-        v2.setTopics(v2Topics)
+        toCommit.setTopics(toCommitTopics)
+        committed.setTopics(committedTopics)
 
         when:
-        def mergedTournament = (Tournament)v1.merge(v2)
+        def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
         mergedTournament != null
 
         where:
 //      Prev values
-//      TIME_1      | TIME_1      | TIME_2    | TIME_2    | 5             | 5             | Set.of(topic1, topic2) | Set.of(topic1, topic2)
-        v1StartTime | v2StartTime | v1EndTime | v2EndTime | v1NoQuestions | v2NoQuestions | v1Topics               | v2Topics
-        TIME_3      | TIME_1      | TIME_4    | TIME_4    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start && end/end
-        TIME_3      | TIME_1      | TIME_2    | TIME_2    | 3             | 4             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start && numberofquestions/numberofquestions
-        TIME_1      | TIME_1      | TIME_3    | TIME_2    | 3             | 6             | topicSetHasTopics1and2 | topicSetHasTopics1and2 // end && numberofquestions/numberofquestions
-        TIME_1      | TIME_1      | TIME_2    | TIME_2    | 1             | 5             | topicSetHasTopics1     | topicSetHasTopics2 // numberofquestions && topics/topics
-        TIME_3      | TIME_1      | TIME_2    | TIME_2    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1 // start / topics
-        TIME_1      | TIME_1      | TIME_3    | TIME_2    | 5             | 5             | topicSetHasTopics1and2 | topicSetHasTopics1 // end / topics
+//      TIME_1            | TIME_1             | TIME_2          | TIME_2           | 5                   | 5                    | Set.of(topic1, topic2) | Set.of(topic1, topic2)
+        toCommitStartTime | committedStartTime | toCommitEndTime | committedEndTime | toCommitNoQuestions | committedNoQuestions | toCommitTopics         | committedTopics
+        TIME_3            | TIME_1             | TIME_4          | TIME_4           | 5                   | 5                    | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start && end/end
+        TIME_3            | TIME_1             | TIME_2          | TIME_2           | 3                   | 4                    | topicSetHasTopics1and2 | topicSetHasTopics1and2 // start && numberofquestions/numberofquestions
+        TIME_1            | TIME_1             | TIME_3          | TIME_2           | 3                   | 6                    | topicSetHasTopics1and2 | topicSetHasTopics1and2 // end && numberofquestions/numberofquestions
+        TIME_1            | TIME_1             | TIME_2          | TIME_2           | 1                   | 5                    | topicSetHasTopics1     | topicSetHasTopics2 // numberofquestions && topics/topics
+        TIME_3            | TIME_1             | TIME_2          | TIME_2           | 5                   | 5                    | topicSetHasTopics1and2 | topicSetHasTopics1 // start / topics
+        TIME_1            | TIME_1             | TIME_3          | TIME_2           | 5                   | 5                    | topicSetHasTopics1and2 | topicSetHasTopics1 // end / topics
     }
+
+    // merge operations
 
     def 'startTime merge' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def toCommit = tournament2
+        def committed = tournament3
 
-        v1.setStartTime(TIME_3)
-        v2.setStartTime(TIME_4)
+        prev.setStartTime(TIME_1)
+        committed.setStartTime(committedTime)
+        toCommit.setStartTime(toCommitTime)
 
         when:
-        def mergedTournament = (Tournament)v1.merge(v2)
+        def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
-        mergedTournament.getStartTime() == TIME_3 // merge is possible so it prevails the most recent version, v1 which isnt committed yet
+        mergedTournament.getStartTime() == result
+
+        where:
+        committedTime | toCommitTime || result
+        TIME_4        | TIME_3       || TIME_3
+        TIME_1        | TIME_3       || TIME_3
+        TIME_4        | TIME_1       || TIME_4
     }
 
     def 'endTime merge' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def toCommit = tournament2
+        def committed = tournament3
 
-        v1.setEndTime(TIME_3)
-        v2.setEndTime(TIME_4)
+        prev.setEndTime(TIME_2)
+        committed.setEndTime(committedTime)
+        toCommit.setEndTime(toCommitTime)
 
         when:
-        def mergedTournament = (Tournament)v1.merge(v2)
+        def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
-        mergedTournament.getEndTime() == TIME_3 // merge is possible so it prevails the most recent version, v1 which isnt committed yet
+        mergedTournament.getEndTime() == result
+
+        where:
+        committedTime | toCommitTime || result
+        TIME_4        | TIME_3       || TIME_3
+        TIME_2        | TIME_3       || TIME_3
+        TIME_4        | TIME_2       || TIME_4
     }
 
     def 'numberOfQuestions merge' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def committed = tournament3
+        def toCommit = tournament2
 
-        v1.setNumberOfQuestions(3)
-        v2.setNumberOfQuestions(4)
+        prev.setNumberOfQuestions(5)
+        committed.setNumberOfQuestions(committedValue)
+        toCommit.setNumberOfQuestions(toCommitValue)
 
         when:
-        def mergedTournament = (Tournament)v1.merge(v2)
+        def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
-        mergedTournament.getNumberOfQuestions() == 3 // merge is possible so it prevails the mos recent version, v1 which isnt committed yet
+        mergedTournament.getNumberOfQuestions() == result
+
+        where:
+        committedValue | toCommitValue || result
+        4              | 3             || 3
+        5              | 3             || 3
+        4              | 5             || 4
     }
 
     @Unroll
     def 'topics merge' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def committed = tournament3
+        def toCommit = tournament2
 
         prev.setTopics(topicSetHasTopics1and2)
-        v1.setTopics(v1Topics)
-        v2.setTopics(v2Topics)
+        committed.setTopics(committedTopics)
+        toCommit.setTopics(toCommitTopics)
 
         when:
-        def mergedTournament = (Tournament)v1.merge(v2)
+        def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
-
-        mergedTournament.getTopics() == mergedTopics
+        mergedTournament.getTopics() == result
 
         where:
-        v1Topics               | v2Topics                   | mergedTopics
-        topicSetHasTopics1and2 | topicSetHasTopics1and2     | topicSetHasTopics1and2
-        topicSetHasTopics1     | topicSetHasTopics2         | topicSetHasTopics1
-        topicSetHasTopics1and2 | topicSetHasTopics1         | topicSetHasTopics1
-        topicSetHasTopics1and2 | topicSetHasTopics2         | topicSetHasTopics2
-        topicSetHasTopics1and2 | topicSetHasTopics1and2and3 | topicSetHasTopics1and2and3
-        topicSetHasTopics2     | topicSetHasTopics1and2and3 | topicSetHasTopics2
-        topicSetHasTopics1     | topicSetHasTopics1and2and3 | topicSetHasTopics1
+        committedTopics        | toCommitTopics             || result
+        topicSetHasTopics1and2 | topicSetHasTopics1and2     || topicSetHasTopics1and2
+        topicSetHasTopics2     | topicSetHasTopics1         || topicSetHasTopics1
+        topicSetHasTopics1     | topicSetHasTopics1and2     || topicSetHasTopics1
+        topicSetHasTopics1and2 | topicSetHasTopics1and2and3 || topicSetHasTopics1and2and3
     }
 
     @Unroll
     def 'participants merge' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def committed = tournament3
+        def toCommit = tournament2
 
-        prev.setParticipants(participantSet1)
-        v1.setParticipants(v1Participants)
-        v2.setParticipants(v2Participants)
+        prev.setParticipants(prevPartipants)
+        committed.setParticipants(committedParticipants)
+        toCommit.setParticipants(toCommitParticipants)
 
         when:
-        def mergedTournament = (Tournament)v1.merge(v2)
+        def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
-        mergedTournament.getParticipants() == mergedParticipants
+        mergedTournament.getParticipants() == result
 
         where:
-        v1Participants  | v2Participants    | mergedParticipants
-        participantSet1 | participantSet1   | participantSet1
-        participantSet2 | participantSet3   | new HashSet<TournamentParticipant>()
-        participantSet1 | participantSet2   | participantSet2
-        participantSet1 | participantSet3   | participantSet3
-        participantSet1 | participantSet4   | participantSet4
-        participantSet3 | participantSet4   | participantSet6
-        participantSet2 | participantSet4   | participantSet5
+        prevPartipants                     | committedParticipants                  | toCommitParticipants                   || result
+        participantSetHasParticipants1and2 | participantSetHasParticipants1and2     | participantSetHasParticipants1and2     || participantSetHasParticipants1and2 // no changes
+        participantSetHasParticipants1and2 | participantSetHasParticipants1         | participantSetHasParticipants1and2     || participantSetHasParticipants1 // only committed deletes
+        participantSetHasParticipants1and2 | participantSetHasParticipants1and2     | participantSetHasParticipants1         || participantSetHasParticipants1 // only to commit deletes
+        participantSetHasParticipants1and2 | participantSetHasParticipants2         | participantSetHasParticipants1         || new HashSet<TournamentParticipant>() // two different deletes
+        participantSetHasParticipants1and2 | participantSetHasParticipants1         | participantSetHasParticipants1         || participantSetHasParticipants1 // same delete
+        participantSetHasParticipants1and2 | participantSetHasParticipants1and2and3 | participantSetHasParticipants1and2     || participantSetHasParticipants1and2and3 // only committed inserts
+        participantSetHasParticipants1and2 | participantSetHasParticipants1and2     | participantSetHasParticipants1and2and3 || participantSetHasParticipants1and2and3 // only to commit inserts
+        participantSetHasParticipants1     | participantSetHasParticipants1and2     | participantSetHasParticipants1and3     || participantSetHasParticipants1and2and3 // two different inserts
+        participantSetHasParticipants1     | participantSetHasParticipants1and2     | participantSetHasParticipants1and2     || participantSetHasParticipants1and2 // same insert
+        participantSetHasParticipants1and2 | participantSetHasParticipants1         | participantSetHasParticipants1and2and3 || participantSetHasParticipants1and3 // different committed delete and to commit insert
+        participantSetHasParticipants1and2 | participantSetHasParticipants1and2and3 | participantSetHasParticipants1         || participantSetHasParticipants1and3 // different committed insert and to commit delete
     }
 
     def 'participants merge with different versions of the same participant _one is anonymous_' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def committed = tournament3
+        def toCommit = tournament2
 
         def ansId1 = 25
         def ansVer1 = 50
@@ -455,45 +427,44 @@ class MergeUnitTest extends SpockTest {
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
-        def answer1v2 = new TournamentParticipantAnswer()
-        answer1v2.setAggregateId(ansId1)
-        answer1v2.setVersion(ansVer2)
-        answer1v2.setNumberOfAnswered(ansNoAnswered2)
-        answer1v2.setNumberOfCorrect(ansNoCorrect2)
+        def answer1Committed = new TournamentParticipantAnswer()
+        answer1Committed.setAggregateId(ansId1)
+        answer1Committed.setVersion(ansVer2)
+        answer1Committed.setNumberOfAnswered(ansNoAnswered2)
+        answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
-        def participant1v2 = new TournamentParticipant()
-        participant1v2.setAggregateId(participant1.getAggregateId())
-        participant1v2.setName("ANONYMOUS")
-        participant1v2.setUsername("ANONYMOUS")
-        participant1v2.setVersion(participant1.getVersion() + 1)
+        def participant1Committed = new TournamentParticipant()
+        participant1Committed.setAggregateId(participant1.getAggregateId())
+        participant1Committed.setName(ANONYMOUS)
+        participant1Committed.setUsername(ANONYMOUS)
+        participant1Committed.setVersion(participant1.getVersion() + 1)
 
         HashSet<TournamentParticipant> prevParticipants = new HashSet<>()
         prevParticipants.add(participant1)
 
-        HashSet<TournamentParticipant> v1Participants = new HashSet<>()
-        v1Participants.add(participant1)
+        HashSet<TournamentParticipant> toCommitParticipants = new HashSet<>()
+        toCommitParticipants.add(participant1)
 
-        HashSet<TournamentParticipant> v2Participants = new HashSet<>()
-        v2Participants.add(participant1v2)
+        HashSet<TournamentParticipant> committedParticipants = new HashSet<>()
+        committedParticipants.add(participant1Committed)
 
 
         prev.setParticipants(prevParticipants)
-        v1.setParticipants(v1Participants)
-        v2.setParticipants(v2Participants)
+        toCommit.setParticipants(toCommitParticipants)
+        committed.setParticipants(committedParticipants)
 
         when:
-        def mergedTournament = (Tournament)(v1.merge(v2))
+        def mergedTournament = (Tournament)(toCommit.merge(committed))
 
         then:
-        mergedTournament.getParticipants() == new HashSet(v2Participants)
-
+        mergedTournament.getParticipants() == new HashSet(committedParticipants)
     }
 
     def 'participants merge with different versions of the same participant _one has answers_' () {
         given:
         def prev = tournament1
-        def v1 = tournament2
-        def v2 = tournament3
+        def toCommit = tournament2
+        def committed = tournament3
 
         def ansId1 = 25
         def ansVer1 = 50
@@ -511,43 +482,39 @@ class MergeUnitTest extends SpockTest {
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
-        def answer1v2 = new TournamentParticipantAnswer()
-        answer1v2.setAggregateId(ansId1)
-        answer1v2.setVersion(ansVer2)
-        answer1v2.setNumberOfAnswered(ansNoAnswered2)
-        answer1v2.setNumberOfCorrect(ansNoCorrect2)
+        def answer1Committed = new TournamentParticipantAnswer()
+        answer1Committed.setAggregateId(ansId1)
+        answer1Committed.setVersion(ansVer2)
+        answer1Committed.setNumberOfAnswered(ansNoAnswered2)
+        answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
-
-        def participant1v2 = new TournamentParticipant()
-        participant1v2.setAggregateId(participant1.getAggregateId())
-        participant1v2.setName(participant1.getName())
-        participant1v2.setUsername(participant1.getUsername())
-        participant1v2.setVersion(participant1.getVersion() + 1)
+        def participant1Committed = new TournamentParticipant()
+        participant1Committed.setAggregateId(participant1.getAggregateId())
+        participant1Committed.setName(participant1.getName())
+        participant1Committed.setUsername(participant1.getUsername())
+        participant1Committed.setVersion(participant1.getVersion() + 1)
 
         participant1.setAnswer(answer1)
-        participant1v2.setAnswer(answer1v2)
-
+        participant1Committed.setAnswer(answer1Committed)
 
         HashSet<TournamentParticipant> prevParticipants = new HashSet<TournamentParticipant>()
         prevParticipants.add(participant1)
 
-        HashSet<TournamentParticipant> v1Participants = new HashSet<TournamentParticipant>()
-        v1Participants.add(participant1)
+        HashSet<TournamentParticipant> toCommitParticipants = new HashSet<TournamentParticipant>()
+        toCommitParticipants.add(participant1)
 
-
-        HashSet<TournamentParticipant> v2Participants = new HashSet<>()
-        v2Participants.add(participant1v2)
-
+        HashSet<TournamentParticipant> committedParticipants = new HashSet<>()
+        committedParticipants.add(participant1Committed)
 
         prev.setParticipants(prevParticipants)
-        v1.setParticipants(v1Participants)
-        v2.setParticipants(v2Participants)
+        toCommit.setParticipants(toCommitParticipants)
+        committed.setParticipants(committedParticipants)
 
         when:
-        def mergedTournament = (Tournament)(v1.merge(v2))
+        def mergedTournament = (Tournament)(toCommit.merge(committed))
 
         then:
-        mergedTournament.getParticipants() == new HashSet(v2Participants)
+        mergedTournament.getParticipants() == new HashSet(committedParticipants)
     }
 
 }

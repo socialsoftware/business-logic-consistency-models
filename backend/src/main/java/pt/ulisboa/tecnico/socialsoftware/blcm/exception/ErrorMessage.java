@@ -92,6 +92,7 @@ public enum ErrorMessage {
     INVALID_OPTION_SELECTED("Invalid option %d for question %d."),
 
     CANNOT_PERFORM_CAUSAL_READ("Cannot causally read object with aggregate id %d."),
+    CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED("Cannot causally read object of class %s to causal snapshot because emitted event %s was not processed"),
     INVALID_PREV("Prev does not match the type of the aggregate."),
     NO_PRIMARY_AGGREGATE_FOUND("No primary aggregate was found within the transactional context."),
     TOO_MANY_PRIMARY_AGGREGATE_FOUND("More than one primary aggregates were found within the transactional context"),

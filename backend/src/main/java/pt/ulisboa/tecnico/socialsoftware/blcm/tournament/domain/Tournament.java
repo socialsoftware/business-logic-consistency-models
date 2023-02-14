@@ -401,8 +401,8 @@ public class Tournament extends Aggregate {
     }
 
     private void mergeParticipants(Tournament prev, Tournament v1, Tournament v2, Tournament mergedTournament) {
-        /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
-        * of the base we choose. */
+    // Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
+    // of the base we choose.
 
         Set<TournamentParticipant> prevParticipantsPre = new HashSet<>(prev.getParticipants());
         Set<TournamentParticipant> v1ParticipantsPre = new HashSet<>(v1.getParticipants());
@@ -430,8 +430,6 @@ public class Tournament extends Aggregate {
 
     }
 
-
-
     private void mergeTopics(Set<String> toCommitVersionChangedFields, Tournament committedTournament, Tournament mergedTournament) {
         if(toCommitVersionChangedFields.contains("topics")) {
             mergedTournament.setTopics(getTopics().stream().map(TournamentTopic::new).collect(Collectors.toSet()));
@@ -439,8 +437,6 @@ public class Tournament extends Aggregate {
             mergedTournament.setTopics(committedTournament.getTopics().stream().map(TournamentTopic::new).collect(Collectors.toSet()));
         }
     }
-
-
 
     public void cancel() {
         this.cancelled = true;
@@ -519,8 +515,8 @@ public class Tournament extends Aggregate {
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
         Tournament prev = (Tournament) getPrev();
-        if(prev != null) {
-            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+        if (prev != null) {
+            if ((prev.getStartTime() != null && DateHandler.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
                 throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
             }
         }
