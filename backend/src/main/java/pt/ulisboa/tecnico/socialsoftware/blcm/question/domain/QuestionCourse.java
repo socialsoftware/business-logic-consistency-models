@@ -1,62 +1,57 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class QuestionCourse {
-    @Column(name = "course_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "course_name")
-    private String name;
-    @Column(name = "course_version")
-    private Integer version;
+    private Integer courseAggregateId;
+    private String courseName;
+    private Integer courseVersion;
 
     public QuestionCourse() {
 
     }
     public QuestionCourse(CourseDto causalCourseRemote) {
-        setAggregateId(causalCourseRemote.getAggregateId());
-        setName(causalCourseRemote.getName());
-        setVersion(causalCourseRemote.getVersion());
+        setCourseAggregateId(causalCourseRemote.getAggregateId());
+        setCourseName(causalCourseRemote.getName());
+        setCourseVersion(causalCourseRemote.getVersion());
     }
 
     public QuestionCourse(QuestionCourse other) {
-        setAggregateId(other.getAggregateId());
-        setName(other.getName());
-        setVersion(other.getVersion());
+        setCourseAggregateId(other.getCourseAggregateId());
+        setCourseName(other.getCourseName());
+        setCourseVersion(other.getCourseVersion());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getCourseAggregateId() {
+        return courseAggregateId;
     }
 
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+    public void setCourseAggregateId(Integer courseAggregateId) {
+        this.courseAggregateId = courseAggregateId;
     }
 
-    public String getName() {
-        return name;
+    public String getCourseName() {
+        return courseName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getCourseVersion() {
+        return courseVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setCourseVersion(Integer courseVersion) {
+        this.courseVersion = courseVersion;
     }
 
     public CourseDto buildDto() {
         CourseDto dto = new CourseDto();
-        dto.setAggregateId(this.aggregateId);
-        setName(this.name);
+        dto.setAggregateId(this.courseAggregateId);
+        setCourseName(this.courseName);
         return dto;
     }
 }

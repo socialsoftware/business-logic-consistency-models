@@ -1,17 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 @Embeddable
 public class QuizQuestion {
-    @Column(name = "question_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "question_version")
-    private Integer version;
+    private Integer questionAggregateId;
+    private Integer questionVersion;
     private String title;
     private String content;
     private Integer sequence;
@@ -19,12 +15,11 @@ public class QuizQuestion {
     private Aggregate.AggregateState state;
 
     public QuizQuestion() {
-
     }
 
     public QuizQuestion(QuestionDto questionDto) {
-        setAggregateId(questionDto.getAggregateId());
-        setVersion(questionDto.getVersion());
+        setQuestionAggregateId(questionDto.getAggregateId());
+        setQuestionVersion(questionDto.getVersion());
         setTitle(questionDto.getTitle());
         setContent(questionDto.getContent());
         setSequence(questionDto.getSequence());
@@ -32,8 +27,8 @@ public class QuizQuestion {
     }
 
     public QuizQuestion(QuizQuestion other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        setQuestionAggregateId(other.getQuestionAggregateId());
+        setQuestionVersion(other.getQuestionVersion());
         setTitle(other.getTitle());
         setContent(other.getContent());
         setSequence(other.getSequence());
@@ -42,20 +37,20 @@ public class QuizQuestion {
 
     
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getQuestionAggregateId() {
+        return questionAggregateId;
     }
 
-    public void setAggregateId(Integer aggregateId) {
-        this.aggregateId = aggregateId;
+    public void setQuestionAggregateId(Integer questionAggregateId) {
+        this.questionAggregateId = questionAggregateId;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getQuestionVersion() {
+        return questionVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setQuestionVersion(Integer questionVersion) {
+        this.questionVersion = questionVersion;
     }
 
     public String getTitle() {
@@ -92,8 +87,8 @@ public class QuizQuestion {
 
     public QuestionDto buildDto() {
         QuestionDto questionDto = new QuestionDto();
-        questionDto.setAggregateId(getAggregateId());
-        questionDto.setVersion(getVersion());
+        questionDto.setAggregateId(getQuestionAggregateId());
+        questionDto.setVersion(getQuestionVersion());
         questionDto.setTitle(getTitle());
         questionDto.setContent(getContent());
 
@@ -106,15 +101,15 @@ public class QuizQuestion {
             return false;
         }
         QuizQuestion quizQuestion = (QuizQuestion) obj;
-        return getAggregateId() != null && getAggregateId().equals(quizQuestion.getAggregateId()) &&
-                getVersion() != null && getVersion().equals(quizQuestion.getVersion());
+        return getQuestionAggregateId() != null && getQuestionAggregateId().equals(quizQuestion.getQuestionAggregateId()) &&
+                getQuestionVersion() != null && getQuestionVersion().equals(quizQuestion.getQuestionVersion());
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + getAggregateId();
-        hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
+        hash = 31 * hash + getQuestionAggregateId();
+        hash = 31 * hash + (getQuestionVersion() == null ? 0 : getQuestionVersion().hashCode());
         return hash;
     }
 

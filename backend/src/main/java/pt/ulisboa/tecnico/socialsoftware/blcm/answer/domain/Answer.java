@@ -36,9 +36,7 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUES
 @Entity
 @Table(name = "answers")
 public class Answer extends Aggregate {
-    @Column(name = "creation_date")
     private LocalDateTime creationDate;
-    @Column(name = "answer_date")
     private LocalDateTime answerDate;
     @Column
     private boolean completed;
@@ -96,19 +94,19 @@ public class Answer extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getCourseExecutionAggregateId(), this.courseExecution.getCourseExecutionVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
         // also verifies QUESTION_EXISTS because if the question is DELETED the quiz sends this event
-        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), this.quiz.getVersion(), InvalidateQuizEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.quiz.getQuizAggregateId(), this.quiz.getQuizVersion(), InvalidateQuizEvent.class.getSimpleName(), this));
         // TODO add remove quiz
     }
 
     private void interInvariantUserExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getCourseExecutionAggregateId(), this.courseExecution.getCourseExecutionVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getCourseExecutionAggregateId(), this.courseExecution.getCourseExecutionVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getCourseExecutionAggregateId(), this.courseExecution.getCourseExecutionVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
     }
 
 
@@ -137,10 +135,10 @@ public class Answer extends Aggregate {
 
     private void mergeCourseExecution(Answer toCommitAnswer, Answer committedAnswer) {
         // The course execution version determines which user is more recent because the user is an execution student
-        if(toCommitAnswer.getCourseExecution().getVersion() >= committedAnswer.getCourseExecution().getVersion()) {
-            toCommitAnswer.getCourseExecution().setVersion(toCommitAnswer.getCourseExecution().getVersion());
+        if(toCommitAnswer.getCourseExecution().getCourseExecutionVersion() >= committedAnswer.getCourseExecution().getCourseExecutionVersion()) {
+            toCommitAnswer.getCourseExecution().setCourseExecutionVersion(toCommitAnswer.getCourseExecution().getCourseExecutionVersion());
         } else {
-            toCommitAnswer.getCourseExecution().setVersion(committedAnswer.getCourseExecution().getVersion());
+            toCommitAnswer.getCourseExecution().setCourseExecutionVersion(committedAnswer.getCourseExecution().getCourseExecutionVersion());
         }
     }
 
@@ -154,7 +152,7 @@ public class Answer extends Aggregate {
     }
 
     private void mergeQuiz(Answer toCommitAnswer, Answer committedAnswer) {
-        if(getQuiz().getVersion() >= committedAnswer.getQuiz().getVersion()) {
+        if(getQuiz().getQuizVersion() >= committedAnswer.getQuiz().getQuizVersion()) {
             toCommitAnswer.setQuiz(new AnswerQuiz(toCommitAnswer.getQuiz()));
         } else {
             toCommitAnswer.setQuiz(new AnswerQuiz(committedAnswer.getQuiz()));
@@ -251,7 +249,7 @@ public class Answer extends Aggregate {
                 .map(QuestionAnswer::getQuestionAggregateId)
                 .collect(Collectors.toList());
         if(answeredQuestionIds.contains(questionAnswer.getQuestionAggregateId())) {
-            throw new TutorException(QUESTION_ALREADY_ANSWERED, questionAnswer.getQuestionAggregateId(), this.getQuiz().getAggregateId());
+            throw new TutorException(QUESTION_ALREADY_ANSWERED, questionAnswer.getQuestionAggregateId(), this.getQuiz().getQuizAggregateId());
         }
         this.questionAnswers.add(questionAnswer);
     }

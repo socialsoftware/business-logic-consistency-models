@@ -1,12 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
-
-import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class Option {
-    private Integer key;
+    private Integer optionKey;
     private Integer sequence;
     private boolean correct;
     private String content;
@@ -28,12 +27,12 @@ public class Option {
     }
 
 
-    public Integer getKey() {
-        return key;
+    public Integer getOptionKey() {
+        return optionKey;
     }
 
-    public void setKey(Integer key) {
-        this.key = key;
+    public void setOptionKey(Integer optionKey) {
+        this.optionKey = optionKey;
     }
 
     public Integer getSequence() {

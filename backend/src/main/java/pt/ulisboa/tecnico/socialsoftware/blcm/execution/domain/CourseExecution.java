@@ -36,7 +36,6 @@ public class CourseExecution extends Aggregate {
     private String acronym;
     @Column
     private String academicTerm;
-    @Column(name = "end_date")
     private LocalDateTime endDate;
     @Embedded
     private ExecutionCourse course;
@@ -80,7 +79,7 @@ public class CourseExecution extends Aggregate {
     }
 
     private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions, ExecutionStudent student) {
-        eventSubscriptions.add(new EventSubscription(student.getAggregateId(), student.getVersion(), RemoveUserEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(student.getUserAggregateId(), student.getUserVersion(), RemoveUserEvent.class.getSimpleName(), this));
     }
 
     @Override
@@ -214,15 +213,15 @@ public class CourseExecution extends Aggregate {
     @Override
     public void setVersion(Integer version) {
         // if the course version is null, it means it that we're creating during this transaction
-        if(this.course.getVersion() == null) {
-            this.course.setVersion(version);
+        if(this.course.getCourseVersion() == null) {
+            this.course.setCourseVersion(version);
         }
         super.setVersion(version);
     }
 
     public boolean hasStudent(Integer userAggregateId) {
         for (ExecutionStudent student : this.students) {
-            if (student.getAggregateId().equals(userAggregateId)) {
+            if (student.getUserAggregateId().equals(userAggregateId)) {
                 return true;
             }
         }
@@ -231,7 +230,7 @@ public class CourseExecution extends Aggregate {
 
     public ExecutionStudent findStudent(Integer userAggregateId) {
         for(ExecutionStudent student : this.students) {
-            if(student.getAggregateId().equals(userAggregateId)) {
+            if(student.getUserAggregateId().equals(userAggregateId)) {
                 return student;
             }
         }
@@ -244,7 +243,7 @@ public class CourseExecution extends Aggregate {
             throw new TutorException(ErrorMessage.COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, getAggregateId());
         }
         for(ExecutionStudent student : this.students) {
-            if(student.getAggregateId().equals(userAggregateId)) {
+            if(student.getUserAggregateId().equals(userAggregateId)) {
                 studentToRemove = student;
             }
         }

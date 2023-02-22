@@ -83,29 +83,29 @@ class MergeUnitTest extends SpockTest {
         tournamentDto1.setNumberOfQuestions(5)
 
         TournamentCreator tournamentCreator1 = new TournamentCreator()
-        tournamentCreator1.setAggregateId(USER_AGGREGATE_ID_1)
-        tournamentCreator1.setName(USER_NAME_1)
-        tournamentCreator1.setUsername(USER_USERNAME_1)
+        tournamentCreator1.setCreatorAggregateId(USER_AGGREGATE_ID_1)
+        tournamentCreator1.setCreatorName(USER_NAME_1)
+        tournamentCreator1.setCreatorUsername(USER_USERNAME_1)
 
         TournamentCourseExecution tournamentCourseExecution1 = new TournamentCourseExecution()
-        tournamentCourseExecution1.setAggregateId(COURSE_EXECUTION_AGGREGATE_ID_1)
-        tournamentCourseExecution1.setVersion(6)
-        tournamentCourseExecution1.setAcronym(ACRONYM_1)
+        tournamentCourseExecution1.setCourseExecutionAggregateId(COURSE_EXECUTION_AGGREGATE_ID_1)
+        tournamentCourseExecution1.setCourseExecutionVersion(6)
+        tournamentCourseExecution1.setCourseExecutionAcronym(ACRONYM_1)
 
         topic1 = new TournamentTopic()
-        topic1.setAggregateId(TOPIC_AGGREGATE_ID_1)
-        topic1.setName(TOPIC_NAME_1)
-        topic1.setVersion(1)
+        topic1.setTopicAggregateId(TOPIC_AGGREGATE_ID_1)
+        topic1.setTopicName(TOPIC_NAME_1)
+        topic1.setTopicVersion(1)
 
         topic2 = new TournamentTopic()
-        topic2.setAggregateId(TOPIC_AGGREGATE_ID_2)
-        topic2.setName(TOPIC_NAME_2)
-        topic2.setVersion(2)
+        topic2.setTopicAggregateId(TOPIC_AGGREGATE_ID_2)
+        topic2.setTopicName(TOPIC_NAME_2)
+        topic2.setTopicVersion(2)
 
         topic3 = new TournamentTopic()
-        topic3.setAggregateId(TOPIC_AGGREGATE_ID_3)
-        topic3.setName(TOPIC_NAME_3)
-        topic3.setVersion(3)
+        topic3.setTopicAggregateId(TOPIC_AGGREGATE_ID_3)
+        topic3.setTopicName(TOPIC_NAME_3)
+        topic3.setTopicVersion(3)
 
         topicSetHasTopics1and2.add(topic1)
         topicSetHasTopics1and2.add(topic2)
@@ -137,37 +137,37 @@ class MergeUnitTest extends SpockTest {
         def ansNoCorrect2 = 4
 
         def answer1 = new TournamentParticipantAnswer()
-        answer1.setAggregateId(ansId1)
-        answer1.setVersion(ansVer1)
+        answer1.setAnswerAggregateId(ansId1)
+        answer1.setAnswerVersion(ansVer1)
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
         def answer1Committed = new TournamentParticipantAnswer()
-        answer1Committed.setAggregateId(ansId1)
-        answer1Committed.setVersion(ansVer2)
+        answer1Committed.setAnswerAggregateId(ansId1)
+        answer1Committed.setAnswerVersion(ansVer2)
         answer1Committed.setNumberOfAnswered(ansNoAnswered2)
         answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
         participant1 = new TournamentParticipant()
-        participant1.setAggregateId(USER_AGGREGATE_ID_1)
-        participant1.setName(USER_NAME_1)
-        participant1.setUsername(USER_USERNAME_1)
-        participant1.setVersion(1)
-        participant1.setAnswer(answer1)
+        participant1.setParticipantAggregateId(USER_AGGREGATE_ID_1)
+        participant1.setParticipantName(USER_NAME_1)
+        participant1.setParticipantUsername(USER_USERNAME_1)
+        participant1.setParticipantVersion(1)
+        participant1.setParticipantAnswer(answer1)
 
         participant2 = new TournamentParticipant()
-        participant2.setAggregateId(USER_AGGREGATE_ID_2)
-        participant2.setName(USER_NAME_2)
-        participant2.setUsername(USER_USERNAME_2)
-        participant2.setVersion(2)
-        participant2.setAnswer(answer1)
+        participant2.setParticipantAggregateId(USER_AGGREGATE_ID_2)
+        participant2.setParticipantName(USER_NAME_2)
+        participant2.setParticipantUsername(USER_USERNAME_2)
+        participant2.setParticipantVersion(2)
+        participant2.setParticipantAnswer(answer1)
 
         participant3 = new TournamentParticipant()
-        participant3.setAggregateId(USER_AGGREGATE_ID_3)
-        participant3.setName(USER_NAME_3)
-        participant3.setUsername(USER_USERNAME_3)
-        participant3.setVersion(3)
-        participant3.setAnswer(answer1)
+        participant3.setParticipantAggregateId(USER_AGGREGATE_ID_3)
+        participant3.setParticipantName(USER_NAME_3)
+        participant3.setParticipantUsername(USER_USERNAME_3)
+        participant3.setParticipantVersion(3)
+        participant3.setParticipantAnswer(answer1)
 
         participantSetIsEmpty.add(null)
 
@@ -189,8 +189,8 @@ class MergeUnitTest extends SpockTest {
         participantSetHasParticipants1and2and3.add(participant3)
 
         TournamentQuiz tournamentQuiz = new TournamentQuiz()
-        tournamentQuiz.setAggregateId(QUIZ_AGGREGATE_ID_1)
-        tournamentQuiz.setVersion(60)
+        tournamentQuiz.setQuizAggregateId(QUIZ_AGGREGATE_ID_1)
+        tournamentQuiz.setQuizVersion(60)
 
         tournament1 = new Tournament(TOURNAMENT_AGGREGATE_ID_1, tournamentDto1, tournamentCreator1, tournamentCourseExecution1, topicSetHasTopics1and2, tournamentQuiz)
 
@@ -380,15 +380,15 @@ class MergeUnitTest extends SpockTest {
         def committed = tournament3
         def toCommit = tournament2
 
-        prev.setParticipants(prevPartipants)
-        committed.setParticipants(committedParticipants)
-        toCommit.setParticipants(toCommitParticipants)
+        prev.setTournamentParticipants(prevPartipants)
+        committed.setTournamentParticipants(committedParticipants)
+        toCommit.setTournamentParticipants(toCommitParticipants)
 
         when:
         def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
-        mergedTournament.getParticipants() == result
+        mergedTournament.getTournamentParticipants() == result
 
         where:
         prevPartipants                     | committedParticipants                  | toCommitParticipants                   || result
@@ -422,22 +422,22 @@ class MergeUnitTest extends SpockTest {
         def ansNoCorrect2 = 4
 
         def answer1 = new TournamentParticipantAnswer()
-        answer1.setAggregateId(ansId1)
-        answer1.setVersion(ansVer1)
+        answer1.setAnswerAggregateId(ansId1)
+        answer1.setAnswerVersion(ansVer1)
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
         def answer1Committed = new TournamentParticipantAnswer()
-        answer1Committed.setAggregateId(ansId1)
-        answer1Committed.setVersion(ansVer2)
+        answer1Committed.setAnswerAggregateId(ansId1)
+        answer1Committed.setAnswerVersion(ansVer2)
         answer1Committed.setNumberOfAnswered(ansNoAnswered2)
         answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
         def participant1Committed = new TournamentParticipant()
-        participant1Committed.setAggregateId(participant1.getAggregateId())
-        participant1Committed.setName(ANONYMOUS)
-        participant1Committed.setUsername(ANONYMOUS)
-        participant1Committed.setVersion(participant1.getVersion() + 1)
+        participant1Committed.setParticipantAggregateId(participant1.getParticipantAggregateId())
+        participant1Committed.setParticipantName(ANONYMOUS)
+        participant1Committed.setParticipantUsername(ANONYMOUS)
+        participant1Committed.setParticipantVersion(participant1.getParticipantVersion() + 1)
 
         HashSet<TournamentParticipant> prevParticipants = new HashSet<>()
         prevParticipants.add(participant1)
@@ -449,15 +449,15 @@ class MergeUnitTest extends SpockTest {
         committedParticipants.add(participant1Committed)
 
 
-        prev.setParticipants(prevParticipants)
-        toCommit.setParticipants(toCommitParticipants)
-        committed.setParticipants(committedParticipants)
+        prev.setTournamentParticipants(prevParticipants)
+        toCommit.setTournamentParticipants(toCommitParticipants)
+        committed.setTournamentParticipants(committedParticipants)
 
         when:
         def mergedTournament = (Tournament)(toCommit.merge(committed))
 
         then:
-        mergedTournament.getParticipants() == new HashSet(committedParticipants)
+        mergedTournament.getTournamentParticipants() == new HashSet(committedParticipants)
     }
 
     def 'participants merge with different versions of the same participant _one has answers_' () {
@@ -477,25 +477,25 @@ class MergeUnitTest extends SpockTest {
         def ansNoCorrect2 = 4
 
         def answer1 = new TournamentParticipantAnswer()
-        answer1.setAggregateId(ansId1)
-        answer1.setVersion(ansVer1)
+        answer1.setAnswerAggregateId(ansId1)
+        answer1.setAnswerVersion(ansVer1)
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
         def answer1Committed = new TournamentParticipantAnswer()
-        answer1Committed.setAggregateId(ansId1)
-        answer1Committed.setVersion(ansVer2)
+        answer1Committed.setAnswerAggregateId(ansId1)
+        answer1Committed.setAnswerVersion(ansVer2)
         answer1Committed.setNumberOfAnswered(ansNoAnswered2)
         answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
         def participant1Committed = new TournamentParticipant()
-        participant1Committed.setAggregateId(participant1.getAggregateId())
-        participant1Committed.setName(participant1.getName())
-        participant1Committed.setUsername(participant1.getUsername())
-        participant1Committed.setVersion(participant1.getVersion() + 1)
+        participant1Committed.setParticipantAggregateId(participant1.getParticipantAggregateId())
+        participant1Committed.setParticipantName(participant1.getParticipantName())
+        participant1Committed.setParticipantUsername(participant1.getParticipantUsername())
+        participant1Committed.setParticipantVersion(participant1.getParticipantVersion() + 1)
 
-        participant1.setAnswer(answer1)
-        participant1Committed.setAnswer(answer1Committed)
+        participant1.setParticipantAnswer(answer1)
+        participant1Committed.setParticipantAnswer(answer1Committed)
 
         HashSet<TournamentParticipant> prevParticipants = new HashSet<TournamentParticipant>()
         prevParticipants.add(participant1)
@@ -506,15 +506,15 @@ class MergeUnitTest extends SpockTest {
         HashSet<TournamentParticipant> committedParticipants = new HashSet<>()
         committedParticipants.add(participant1Committed)
 
-        prev.setParticipants(prevParticipants)
-        toCommit.setParticipants(toCommitParticipants)
-        committed.setParticipants(committedParticipants)
+        prev.setTournamentParticipants(prevParticipants)
+        toCommit.setTournamentParticipants(toCommitParticipants)
+        committed.setTournamentParticipants(committedParticipants)
 
         when:
         def mergedTournament = (Tournament)(toCommit.merge(committed))
 
         then:
-        mergedTournament.getParticipants() == new HashSet(committedParticipants)
+        mergedTournament.getTournamentParticipants() == new HashSet(committedParticipants)
     }
 
 }

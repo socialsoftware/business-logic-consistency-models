@@ -1,50 +1,46 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TournamentQuiz {
-    @Column(name = "quiz_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "quiz_version")
-    private Integer version;
+    private Integer quizAggregateId;
+    private Integer quizVersion;
 
     public TournamentQuiz() {
 
     }
-    public TournamentQuiz(Integer aggregateId, Integer version) {
-        setAggregateId(aggregateId);
-        setVersion(version);
+    public TournamentQuiz(Integer quizAggregateId, Integer quizVersion) {
+        setQuizAggregateId(quizAggregateId);
+        setQuizVersion(quizVersion);
     }
 
     public TournamentQuiz(TournamentQuiz other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        setQuizAggregateId(other.getQuizAggregateId());
+        setQuizVersion(other.getQuizVersion());
     }
 
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getQuizAggregateId() {
+        return quizAggregateId;
     }
 
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
+    public void setQuizAggregateId(Integer id) {
+        this.quizAggregateId = id;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getQuizVersion() {
+        return quizVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setQuizVersion(Integer quizVersion) {
+        this.quizVersion = quizVersion;
     }
 
     public QuizDto buildDto() {
         QuizDto quizDto = new QuizDto();
-        quizDto.setAggregateId(getAggregateId());
+        quizDto.setAggregateId(getQuizAggregateId());
         quizDto.setVersion(quizDto.getVersion());
 
         return  quizDto;

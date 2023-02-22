@@ -1,87 +1,80 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TournamentCourseExecution {
-    @Column(name = "course_execution_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "course_execution_course_id")
-    private Integer courseId;
-    @Column(name = "course_execution_acronym")
-    private String acronym;
-    @Column(name = "course_execution_status")
-    private String status;
-    @Column(name = "course_execution_version")
-    private Integer version;
+    private Integer courseExecutionAggregateId;
+    private Integer courseExecutionCourseId;
+    private String courseExecutionAcronym;
+    private String courseExecutionStatus;
+    private Integer courseExecutionVersion;
 
     public TournamentCourseExecution() { }
     public TournamentCourseExecution(CourseExecutionDto courseExecutionDto) {
-        setAggregateId(courseExecutionDto.getAggregateId());
-        setVersion(courseExecutionDto.getVersion());
-        setCourseId(courseExecutionDto.getCourseAggregateId());
-        setAcronym(courseExecutionDto.getAcronym());
-        setStatus(courseExecutionDto.getStatus());
+        setCourseExecutionAggregateId(courseExecutionDto.getAggregateId());
+        setCourseExecutionVersion(courseExecutionDto.getVersion());
+        setCourseExecutionCourseId(courseExecutionDto.getCourseAggregateId());
+        setCourseExecutionAcronym(courseExecutionDto.getAcronym());
+        setCourseExecutionStatus(courseExecutionDto.getStatus());
     }
 
     public TournamentCourseExecution(TournamentCourseExecution other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
-        setCourseId(other.getCourseId());
-        setAcronym(other.getAcronym());
-        setStatus(other.getStatus());
+        setCourseExecutionAggregateId(other.getCourseExecutionAggregateId());
+        setCourseExecutionVersion(other.getCourseExecutionVersion());
+        setCourseExecutionCourseId(other.getCourseExecutionCourseId());
+        setCourseExecutionAcronym(other.getCourseExecutionAcronym());
+        setCourseExecutionStatus(other.getCourseExecutionStatus());
     }
 
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getCourseExecutionAggregateId() {
+        return courseExecutionAggregateId;
     }
 
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
+    public void setCourseExecutionAggregateId(Integer id) {
+        this.courseExecutionAggregateId = id;
     }
 
-    public Integer getCourseId() {
-        return courseId;
+    public Integer getCourseExecutionCourseId() {
+        return courseExecutionCourseId;
     }
 
-    public void setCourseId(Integer courseId) {
-        this.courseId = courseId;
+    public void setCourseExecutionCourseId(Integer courseExecutionCourseId) {
+        this.courseExecutionCourseId = courseExecutionCourseId;
     }
 
-    public String getAcronym() {
-        return acronym;
+    public String getCourseExecutionAcronym() {
+        return courseExecutionAcronym;
     }
 
-    public void setAcronym(String acronym) {
-        this.acronym = acronym;
+    public void setCourseExecutionAcronym(String courseExecutionAcronym) {
+        this.courseExecutionAcronym = courseExecutionAcronym;
     }
 
-    public String getStatus() {
-        return status;
+    public String getCourseExecutionStatus() {
+        return courseExecutionStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setCourseExecutionStatus(String courseExecutionStatus) {
+        this.courseExecutionStatus = courseExecutionStatus;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getCourseExecutionVersion() {
+        return courseExecutionVersion;
     }
 
-    public void setVersion(Integer courseExecutionVersion) {
-        this.version = courseExecutionVersion;
+    public void setCourseExecutionVersion(Integer courseExecutionVersion) {
+        this.courseExecutionVersion = courseExecutionVersion;
     }
 
     public CourseExecutionDto buildDto() {
         CourseExecutionDto courseExecutionDto = new CourseExecutionDto();
-        courseExecutionDto.setAggregateId(getAggregateId());
-        courseExecutionDto.setVersion(getVersion());
-        courseExecutionDto.setAcronym(getAcronym());
-        courseExecutionDto.setStatus(getStatus());
+        courseExecutionDto.setAggregateId(getCourseExecutionAggregateId());
+        courseExecutionDto.setVersion(getCourseExecutionVersion());
+        courseExecutionDto.setAcronym(getCourseExecutionAcronym());
+        courseExecutionDto.setStatus(getCourseExecutionStatus());
 
         return courseExecutionDto;
     }

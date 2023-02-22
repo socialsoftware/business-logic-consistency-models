@@ -1,22 +1,16 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.CourseType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 @Embeddable
 public class ExecutionCourse {
-    @Column(name = "course_aggregate_id")
     private Integer courseAggregateId;
     private String name;
     @Enumerated(EnumType.STRING)
     private CourseType type;
-    @Column(name = "course_version")
-    private Integer version;
+    private Integer courseVersion;
 
     public ExecutionCourse() {}
 
@@ -24,7 +18,7 @@ public class ExecutionCourse {
         setAggregateId(courseExecutionDto.getCourseAggregateId());
         setName(courseExecutionDto.getName());
         setType(CourseType.valueOf(courseExecutionDto.getType()));
-        setVersion(courseExecutionDto.getCourseVersion());
+        setCourseVersion(courseExecutionDto.getCourseVersion());
     }
 
     public Integer getAggregateId() {
@@ -51,11 +45,11 @@ public class ExecutionCourse {
         this.type = type;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getCourseVersion() {
+        return courseVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setCourseVersion(Integer courseVersion) {
+        this.courseVersion = courseVersion;
     }
 }

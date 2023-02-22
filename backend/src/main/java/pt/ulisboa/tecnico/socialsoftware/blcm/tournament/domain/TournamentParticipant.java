@@ -9,19 +9,13 @@ import java.util.Set;
 
 @Embeddable
 public class TournamentParticipant {
-    @Column(name = "participant_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "participant_name")
-    private String name;
-    @Column(name = "participant_username")
-    private String username;
-    @Column(name = "participant_enrolltime")
+    private Integer participantAggregateId;
+    private String participantName;
+    private String participantUsername;
     private LocalDateTime enrollTime;
     @Embedded
-    @Column(name = "tournament_answer")
-    private TournamentParticipantAnswer answer;
-    @Column(name = "participant_version")
-    private Integer version;
+    private TournamentParticipantAnswer participantAnswer;
+    private Integer participantVersion;
     @Enumerated(EnumType.STRING)
     private AggregateState state;
 
@@ -30,52 +24,52 @@ public class TournamentParticipant {
     }
 
     public TournamentParticipant(UserDto userDto) {
-        setAggregateId(userDto.getAggregateId());
-        setName(userDto.getName());
-        setUsername(userDto.getUsername());
-        setVersion(userDto.getVersion());
-        setAnswer(new TournamentParticipantAnswer());
+        setParticipantAggregateId(userDto.getAggregateId());
+        setParticipantName(userDto.getName());
+        setParticipantUsername(userDto.getUsername());
+        setParticipantVersion(userDto.getVersion());
+        setParticipantAnswer(new TournamentParticipantAnswer());
         setEnrollTime(LocalDateTime.now());
         setState(AggregateState.ACTIVE);
     }
 
     public TournamentParticipant(TournamentParticipant other) {
-        setAggregateId(other.getAggregateId());
-        setName(other.getName());
-        setUsername(other.getUsername());
-        setVersion(other.getVersion());
-        setAnswer(new TournamentParticipantAnswer(other.getAnswer()));
+        setParticipantAggregateId(other.getParticipantAggregateId());
+        setParticipantName(other.getParticipantName());
+        setParticipantUsername(other.getParticipantUsername());
+        setParticipantVersion(other.getParticipantVersion());
+        setParticipantAnswer(new TournamentParticipantAnswer(other.getParticipantAnswer()));
         setEnrollTime(other.getEnrollTime());
         setState(other.getState());
     }
 
 
     public void answerQuiz() {
-        this.answer.setAnswered(true);
+        this.participantAnswer.setAnswered(true);
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getParticipantAggregateId() {
+        return participantAggregateId;
     }
 
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
+    public void setParticipantAggregateId(Integer id) {
+        this.participantAggregateId = id;
     }
 
-    public String getName() {
-        return name;
+    public String getParticipantName() {
+        return participantName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setParticipantName(String participantName) {
+        this.participantName = participantName;
     }
 
-    public String getUsername() {
-        return username;
+    public String getParticipantUsername() {
+        return participantUsername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setParticipantUsername(String participantUsername) {
+        this.participantUsername = participantUsername;
     }
 
     public LocalDateTime getEnrollTime() {
@@ -86,21 +80,21 @@ public class TournamentParticipant {
         this.enrollTime = enrollTime;
     }
 
-    public TournamentParticipantAnswer getAnswer() {
-        return answer;
+    public TournamentParticipantAnswer getParticipantAnswer() {
+        return participantAnswer;
     }
 
-    public void setAnswer(TournamentParticipantAnswer answer) {
+    public void setParticipantAnswer(TournamentParticipantAnswer participantAnswer) {
 
-        this.answer = answer;
+        this.participantAnswer = participantAnswer;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getParticipantVersion() {
+        return participantVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setParticipantVersion(Integer participantVersion) {
+        this.participantVersion = participantVersion;
     }
 
     public AggregateState getState() {
@@ -112,22 +106,22 @@ public class TournamentParticipant {
     }
 
     public void updateAnswerWithQuestion(Integer answerAggregateId, boolean isCorrect, Integer eventVersion) {
-        getAnswer().setAggregateId(answerAggregateId);
-        getAnswer().incrementAnswered();
+        getParticipantAnswer().setAnswerAggregateId(answerAggregateId);
+        getParticipantAnswer().incrementAnswered();
         if (isCorrect) {
-            getAnswer().incrementCorrect();
+            getParticipantAnswer().incrementCorrect();
         }
-        getAnswer().setVersion(eventVersion);
+        getParticipantAnswer().setAnswerVersion(eventVersion);
     }
 
     public UserDto buildDto() {
         UserDto userDto = new UserDto();
-        userDto.setAggregateId(getAggregateId());
-        userDto.setVersion(getVersion());
-        userDto.setName(getName());
-        userDto.setUsername(getUsername());
-        userDto.setNumberAnswered(getAnswer().getNumberOfAnswered());
-        userDto.setNumberCorrect(getAnswer().getNumberOfCorrect());
+        userDto.setAggregateId(getParticipantAggregateId());
+        userDto.setVersion(getParticipantVersion());
+        userDto.setName(getParticipantName());
+        userDto.setUsername(getParticipantUsername());
+        userDto.setNumberAnswered(getParticipantAnswer().getNumberOfAnswered());
+        userDto.setNumberCorrect(getParticipantAnswer().getNumberOfCorrect());
         return userDto;
     }
 
@@ -140,22 +134,22 @@ public class TournamentParticipant {
 
         for (TournamentParticipant tp1 : v1Participants) {
             for (TournamentParticipant tp2 : v2Participants) {
-                if (tp1.getAggregateId().equals(tp2.getAggregateId())) {
+                if (tp1.getParticipantAggregateId().equals(tp2.getParticipantAggregateId())) {
                     if (v1CourseExecutionVersion > v2CourseExecutionVersion) {
-                        tp2.setVersion(tp1.getVersion());
-                        tp2.setName(tp1.getName());
-                        tp2.setUsername(tp1.getUsername());
-                        if (tp1.getAnswer() != null) {
-                            tp2.setAnswer(new TournamentParticipantAnswer(tp1.getAnswer()));
+                        tp2.setParticipantVersion(tp1.getParticipantVersion());
+                        tp2.setParticipantName(tp1.getParticipantName());
+                        tp2.setParticipantUsername(tp1.getParticipantUsername());
+                        if (tp1.getParticipantAnswer() != null) {
+                            tp2.setParticipantAnswer(new TournamentParticipantAnswer(tp1.getParticipantAnswer()));
                         }
                     }
 
                     if (v2CourseExecutionVersion > v1CourseExecutionVersion) {
-                        tp1.setVersion(tp2.getVersion());
-                        tp1.setName(tp2.getName());
-                        tp1.setUsername(tp2.getUsername());
-                        if (tp2.getAnswer() != null) {
-                            tp1.setAnswer(new TournamentParticipantAnswer(tp2.getAnswer()));
+                        tp1.setParticipantVersion(tp2.getParticipantVersion());
+                        tp1.setParticipantName(tp2.getParticipantName());
+                        tp1.setParticipantUsername(tp2.getParticipantUsername());
+                        if (tp2.getParticipantAnswer() != null) {
+                            tp1.setParticipantAnswer(new TournamentParticipantAnswer(tp2.getParticipantAnswer()));
                         }
                     }
                 }
@@ -163,22 +157,22 @@ public class TournamentParticipant {
 
             // no need to check again because the prev does not contain any newer version than v1 an v2
             for (TournamentParticipant prevParticipant : prevParticipants) {
-                if (tp1.getAggregateId().equals(prevParticipant.getAggregateId())) {
+                if (tp1.getParticipantAggregateId().equals(prevParticipant.getParticipantAggregateId())) {
                     if (v1CourseExecutionVersion > prevCourseExecutionVersion) {
-                        prevParticipant.setVersion(tp1.getVersion());
-                        prevParticipant.setName(tp1.getName());
-                        prevParticipant.setUsername(tp1.getUsername());
-                        if (tp1.getAnswer() != null) {
-                            prevParticipant.setAnswer(new TournamentParticipantAnswer(tp1.getAnswer()));
+                        prevParticipant.setParticipantVersion(tp1.getParticipantVersion());
+                        prevParticipant.setParticipantName(tp1.getParticipantName());
+                        prevParticipant.setParticipantUsername(tp1.getParticipantUsername());
+                        if (tp1.getParticipantAnswer() != null) {
+                            prevParticipant.setParticipantAnswer(new TournamentParticipantAnswer(tp1.getParticipantAnswer()));
                         }
                     }
 
                     if (prevCourseExecutionVersion > v1CourseExecutionVersion) {
-                        tp1.setVersion(prevParticipant.getVersion());
-                        tp1.setName(prevParticipant.getName());
-                        tp1.setUsername(prevParticipant.getUsername());
-                        if (prevParticipant.getAnswer() != null) {
-                            tp1.setAnswer(new TournamentParticipantAnswer(prevParticipant.getAnswer()));
+                        tp1.setParticipantVersion(prevParticipant.getParticipantVersion());
+                        tp1.setParticipantName(prevParticipant.getParticipantName());
+                        tp1.setParticipantUsername(prevParticipant.getParticipantUsername());
+                        if (prevParticipant.getParticipantAnswer() != null) {
+                            tp1.setParticipantAnswer(new TournamentParticipantAnswer(prevParticipant.getParticipantAnswer()));
                         }
                     }
                 }
@@ -189,8 +183,8 @@ public class TournamentParticipant {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + getAggregateId();
-        hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
+        hash = 31 * hash + getParticipantAggregateId();
+        hash = 31 * hash + (getParticipantVersion() == null ? 0 : getParticipantVersion().hashCode());
         return hash;
     }
 
@@ -200,8 +194,8 @@ public class TournamentParticipant {
             return false;
         }
         TournamentParticipant otherParticipant = (TournamentParticipant) obj;
-        boolean r = getAggregateId() != null && getAggregateId().equals(otherParticipant.getAggregateId()) &&
-                getVersion() != null && getVersion().equals(otherParticipant.getVersion());
+        boolean r = getParticipantAggregateId() != null && getParticipantAggregateId().equals(otherParticipant.getParticipantAggregateId()) &&
+                getParticipantVersion() != null && getParticipantVersion().equals(otherParticipant.getParticipantVersion());
         return r;
     }
 }

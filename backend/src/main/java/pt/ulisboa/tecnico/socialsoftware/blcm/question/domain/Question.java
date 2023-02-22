@@ -30,7 +30,6 @@ public class Question extends Aggregate {
     private String title;
     @Column
     private String content;
-    @Column(name = "creation_date")
     private LocalDateTime creationDate;
     @Embedded
     private QuestionCourse course;
@@ -52,8 +51,8 @@ public class Question extends Aggregate {
         setOptions(questionDto.getOptionDtos().stream().map(Option::new).collect(Collectors.toList()));
 
         Integer optionKeyGenerator = 1;
-        for(Option o : getOptions()) {
-            o.setKey(optionKeyGenerator++);
+        for (Option o : getOptions()) {
+            o.setOptionKey(optionKeyGenerator++);
         }
 
         setTopics(new HashSet<>(questionTopics));
@@ -89,8 +88,8 @@ public class Question extends Aggregate {
     }
 
     private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions, QuestionTopic topic) {
-        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DeleteTopicEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UpdateTopicEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(topic.getTopicAggregateId(), topic.getTopicVersion(), DeleteTopicEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(topic.getTopicAggregateId(), topic.getTopicVersion(), UpdateTopicEvent.class.getSimpleName(), this));
     }
 
     @Override
@@ -228,7 +227,7 @@ public class Question extends Aggregate {
 
     public QuestionTopic findTopic(Integer topicAggregateId) {
         for(QuestionTopic questionTopic : this.topics) {
-            if(questionTopic.getAggregateId().equals(topicAggregateId)) {
+            if(questionTopic.getTopicAggregateId().equals(topicAggregateId)) {
                 return questionTopic;
             }
         }

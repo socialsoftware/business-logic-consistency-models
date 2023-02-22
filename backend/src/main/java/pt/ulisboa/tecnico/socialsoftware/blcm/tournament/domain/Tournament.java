@@ -59,11 +59,8 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Entity
 @Table(name = "tournaments")
 public class Tournament extends Aggregate {
-    @Column(name = "start_time")
     private LocalDateTime startTime;
-    @Column(name = "end_time")
     private LocalDateTime endTime;
-    @Column(name = "number_of_questions")
     private Integer numberOfQuestions;
     @Column
     private boolean cancelled;
@@ -72,33 +69,28 @@ public class Tournament extends Aggregate {
 		final this.creator.id
      */
     @Embedded
-    @Column(name = "creator")
-    private final TournamentCreator creator;
+    private TournamentCreator tournamentCreator;
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tournament_participants")
-    private Set<TournamentParticipant> participants;
+    private Set<TournamentParticipant> tournamentParticipants;
     /*
     COURSE_EXECUTION_IS_FINAL
 		final this.courseExecution.id
      */
     @Embedded
-    @Column(name = "course_execution")
-    private final TournamentCourseExecution courseExecution;
+    private TournamentCourseExecution tournamentCourseExecution;
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tournament_topics")
     private Set<TournamentTopic> topics;
     /*
     QUIZ_IS_FINAL
 		final this.tournamentQuiz.id
      */
     @Embedded
-    @Column(name = "tournament_quiz")
-    private final TournamentQuiz quiz;
+    private TournamentQuiz tournamentQuiz;
 
     public Tournament() {
-        this.creator = null;
-        this.quiz = null;
-        this.courseExecution = null;
+        this.tournamentCreator = null;
+        this.tournamentQuiz = null;
+        this.tournamentCourseExecution = null;
     }
 
     public Tournament(Integer aggregateId, TournamentDto tournamentDto, TournamentCreator creator,
@@ -108,11 +100,11 @@ public class Tournament extends Aggregate {
         setEndTime(DateHandler.toLocalDateTime(tournamentDto.getEndTime()));
         setNumberOfQuestions(tournamentDto.getNumberOfQuestions());
         setCancelled(tournamentDto.isCancelled());
-        this.creator = creator;
-        setParticipants(new HashSet<>());
-        this.courseExecution = execution;
+        this.tournamentCreator = creator;
+        setTournamentParticipants(new HashSet<>());
+        this.tournamentCourseExecution = execution;
         setTopics(topics);
-        this.quiz = quiz;
+        this.tournamentQuiz = quiz;
     }
     /* used to update the tournament by creating new versions */
     public Tournament(Tournament other) {
@@ -123,11 +115,11 @@ public class Tournament extends Aggregate {
         setEndTime(other.getEndTime());
         setNumberOfQuestions(other.getNumberOfQuestions());
         setCancelled(other.isCancelled());
-        this.courseExecution = new TournamentCourseExecution(other.getCourseExecution());
+        this.tournamentCourseExecution = new TournamentCourseExecution(other.getTournamentCourseExecution());
         setTopics(new HashSet<>(other.getTopics().stream().map(TournamentTopic::new).collect(Collectors.toSet())));
-        this.quiz = new TournamentQuiz(other.getQuiz());
-        this.creator = new TournamentCreator(other.getCreator());
-        setParticipants(new HashSet<>(other.getParticipants().stream().map(TournamentParticipant::new).collect(Collectors.toSet())));
+        this.tournamentQuiz = new TournamentQuiz(other.getTournamentQuiz());
+        this.tournamentCreator = new TournamentCreator(other.getTournamentCreator());
+        setTournamentParticipants(new HashSet<>(other.getTournamentParticipants().stream().map(TournamentParticipant::new).collect(Collectors.toSet())));
     }
 
     @Override
@@ -136,7 +128,7 @@ public class Tournament extends Aggregate {
         DELETE
 		    this.state == DELETED => this.participants.empty
          */
-        if (getParticipants().size() > 0) {
+        if (getTournamentParticipants().size() > 0) {
             throw new TutorException(CANNOT_DELETE_TOURNAMENT, getAggregateId());
         }
         super.remove();
@@ -157,38 +149,38 @@ public class Tournament extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentCourseExecution.getCourseExecutionAggregateId(), this.tournamentCourseExecution.getCourseExecutionVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantCreatorExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentCourseExecution.getCourseExecutionAggregateId(), this.tournamentCourseExecution.getCourseExecutionVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentCourseExecution.getCourseExecutionAggregateId(), this.tournamentCourseExecution.getCourseExecutionVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentCourseExecution.getCourseExecutionAggregateId(), this.tournamentCourseExecution.getCourseExecutionVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantParticipantExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentCourseExecution.getCourseExecutionAggregateId(), this.tournamentCourseExecution.getCourseExecutionVersion(), UnerollStudentFromCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentCourseExecution.getCourseExecutionAggregateId(), this.tournamentCourseExecution.getCourseExecutionVersion(), AnonymizeExecutionStudentEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentCourseExecution.getCourseExecutionAggregateId(), this.tournamentCourseExecution.getCourseExecutionVersion(), UpdateExecutionStudentNameEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantQuizAnswersExist(Set<EventSubscription> eventSubscriptions) {
-        for (TournamentParticipant participant : this.participants) {
-            if (participant.getAnswer().getAggregateId() != null) {
-                eventSubscriptions.add(new EventSubscription(participant.getAnswer().getAggregateId(), participant.getAnswer().getVersion(), AnswerQuestionEvent.class.getSimpleName(), this));
+        for (TournamentParticipant participant : this.tournamentParticipants) {
+            if (participant.getParticipantAnswer().getAnswerAggregateId() != null) {
+                eventSubscriptions.add(new EventSubscription(participant.getParticipantAnswer().getAnswerAggregateId(), participant.getParticipantAnswer().getAnswerVersion(), AnswerQuestionEvent.class.getSimpleName(), this));
             }
         }
     }
 
     private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions) {
         for (TournamentTopic topic : this.topics) {
-            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), DeleteTopicEvent.class.getSimpleName(), this));
-            eventSubscriptions.add(new EventSubscription(topic.getAggregateId(), topic.getVersion(), UpdateTopicEvent.class.getSimpleName(), this));
+            eventSubscriptions.add(new EventSubscription(topic.getTopicAggregateId(), topic.getTopicVersion(), DeleteTopicEvent.class.getSimpleName(), this));
+            eventSubscriptions.add(new EventSubscription(topic.getTopicAggregateId(), topic.getTopicVersion(), UpdateTopicEvent.class.getSimpleName(), this));
         }
     }
 
     private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.quiz.getAggregateId(), getVersion(), InvalidateQuizEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.tournamentQuiz.getQuizAggregateId(), getVersion(), InvalidateQuizEvent.class.getSimpleName(), this));
     }
 
     /* ----------------------------------------- INTRA-AGGREGATE INVARIANTS ----------------------------------------- */
@@ -206,10 +198,10 @@ public class Tournament extends Aggregate {
 		p1, p2: this.participants | p1.id != p2.id
      */
     public boolean invariantUniqueParticipant() {
-        return this.participants.size()
+        return this.tournamentParticipants.size()
                 ==
-                this.participants.stream()
-                .map(TournamentParticipant::getAggregateId)
+                this.tournamentParticipants.stream()
+                .map(TournamentParticipant::getParticipantAggregateId)
                 .distinct()
                 .count();
     }
@@ -219,7 +211,7 @@ public class Tournament extends Aggregate {
 		p : this.participants | p.enrollTime < this.startTime
      */
     public boolean invariantParticipantsEnrolledBeforeStarTime() {
-        for (TournamentParticipant p : this.participants) {
+        for (TournamentParticipant p : this.tournamentParticipants) {
             if (p.getEnrollTime().isAfter(this.startTime)) {
                 return false;
             }
@@ -233,8 +225,8 @@ public class Tournament extends Aggregate {
      */
     public boolean invariantAnswerBeforeStart() {
         if (LocalDateTime.now().isBefore(this.startTime)) {
-            for (TournamentParticipant t : this.participants) {
-                if (t.getAnswer().getAggregateId() != null) {
+            for (TournamentParticipant t : this.tournamentParticipants) {
+                if (t.getParticipantAnswer().getAnswerAggregateId() != null) {
                     return false;
                 }
             }
@@ -248,7 +240,7 @@ public class Tournament extends Aggregate {
      */
     private boolean invariantDeleteCondition() {
         if (getState() == AggregateState.DELETED) {
-            return getParticipants().size() == 0;
+            return getTournamentParticipants().size() == 0;
         }
         return true;
     }
@@ -258,11 +250,11 @@ public class Tournament extends Aggregate {
      */
 
     private boolean invariantCreatorParticipantConsistency() {
-        for (TournamentParticipant participant : this.participants) {
-            if (participant.getAggregateId().equals(this.creator.getAggregateId())) {
-                if (!participant.getVersion().equals(this.creator.getVersion())
-                        || !participant.getName().equals(this.creator.getName())
-                        || !participant.getUsername().equals(this.creator.getUsername())) {
+        for (TournamentParticipant participant : this.tournamentParticipants) {
+            if (participant.getParticipantAggregateId().equals(this.tournamentCreator.getCreatorAggregateId())) {
+                if (!participant.getParticipantVersion().equals(this.tournamentCreator.getCreatorVersion())
+                        || !participant.getParticipantName().equals(this.tournamentCreator.getCreatorName())
+                        || !participant.getParticipantUsername().equals(this.tournamentCreator.getCreatorUsername())) {
                     return false;
                 }
             }
@@ -282,7 +274,7 @@ public class Tournament extends Aggregate {
     }
 
     public Set<String> getFieldsChangedByFunctionalities()  {
-        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "participants", "cancelled", "courseExecution", "creator");
+        return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "tournamentParticipants", "cancelled", "tournamentCourseExecution", "tournamentCreator");
     }
 
     public Set<String[]> getIntentions() {
@@ -318,14 +310,14 @@ public class Tournament extends Aggregate {
     }
 
     private void mergeCreator(Tournament committedTournament, Tournament mergedTournament) {
-        if (getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
-            mergedTournament.getCreator().setName(getCreator().getName());
-            mergedTournament.getCreator().setUsername(getCreator().getUsername());
-            mergedTournament.getCreator().setVersion(getCreator().getVersion());
+        if (getTournamentCourseExecution().getCourseExecutionVersion() >= committedTournament.getTournamentCourseExecution().getCourseExecutionVersion()) {
+            mergedTournament.getTournamentCreator().setCreatorName(getTournamentCreator().getCreatorName());
+            mergedTournament.getTournamentCreator().setCreatorUsername(getTournamentCreator().getCreatorUsername());
+            mergedTournament.getTournamentCreator().setCreatorVersion(getTournamentCreator().getCreatorVersion());
         } else {
-            mergedTournament.getCreator().setName(committedTournament.getCreator().getName());
-            mergedTournament.getCreator().setUsername(committedTournament.getCreator().getUsername());
-            mergedTournament.getCreator().setVersion(committedTournament.getCreator().getVersion());
+            mergedTournament.getTournamentCreator().setCreatorName(committedTournament.getTournamentCreator().getCreatorName());
+            mergedTournament.getTournamentCreator().setCreatorUsername(committedTournament.getTournamentCreator().getCreatorUsername());
+            mergedTournament.getTournamentCreator().setCreatorVersion(committedTournament.getTournamentCreator().getCreatorVersion());
         }
     }
 
@@ -338,21 +330,21 @@ public class Tournament extends Aggregate {
     }*/
 
     private void mergeCourseExecution(Tournament committedTournament, Tournament mergedTournament) {
-        if (getCourseExecution().getVersion() >= committedTournament.getCourseExecution().getVersion()) {
-            mergedTournament.getCourseExecution().setVersion(getCourseExecution().getVersion());
+        if (getTournamentCourseExecution().getCourseExecutionVersion() >= committedTournament.getTournamentCourseExecution().getCourseExecutionVersion()) {
+            mergedTournament.getTournamentCourseExecution().setCourseExecutionVersion(getTournamentCourseExecution().getCourseExecutionVersion());
         } else {
-            mergedTournament.getCourseExecution().setVersion(committedTournament.getCourseExecution().getVersion());
+            mergedTournament.getTournamentCourseExecution().setCourseExecutionVersion(committedTournament.getTournamentCourseExecution().getCourseExecutionVersion());
         }
     }
 
     private void mergeQuiz(Tournament committedTournament, Tournament mergedTournament) {
         // The quiz aggregate id must be set in case the quiz has been regenerated due to the previous having been invalidated
-        if (getQuiz().getVersion() >= committedTournament.getQuiz().getVersion()) {
-            mergedTournament.getQuiz().setAggregateId(getQuiz().getAggregateId());
-            mergedTournament.getQuiz().setVersion(getQuiz().getVersion());
+        if (getTournamentQuiz().getQuizVersion() >= committedTournament.getTournamentQuiz().getQuizVersion()) {
+            mergedTournament.getTournamentQuiz().setQuizAggregateId(getTournamentQuiz().getQuizAggregateId());
+            mergedTournament.getTournamentQuiz().setQuizVersion(getTournamentQuiz().getQuizVersion());
         } else {
-            mergedTournament.getQuiz().setVersion(committedTournament.getQuiz().getAggregateId());
-            mergedTournament.getQuiz().setVersion(committedTournament.getQuiz().getVersion());
+            mergedTournament.getTournamentQuiz().setQuizVersion(committedTournament.getTournamentQuiz().getQuizAggregateId());
+            mergedTournament.getTournamentQuiz().setQuizVersion(committedTournament.getTournamentQuiz().getQuizVersion());
         }
 
     }
@@ -393,11 +385,11 @@ public class Tournament extends Aggregate {
     // Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
     // of the base we choose.
 
-        Set<TournamentParticipant> prevParticipantsPre = new HashSet<>(prev.getParticipants());
-        Set<TournamentParticipant> v1ParticipantsPre = new HashSet<>(v1.getParticipants());
-        Set<TournamentParticipant> v2ParticipantsPre = new HashSet<>(v2.getParticipants());
+        Set<TournamentParticipant> prevParticipantsPre = new HashSet<>(prev.getTournamentParticipants());
+        Set<TournamentParticipant> v1ParticipantsPre = new HashSet<>(v1.getTournamentParticipants());
+        Set<TournamentParticipant> v2ParticipantsPre = new HashSet<>(v2.getTournamentParticipants());
 
-        TournamentParticipant.syncParticipantsVersions(prevParticipantsPre, v1ParticipantsPre, v2ParticipantsPre, prev.getCourseExecution().getVersion(), v1.getCourseExecution().getVersion(), v2.getCourseExecution().getAggregateId());
+        TournamentParticipant.syncParticipantsVersions(prevParticipantsPre, v1ParticipantsPre, v2ParticipantsPre, prev.getTournamentCourseExecution().getCourseExecutionVersion(), v1.getTournamentCourseExecution().getCourseExecutionVersion(), v2.getTournamentCourseExecution().getCourseExecutionAggregateId());
 
         Set<TournamentParticipant> prevParticipants = new HashSet<>(prevParticipantsPre);
         Set<TournamentParticipant> v1Participants = new HashSet<>(v1ParticipantsPre);
@@ -415,7 +407,7 @@ public class Tournament extends Aggregate {
         );
 
         Set<TournamentParticipant> mergedParticipants = SetUtils.union(SetUtils.difference(prevParticipants, removedParticipants), addedParticipants);
-        mergedTournament.setParticipants(mergedParticipants);
+        mergedTournament.setTournamentParticipants(mergedParticipants);
 
     }
 
@@ -512,15 +504,15 @@ public class Tournament extends Aggregate {
         this.cancelled = cancelled;
     }
 
-    public TournamentCreator getCreator() {
-        return creator;
+    public TournamentCreator getTournamentCreator() {
+        return tournamentCreator;
     }
 
-    public Set<TournamentParticipant> getParticipants() {
-        return participants;
+    public Set<TournamentParticipant> getTournamentParticipants() {
+        return tournamentParticipants;
     }
 
-    public void setParticipants(Set<TournamentParticipant> participants) {
+    public void setTournamentParticipants(Set<TournamentParticipant> tournamentParticipants) {
         /*
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
@@ -529,7 +521,7 @@ public class Tournament extends Aggregate {
         if(prev != null && prev.isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }*/
-        this.participants = participants;
+        this.tournamentParticipants = tournamentParticipants;
     }
 
     public void addParticipant(TournamentParticipant participant) {
@@ -541,11 +533,11 @@ public class Tournament extends Aggregate {
         if(prev != null && prev.isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }
-        this.participants.add(participant);
+        this.tournamentParticipants.add(participant);
     }
 
-    public TournamentCourseExecution getCourseExecution() {
-        return this.courseExecution;
+    public TournamentCourseExecution getTournamentCourseExecution() {
+        return this.tournamentCourseExecution;
     }
 
     public Set<TournamentTopic> getTopics() {
@@ -568,12 +560,12 @@ public class Tournament extends Aggregate {
         this.topics = topics;
     }
 
-    public TournamentQuiz getQuiz() {
-        return this.quiz;
+    public TournamentQuiz getTournamentQuiz() {
+        return this.tournamentQuiz;
     }
 
     public TournamentParticipant findParticipant(Integer userAggregateId) {
-        return this.participants.stream().filter(p -> p.getAggregateId().equals(userAggregateId)).findFirst()
+        return this.tournamentParticipants.stream().filter(p -> p.getParticipantAggregateId().equals(userAggregateId)).findFirst()
                 .orElse(null);
     }
 
@@ -592,21 +584,21 @@ public class Tournament extends Aggregate {
                 throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
             }
         }
-        return this.participants.remove(participant);
+        return this.tournamentParticipants.remove(participant);
     }
 
     // this setVersion is special because the quiz is created in the same transaction and we want to have its version upon commit
     @Override
     public void setVersion(Integer version) {
-        if(this.quiz.getVersion() == null) {
-            this.quiz.setVersion(version);
+        if(this.tournamentQuiz.getQuizVersion() == null) {
+            this.tournamentQuiz.setQuizVersion(version);
         }
         super.setVersion(version);
     }
 
     public TournamentTopic findTopic(Integer topicAggregateId) {
         return getTopics().stream()
-                .filter(t -> topicAggregateId.equals(t.getAggregateId()))
+                .filter(t -> topicAggregateId.equals(t.getTopicAggregateId()))
                 .findFirst()
                 .orElse(null);
     }

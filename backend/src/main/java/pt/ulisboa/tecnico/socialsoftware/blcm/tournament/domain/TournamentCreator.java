@@ -1,87 +1,80 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 @Embeddable
 public class TournamentCreator {
-    @Column(name = "creator_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "creator_name")
-    private String name;
-    @Column(name = "creator_username")
-    private String username;
-    @Column(name = "creator_version")
-    private Integer version;
-    @Column(name = "creator_state")
-    private Aggregate.AggregateState state;
+    private Integer creatorAggregateId;
+    private String creatorName;
+    private String creatorUsername;
+    private Integer creatorVersion;
+    private Aggregate.AggregateState creatorState;
 
     public TournamentCreator() {
 
     }
-    public TournamentCreator(Integer aggregateId, String name, String username, Integer version) {
-        setAggregateId(aggregateId);
-        setName(name);
-        setUsername(username);
-        setVersion(version);
+    public TournamentCreator(Integer creatorAggregateId, String creatorName, String creatorUsername, Integer creatorVersion) {
+        setCreatorAggregateId(creatorAggregateId);
+        setCreatorName(creatorName);
+        setCreatorUsername(creatorUsername);
+        setCreatorVersion(creatorVersion);
     }
 
     public TournamentCreator(TournamentCreator other) {
-        setAggregateId(other.getAggregateId());
-        setName(other.getName());
-        setUsername(other.getUsername());
-        setVersion(other.getVersion());
+        setCreatorAggregateId(other.getCreatorAggregateId());
+        setCreatorName(other.getCreatorName());
+        setCreatorUsername(other.getCreatorUsername());
+        setCreatorVersion(other.getCreatorVersion());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getCreatorAggregateId() {
+        return creatorAggregateId;
     }
 
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
+    public void setCreatorAggregateId(Integer id) {
+        this.creatorAggregateId = id;
     }
 
-    public String getName() {
-        return name;
+    public String getCreatorName() {
+        return creatorName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
 
-    public String getUsername() {
-        return username;
+    public String getCreatorUsername() {
+        return creatorUsername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setCreatorUsername(String creatorUsername) {
+        this.creatorUsername = creatorUsername;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getCreatorVersion() {
+        return creatorVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setCreatorVersion(Integer creatorVersion) {
+        this.creatorVersion = creatorVersion;
     }
 
-    public Aggregate.AggregateState getState() {
-        return state;
+    public Aggregate.AggregateState getCreatorState() {
+        return creatorState;
     }
 
-    public void setState(Aggregate.AggregateState state) {
-        this.state = state;
+    public void setCreatorState(Aggregate.AggregateState creatorState) {
+        this.creatorState = creatorState;
     }
 
     public UserDto buildDto() {
         UserDto userDto = new UserDto();
-        userDto.setAggregateId(getAggregateId());
-        userDto.setVersion(getVersion());
-        userDto.setName(getName());
-        userDto.setUsername(getUsername());
+        userDto.setAggregateId(getCreatorAggregateId());
+        userDto.setVersion(getCreatorVersion());
+        userDto.setName(getCreatorName());
+        userDto.setUsername(getCreatorUsername());
 
         return userDto;
     }

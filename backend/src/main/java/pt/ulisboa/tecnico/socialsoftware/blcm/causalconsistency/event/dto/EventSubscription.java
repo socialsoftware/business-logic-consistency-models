@@ -92,12 +92,12 @@ public class EventSubscription {
     private boolean checkTournamentSpecialCase(Integer eventAdditionalAggregateId) {
         Tournament tournament = (Tournament) this.subscriberAggregate;
         boolean specialCases;
-        if (tournament.getCreator().getAggregateId().equals(eventAdditionalAggregateId)) {
+        if (tournament.getTournamentCreator().getCreatorAggregateId().equals(eventAdditionalAggregateId)) {
             specialCases = true;
         } else {
             specialCases = false;
-            for (TournamentParticipant tournamentParticipant : tournament.getParticipants()) {
-                if (tournamentParticipant.getAggregateId().equals(eventAdditionalAggregateId)) {
+            for (TournamentParticipant tournamentParticipant : tournament.getTournamentParticipants()) {
+                if (tournamentParticipant.getParticipantAggregateId().equals(eventAdditionalAggregateId)) {
                     specialCases = true;
                 }
             }
@@ -107,7 +107,7 @@ public class EventSubscription {
 
     private boolean checkAnswerSpecialCase(Integer eventAdditionalAggregateId) {
         Answer answer = (Answer) this.subscriberAggregate;
-        if (answer.getUser().getAggregateId().equals(eventAdditionalAggregateId)) {
+        if (answer.getUser().getUserAggregateId().equals(eventAdditionalAggregateId)) {
             return true;
         }
         return false;

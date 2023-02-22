@@ -121,7 +121,7 @@ public class QuizService {
         List<QuestionDto> questionDtoList = new ArrayList<>();
         // TODO if I have time change the quiz to only store references to the questions (its easier)
         oldQuiz.getQuizQuestions().forEach(qq -> {
-            QuestionDto questionDto = questionService.getCausalQuestionRemote(qq.getAggregateId(), unitOfWork);
+            QuestionDto questionDto = questionService.getCausalQuestionRemote(qq.getQuestionAggregateId(), unitOfWork);
             questionDto.getOptionDtos().forEach(o -> {
                 o.setCorrect(false); // by setting all to false frontend doesn't know which is correct
             });
@@ -238,7 +238,7 @@ public class QuizService {
         Quiz oldQuiz = getCausalQuizLocal(quizAggregateId, unitOfWork);
         Quiz newQuiz = new Quiz(oldQuiz);
         
-        if(newQuiz.getCourseExecution().getAggregateId().equals(courseExecutionId)) {
+        if(newQuiz.getCourseExecution().getCourseExecutionAggregateId().equals(courseExecutionId)) {
             newQuiz.setState(Aggregate.AggregateState.INACTIVE);
             unitOfWork.registerChanged(newQuiz);
             return newQuiz;
@@ -263,7 +263,7 @@ public class QuizService {
 
         quizQuestion.setTitle(title);
         quizQuestion.setContent(content);
-        quizQuestion.setVersion(aggregateVersion);
+        quizQuestion.setQuestionVersion(aggregateVersion);
 
         return newQuiz;
     }

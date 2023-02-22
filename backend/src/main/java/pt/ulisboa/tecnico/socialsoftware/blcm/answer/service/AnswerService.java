@@ -140,12 +140,12 @@ public class AnswerService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Answer removeUser(Integer answerAggregateId, Integer userAggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
         Answer oldAnswer = getCausalQuizAnswerLocal(answerAggregateId, unitOfWork);
-        if(oldAnswer != null && oldAnswer.getUser().getAggregateId().equals(userAggregateId) && oldAnswer.getVersion() >= aggregateVersion) {
+        if(oldAnswer != null && oldAnswer.getUser().getUserAggregateId().equals(userAggregateId) && oldAnswer.getVersion() >= aggregateVersion) {
             return null;
         }
 
         Answer newAnswer = new Answer(oldAnswer);
-        newAnswer.getUser().setState(Aggregate.AggregateState.DELETED);
+        newAnswer.getUser().setUserState(Aggregate.AggregateState.DELETED);
         newAnswer.setState(Aggregate.AggregateState.INACTIVE);
         unitOfWork.registerChanged(newAnswer);
         return newAnswer;

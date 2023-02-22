@@ -21,7 +21,7 @@ public class OptionDto implements Serializable {
     }
 
     public OptionDto(Option option) {
-        setKey(option.getKey());
+        setKey(option.getOptionKey());
         setSequence(option.getSequence());
         setCorrect(option.isCorrect());
         setContent(option.getContent());

@@ -67,7 +67,7 @@ public class QuestionService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return questionRepository.findAll().stream()
-                .filter(q -> q.getCourse().getAggregateId() == courseAggregateId)
+                .filter(q -> q.getCourse().getCourseAggregateId() == courseAggregateId)
                 .map(Question::getAggregateId)
                 .distinct()
                 .map(id -> getCausalQuestionLocal(id, unitOfWork))
@@ -133,7 +133,7 @@ public class QuestionService {
         Set<Integer> questionAggregateIds = questionRepository.findAll().stream()
                 .filter(q -> {
                     for(QuestionTopic qt : q.getTopics()) {
-                        if (topicIds.contains(qt.getAggregateId())) {
+                        if (topicIds.contains(qt.getTopicAggregateId())) {
                             return true;
                         }
                     }
@@ -174,8 +174,8 @@ public class QuestionService {
             return null;
         }
         */
-        questionTopic.setName(topicName);
-        questionTopic.setVersion(aggregateVersion);
+        questionTopic.setTopicName(topicName);
+        questionTopic.setTopicVersion(aggregateVersion);
         unitOfWork.registerChanged(newQuestion);
         return newQuestion;
     }
@@ -189,7 +189,7 @@ public class QuestionService {
         Question newQuestion = new Question(oldQuestion);
 
         QuestionTopic questionTopic = newQuestion.findTopic(topicAggregateId);
-        if(questionTopic != null && questionTopic.getAggregateId().equals(topicAggregateId) && questionTopic.getVersion() >= aggregateVersion) {
+        if(questionTopic != null && questionTopic.getTopicAggregateId().equals(topicAggregateId) && questionTopic.getTopicVersion() >= aggregateVersion) {
             return null;
         }
 

@@ -119,7 +119,7 @@ public class CourseExecutionService {
         CourseExecution oldCourseExecution = getCausalCourseExecutionLocal(courseExecutionAggregateId, unitOfWork);
 
         if(!executionStudent.isActive()){
-            throw new TutorException(ErrorMessage.INACTIVE_USER, executionStudent.getAggregateId());
+            throw new TutorException(ErrorMessage.INACTIVE_USER, executionStudent.getUserAggregateId());
         }
 
         CourseExecution newCourseExecution = new CourseExecution(oldCourseExecution);

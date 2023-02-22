@@ -1,42 +1,38 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TopicCourse {
-    @Column(name = "course_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "course_version")
-    private Integer version;
+    private Integer courseAggregateId;
+    private Integer courseVersion;
 
     public TopicCourse() {}
 
     public TopicCourse(CourseDto courseDto) {
-        setAggregateId(courseDto.getAggregateId());
-        setVersion(courseDto.getVersion());
+        setCourseAggregateId(courseDto.getAggregateId());
+        setCourseVersion(courseDto.getVersion());
     }
 
     public TopicCourse(TopicCourse other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        setCourseAggregateId(other.getCourseAggregateId());
+        setCourseVersion(other.getCourseVersion());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getCourseAggregateId() {
+        return courseAggregateId;
     }
 
-    public void setAggregateId(Integer courseAggregateId) {
-        this.aggregateId = courseAggregateId;
+    public void setCourseAggregateId(Integer courseAggregateId) {
+        this.courseAggregateId = courseAggregateId;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getCourseVersion() {
+        return courseVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setCourseVersion(Integer courseVersion) {
+        this.courseVersion = courseVersion;
     }
 }

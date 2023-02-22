@@ -4,9 +4,9 @@
 
 - [Maven 3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/) 
 
-- [Java 11+](https://www.oracle.com/java/technologies/downloads/#java11)
+- [Java 17+](https://openjdk.org/projects/jdk/17/)
 
-- [PSQL 12](https://www.postgresql.org/download/) 
+- [PSQL 14](https://www.postgresql.org/download/) 
 
 - [JMeter 5.5](https://jmeter.apache.org/download_jmeter.cgi)
 
@@ -35,6 +35,16 @@ exit
 cd backend
 mvn clean spring-boot:run
 ```
+## Running Spock tests
+
+```
+cd backend
+mvn clean -Ptest test
+```
+
+* Some test cases:
+  * [Tournament Merge Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/aggregate/tournament/MergeUnitTest.groovy)
+  * [Tournament Functionality Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy)
 
 ## Running JMeter tests
 
@@ -43,29 +53,18 @@ cd backend/jmeter/tournament/thesis-cases/
 jmeter -n -t TEST.jmx
 ```
 
-* **TEST** is replaced with actual name of a test
-* The cases described in section VII of the paper are, presented in the same order:
+* Some test cases:
   * [5a-updateStudentName-addParticipant-processUpdateNameEvent.jmx](backend/jmeter/tournament/thesis-cases/5a-updateStudentName-addParticipant-processUpdateNameEvent.jmx)
   * [5b-addParticipant-updateStudentName-processUpdateNameEvent.jmx](backend/jmeter/tournament/thesis-cases/5b-addParticipant-updateStudentName-processUpdateNameEvent.jmx)
   * [5c-updateStudentName1-addParticipant-updateStudentName2-processUpdateNameEvent.jmx](backend/jmeter/tournament/thesis-cases/5c-updateStudentName1-addParticipant-updateStudentName2-processUpdateNameEvent.jmx)
   * [5d-addParticipant1-updateStudentName-processUpdateNameEvent1-addParticipant2-processUpdateNameEvent2.jmx](backend/jmeter/tournament/thesis-cases/5d-addParticipant1-updateStudentName-processUpdateNameEvent1-addParticipant2-processUpdateNameEvent2.jmx)
   * [8-5-update-tournament-concurrent-intention-pass.jmx](backend/jmeter/tournament/thesis-cases/8-5-update-tournament-concurrent-intention-pass.jmx)
-
-* The folder contains additional test cases not described in the paper:
   * [8-6-add-participant-concurrent-update-execution-student-name-processing-ends-first.jmx](backend/jmeter/tournament/thesis-cases/8-6-add-participant-concurrent-update-execution-student-name-processing-ends-first.jmx)
-    * Tests the the concurrent execution of add participant and update student, where the event is processed before add participant commits.
   * [8-7-add-participant-concurrent-anonymize-event-processing-processing-ends-last.jmx](backend/jmeter/tournament/thesis-cases/8-7-add-participant-concurrent-anonymize-event-processing-processing-ends-last.jmx)
-    * Tests the the concurrent execution of add participant and update student, where the event is processed after add participant commits.
-  
-  * [8-8-update-execution-student-add-participant-process-event-add-participant.jmx](backend/jmeter/tournament/thesis-cases/8-8-update-execution-student-add-participant-process-event-add-participant.jmx)
-    * Tests adding the creator student as participant before the tournament processing all subscribed events from the course execution.
-  
+  * [8-8-update-execution-student-add-participant-process-event-add-participant.jmx](backend/jmeter/tournament/thesis-cases/8-8-update-execution-student-add-participant-process-event-add-participant.jmx) 
   * [8-9-add-participant-concurrent-anonymize-event-processing-processing-ends-first.jmx](backend/jmeter/tournament/thesis-cases/8-9-add-participant-concurrent-anonymize-event-processing-processing-ends-first.jmx)
-    * Tests a situation where a student is anonymized in a course execution, which is the tournament creator, while, concurrently, the creator is added as a participant. 
-  
   * [8-10-concurrent-delete-tournament-add-participant.jmx](backend/jmeter/tournament/thesis-cases/8-10-concurrent-delete-tournament-add-participant.jmx)
-    * Tests a  a scenario where a tournament is deleted while a participant is being added. 
-## Viewing JMeter tests structure
+### Viewing JMeter tests structure
 
 ```
 cd backend/jmeter/tournament/thesis-cases/

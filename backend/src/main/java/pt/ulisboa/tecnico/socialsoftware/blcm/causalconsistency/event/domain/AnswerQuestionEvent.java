@@ -4,7 +4,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
 
 import jakarta.persistence.Entity;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 
 @Entity
 public class AnswerQuestionEvent extends Event {
@@ -26,7 +25,7 @@ public class AnswerQuestionEvent extends Event {
         setQuestionAggregateId(questionAnswer.getQuestionAggregateId());
         setQuizAggregateId(quizAggregateId);
         setCorrect(questionAnswer.isCorrect());
-        setUserAggregateId(answer.getUser().getAggregateId());
+        setUserAggregateId(answer.getUser().getUserAggregateId());
         setAggregateId(answer.getAggregateId());
     }
 

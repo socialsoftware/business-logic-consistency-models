@@ -1,16 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
 
 @Embeddable
 public class TournamentParticipantAnswer {
-    @Column(name = "answer_aggregate_id")
-    private Integer aggregateId;
-    private Integer version;
-    @Column(name = "answer_number_of_answered")
+    private Integer answerAggregateId;
+    private Integer answerVersion;
     private Integer numberOfAnswered;
-    @Column(name = "answer_number_of_correct")
     private Integer numberOfCorrect;
     @Column
     private boolean answered;
@@ -18,33 +14,33 @@ public class TournamentParticipantAnswer {
     public TournamentParticipantAnswer() {
         setNumberOfAnswered(0);
         setNumberOfCorrect(0);
-        setVersion(0);
+        setAnswerVersion(0);
         setAnswered(false);
     }
 
     public TournamentParticipantAnswer(TournamentParticipantAnswer other) {
-        setAggregateId(other.getAggregateId());
+        setAnswerAggregateId(other.getAnswerAggregateId());
         setNumberOfAnswered(other.getNumberOfAnswered());
         setNumberOfCorrect(other.getNumberOfCorrect());
-        setVersion(other.getVersion());
+        setAnswerVersion(other.getAnswerVersion());
         setAnswered(other.isAnswered());
     }
 
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getAnswerAggregateId() {
+        return answerAggregateId;
     }
 
-    public void setAggregateId(Integer id) {
-        this.aggregateId = id;
+    public void setAnswerAggregateId(Integer id) {
+        this.answerAggregateId = id;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getAnswerVersion() {
+        return answerVersion;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setAnswerVersion(Integer answerVersion) {
+        this.answerVersion = answerVersion;
     }
 
     public Integer getNumberOfAnswered() {
@@ -85,7 +81,7 @@ public class TournamentParticipantAnswer {
             return false;
         }
         TournamentParticipantAnswer answer = (TournamentParticipantAnswer) obj;
-        return getAggregateId() != null && getAggregateId().equals(answer.getAggregateId()) &&
-                getVersion() != null && getVersion().equals(answer.getVersion());
+        return getAnswerAggregateId() != null && getAnswerAggregateId().equals(answer.getAnswerAggregateId()) &&
+                getAnswerVersion() != null && getAnswerVersion().equals(answer.getAnswerVersion());
     }
 }

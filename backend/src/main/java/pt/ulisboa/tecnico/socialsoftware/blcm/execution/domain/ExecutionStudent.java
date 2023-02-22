@@ -1,37 +1,28 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 import java.util.Set;
 
 @Embeddable
 public class ExecutionStudent {
-    @Column(name = "user_aggregate_id")
-    private Integer aggregateId;
-    @Column(name = "user_aggregate_version")
-    private Integer version;
-
+    private Integer userAggregateId;
+    private Integer userVersion;
     private String name;
-
     private String username;
-
     private boolean active;
-
     private Aggregate.AggregateState state;
 
     public ExecutionStudent() {
-
     }
 
     public ExecutionStudent(UserDto userDto) {
-        setAggregateId(userDto.getAggregateId());
-        setVersion(userDto.getVersion());
+        setUserAggregateId(userDto.getAggregateId());
+        setUserVersion(userDto.getVersion());
         setName(userDto.getName());
         setUsername(userDto.getUsername());
         setActive(userDto.isActive());
@@ -39,8 +30,8 @@ public class ExecutionStudent {
     }
 
     public ExecutionStudent(ExecutionStudent other) {
-        setAggregateId(other.getAggregateId());
-        setVersion(other.getVersion());
+        setUserAggregateId(other.getUserAggregateId());
+        setUserVersion(other.getUserVersion());
         setName(other.getName());
         setUsername(other.getUsername());
         setActive(other.isActive());
@@ -52,20 +43,20 @@ public class ExecutionStudent {
         setUsername("ANONYMOUS");
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getUserAggregateId() {
+        return userAggregateId;
     }
 
-    public void setAggregateId(Integer userAggregateId) {
-        this.aggregateId = userAggregateId;
+    public void setUserAggregateId(Integer userAggregateId) {
+        this.userAggregateId = userAggregateId;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getUserVersion() {
+        return userVersion;
     }
 
-    public void setVersion(Integer userVersion) {
-        this.version = userVersion;
+    public void setUserVersion(Integer userVersion) {
+        this.userVersion = userVersion;
     }
 
     public String getName() {
@@ -102,8 +93,8 @@ public class ExecutionStudent {
 
     public UserDto buildDto() {
         UserDto userDto = new UserDto();
-        userDto.setAggregateId(getAggregateId());
-        userDto.setVersion(getVersion());
+        userDto.setAggregateId(getUserAggregateId());
+        userDto.setVersion(getUserVersion());
         userDto.setName(getName());
         userDto.setUsername(getUsername());
         return userDto;
@@ -112,15 +103,15 @@ public class ExecutionStudent {
     public static void syncStudentVersions(Set<ExecutionStudent> prevStudents, Set<ExecutionStudent> v1Students, Set<ExecutionStudent> v2Students) {
         for(ExecutionStudent s1 : v1Students) {
             for(ExecutionStudent s2 : v2Students) {
-                if(s1.getAggregateId().equals(s2.getAggregateId())) {
-                    if(s1.getVersion() > s2.getVersion()) {
-                        s2.setVersion(s1.getVersion());
+                if(s1.getUserAggregateId().equals(s2.getUserAggregateId())) {
+                    if(s1.getUserVersion() > s2.getUserVersion()) {
+                        s2.setUserVersion(s1.getUserVersion());
                         s2.setName(s1.getName());
                         s2.setUsername(s1.getUsername());
                     }
 
-                    if(s2.getVersion() > s1.getVersion()) {
-                        s1.setVersion(s2.getVersion());
+                    if(s2.getUserVersion() > s1.getUserVersion()) {
+                        s1.setUserVersion(s2.getUserVersion());
                         s1.setName(s2.getName());
                         s1.setUsername(s2.getUsername());
                     }
@@ -129,15 +120,15 @@ public class ExecutionStudent {
 
             // no need to check again because the prev does not contain any newer version than v1 an v2
             for(ExecutionStudent prevStudent : prevStudents) {
-                if(s1.getAggregateId().equals(prevStudent.getAggregateId())) {
-                    if(s1.getVersion() > prevStudent.getVersion()) {
-                        prevStudent.setVersion(s1.getVersion());
+                if(s1.getUserAggregateId().equals(prevStudent.getUserAggregateId())) {
+                    if(s1.getUserVersion() > prevStudent.getUserVersion()) {
+                        prevStudent.setUserVersion(s1.getUserVersion());
                         prevStudent.setName(s1.getName());
                         prevStudent.setUsername(s1.getUsername());
                     }
 
-                    if(prevStudent.getVersion() > s1.getVersion()) {
-                        s1.setVersion(prevStudent.getVersion());
+                    if(prevStudent.getUserVersion() > s1.getUserVersion()) {
+                        s1.setUserVersion(prevStudent.getUserVersion());
                         s1.setName(prevStudent.getName());
                         s1.setUsername(prevStudent.getUsername());
                     }
@@ -149,8 +140,8 @@ public class ExecutionStudent {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + getAggregateId();
-        hash = 31 * hash + (getVersion() == null ? 0 : getVersion().hashCode());
+        hash = 31 * hash + getUserAggregateId();
+        hash = 31 * hash + (getUserVersion() == null ? 0 : getUserVersion().hashCode());
         return hash;
     }
 
@@ -160,7 +151,7 @@ public class ExecutionStudent {
             return false;
         }
         TournamentParticipant tournamentParticipant = (TournamentParticipant) obj;
-        return getAggregateId() != null && getAggregateId().equals(tournamentParticipant.getAggregateId()) &&
-                getVersion() != null && getVersion().equals(tournamentParticipant.getVersion());
+        return getUserAggregateId() != null && getUserAggregateId().equals(tournamentParticipant.getParticipantAggregateId()) &&
+                getUserVersion() != null && getUserVersion().equals(tournamentParticipant.getParticipantVersion());
     }
 }

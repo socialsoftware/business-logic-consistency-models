@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuestionAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
@@ -7,25 +8,15 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
-import jakarta.persistence.Embeddable;
-
-
 
 @Embeddable
 public class QuestionAnswer {
-
     private Integer optionSequenceChoice;
-
     private Integer questionAggregateId;
-
     private Integer questionVersion;
-
     private Integer timeTaken;
-
     private Integer optionKey;
-
     private boolean correct;
-
     private Aggregate.AggregateState state;
 
     public  QuestionAnswer() {

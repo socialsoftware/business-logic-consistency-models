@@ -1,38 +1,39 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
 
 @Embeddable
 public class AnswerCourseExecution {
-    @Column(name = "answer_course_execution_aggregate_id")
-    private final Integer aggregateId;
-    @Column(name = "answer_course_execution_aggregate_version")
-    private Integer version;
+    private Integer courseExecutionAggregateId;
+    private Integer courseExecutionVersion;
 
     public AnswerCourseExecution() {
-        this.aggregateId = 0;
+        this.courseExecutionAggregateId = 0;
     }
 
     public AnswerCourseExecution(Integer courseExecutionAggregateId, Integer courseExecutionVersion) {
-        this.aggregateId = courseExecutionAggregateId;
-        setVersion(courseExecutionVersion);
+        this.courseExecutionAggregateId = courseExecutionAggregateId;
+        setCourseExecutionVersion(courseExecutionVersion);
     }
 
     public AnswerCourseExecution(AnswerCourseExecution courseExecution) {
-        this.aggregateId = courseExecution.getAggregateId();
-        setVersion(courseExecution.getVersion());
+        this.courseExecutionAggregateId = courseExecution.getCourseExecutionAggregateId();
+        setCourseExecutionVersion(courseExecution.getCourseExecutionVersion());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getCourseExecutionAggregateId() {
+        return courseExecutionAggregateId;
     }
 
-    public Integer getVersion() {
-        return version;
+    public void setCourseExecutionAggregateId(Integer courseExecutionAggregateId) {
+        this.courseExecutionAggregateId = courseExecutionAggregateId;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public Integer getCourseExecutionVersion() {
+        return courseExecutionVersion;
+    }
+
+    public void setCourseExecutionVersion(Integer courseExecutionVersion) {
+        this.courseExecutionVersion = courseExecutionVersion;
     }
 }

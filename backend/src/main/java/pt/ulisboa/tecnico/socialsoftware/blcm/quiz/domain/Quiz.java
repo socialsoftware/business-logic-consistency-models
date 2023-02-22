@@ -38,13 +38,9 @@ public class Quiz extends Aggregate {
     /*
         CREATION_DATE_FINAL
      */
-    @Column(name = "creation_date")
     private final LocalDateTime creationDate;
-    @Column(name = "available_date")
     private LocalDateTime availableDate;
-    @Column(name = "conclusion_date")
     private LocalDateTime conclusionDate;
-    @Column(name = "results_date")
     private LocalDateTime resultsDate;
     @Column(nullable = false)
     private String title = "Title";
@@ -56,7 +52,7 @@ public class Quiz extends Aggregate {
         COURSE_EXECUTION_FINAL
      */
     @Embedded
-    private final QuizCourseExecution courseExecution;
+    private QuizCourseExecution courseExecution;
 
     public Quiz() {
         this.courseExecution = null;
@@ -117,13 +113,13 @@ public class Quiz extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getAggregateId(), this.courseExecution.getVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new EventSubscription(this.courseExecution.getCourseExecutionAggregateId(), this.courseExecution.getCourseExecutionVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
     }
 
     private void interInvariantQuestionsExist(Set<EventSubscription> eventSubscriptions) {
         for (QuizQuestion quizQuestion : this.quizQuestions) {
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), UpdateQuestionEvent.class.getSimpleName(), this));
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getAggregateId(), quizQuestion.getVersion(), RemoveQuestionEvent.class.getSimpleName(), this));
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getQuestionAggregateId(), quizQuestion.getQuestionVersion(), UpdateQuestionEvent.class.getSimpleName(), this));
+            eventSubscriptions.add(new EventSubscription(quizQuestion.getQuestionAggregateId(), quizQuestion.getQuestionVersion(), RemoveQuestionEvent.class.getSimpleName(), this));
         }
     }
 
@@ -289,7 +285,7 @@ public class Quiz extends Aggregate {
 
     public QuizQuestion findQuestion(Integer questionAggregateId) {
         for(QuizQuestion qq : quizQuestions) {
-            if(qq.getAggregateId().equals(questionAggregateId)) {
+            if(qq.getQuestionAggregateId().equals(questionAggregateId)) {
                 return qq;
             }
         }

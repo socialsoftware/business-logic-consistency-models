@@ -1,41 +1,41 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
+import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 @Embeddable
 public class AnswerUser {
-    @Column(name = "user_aggregate_id")
-    private final Integer aggregateId;
-    @Column(name = "user_state")
-    private Aggregate.AggregateState state;
+    private Integer userAggregateId;
+    private Aggregate.AggregateState userState;
 
     public AnswerUser() {
-        this.aggregateId = 0;
+        this.userAggregateId = 0;
     }
 
     public AnswerUser(UserDto userDto) {
-        this.aggregateId = userDto.getAggregateId();
-        setState(Aggregate.AggregateState.valueOf(userDto.getState()));
+        this.userAggregateId = userDto.getAggregateId();
+        setUserState(Aggregate.AggregateState.valueOf(userDto.getState()));
     }
 
     public AnswerUser(AnswerUser other) {
-        this.aggregateId = other.getAggregateId();
-        setState(other.getState());
+        this.userAggregateId = other.getUserAggregateId();
+        setUserState(other.getUserState());
     }
 
-    public Integer getAggregateId() {
-        return aggregateId;
+    public Integer getUserAggregateId() {
+        return userAggregateId;
     }
 
-    public Aggregate.AggregateState getState() {
-        return state;
+    public void setUserAggregateId(Integer userAggregateId) {
+        this.userAggregateId = userAggregateId;
     }
 
-    public void setState(Aggregate.AggregateState state) {
-        this.state = state;
+    public Aggregate.AggregateState getUserState() {
+        return userState;
+    }
+
+    public void setUserState(Aggregate.AggregateState userState) {
+        this.userState = userState;
     }
 }
