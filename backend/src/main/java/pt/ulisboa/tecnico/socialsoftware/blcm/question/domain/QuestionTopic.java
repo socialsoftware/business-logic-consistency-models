@@ -3,20 +3,18 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import java.util.Set;
 
 @Embeddable
 public class QuestionTopic {
     @Column(name = "topic_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "topic_name")
     private String name;
     @Column(name = "topic_version")
     private Integer version;
-
     private Aggregate.AggregateState state;
 
     public QuestionTopic() {

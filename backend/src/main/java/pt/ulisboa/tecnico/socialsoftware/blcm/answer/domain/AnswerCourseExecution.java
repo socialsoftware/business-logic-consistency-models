@@ -1,13 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class AnswerCourseExecution {
     @Column(name = "answer_course_execution_aggregate_id")
     private final Integer aggregateId;
-
     @Column(name = "answer_course_execution_aggregate_version")
     private Integer version;
 
@@ -24,7 +23,6 @@ public class AnswerCourseExecution {
         this.aggregateId = courseExecution.getAggregateId();
         setVersion(courseExecution.getVersion());
     }
-
 
     public Integer getAggregateId() {
         return aggregateId;

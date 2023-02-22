@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.service.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;

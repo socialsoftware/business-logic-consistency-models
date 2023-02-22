@@ -2,16 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class Option {
-
     private Integer key;
     private Integer sequence;
-
     private boolean correct;
-
     private String content;
 
     public Option() {

@@ -2,14 +2,14 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.service.TopicService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.DeleteTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;

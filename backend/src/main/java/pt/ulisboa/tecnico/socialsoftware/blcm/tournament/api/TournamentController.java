@@ -49,7 +49,7 @@ public class TournamentController {
         return tournamentFunctionalities.solveQuiz(tournamentAggregateId, userAggregateId);
     }
 
-    @GetMapping(value = "/executions/{executionAggregateId}/tournaments/")
+    @GetMapping(value = "/executions/{executionAggregateId}/tournaments")
     public List<TournamentDto> getTournamentsForCourseExecution(@PathVariable Integer executionAggregateId) {
         return tournamentFunctionalities.getTournamentsForCourseExecution(executionAggregateId);
     }

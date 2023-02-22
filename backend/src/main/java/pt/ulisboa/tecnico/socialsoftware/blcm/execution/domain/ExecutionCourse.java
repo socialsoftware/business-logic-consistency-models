@@ -3,22 +3,18 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.CourseType;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Embeddable
 public class ExecutionCourse {
-
     @Column(name = "course_aggregate_id")
     private Integer courseAggregateId;
-
     private String name;
-
     @Enumerated(EnumType.STRING)
     private CourseType type;
-
     @Column(name = "course_version")
     private Integer version;
 

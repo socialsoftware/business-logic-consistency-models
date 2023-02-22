@@ -3,13 +3,14 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +24,8 @@ public class CourseExecutionEventDetection {
 
     @Autowired
     private CourseExecutionFunctionalities courseExecutionFunctionalities;
-
+    @Autowired
+    private CourseExecutionService courseExecutionService;
     @Autowired
     private CourseExecutionRepository courseExecutionRepository;
 
@@ -38,7 +40,7 @@ public class CourseExecutionEventDetection {
             if (courseExecution == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = courseExecution.getEventSubscriptionsByEventType(RemoveUserEvent.class.getSimpleName());
+            Set<EventSubscription> eventSubscriptions = courseExecutionService.getEventSubscriptions(courseExecution.getAggregateId(), courseExecution.getVersion(), RemoveUserEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)

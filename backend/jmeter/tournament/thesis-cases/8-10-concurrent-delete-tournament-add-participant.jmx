@@ -532,7 +532,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-            <stringProp name="HTTPSampler.path">${prefix}/executions/${__property(course_execution_aggregate_id)}/tournaments/create/?userId=${__property(user_aggregate_id_1)}&amp;topicsId=${__property(topic_aggregate_id_1)}&amp;topicsId=${__property(topic_aggregate_id_2)}</stringProp>
+            <stringProp name="HTTPSampler.path">${prefix}/executions/${__property(course_execution_aggregate_id)}/tournaments/create?userId=${__property(user_aggregate_id_1)}&amp;topicsId=${__property(topic_aggregate_id_1)}&amp;topicsId=${__property(topic_aggregate_id_2)}</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -999,7 +999,7 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-            <stringProp name="HTTPSampler.path">${prefix}/tournaments/${__property(tournament_aggregate_id)}/join/?userAggregateId=${__property(user_aggregate_id_2)}</stringProp>
+            <stringProp name="HTTPSampler.path">${prefix}/tournaments/${__property(tournament_aggregate_id)}/join?userAggregateId=${__property(user_aggregate_id_2)}</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>

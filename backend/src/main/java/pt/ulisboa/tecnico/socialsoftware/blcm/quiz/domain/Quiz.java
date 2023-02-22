@@ -1,15 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,31 +35,23 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Entity
 @Table(name = "quizzes")
 public class Quiz extends Aggregate {
-
     /*
         CREATION_DATE_FINAL
      */
     @Column(name = "creation_date")
     private final LocalDateTime creationDate;
-
     @Column(name = "available_date")
     private LocalDateTime availableDate;
-
     @Column(name = "conclusion_date")
     private LocalDateTime conclusionDate;
-
     @Column(name = "results_date")
     private LocalDateTime resultsDate;
-
     @Column(nullable = false)
     private String title = "Title";
-
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<QuizQuestion> quizQuestions = new HashSet<>();
-
     @Enumerated(EnumType.STRING)
     private QuizType quizType;
-
     /*
         COURSE_EXECUTION_FINAL
      */

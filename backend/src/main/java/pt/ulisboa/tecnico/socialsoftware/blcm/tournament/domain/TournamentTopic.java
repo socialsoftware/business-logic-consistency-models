@@ -3,10 +3,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.util.Set;
 
@@ -14,16 +14,12 @@ import java.util.Set;
 public class TournamentTopic {
     @Column(name = "topic_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "topic_name")
     private String name;
-
     @Column(name = "topic_course_aggregate_id")
     private Integer courseAggregateId;
-
     @Column(name = "topic_version")
     private Integer version;
-
     @Enumerated(EnumType.STRING)
     private Aggregate.AggregateState state;
 

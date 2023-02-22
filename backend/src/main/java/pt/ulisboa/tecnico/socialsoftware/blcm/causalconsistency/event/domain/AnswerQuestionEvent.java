@@ -1,9 +1,10 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuestionAnswer;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 
 @Entity
 public class AnswerQuestionEvent extends Event {

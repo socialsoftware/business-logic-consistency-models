@@ -3,23 +3,19 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TournamentCreator {
     @Column(name = "creator_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "creator_name")
     private String name;
-
     @Column(name = "creator_username")
     private String username;
-
     @Column(name = "creator_version")
     private Integer version;
-
     @Column(name = "creator_state")
     private Aggregate.AggregateState state;
 

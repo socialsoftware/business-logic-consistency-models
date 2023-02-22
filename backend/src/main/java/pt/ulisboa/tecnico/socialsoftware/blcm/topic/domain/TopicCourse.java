@@ -2,14 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TopicCourse {
     @Column(name = "course_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "course_version")
     private Integer version;
 

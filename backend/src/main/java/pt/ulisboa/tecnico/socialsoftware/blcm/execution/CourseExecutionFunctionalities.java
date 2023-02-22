@@ -2,8 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;

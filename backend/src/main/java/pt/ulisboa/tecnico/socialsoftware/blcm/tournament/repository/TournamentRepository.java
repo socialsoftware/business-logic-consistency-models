@@ -41,4 +41,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
 
     @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND state = 'ACTIVE' AND t.version >= (select max(version) from tournaments)", nativeQuery = true)
     Optional<Tournament> findLastTournamentVersion(Integer aggregateId);
+
+    @Query(value = "select * from tournaments t where t.aggregate_id = :aggregateId AND t.version = :versionId ", nativeQuery = true)
+    Optional<Tournament> findTournamentVersionByAggregateIdAndVersionId(Integer aggregateId, Integer versionId);
 }

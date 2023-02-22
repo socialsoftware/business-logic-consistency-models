@@ -19,7 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionReposi
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.repository.UserRepository;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;

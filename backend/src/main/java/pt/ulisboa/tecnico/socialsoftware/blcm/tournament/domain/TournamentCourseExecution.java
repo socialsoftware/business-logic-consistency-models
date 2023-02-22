@@ -2,24 +2,19 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TournamentCourseExecution {
     @Column(name = "course_execution_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "course_execution_course_id")
     private Integer courseId;
-
     @Column(name = "course_execution_acronym")
     private String acronym;
-
     @Column(name = "course_execution_status")
     private String status;
-
-
     @Column(name = "course_execution_version")
     private Integer version;
 

@@ -2,11 +2,11 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,20 +23,15 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Entity
 @Table(name = "users")
 public class User extends Aggregate {
-
     @Column
     private String name;
-
     @Column
     private String username;
-
     /*
         ROLE_FINAL
     */
     @Enumerated(EnumType.STRING)
     private final Role role;
-
-
     @Column(columnDefinition = "boolean default false")
     private Boolean active;
 

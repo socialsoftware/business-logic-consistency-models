@@ -3,13 +3,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -59,19 +59,14 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 @Entity
 @Table(name = "tournaments")
 public class Tournament extends Aggregate {
-
     @Column(name = "start_time")
     private LocalDateTime startTime;
-
     @Column(name = "end_time")
     private LocalDateTime endTime;
-
     @Column(name = "number_of_questions")
     private Integer numberOfQuestions;
-
     @Column
     private boolean cancelled;
-
     /*
     CREATOR_IS_FINAL
 		final this.creator.id
@@ -79,11 +74,9 @@ public class Tournament extends Aggregate {
     @Embedded
     @Column(name = "creator")
     private final TournamentCreator creator;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tournament_participants")
     private Set<TournamentParticipant> participants;
-
     /*
     COURSE_EXECUTION_IS_FINAL
 		final this.courseExecution.id
@@ -91,11 +84,9 @@ public class Tournament extends Aggregate {
     @Embedded
     @Column(name = "course_execution")
     private final TournamentCourseExecution courseExecution;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tournament_topics")
     private Set<TournamentTopic> topics;
-
     /*
     QUIZ_IS_FINAL
 		final this.tournamentQuiz.id
@@ -103,8 +94,6 @@ public class Tournament extends Aggregate {
     @Embedded
     @Column(name = "tournament_quiz")
     private final TournamentQuiz quiz;
-
-
 
     public Tournament() {
         this.creator = null;

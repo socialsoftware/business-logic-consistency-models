@@ -2,12 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.DeleteTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,22 +26,16 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 @Entity
 @Table(name = "questions")
 public class Question extends Aggregate {
-
     @Column
     private String title;
-
     @Column
     private String content;
-
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
-
     @Embedded
     private QuestionCourse course;
-
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<QuestionTopic> topics;
-
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Option> options;
 

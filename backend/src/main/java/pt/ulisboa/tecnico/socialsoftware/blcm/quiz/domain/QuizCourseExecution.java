@@ -2,14 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class QuizCourseExecution {
     @Column(name = "course_execution_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "course_execution_version")
     private Integer version;
 

@@ -3,9 +3,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repositor
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository

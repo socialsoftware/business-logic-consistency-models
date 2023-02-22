@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -11,23 +11,17 @@ import java.util.Set;
 public class TournamentParticipant {
     @Column(name = "participant_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "participant_name")
     private String name;
-
     @Column(name = "participant_username")
     private String username;
-
     @Column(name = "participant_enrolltime")
     private LocalDateTime enrollTime;
-
     @Embedded
     @Column(name = "tournament_answer")
     private TournamentParticipantAnswer answer;
-
     @Column(name = "participant_version")
     private Integer version;
-
     @Enumerated(EnumType.STRING)
     private AggregateState state;
 

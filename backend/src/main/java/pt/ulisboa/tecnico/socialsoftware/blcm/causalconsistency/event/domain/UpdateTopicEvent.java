@@ -1,8 +1,9 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity
 public class UpdateTopicEvent extends Event {

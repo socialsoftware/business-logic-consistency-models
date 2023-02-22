@@ -2,14 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class QuizOption {
     private Integer sequence;
-
     private boolean correct;
-
     private String content;
 
     public QuizOption(OptionDto optionDto) {

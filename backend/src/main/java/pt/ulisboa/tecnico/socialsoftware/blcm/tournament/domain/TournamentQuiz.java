@@ -2,14 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TournamentQuiz {
     @Column(name = "quiz_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "quiz_version")
     private Integer version;
 

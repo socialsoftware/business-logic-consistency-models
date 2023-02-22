@@ -2,14 +2,14 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,16 +34,12 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 public class CourseExecution extends Aggregate {
     @Column
     private String acronym;
-
     @Column
     private String academicTerm;
-
     @Column(name = "end_date")
     private LocalDateTime endDate;
-
     @Embedded
     private ExecutionCourse course;
-
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<ExecutionStudent> students;
 

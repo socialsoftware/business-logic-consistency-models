@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
@@ -242,6 +243,17 @@ public class TournamentService {
         Tournament newTournament = new Tournament(oldTournament);
         newTournament.remove();
         unitOfWork.registerChanged(newTournament);
+    }
+
+
+    // EVENT DETECTION SUBSCRIPTIONS
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Set<EventSubscription> getEventSubscriptions(Integer aggregateId, Integer versionId, String eventType) {
+        Tournament tournament = tournamentRepository.findTournamentVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
+        return tournament.getEventSubscriptionsByEventType(eventType);
     }
 
     /******************************************* EVENT PROCESSING SERVICES ********************************************/

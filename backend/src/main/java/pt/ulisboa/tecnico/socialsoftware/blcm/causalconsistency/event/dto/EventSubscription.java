@@ -1,37 +1,32 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.AnonymizeExecutionStudentEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateExecutionStudentNameEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.AnonymizeExecutionStudentEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UnerollStudentFromCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateExecutionStudentNameEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
-@Embeddable
 public class EventSubscription {
     @Column
     private Integer senderAggregateId;
-
     @Column
     private Integer senderLastVersion;
-
     @Column
     private String eventType;
-
-    @Embedded
     private Aggregate subscriberAggregate;
 
     public EventSubscription() {
-
     }
 
     public EventSubscription(Integer senderAggregateId, Integer senderLastVersion, String eventType, Aggregate subscriberAggregate) {
         setSenderAggregateId(senderAggregateId);
         // this is for complex functionalities where we dont know the id of an aggregate we are creating
-        if(senderLastVersion == null) {
+        if (senderLastVersion == null) {
             setSenderLastVersion(0);
         } else {
             setSenderLastVersion(senderLastVersion);
@@ -101,8 +96,8 @@ public class EventSubscription {
             specialCases = true;
         } else {
             specialCases = false;
-            for(TournamentParticipant tournamentParticipant : tournament.getParticipants()) {
-                if(tournamentParticipant.getAggregateId().equals(eventAdditionalAggregateId)) {
+            for (TournamentParticipant tournamentParticipant : tournament.getParticipants()) {
+                if (tournamentParticipant.getAggregateId().equals(eventAdditionalAggregateId)) {
                     specialCases = true;
                 }
             }

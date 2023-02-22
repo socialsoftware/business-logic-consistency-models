@@ -3,15 +3,16 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveQuestionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UpdateQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.repository.QuizRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 public class QuizEventDetection {
     @Autowired
     private QuizFunctionalities quizFunctionalities;
+
+    @Autowired
+    private QuizService quizService;
 
     @Autowired
     private QuizRepository quizRepository;
@@ -42,7 +46,7 @@ public class QuizEventDetection {
             if (quiz == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(RemoveCourseExecutionEvent.class.getSimpleName());
+            Set<EventSubscription> eventSubscriptions = quizService.getEventSubscriptions(quiz.getAggregateId(), quiz.getVersion(), RemoveCourseExecutionEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -66,7 +70,7 @@ public class QuizEventDetection {
             if (quiz == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(UpdateQuestionEvent.class.getSimpleName());
+            Set<EventSubscription> eventSubscriptions = quizService.getEventSubscriptions(quiz.getAggregateId(), quiz.getVersion(), UpdateQuestionEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)
@@ -90,7 +94,7 @@ public class QuizEventDetection {
             if (quiz == null) {
                 continue;
             }
-            Set<EventSubscription> eventSubscriptions = quiz.getEventSubscriptionsByEventType(RemoveQuestionEvent.class.getSimpleName());
+            Set<EventSubscription> eventSubscriptions = quizService.getEventSubscriptions(quiz.getAggregateId(), quiz.getVersion(), RemoveQuestionEvent.class.getSimpleName());
             for (EventSubscription eventSubscription : eventSubscriptions) {
                 List<Event> eventsToProcess = eventRepository.findAll().stream()
                         .filter(eventSubscription::subscribesEvent)

@@ -2,11 +2,11 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,19 +38,14 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUES
 public class Answer extends Aggregate {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
-
     @Column(name = "answer_date")
     private LocalDateTime answerDate;
-
     @Column
     private boolean completed;
-
     @Embedded
     private final AnswerCourseExecution courseExecution;
-
     @Embedded
     private final AnswerUser user;
-
     /* it is not final because of the question ids inside*/
     @Embedded
     private AnswerQuiz quiz;

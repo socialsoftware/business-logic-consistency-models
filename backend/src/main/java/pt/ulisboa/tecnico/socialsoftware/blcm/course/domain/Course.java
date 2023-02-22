@@ -2,10 +2,10 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.course.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +24,6 @@ public class Course extends Aggregate {
      */
     @Enumerated(EnumType.STRING)
     private final CourseType type;
-
     /*
         COURSE_NAME_FINAL
      */

@@ -3,30 +3,24 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class QuizQuestion {
     @Column(name = "question_aggregate_id")
     private Integer aggregateId;
-
     @Column(name = "question_version")
     private Integer version;
-
     private String title;
-
     private String content;
-
     private Integer sequence;
 
     private Aggregate.AggregateState state;
 
-
     public QuizQuestion() {
 
     }
-
 
     public QuizQuestion(QuestionDto questionDto) {
         setAggregateId(questionDto.getAggregateId());

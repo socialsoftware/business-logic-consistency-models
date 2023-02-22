@@ -7,7 +7,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 
 

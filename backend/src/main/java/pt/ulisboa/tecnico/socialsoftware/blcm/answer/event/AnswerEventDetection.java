@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.AnswerFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.RemoveUserEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.UnerollStudentFromCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UnerollStudentFromCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 
 import java.util.Comparator;

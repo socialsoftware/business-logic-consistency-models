@@ -1,9 +1,9 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity
 public class RemoveUserEvent extends Event {

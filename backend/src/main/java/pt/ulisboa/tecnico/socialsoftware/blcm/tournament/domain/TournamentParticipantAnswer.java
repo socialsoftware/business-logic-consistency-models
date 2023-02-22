@@ -1,21 +1,17 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TournamentParticipantAnswer {
     @Column(name = "answer_aggregate_id")
     private Integer aggregateId;
-
     private Integer version;
-
     @Column(name = "answer_number_of_answered")
     private Integer numberOfAnswered;
-
     @Column(name = "answer_number_of_correct")
     private Integer numberOfCorrect;
-
     @Column
     private boolean answered;
 

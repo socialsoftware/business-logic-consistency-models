@@ -1,18 +1,16 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 import java.time.LocalDateTime;
 
 /* EXISTS FOR EXAMPLE ONLY. MAY NEED TO DELETE LATER*/
 @Entity
 public class TournamentCreationEvent extends Event {
     private LocalDateTime startTime;
-
     private LocalDateTime endTime;
-
     private Integer numberOfQuestions;
 
     public TournamentCreationEvent() {

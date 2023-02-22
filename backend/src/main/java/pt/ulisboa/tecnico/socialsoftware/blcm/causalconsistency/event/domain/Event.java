@@ -1,6 +1,6 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

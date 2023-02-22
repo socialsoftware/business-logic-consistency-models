@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
@@ -29,4 +29,7 @@ public interface CourseExecutionRepository extends JpaRepository<CourseExecution
 
     @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND state = 'ACTIVE' AND ce.version >= (select max(version) from course_executions)", nativeQuery = true)
     Optional<CourseExecution> findLastQuestionVersion(Integer aggregateId);
+
+    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version = :versionId ", nativeQuery = true)
+    Optional<CourseExecution> findCourseExecutionVersionByAggregateIdAndVersionId(Integer aggregateId, Integer versionId);
 }

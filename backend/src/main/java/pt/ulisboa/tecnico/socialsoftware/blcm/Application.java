@@ -17,9 +17,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.config.StartUpService;
 @EnableJpaAuditing
 @SpringBootApplication
 @EnableScheduling
-@EnableRetry
 public class Application implements InitializingBean {
-
 	@Autowired
 	private StartUpService startUpService;
 

@@ -5,8 +5,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 import java.util.Set;
 

@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 
 import java.util.Optional;
 import java.util.Set;
@@ -31,4 +32,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer> {
 
     @Query(value = "select * from quizzes q where q.aggregate_id = :aggregateId AND state = 'ACTIVE' AND q.version >= (select max(version) from quizzes)", nativeQuery = true)
     Optional<Quiz> findLastQuestionVersion(Integer aggregateId);
+
+    @Query(value = "select * from quizzes q where q.aggregate_id = :aggregateId AND q.version = :versionId ", nativeQuery = true)
+    Optional<Quiz> findQuizVersionByAggregateIdAndVersionId(Integer aggregateId, Integer versionId);
 }

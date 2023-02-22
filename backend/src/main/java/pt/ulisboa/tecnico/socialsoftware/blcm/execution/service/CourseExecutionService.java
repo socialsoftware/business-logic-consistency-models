@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
@@ -18,7 +20,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.*;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -194,6 +195,15 @@ public class CourseExecutionService {
         unitOfWork.addEvent(new UpdateExecutionStudentNameEvent(executionAggregateId, userAggregateId, name));
     }
 
+    // EVENT DETECTION SUBSCRIPTIONS
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Set<EventSubscription> getEventSubscriptions(Integer aggregateId, Integer versionId, String eventType) {
+        CourseExecution courseExecution = courseExecutionRepository.findCourseExecutionVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
+        return courseExecution.getEventSubscriptionsByEventType(eventType);
+    }
 
     /************************************************ EVENT PROCESSING ************************************************/
 

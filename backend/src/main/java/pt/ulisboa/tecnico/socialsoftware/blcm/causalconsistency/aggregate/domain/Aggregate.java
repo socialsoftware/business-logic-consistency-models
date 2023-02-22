@@ -1,8 +1,10 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -11,47 +13,35 @@ import java.util.stream.Collectors;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
 import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
-//@MappedSuperclass
 @Entity
-@Embeddable
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Aggregate {
+    public enum AggregateState {
+        ACTIVE,
+        INACTIVE,
+        DELETED
+    }
 
     @Id
     @GeneratedValue
     private Integer id;
-
     @Column(name = "aggregate_id")
     private Integer aggregateId;
-
     @Column
     private Integer version;
-
     @Column(name = "creation_ts")
     private LocalDateTime creationTs;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private AggregateState state;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "aggregate_type")
     private AggregateType aggregateType;
-
     @ManyToOne
     private Aggregate prev;
 
     public void remove() {
         setState(DELETED);
-    }
-
-
-
-
-    public enum AggregateState {
-        ACTIVE,
-        INACTIVE,
-        DELETED
     }
 
     public Aggregate() {
@@ -72,7 +62,6 @@ public abstract class Aggregate {
         setState(other.getState());
         setPrev(other);
     }
-
 
     public abstract void verifyInvariants();
     public abstract Set<String> getFieldsChangedByFunctionalities();
@@ -143,12 +132,6 @@ public abstract class Aggregate {
         return getEventSubscriptions().stream()
                 .filter(es -> es.getEventType().equals(eventType))
                 .collect(Collectors.toSet());
-    }
-
-    public Optional<EventSubscription> getEventSubscriptionsByAggregateIdAndType(Integer aggregateId, String eventType) {
-        return getEventSubscriptions().stream()
-                .filter(es -> es.getSenderAggregateId().equals(aggregateId) && es.getEventType().equals(eventType))
-                .findAny();
     }
 
     public Aggregate merge(Aggregate other) {

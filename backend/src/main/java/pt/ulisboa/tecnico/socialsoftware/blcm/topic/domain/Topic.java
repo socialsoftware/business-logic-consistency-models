@@ -1,9 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,10 +18,8 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 @Entity
 @Table(name = "topics")
 public class Topic extends Aggregate {
-
     @Column
     private String name;
-
     @Embedded
     private TopicCourse course;
 

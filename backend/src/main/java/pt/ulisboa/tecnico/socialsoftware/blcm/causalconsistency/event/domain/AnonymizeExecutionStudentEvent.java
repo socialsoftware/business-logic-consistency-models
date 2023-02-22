@@ -1,6 +1,7 @@
-package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
 
 @Entity
 public class AnonymizeExecutionStudentEvent extends Event {

@@ -3,14 +3,13 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class AnswerUser {
     @Column(name = "user_aggregate_id")
     private final Integer aggregateId;
-
     @Column(name = "user_state")
     private Aggregate.AggregateState state;
 
@@ -31,7 +30,6 @@ public class AnswerUser {
     public Integer getAggregateId() {
         return aggregateId;
     }
-
 
     public Aggregate.AggregateState getState() {
         return state;
