@@ -42,7 +42,7 @@ public class QuizEventDetection {
     public void detectRemoveCourseExecutionEvents() {
         Set<Integer> aggregateIds = quizRepository.findAll().stream().map(Quiz::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : aggregateIds) {
-            Quiz quiz = quizRepository.findLastQuestionVersion(aggregateId).orElse(null);
+            Quiz quiz = quizRepository.findLastVersion(aggregateId).orElse(null);
             if (quiz == null) {
                 continue;
             }
@@ -66,7 +66,7 @@ public class QuizEventDetection {
     public void detectUpdateQuestionEvent() {
         Set<Integer> aggregateIds = quizRepository.findAll().stream().map(Quiz::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : aggregateIds) {
-            Quiz quiz = quizRepository.findLastQuestionVersion(aggregateId).orElse(null);
+            Quiz quiz = quizRepository.findLastVersion(aggregateId).orElse(null);
             if (quiz == null) {
                 continue;
             }
@@ -90,7 +90,7 @@ public class QuizEventDetection {
     public void detectRemoveQuestionEvent() {
         Set<Integer> aggregateIds = quizRepository.findAll().stream().map(Quiz::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : aggregateIds) {
-            Quiz quiz = quizRepository.findLastQuestionVersion(aggregateId).orElse(null);
+            Quiz quiz = quizRepository.findLastVersion(aggregateId).orElse(null);
             if (quiz == null) {
                 continue;
             }

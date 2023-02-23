@@ -34,7 +34,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUES
 
  */
 @Entity
-@Table(name = "answers")
 public class Answer extends Aggregate {
     private LocalDateTime creationDate;
     private LocalDateTime answerDate;

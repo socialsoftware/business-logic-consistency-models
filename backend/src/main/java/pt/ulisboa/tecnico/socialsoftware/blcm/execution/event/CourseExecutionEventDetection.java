@@ -36,7 +36,7 @@ public class CourseExecutionEventDetection {
     public void detectRemoveUserEvents() {
         Set<Integer> aggregateIds = courseExecutionRepository.findAll().stream().map(CourseExecution::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : aggregateIds) {
-            CourseExecution courseExecution = courseExecutionRepository.findLastQuestionVersion(aggregateId).orElse(null);
+            CourseExecution courseExecution = courseExecutionRepository.findLastVersion(aggregateId).orElse(null);
             if (courseExecution == null) {
                 continue;
             }

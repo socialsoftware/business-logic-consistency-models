@@ -47,14 +47,12 @@ public class CourseExecutionService {
         return new CourseExecutionDto(getCausalCourseExecutionLocal(executionAggregateId, unitOfWorkWorkService));
     }
 
-
-
     // intended for requests from local functionalities
     public CourseExecution getCausalCourseExecutionLocal(Integer aggregateId, UnitOfWork unitOfWork) {
         CourseExecution execution = courseExecutionRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, aggregateId));
 
-        if(execution.getState() == Aggregate.AggregateState.DELETED) {
+        if (execution.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(COURSE_EXECUTION_DELETED, execution.getAggregateId());
         }
 
@@ -79,9 +77,7 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<CourseExecutionDto> getAllCausalCourseExecutions(UnitOfWork unitOfWork) {
-        return courseExecutionRepository.findAllNonDeleted().stream()
-                .map(CourseExecution::getAggregateId)
-                .distinct()
+        return courseExecutionRepository.findAggregateIdsOfAllNonDeleted().stream()
                 .map(id -> getCausalCourseExecutionLocal(id, unitOfWork))
                 .map(CourseExecutionDto::new)
                 .collect(Collectors.toList());
@@ -201,7 +197,7 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Set<EventSubscription> getEventSubscriptions(Integer aggregateId, Integer versionId, String eventType) {
-        CourseExecution courseExecution = courseExecutionRepository.findCourseExecutionVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
+        CourseExecution courseExecution = courseExecutionRepository.findVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
         return courseExecution.getEventSubscriptionsByEventType(eventType);
     }
 

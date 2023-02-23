@@ -17,7 +17,6 @@ import java.util.Set;
     INTER_INVARIANTS:
  */
 @Entity
-@Table(name = "courses")
 public class Course extends Aggregate {
     /*
         COURSE_TYPE_FINAL

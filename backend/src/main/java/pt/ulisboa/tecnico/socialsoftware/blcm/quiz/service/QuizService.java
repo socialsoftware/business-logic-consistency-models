@@ -224,7 +224,7 @@ public class QuizService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Set<EventSubscription> getEventSubscriptions(Integer aggregateId, Integer versionId, String eventType) {
-        Quiz quiz = quizRepository.findQuizVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
+        Quiz quiz = quizRepository.findVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
         return quiz.getEventSubscriptionsByEventType(eventType);
     }
 

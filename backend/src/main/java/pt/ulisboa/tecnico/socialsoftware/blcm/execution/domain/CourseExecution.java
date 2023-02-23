@@ -30,7 +30,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
  */
 
 @Entity
-@Table(name = "course_executions")
 public class CourseExecution extends Aggregate {
     @Column
     private String acronym;

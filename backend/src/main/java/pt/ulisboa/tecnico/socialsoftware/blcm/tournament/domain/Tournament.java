@@ -57,7 +57,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
         QUIZ_ANSWER_EXISTS
  */
 @Entity
-@Table(name = "tournaments")
 public class Tournament extends Aggregate {
     private LocalDateTime startTime;
     private LocalDateTime endTime;

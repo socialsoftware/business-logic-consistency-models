@@ -12,7 +12,6 @@ public class Version {
     private Integer id;
 
     // represents the version of the last committed transaction in the system.
-    @Column(name = "version_number")
     private Integer versionNumber;
 
     public Version() {

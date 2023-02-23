@@ -88,7 +88,7 @@ public class UnitOfWorkService {
         Map<Integer, Aggregate> originalAggregatesToCommit = new HashMap<>(unitOfWork.getAggregatesToCommit());
 
         // may contain merged aggregates
-        // we do not want to compare intermediate merged aggregates with concurrent aggregate so we separate
+        // we do not want to compare intermediate merged aggregates with concurrent aggregate, so we separate
         // the comparison is always between the original written by the functionality and the concurrent
         Map<Integer, Aggregate> modifiedAggregatesToCommit = new HashMap<>(unitOfWork.getAggregatesToCommit());
 
@@ -96,14 +96,14 @@ public class UnitOfWorkService {
             concurrentAggregates = false;
             for (Integer aggregateId : originalAggregatesToCommit.keySet()) {
                 Aggregate aggregateToWrite = originalAggregatesToCommit.get(aggregateId);
-                if(aggregateToWrite.getPrev() != null && aggregateToWrite.getPrev().getState() == Aggregate.AggregateState.INACTIVE) {
+                if (aggregateToWrite.getPrev() != null && aggregateToWrite.getPrev().getState() == Aggregate.AggregateState.INACTIVE) {
                     throw new TutorException(CANNOT_MODIFY_INACTIVE_AGGREGATE, aggregateToWrite.getAggregateId());
                 }
                 aggregateToWrite.verifyInvariants();
-                Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite, unitOfWork.getVersion());
+                Aggregate concurrentAggregate = getConcurrentAggregate(aggregateToWrite);
                 // second condition is necessary for when a concurrent version is detected at first and then in the following detections it will have to do
                 // this verification in order to not detect the same as a version as concurrent again
-                if(concurrentAggregate != null && unitOfWork.getVersion() <= concurrentAggregate.getVersion()) {
+                if (concurrentAggregate != null && unitOfWork.getVersion() <= concurrentAggregate.getVersion()) {
                     concurrentAggregates = true;
                     Aggregate newAggregate = aggregateToWrite.merge(concurrentAggregate);
                     newAggregate.verifyInvariants();
@@ -148,11 +148,11 @@ public class UnitOfWorkService {
         });
     }
 
-    private Aggregate getConcurrentAggregate(Aggregate aggregate, Integer version) {
+    private Aggregate getConcurrentAggregate(Aggregate aggregate) {
         Aggregate concurrentAggregate;
 
         /* if the prev aggregate is null it means this is a creation functionality*/
-        if(aggregate.getPrev() == null) {
+        if (aggregate.getPrev() == null) {
             return null;
         }
 

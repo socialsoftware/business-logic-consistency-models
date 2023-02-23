@@ -15,21 +15,18 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface CourseExecutionRepository extends JpaRepository<CourseExecution, Integer> {
-    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version < :maxVersion AND ce.state != 'DELETED' AND ce.version >= (select max(version) from course_executions where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
-    Optional<CourseExecution> findCausal(Integer aggregateId, Integer maxVersion);
+    @Query(value = "select ce1 from CourseExecution ce1 where ce1.aggregateId = :aggregateId and ce1.state != 'DELETED' and ce1.version = (select max(ce2.version) from CourseExecution ce2 where ce2.aggregateId = :aggregateId AND ce2.version < :unitOfWorkVersion)")
+    Optional<CourseExecution> findCausal(Integer aggregateId, Integer unitOfWorkVersion);
 
-    @Query(value = "select * from course_executions where id = (select max(id) from course_executions where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
+    @Query(value = "select ce1 from CourseExecution ce1 where ce1.aggregateId = :aggregateId and ce1.version = (select max(ce2.version) from CourseExecution ce2 where ce2.aggregateId = :aggregateId AND ce2.version > :version)")
     Optional<CourseExecution> findConcurrentVersions(Integer aggregateId, Integer version);
 
-    @Query(value = "select * from course_executions ce where aggregate_id NOT IN (select aggregate_id from course_executions where state = 'DELETED')", nativeQuery = true)
-    Set<CourseExecution> findAllNonDeleted();
+    @Query(value = "select ce1 from CourseExecution ce1 where ce1.aggregateId = :aggregateId AND ce1.state = 'ACTIVE' AND ce1.version = (select max(ce2.version) from CourseExecution ce2)")
+    Optional<CourseExecution> findLastVersion(Integer aggregateId);
 
-    @Query(value = "select t.aggregate_id from course_executions ce, course_executions_studends ces where cr.aggregate_id NOT IN (select aggregate_id from course_executions where state = 'DELETED' OR state = 'INACTIVE') AND ((ce.id = ces.course_execution_id AND ces.user_aggregate_id = :userAggregateId)  OR (t.creator_aggregate_id = :userAggregateId))", nativeQuery = true)
-    Set<Integer> findAllAggregateIdsByUser(Integer userAggregateId);
+    @Query(value = "select ce from CourseExecution ce where ce.aggregateId = :aggregateId AND ce.version = :versionId")
+    Optional<CourseExecution> findVersionByAggregateIdAndVersionId(Integer aggregateId, Integer versionId);
 
-    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND state = 'ACTIVE' AND ce.version >= (select max(version) from course_executions)", nativeQuery = true)
-    Optional<CourseExecution> findLastQuestionVersion(Integer aggregateId);
-
-    @Query(value = "select * from course_executions ce where ce.aggregate_id = :aggregateId AND ce.version = :versionId ", nativeQuery = true)
-    Optional<CourseExecution> findCourseExecutionVersionByAggregateIdAndVersionId(Integer aggregateId, Integer versionId);
+    @Query(value = "select ce1.aggregateId from CourseExecution ce1 where ce1.aggregateId NOT IN (select ce2.aggregateId from CourseExecution ce2 where ce2.state = 'DELETED')")
+    Set<Integer> findAggregateIdsOfAllNonDeleted();
 }

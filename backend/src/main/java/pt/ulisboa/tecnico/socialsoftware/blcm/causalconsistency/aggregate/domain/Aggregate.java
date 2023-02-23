@@ -25,17 +25,13 @@ public abstract class Aggregate {
     @Id
     @GeneratedValue
     private Integer id;
-    @Column(name = "aggregate_id")
     private Integer aggregateId;
     @Column
     private Integer version;
-    @Column(name = "creation_ts")
     private LocalDateTime creationTs;
     @Enumerated(EnumType.STRING)
-    @Column(name = "state")
     private AggregateState state;
     @Enumerated(EnumType.STRING)
-    @Column(name = "aggregate_type")
     private AggregateType aggregateType;
     @ManyToOne
     private Aggregate prev;

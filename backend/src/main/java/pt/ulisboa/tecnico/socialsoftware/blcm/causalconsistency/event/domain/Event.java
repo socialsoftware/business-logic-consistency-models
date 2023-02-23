@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "events")
 public abstract class Event {
     @Id
     @GeneratedValue

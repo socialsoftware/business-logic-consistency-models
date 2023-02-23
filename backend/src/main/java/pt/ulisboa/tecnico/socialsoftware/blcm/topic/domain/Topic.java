@@ -16,7 +16,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
         COURSE-EXISTS (course doesnt send events)
  */
 @Entity
-@Table(name = "topics")
 public class Topic extends Aggregate {
     @Column
     private String name;

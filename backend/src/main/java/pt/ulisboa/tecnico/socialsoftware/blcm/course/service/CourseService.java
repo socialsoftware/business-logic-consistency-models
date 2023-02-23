@@ -80,7 +80,7 @@ public class CourseService {
     private Course getCausalCourseLocalByName(String courseName, UnitOfWork unitOfWork) {
         Course course = courseRepository.findCausalByName(courseName, unitOfWork.getVersion())
                 .orElse(null);
-        if(course != null) {
+        if (course != null) {
             List<Event> allEvents = eventRepository.findAll();
             unitOfWork.addToCausalSnapshot(course, allEvents);
         }

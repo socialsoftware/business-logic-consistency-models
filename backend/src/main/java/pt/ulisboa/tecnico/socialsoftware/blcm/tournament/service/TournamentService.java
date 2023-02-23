@@ -71,19 +71,6 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public List<TournamentDto> getAllCausalCourseExecutions(UnitOfWork unitOfWork) {
-        return tournamentRepository.findAllActive().stream()
-                .map(Tournament::getAggregateId)
-                .distinct()
-                .map(id -> getCausalTournamentLocal(id, unitOfWork))
-                .map(TournamentDto::new)
-                .collect(Collectors.toList());
-    }
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TournamentDto createTournament(TournamentDto tournamentDto, TournamentCreator creator,
                                           TournamentCourseExecution courseExecution, Set<TournamentTopic> topics,
                                           TournamentQuiz quiz, UnitOfWork unitOfWork) {
@@ -157,7 +144,7 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
-        return tournamentRepository.findAllAggregateIdsByCourseExecution(executionAggregateId).stream()
+        return tournamentRepository.findAllAggregateIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
                 .map(aggregateId -> getCausalTournamentLocal(aggregateId, unitOfWork))
                 .map(TournamentDto::new)
                 .collect(Collectors.toList());
@@ -170,7 +157,7 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
         LocalDateTime now = LocalDateTime.now();
-        return tournamentRepository.findAllAggregateIdsByCourseExecution(executionAggregateId).stream()
+        return tournamentRepository.findAllAggregateIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
                 .map(aggregateId -> getCausalTournamentLocal(aggregateId, unitOfWork))
                 .filter(t -> now.isBefore(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
@@ -184,7 +171,7 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getClosedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
         LocalDateTime now = LocalDateTime.now();
-        return tournamentRepository.findAllAggregateIdsByCourseExecution(executionAggregateId).stream()
+        return tournamentRepository.findAllAggregateIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
                 .map(aggregateId -> getCausalTournamentLocal(aggregateId, unitOfWork))
                 .filter(t -> now.isAfter(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
@@ -252,7 +239,7 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Set<EventSubscription> getEventSubscriptions(Integer aggregateId, Integer versionId, String eventType) {
-        Tournament tournament = tournamentRepository.findTournamentVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
+        Tournament tournament = tournamentRepository.findVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
         return tournament.getEventSubscriptionsByEventType(eventType);
     }
 

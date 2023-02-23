@@ -37,7 +37,7 @@ public class QuestionEventDetection {
         //System.out.println("Update Topic Detection");
         Set<Integer> aggregateIds = questionRepository.findAll().stream().map(Question::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : aggregateIds) {
-            Question question = questionRepository.findLastQuestionVersion(aggregateId).orElse(null);
+            Question question = questionRepository.findLastVersion(aggregateId).orElse(null);
             if (question == null) {
                 continue;
             }
@@ -63,7 +63,7 @@ public class QuestionEventDetection {
     public void detectDeleteTopicEvents() {
         Set<Integer> aggregateIds = questionRepository.findAll().stream().map(Question::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : aggregateIds) {
-            Question question = questionRepository.findLastQuestionVersion(aggregateId).orElse(null);
+            Question question = questionRepository.findLastVersion(aggregateId).orElse(null);
             if (question == null) {
                 continue;
             }

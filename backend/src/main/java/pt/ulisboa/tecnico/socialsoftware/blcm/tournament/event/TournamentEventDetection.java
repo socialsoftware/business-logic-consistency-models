@@ -48,7 +48,7 @@ public class TournamentEventDetection {
         //System.out.println("Anonymize Detection");
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Optional<Tournament> tournamentOp = tournamentRepository.findLastTournamentVersion(aggregateId);
+            Optional<Tournament> tournamentOp = tournamentRepository.findLastVersion(aggregateId);
             if (tournamentOp.isEmpty()) {
                 continue;
             }
@@ -78,7 +78,7 @@ public class TournamentEventDetection {
     public void detectRemoveCourseExecutionEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Optional<Tournament> tournamentOp = tournamentRepository.findLastTournamentVersion(aggregateId);
+            Optional<Tournament> tournamentOp = tournamentRepository.findLastVersion(aggregateId);
             if (tournamentOp.isEmpty()) {
                 continue;
             }
@@ -104,7 +104,7 @@ public class TournamentEventDetection {
     public void detectUpdateTopicEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
+            Tournament tournament = tournamentRepository.findLastVersion(aggregateId).orElse(null);
             if (tournament == null) {
                 continue;
             }
@@ -131,7 +131,7 @@ public class TournamentEventDetection {
     public void detectDeleteTopicEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
+            Tournament tournament = tournamentRepository.findLastVersion(aggregateId).orElse(null);
             if (tournament == null) {
                 continue;
             }
@@ -156,7 +156,7 @@ public class TournamentEventDetection {
     public void detectAnswerQuestionEvent() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
+            Tournament tournament = tournamentRepository.findLastVersion(aggregateId).orElse(null);
             if (tournament == null) {
                 continue;
             }
@@ -182,7 +182,7 @@ public class TournamentEventDetection {
     public void detectUnenrollStudentFromCourseExecutionEvents() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
+            Tournament tournament = tournamentRepository.findLastVersion(aggregateId).orElse(null);
             if (tournament == null) {
                 continue;
             }
@@ -207,7 +207,7 @@ public class TournamentEventDetection {
     public void detectInvalidateQuizEvent() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
+            Tournament tournament = tournamentRepository.findLastVersion(aggregateId).orElse(null);
             if (tournament == null) {
                 continue;
             }
@@ -228,7 +228,7 @@ public class TournamentEventDetection {
     public void detectUpdateExecutionStudentNameEvent() {
         Set<Integer> tournamentAggregateIds = tournamentRepository.findAll().stream().map(Tournament::getAggregateId).collect(Collectors.toSet());
         for (Integer aggregateId : tournamentAggregateIds) {
-            Tournament tournament = tournamentRepository.findLastTournamentVersion(aggregateId).orElse(null);
+            Tournament tournament = tournamentRepository.findLastVersion(aggregateId).orElse(null);
             if (tournament == null) {
                 continue;
             }

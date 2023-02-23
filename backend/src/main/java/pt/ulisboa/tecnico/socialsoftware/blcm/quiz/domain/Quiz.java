@@ -33,7 +33,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
         QUESTION_COURSE_EXECUTION_SAME_AS_COURSE_EXECUTION
  */
 @Entity
-@Table(name = "quizzes")
 public class Quiz extends Aggregate {
     /*
         CREATION_DATE_FINAL

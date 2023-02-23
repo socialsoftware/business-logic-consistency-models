@@ -24,7 +24,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
         COURSE_SAME_TOPIC_COURSE ()
  */
 @Entity
-@Table(name = "questions")
 public class Question extends Aggregate {
     @Column
     private String title;

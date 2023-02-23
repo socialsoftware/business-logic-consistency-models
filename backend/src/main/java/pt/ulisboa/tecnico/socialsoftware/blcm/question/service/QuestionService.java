@@ -154,7 +154,7 @@ public class QuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Set<EventSubscription> getEventSubscriptions(Integer aggregateId, Integer versionId, String eventType) {
-        Question question = questionRepository.findQuestionVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
+        Question question = questionRepository.findVersionByAggregateIdAndVersionId(aggregateId, versionId).get();
         return question.getEventSubscriptionsByEventType(eventType);
     }
 

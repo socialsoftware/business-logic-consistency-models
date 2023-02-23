@@ -11,12 +11,12 @@ import java.util.Optional;
 @Repository
 @Transactional
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    @Query(value = "select * from courses c where c.aggregate_id = :aggregateId AND c.version < :maxVersion AND c.state != 'DELETED' AND c.version >= (select max(version) from courses where aggregate_id = :aggregateId AND version < :maxVersion)", nativeQuery = true)
-    Optional<Course> findCausal(Integer aggregateId, Integer maxVersion);
+    @Query(value = "select c1 from Course c1 where c1.aggregateId = :aggregateId AND c1.state != 'DELETED' AND c1.version = (select max(c2.version) from Course c2 where c2.aggregateId = :aggregateId AND c2.version < :unitOfWorkVersion)")
+    Optional<Course> findCausal(Integer aggregateId, Integer unitOfWorkVersion);
 
-    @Query(value = "select * from courses where id = (select max(id) from courses where aggregate_id = :aggregateId AND version > :version)", nativeQuery = true)
+    @Query(value = "select c1 from Course c1 where c1.aggregateId = :aggregateId and c1.version = (select max(c2.version) from Course c2 where c2.aggregateId = :aggregateId AND c2.version > :version)")
     Optional<Course> findConcurrentVersions(Integer aggregateId, Integer version);
 
-    @Query(value = "select * from courses c where id = (select max(id) from courses where c.name = :courseName AND c.version > :version AND state = 'ACTIVE')", nativeQuery = true)
-    Optional<Course> findCausalByName(String courseName, Integer version);
+    @Query(value = "select c1 from Course c1 where c1.name = :courseName AND c1.state = 'ACTIVE' and c1.version = (select max(c2.version) from Course c2 where c2.name = :courseName AND c2.version < :unitOfWorkVersion)")
+    Optional<Course> findCausalByName(String courseName, Integer unitOfWorkVersion);
 }
