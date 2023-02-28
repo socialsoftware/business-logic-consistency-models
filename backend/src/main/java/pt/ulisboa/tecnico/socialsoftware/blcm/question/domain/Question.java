@@ -2,9 +2,9 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.subscribe.QuestionSubscribesDeleteTopic;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.subscribe.QuestionSubscribesUpdateTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
 import jakarta.persistence.*;
@@ -78,17 +78,17 @@ public class Question extends Aggregate {
     public Set<EventSubscription> getEventSubscriptions() {
         //return Set.of(UPDATE_TOPIC, DELETE_TOPIC);
         Set<EventSubscription> eventSubscriptions = new HashSet<>();
-        if(getState() == ACTIVE) {
-            for (QuestionTopic topic : this.topics) {
-                interInvariantTopicsExist(eventSubscriptions, topic);
-            }
+        if (getState() == ACTIVE) {
+            interInvariantTopicsExist(eventSubscriptions);
         }
         return eventSubscriptions;
     }
 
-    private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions, QuestionTopic topic) {
-        eventSubscriptions.add(new EventSubscription(topic.getTopicAggregateId(), topic.getTopicVersion(), DeleteTopicEvent.class.getSimpleName(), this));
-        eventSubscriptions.add(new EventSubscription(topic.getTopicAggregateId(), topic.getTopicVersion(), UpdateTopicEvent.class.getSimpleName(), this));
+    private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions) {
+        for (QuestionTopic topic : this.topics) {
+            eventSubscriptions.add(new QuestionSubscribesDeleteTopic(topic));
+            eventSubscriptions.add(new QuestionSubscribesUpdateTopic(topic));
+        }
     }
 
     @Override

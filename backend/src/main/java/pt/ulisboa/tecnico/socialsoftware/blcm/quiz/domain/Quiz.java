@@ -1,12 +1,15 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveQuestionEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.publish.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.publish.RemoveQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.publish.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event.subscribe.QuizSubscribesRemoveCourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event.subscribe.QuizSubscribesRemoveQuestion;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event.subscribe.QuizSubscribesUpdateQuestion;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import jakarta.persistence.*;
@@ -96,7 +99,7 @@ public class Quiz extends Aggregate {
 
     @Override
     public void verifyInvariants() {
-        if(!(invariantDateOrdering())) {
+        if (!(invariantDateOrdering())) {
             throw new TutorException(INVARIANT_BREAK, getAggregateId());
         }
     }
@@ -104,7 +107,7 @@ public class Quiz extends Aggregate {
     @Override
     public Set<EventSubscription> getEventSubscriptions() {
         Set<EventSubscription> eventSubscriptions = new HashSet<>();
-        if(getState() == ACTIVE) {
+        if (getState() == ACTIVE) {
             interInvariantCourseExecutionExists(eventSubscriptions);
             interInvariantQuestionsExist(eventSubscriptions);
         }
@@ -112,13 +115,13 @@ public class Quiz extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new EventSubscription(this.courseExecution.getCourseExecutionAggregateId(), this.courseExecution.getCourseExecutionVersion(), RemoveCourseExecutionEvent.class.getSimpleName(), this));
+        eventSubscriptions.add(new QuizSubscribesRemoveCourseExecution(this.getCourseExecution()));
     }
 
     private void interInvariantQuestionsExist(Set<EventSubscription> eventSubscriptions) {
         for (QuizQuestion quizQuestion : this.quizQuestions) {
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getQuestionAggregateId(), quizQuestion.getQuestionVersion(), UpdateQuestionEvent.class.getSimpleName(), this));
-            eventSubscriptions.add(new EventSubscription(quizQuestion.getQuestionAggregateId(), quizQuestion.getQuestionVersion(), RemoveQuestionEvent.class.getSimpleName(), this));
+            eventSubscriptions.add(new QuizSubscribesUpdateQuestion(quizQuestion));
+            eventSubscriptions.add(new QuizSubscribesRemoveQuestion(quizQuestion));
         }
     }
 

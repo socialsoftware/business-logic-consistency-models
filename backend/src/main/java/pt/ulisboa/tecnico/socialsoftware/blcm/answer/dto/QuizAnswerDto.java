@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.Answer;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.QuizAnswer;
 
 import java.io.Serializable;
 
@@ -13,19 +13,22 @@ public class QuizAnswerDto implements Serializable {
 
     private boolean completed;
 
-    private Integer userAggregateId;
+    private Integer studentAggregateId;
+
+    private String studentName;
 
     private Integer quizAggregateId;
 
     //private List<QuestionAnswer> questionAnswers;
 
-    public QuizAnswerDto(Answer answer) {
-        setAggregateId(answer.getAggregateId());
-        setVersion(answer.getVersion());
-        setAnswerDate(answer.getCreationDate().toString());
-        setCompleted(answer.isCompleted());
-        setUserAggregateId(answer.getUser().getUserAggregateId());
-        setQuizAggregateId(answer.getQuiz().getQuizAggregateId());
+    public QuizAnswerDto(QuizAnswer quizAnswer) {
+        setAggregateId(quizAnswer.getAggregateId());
+        setVersion(quizAnswer.getVersion());
+        setAnswerDate(quizAnswer.getCreationDate().toString());
+        setCompleted(quizAnswer.isCompleted());
+        setStudentAggregateId(quizAnswer.getStudent().getStudentAggregateId());
+        setStudentName(quizAnswer.getStudent().getName());
+        setQuizAggregateId(quizAnswer.getQuiz().getQuizAggregateId());
     }
 
     public Integer getAggregateId() {
@@ -60,12 +63,20 @@ public class QuizAnswerDto implements Serializable {
         this.completed = completed;
     }
 
-    public Integer getUserAggregateId() {
-        return userAggregateId;
+    public Integer getStudentAggregateId() {
+        return studentAggregateId;
     }
 
-    public void setUserAggregateId(Integer userAggregateId) {
-        this.userAggregateId = userAggregateId;
+    public void setStudentAggregateId(Integer studentAggregateId) {
+        this.studentAggregateId = studentAggregateId;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
     }
 
     public Integer getQuizAggregateId() {

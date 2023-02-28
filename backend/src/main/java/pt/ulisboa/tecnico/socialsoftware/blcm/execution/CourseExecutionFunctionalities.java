@@ -2,8 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.publish.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
@@ -110,16 +110,5 @@ public class CourseExecutionFunctionalities {
         }
 
     }
-
-    /************************************************ EVENT PROCESSING ************************************************/
-
-    public void processRemoveUser(Integer aggregateId, Event eventToProcess) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        System.out.printf("Processing remove user %d event for course execution %d\n", eventToProcess.getAggregateId(), aggregateId);
-        RemoveUserEvent removeUserEvent = (RemoveUserEvent) eventToProcess;
-        courseExecutionService.removeUser(aggregateId, removeUserEvent.getAggregateId(), removeUserEvent.getAggregateVersion(), unitOfWork);
-        unitOfWorkService.commit(unitOfWork);
-    }
-
 
 }

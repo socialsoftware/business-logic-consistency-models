@@ -14,7 +14,7 @@ public class TournamentParticipant {
     private String participantUsername;
     private LocalDateTime enrollTime;
     @Embedded
-    private TournamentParticipantAnswer participantAnswer;
+    private TournamentParticipantQuizAnswer participantAnswer;
     private Integer participantVersion;
     @Enumerated(EnumType.STRING)
     private AggregateState state;
@@ -28,7 +28,7 @@ public class TournamentParticipant {
         setParticipantName(userDto.getName());
         setParticipantUsername(userDto.getUsername());
         setParticipantVersion(userDto.getVersion());
-        setParticipantAnswer(new TournamentParticipantAnswer());
+        setParticipantAnswer(new TournamentParticipantQuizAnswer());
         setEnrollTime(LocalDateTime.now());
         setState(AggregateState.ACTIVE);
     }
@@ -38,7 +38,7 @@ public class TournamentParticipant {
         setParticipantName(other.getParticipantName());
         setParticipantUsername(other.getParticipantUsername());
         setParticipantVersion(other.getParticipantVersion());
-        setParticipantAnswer(new TournamentParticipantAnswer(other.getParticipantAnswer()));
+        setParticipantAnswer(new TournamentParticipantQuizAnswer(other.getParticipantAnswer()));
         setEnrollTime(other.getEnrollTime());
         setState(other.getState());
     }
@@ -80,11 +80,11 @@ public class TournamentParticipant {
         this.enrollTime = enrollTime;
     }
 
-    public TournamentParticipantAnswer getParticipantAnswer() {
+    public TournamentParticipantQuizAnswer getParticipantAnswer() {
         return participantAnswer;
     }
 
-    public void setParticipantAnswer(TournamentParticipantAnswer participantAnswer) {
+    public void setParticipantAnswer(TournamentParticipantQuizAnswer participantAnswer) {
 
         this.participantAnswer = participantAnswer;
     }
@@ -105,13 +105,8 @@ public class TournamentParticipant {
         this.state = state;
     }
 
-    public void updateAnswerWithQuestion(Integer answerAggregateId, boolean isCorrect, Integer eventVersion) {
-        getParticipantAnswer().setAnswerAggregateId(answerAggregateId);
-        getParticipantAnswer().incrementAnswered();
-        if (isCorrect) {
-            getParticipantAnswer().incrementCorrect();
-        }
-        getParticipantAnswer().setAnswerVersion(eventVersion);
+    public void updateAnswerWithQuestion(Integer quizAnswerAggregateId, Integer questionAnswerAggregateId, boolean isCorrect, Integer version) {
+        this.participantAnswer.updateAnswerWithQuestion(quizAnswerAggregateId, questionAnswerAggregateId, isCorrect, version);
     }
 
     public UserDto buildDto() {
@@ -120,6 +115,7 @@ public class TournamentParticipant {
         userDto.setVersion(getParticipantVersion());
         userDto.setName(getParticipantName());
         userDto.setUsername(getParticipantUsername());
+        userDto.setAnswerAggregateId(getParticipantAnswer().getQuizAnswerAggregateId());
         userDto.setNumberAnswered(getParticipantAnswer().getNumberOfAnswered());
         userDto.setNumberCorrect(getParticipantAnswer().getNumberOfCorrect());
         return userDto;
@@ -140,7 +136,7 @@ public class TournamentParticipant {
                         tp2.setParticipantName(tp1.getParticipantName());
                         tp2.setParticipantUsername(tp1.getParticipantUsername());
                         if (tp1.getParticipantAnswer() != null) {
-                            tp2.setParticipantAnswer(new TournamentParticipantAnswer(tp1.getParticipantAnswer()));
+                            tp2.setParticipantAnswer(new TournamentParticipantQuizAnswer(tp1.getParticipantAnswer()));
                         }
                     }
 
@@ -149,7 +145,7 @@ public class TournamentParticipant {
                         tp1.setParticipantName(tp2.getParticipantName());
                         tp1.setParticipantUsername(tp2.getParticipantUsername());
                         if (tp2.getParticipantAnswer() != null) {
-                            tp1.setParticipantAnswer(new TournamentParticipantAnswer(tp2.getParticipantAnswer()));
+                            tp1.setParticipantAnswer(new TournamentParticipantQuizAnswer(tp2.getParticipantAnswer()));
                         }
                     }
                 }
@@ -163,7 +159,7 @@ public class TournamentParticipant {
                         prevParticipant.setParticipantName(tp1.getParticipantName());
                         prevParticipant.setParticipantUsername(tp1.getParticipantUsername());
                         if (tp1.getParticipantAnswer() != null) {
-                            prevParticipant.setParticipantAnswer(new TournamentParticipantAnswer(tp1.getParticipantAnswer()));
+                            prevParticipant.setParticipantAnswer(new TournamentParticipantQuizAnswer(tp1.getParticipantAnswer()));
                         }
                     }
 
@@ -172,7 +168,7 @@ public class TournamentParticipant {
                         tp1.setParticipantName(prevParticipant.getParticipantName());
                         tp1.setParticipantUsername(prevParticipant.getParticipantUsername());
                         if (prevParticipant.getParticipantAnswer() != null) {
-                            tp1.setParticipantAnswer(new TournamentParticipantAnswer(prevParticipant.getParticipantAnswer()));
+                            tp1.setParticipantAnswer(new TournamentParticipantQuizAnswer(prevParticipant.getParticipantAnswer()));
                         }
                     }
                 }

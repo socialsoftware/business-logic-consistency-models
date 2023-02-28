@@ -8,10 +8,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.UpdateTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.event.publish.DeleteTopicEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.event.publish.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain.Topic;
@@ -96,7 +96,7 @@ public class TopicService {
         Topic newTopic = new Topic(oldTopic);
         newTopic.setName(topicDto.getName());
         unitOfWork.registerChanged(newTopic);
-        unitOfWork.addEvent(new UpdateTopicEvent(newTopic));
+        unitOfWork.addEvent(new UpdateTopicEvent(newTopic.getAggregateId(), newTopic.getName()));
     }
 
     @Retryable(
@@ -108,6 +108,6 @@ public class TopicService {
         Topic newTopic = new Topic(oldTopic);
         newTopic.remove();
         unitOfWork.registerChanged(newTopic);
-        unitOfWork.addEvent(new DeleteTopicEvent(newTopic));
+        unitOfWork.addEvent(new DeleteTopicEvent(newTopic.getAggregateId()));
     }
 }

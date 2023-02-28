@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.Event;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import java.util.*;
@@ -83,10 +83,10 @@ public class UnitOfWork {
         for (EventSubscription es : aggregate.getEventSubscriptions()) {
             for (Aggregate snapshotAggregate : this.causalSnapshot.values()) {
                 List<Event> snapshotAggregateEmittedEvents = allEvents.stream()
-                        .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
+                        .filter(e -> e.getPublisherAggregateId().equals(snapshotAggregate.getAggregateId()))
                         .filter(e -> e.getClass().getSimpleName().equals(es.getEventType()))
-                        .filter(e -> e.getAggregateVersion() <= snapshotAggregate.getVersion())
-                        .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
+                        .filter(e -> e.getPublisherAggregateVersion() <= snapshotAggregate.getVersion())
+                        .filter(e -> e.getPublisherAggregateVersion() > es.getSubscribedVersion())
                         .collect(Collectors.toList());
                 // snapshotAggregateEmittedEvents is a list of emitted events of the same type of the current sub emitted
                 // by the current snapshot aggregate emitted after the version of the current subscription
@@ -105,10 +105,10 @@ public class UnitOfWork {
         for (Aggregate snapshotAggregate : this.causalSnapshot.values()) {
             for (EventSubscription es : snapshotAggregate.getEventSubscriptions()) {
                 List<Event> aggregateEmittedEvents = allEvents.stream()
-                        .filter(e -> e.getAggregateId().equals(snapshotAggregate.getAggregateId()))
+                        .filter(e -> e.getPublisherAggregateId().equals(snapshotAggregate.getAggregateId()))
                         .filter(e -> e.getClass().getSimpleName().equals(es.getEventType()))
-                        .filter(e -> e.getAggregateVersion() <= snapshotAggregate.getVersion())
-                        .filter(e -> e.getAggregateVersion() > es.getSenderLastVersion())
+                        .filter(e -> e.getPublisherAggregateVersion() <= snapshotAggregate.getVersion())
+                        .filter(e -> e.getPublisherAggregateVersion() > es.getSubscribedVersion())
                         .collect(Collectors.toList());
                 for (Event snapshotAggregateEmittedEvent : aggregateEmittedEvents) {
                     if (es.subscribesEvent(snapshotAggregateEmittedEvent)) {
@@ -125,13 +125,13 @@ public class UnitOfWork {
             for(EventSubscription es1 : aggregateEventSubscriptions) {
                 for (EventSubscription es2 : snapshotAggregate.getEventSubscriptions()) {
                     // if they correspond to the same aggregate and type
-                    if (es1.getSenderAggregateId().equals(es2.getSenderAggregateId()) && es1.getEventType().equals(es2.getEventType())) {
-                        Integer minVersion = Math.min(es1.getSenderLastVersion(), es2.getSenderLastVersion());
-                        Integer maxVersion = Math.max(es1.getSenderLastVersion(), es2.getSenderLastVersion());
+                    if (es1.getSubscribedAggregateId().equals(es2.getSubscribedAggregateId()) && es1.getEventType().equals(es2.getEventType())) {
+                        Integer minVersion = Math.min(es1.getSubscribedVersion(), es2.getSubscribedVersion());
+                        Integer maxVersion = Math.max(es1.getSubscribedVersion(), es2.getSubscribedVersion());
                         List<Event> eventsBetweenAggregates = allEvents.stream()
-                                .filter(event -> event.getAggregateId().equals(es1.getSenderAggregateId()))
+                                .filter(event -> event.getPublisherAggregateId().equals(es1.getSubscribedAggregateId()))
                                 .filter(event -> event.getClass().getSimpleName().equals(es1.getEventType()))
-                                .filter(event -> minVersion < event.getAggregateVersion() && event.getAggregateVersion() <= maxVersion)
+                                .filter(event -> minVersion < event.getPublisherAggregateVersion() && event.getPublisherAggregateVersion() <= maxVersion)
                                 .collect(Collectors.toList());
                         for (Event eventBetweenAggregates : eventsBetweenAggregates) {
                             if(es1.subscribesEvent(eventBetweenAggregates) && es2.subscribesEvent(eventBetweenAggregates)) {

@@ -7,7 +7,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentCourseExecution
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentCreator
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipantAnswer
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipantQuizAnswer
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentQuiz
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic
 import pt.ulisboa.tecnico.socialsoftware.blcm.SpockTest
@@ -136,15 +136,15 @@ class MergeUnitTest extends SpockTest {
         def ansNoAnswered2 = 4
         def ansNoCorrect2 = 4
 
-        def answer1 = new TournamentParticipantAnswer()
-        answer1.setAnswerAggregateId(ansId1)
-        answer1.setAnswerVersion(ansVer1)
+        def answer1 = new TournamentParticipantQuizAnswer()
+        answer1.setQuizAnswerAggregateId(ansId1)
+        answer1.setQuizAnswerVersion(ansVer1)
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
-        def answer1Committed = new TournamentParticipantAnswer()
-        answer1Committed.setAnswerAggregateId(ansId1)
-        answer1Committed.setAnswerVersion(ansVer2)
+        def answer1Committed = new TournamentParticipantQuizAnswer()
+        answer1Committed.setQuizAnswerAggregateId(ansId1)
+        answer1Committed.setQuizAnswerVersion(ansVer2)
         answer1Committed.setNumberOfAnswered(ansNoAnswered2)
         answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
@@ -421,15 +421,15 @@ class MergeUnitTest extends SpockTest {
         def ansNoAnswered2 = 4
         def ansNoCorrect2 = 4
 
-        def answer1 = new TournamentParticipantAnswer()
-        answer1.setAnswerAggregateId(ansId1)
-        answer1.setAnswerVersion(ansVer1)
+        def answer1 = new TournamentParticipantQuizAnswer()
+        answer1.setQuizAnswerAggregateId(ansId1)
+        answer1.setQuizAnswerVersion(ansVer1)
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
-        def answer1Committed = new TournamentParticipantAnswer()
-        answer1Committed.setAnswerAggregateId(ansId1)
-        answer1Committed.setAnswerVersion(ansVer2)
+        def answer1Committed = new TournamentParticipantQuizAnswer()
+        answer1Committed.setQuizAnswerAggregateId(ansId1)
+        answer1Committed.setQuizAnswerVersion(ansVer2)
         answer1Committed.setNumberOfAnswered(ansNoAnswered2)
         answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 
@@ -476,15 +476,15 @@ class MergeUnitTest extends SpockTest {
         def ansNoAnswered2 = 4
         def ansNoCorrect2 = 4
 
-        def answer1 = new TournamentParticipantAnswer()
-        answer1.setAnswerAggregateId(ansId1)
-        answer1.setAnswerVersion(ansVer1)
+        def answer1 = new TournamentParticipantQuizAnswer()
+        answer1.setQuizAnswerAggregateId(ansId1)
+        answer1.setQuizAnswerVersion(ansVer1)
         answer1.setNumberOfAnswered(ansNoAnswered1)
         answer1.setNumberOfCorrect(ansNoCorrect1)
 
-        def answer1Committed = new TournamentParticipantAnswer()
-        answer1Committed.setAnswerAggregateId(ansId1)
-        answer1Committed.setAnswerVersion(ansVer2)
+        def answer1Committed = new TournamentParticipantQuizAnswer()
+        answer1Committed.setQuizAnswerAggregateId(ansId1)
+        answer1Committed.setQuizAnswerVersion(ansVer2)
         answer1Committed.setNumberOfAnswered(ansNoAnswered2)
         answer1Committed.setNumberOfCorrect(ansNoCorrect2)
 

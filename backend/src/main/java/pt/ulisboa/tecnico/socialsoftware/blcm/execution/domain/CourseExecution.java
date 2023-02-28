@@ -2,8 +2,9 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.domain.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.subscribe.CourseExecutionSubscribesRemoveUser;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.publish.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
@@ -69,16 +70,16 @@ public class CourseExecution extends Aggregate {
     @Override
     public Set<EventSubscription> getEventSubscriptions() {
         Set<EventSubscription> eventSubscriptions = new HashSet<>();
-        if(getState() == ACTIVE) {
-            for (ExecutionStudent student : this.students) {
-                interInvariantUsersExist(eventSubscriptions, student);
-            }
+        if (getState() == ACTIVE) {
+            interInvariantUsersExist(eventSubscriptions);
         }
         return eventSubscriptions;
     }
 
-    private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions, ExecutionStudent student) {
-        eventSubscriptions.add(new EventSubscription(student.getUserAggregateId(), student.getUserVersion(), RemoveUserEvent.class.getSimpleName(), this));
+    private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions) {
+        for (ExecutionStudent student : this.students) {
+            eventSubscriptions.add(new CourseExecutionSubscribesRemoveUser(student));
+        }
     }
 
     @Override

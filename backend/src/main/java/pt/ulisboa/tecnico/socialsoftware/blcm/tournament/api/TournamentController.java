@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventDetection;
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventHandling;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 
@@ -22,7 +22,7 @@ public class TournamentController {
     private TournamentFunctionalities tournamentFunctionalities;
 
     @Autowired
-    private TournamentEventDetection tournamentEventDetection;
+    private TournamentEventHandling tournamentEventHandling;
 
     @PostMapping(value = "/executions/{executionId}/tournaments/create")
     public TournamentDto createTournament(@RequestParam Integer userId, @PathVariable int executionId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
@@ -85,14 +85,14 @@ public class TournamentController {
     @PostMapping(value = "/tournament/process/anonymize")
     public void processAnonymize() {
         System.out.println("Direct anonymize");
-        tournamentEventDetection.detectAnonymizeStudentEvents();
+        tournamentEventHandling.handleAnonymizeStudentEvents();
     }
 
 
     @PostMapping(value = "/tournament/process/updateExecutionStudentName")
     public void processUpdateExecutionName() {
         System.out.println("Direct updateExecutionName");
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent();
+        tournamentEventHandling.handleUpdateExecutionStudentNameEvent();
     }
 
 }

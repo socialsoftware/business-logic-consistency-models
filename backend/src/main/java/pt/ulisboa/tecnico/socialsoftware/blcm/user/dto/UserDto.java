@@ -7,21 +7,14 @@ import java.io.Serializable;
 
 public class UserDto implements Serializable {
     private Integer aggregateId;
-
     private String name;
-
     private String username;
-
     private String role;
-
     private boolean active;
-
     private Integer version;
-
+    private Integer answerAggregateId;
     private Integer numberAnswered;
-
     private Integer numberCorrect;
-
     private String state;
 
     public UserDto() {
@@ -88,6 +81,14 @@ public class UserDto implements Serializable {
 
     public Integer getNumberAnswered() {
         return numberAnswered;
+    }
+
+    public Integer getAnswerAggregateId() {
+        return answerAggregateId;
+    }
+
+    public void setAnswerAggregateId(Integer answerAggregateId) {
+        this.answerAggregateId = answerAggregateId;
     }
 
     public void setNumberAnswered(Integer numberAnswered) {

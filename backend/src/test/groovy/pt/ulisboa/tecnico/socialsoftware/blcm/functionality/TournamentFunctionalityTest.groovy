@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import pt.ulisboa.tecnico.socialsoftware.blcm.BeanConfiguration
 import pt.ulisboa.tecnico.socialsoftware.blcm.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.VersionService
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities
@@ -19,7 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.topic.TopicFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventDetection
+import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventHandling
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.UserFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler
@@ -45,7 +45,7 @@ class TournamentFunctionalityTest extends SpockTest {
     private VersionService versionService;
 
     @Autowired
-    private TournamentEventDetection tournamentEventDetection
+    private TournamentEventHandling tournamentEventDetection
 
     private CourseExecutionDto courseExecutionDto
     private UserDto userCreatorDto, userDto
@@ -165,7 +165,7 @@ class TournamentFunctionalityTest extends SpockTest {
         courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
 
         when: 'update name event is processed'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent();
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent();
 
         then: 'the name is updated in course execution'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
@@ -186,7 +186,7 @@ class TournamentFunctionalityTest extends SpockTest {
         courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
 
         when: 'update name event is processed such that the participant is updated in tournament'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent();
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent();
 
         then: 'the name is updated in course execution'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
@@ -202,14 +202,14 @@ class TournamentFunctionalityTest extends SpockTest {
         updateNameDto.setName(UPDATED_NAME)
         courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
         and: 'try to process update name event but there are no subscribers'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent();
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent();
         and: 'the version number is decreased to simulate concurrency'
         versionService.decrementVersionNumber()
         and: 'student is added to tournament but uses the version without update'
         tournamentFunctionalities.addParticipant(tournamentDto.getAggregateId(), userDto.getAggregateId())
 
         when: 'update name event is processed such that the participant is updated in tournament'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent();
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent();
 
         then: 'the name is updated in course execution'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
@@ -234,7 +234,7 @@ class TournamentFunctionalityTest extends SpockTest {
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED
         and: 'when event is finally processed it updates the creator name'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent()
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent()
         and: 'creator can be added as participant because tournament has processed all events it subscribes from course execution'
         tournamentFunctionalities.addParticipant(tournamentDto.getAggregateId(), userCreatorDto.getAggregateId())
         and: 'the name is updated in course execution'
@@ -257,7 +257,7 @@ class TournamentFunctionalityTest extends SpockTest {
         courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
 
         when: 'when event is processed it updates the creator name'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent()
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent()
 
         then: 'the name is update and the creator is a participant'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
@@ -276,7 +276,7 @@ class TournamentFunctionalityTest extends SpockTest {
         updateNameDto.setName(UPDATED_NAME)
         courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
         and: 'process update name event which updates the name of the creator in the tournament'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent();
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent();
         and: 'the version number is decreased to simulate concurrency'
         versionService.decrementVersionNumber()
 
@@ -313,7 +313,7 @@ class TournamentFunctionalityTest extends SpockTest {
 
         when: 'process update name in the tournament that does not have participant, so only the creator is updated, and' +
                 'when merging with the tournament that has participant, creator and participant have different names'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent()
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent()
 
         then: 'fails because invariant about same info for creator and participant, if the creator, breaks'
         def error = thrown(TutorException)
@@ -321,7 +321,7 @@ class TournamentFunctionalityTest extends SpockTest {
         and: 'reset version number because due to failure it stills in the previous version'
         versionService.incrementAndGetVersionNumber()
         and: 'process update name event using tournament version that has the creator and the participant'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent();
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent();
         and: 'the name is updated in course execution'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
         courseExecutionDtoResult.getStudents().find{it.aggregateId == userCreatorDto.aggregateId}.name == UPDATED_NAME
@@ -344,7 +344,7 @@ class TournamentFunctionalityTest extends SpockTest {
         courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
 
         when: 'the event is processed'
-        tournamentEventDetection.detectUpdateExecutionStudentNameEvent()
+        tournamentEventDetection.handleUpdateExecutionStudentNameEvent()
 
         then: 'the name is updated in course execution'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
@@ -363,7 +363,7 @@ class TournamentFunctionalityTest extends SpockTest {
         given: 'anonymize creator'
         courseExecutionFunctionalities.anonymizeStudent(courseExecutionDto.aggregateId, userCreatorDto.aggregateId)
         and: 'tournament processes event to anonymize the creator'
-        tournamentEventDetection.detectAnonymizeStudentEvents()
+        tournamentEventDetection.handleAnonymizeStudentEvents()
 
         when: 'a student is added to a tournament'
         tournamentFunctionalities.addParticipant(tournamentDto.getAggregateId(), userDto.getAggregateId())
@@ -396,7 +396,7 @@ class TournamentFunctionalityTest extends SpockTest {
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED
         and: 'tournament processes event to anonymize the creator'
-        tournamentEventDetection.detectAnonymizeStudentEvents()
+        tournamentEventDetection.handleAnonymizeStudentEvents()
         and: 'creator is anonymized'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
         courseExecutionDtoResult.getStudents().find{it.aggregateId == userCreatorDto.aggregateId}.name == ANONYMOUS
@@ -414,7 +414,7 @@ class TournamentFunctionalityTest extends SpockTest {
         given: 'anonymize creator'
         courseExecutionFunctionalities.anonymizeStudent(courseExecutionDto.aggregateId, userCreatorDto.aggregateId)
         and: 'tournament processes event to anonymize the creator'
-        tournamentEventDetection.detectAnonymizeStudentEvents()
+        tournamentEventDetection.handleAnonymizeStudentEvents()
         and: 'the version number is decreased to simulate concurrency'
         versionService.decrementVersionNumber()
 

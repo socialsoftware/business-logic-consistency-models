@@ -6,12 +6,12 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.repository.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.service.VersionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.VersionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.AnswerRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.QuizAnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.repository.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
@@ -30,37 +30,26 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class UnitOfWorkService {
-
     @Autowired
     private EntityManager entityManager;
-
     @Autowired
     private TournamentRepository tournamentRepository;
-
     @Autowired
     private QuizRepository quizRepository;
-
     @Autowired
     private CourseExecutionRepository courseExecutionRepository;
-
     @Autowired
     private CourseRepository courseRepository;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private TopicRepository topicRepository;
-
     @Autowired
     private QuestionRepository questionRepository;
-
     @Autowired
-    private AnswerRepository answerRepository;
-
+    private QuizAnswerRepository quizAnswerRepository;
     @Autowired
     private VersionService versionService;
-
     @Autowired
     private EventRepository eventRepository;
 
@@ -129,7 +118,7 @@ public class UnitOfWorkService {
         commitAllObjects(commitVersion, modifiedAggregatesToCommit);
         unitOfWork.getEventsToEmit().forEach(e -> {
             /* this is so event detectors can compare this version to those of running transactions */
-            e.setAggregateVersion(commitVersion);
+            e.setPublisherAggregateVersion(commitVersion);
             eventRepository.save(e);
         });
     }
@@ -186,7 +175,7 @@ public class UnitOfWorkService {
                         .orElse(null);
                 break;
             case ANSWER:
-                concurrentAggregate = answerRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
+                concurrentAggregate = quizAnswerRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
                         .orElse(null);
                 break;
             default:

@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.dto.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
 import jakarta.persistence.*;
