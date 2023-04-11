@@ -18,7 +18,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
         ROLE IS FINAL
         DELETED_STATE
     INTER_INVARIANTS:
-
  */
 @Entity
 @Table(name = "users")
@@ -59,7 +58,7 @@ public class User extends Aggregate {
         DELETED_STATE
      */
     public boolean deletedState() {
-        if(getState() == AggregateState.DELETED) {
+        if (getState() == AggregateState.DELETED) {
             return !isActive();
         }
         return true;
@@ -67,13 +66,13 @@ public class User extends Aggregate {
 
     @Override
     public void verifyInvariants() {
-        if(!(deletedState())) {
+        if (!(deletedState())) {
             throw new TutorException(INVARIANT_BREAK, getAggregateId());
         }
     }
 
     public void remove() {
-        if(isActive()) {
+        if (isActive()) {
             throw new TutorException(USER_ACTIVE, this.getAggregateId());
         }
         setState(AggregateState.DELETED);
@@ -125,6 +124,5 @@ public class User extends Aggregate {
     public Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields) {
         return this;
     }
-
 
 }

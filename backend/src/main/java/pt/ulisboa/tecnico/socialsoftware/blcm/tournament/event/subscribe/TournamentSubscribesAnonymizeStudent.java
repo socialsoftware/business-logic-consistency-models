@@ -27,7 +27,7 @@ public class TournamentSubscribesAnonymizeStudent extends EventSubscription {
             return true;
         }
 
-        for (UserDto tournamentParticipant : tournamentDto.getParticipants()) {
+        for (UserDto tournamentParticipant: tournamentDto.getParticipants()) {
             if (tournamentParticipant.getAggregateId().equals(anonymizeStudentEvent.getStudentAggregateId())) {
                 return true;
             }

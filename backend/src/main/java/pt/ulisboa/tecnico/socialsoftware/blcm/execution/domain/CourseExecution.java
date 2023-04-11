@@ -175,14 +175,14 @@ public class CourseExecution extends Aggregate {
         REMOVE_NO_STUDENTS
      */
     public boolean removedNoStudents() {
-        if(getState() == AggregateState.DELETED) {
+        if (getState() == AggregateState.DELETED) {
             return getStudents().size() == 0;
         }
         return true;
     }
 
     public boolean allStudentsAreActive() {
-        for(ExecutionStudent student : getStudents()) {
+        for (ExecutionStudent student : getStudents()) {
             if(!student.isActive()) {
                 return false;
             }
@@ -192,7 +192,7 @@ public class CourseExecution extends Aggregate {
 
     @Override
     public void verifyInvariants() {
-        if(!(removedNoStudents() && allStudentsAreActive())) {
+        if (!(removedNoStudents() && allStudentsAreActive())) {
             throw new TutorException(ErrorMessage.INVARIANT_BREAK, getAggregateId());
         }
     }
@@ -202,7 +202,7 @@ public class CourseExecution extends Aggregate {
         /*
             CANNOT_REMOVE_IF_STUDENTS
          */
-        if(getStudents().size() > 0) {
+        if (getStudents().size() > 0) {
             super.remove();
         } else {
             throw new TutorException(ErrorMessage.CANNOT_DELETE_COURSE_EXECUTION, getAggregateId());
@@ -213,7 +213,7 @@ public class CourseExecution extends Aggregate {
     @Override
     public void setVersion(Integer version) {
         // if the course version is null, it means it that we're creating during this transaction
-        if(this.course.getCourseVersion() == null) {
+        if (this.course.getCourseVersion() == null) {
             this.course.setCourseVersion(version);
         }
         super.setVersion(version);
@@ -229,8 +229,8 @@ public class CourseExecution extends Aggregate {
     }
 
     public ExecutionStudent findStudent(Integer userAggregateId) {
-        for(ExecutionStudent student : this.students) {
-            if(student.getUserAggregateId().equals(userAggregateId)) {
+        for (ExecutionStudent student : this.students) {
+            if (student.getUserAggregateId().equals(userAggregateId)) {
                 return student;
             }
         }
@@ -242,8 +242,8 @@ public class CourseExecution extends Aggregate {
         if (!hasStudent(userAggregateId)) {
             throw new TutorException(ErrorMessage.COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, getAggregateId());
         }
-        for(ExecutionStudent student : this.students) {
-            if(student.getUserAggregateId().equals(userAggregateId)) {
+        for (ExecutionStudent student : this.students) {
+            if (student.getUserAggregateId().equals(userAggregateId)) {
                 studentToRemove = student;
             }
         }

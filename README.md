@@ -1,17 +1,40 @@
 # Business Logic Consistency Models
 
-## Technology Requirements
+## Run Using Docker
 
-- [Maven 3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/) 
+* Build the application
+```
+docker-compose build
+```
+
+* Running the application
+```
+docker-compose up backend
+```
+
+* Running Spock Tests
+```
+docker-compose up unit-tests
+```
+
+* Some test cases:
+  * [Tournament Merge Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/aggregate/tournament/MergeUnitTest.groovy)
+  * [Tournament Functionality Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy)
+
+
+## Run Using Maven
+
+### Technology Requirements
+
+- [Maven 3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/)
 
 - [Java 17+](https://openjdk.org/projects/jdk/17/)
 
-- [PSQL 14](https://www.postgresql.org/download/) 
+- [PSQL 14](https://www.postgresql.org/download/)
 
 - [JMeter 5.5](https://jmeter.apache.org/download_jmeter.cgi)
 
-
-## Setting up the database
+### Setting up the database
 * Start db
 ```
 sudo service postgresql start
@@ -29,13 +52,13 @@ exit
 * Rename `backend/src/main/resources/application-dev.properties.example` to `application-dev.properties` and fill the placeholder fields.
 
 
-## Running the application
+### Running the application
 
 ```
 cd backend
 mvn clean spring-boot:run
 ```
-## Running Spock tests
+### Running Spock tests
 
 ```
 cd backend
@@ -47,6 +70,8 @@ mvn clean -Ptest test
   * [Tournament Functionality Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy)
 
 ## Running JMeter tests
+
+* After starting application, either using Docker or Maven
 
 ```
 cd backend/jmeter/tournament/thesis-cases/

@@ -11,6 +11,7 @@ public class TournamentParticipantQuizAnswer {
     private Integer quizAnswerAggregateId;
     private Integer quizAnswerVersion;
     private boolean answered;
+    // TODO: It does not support the set of answers because there is a limit on @Embeddable nesting
     private Integer numberOfAnswered;
     private Integer numberOfCorrect;
 

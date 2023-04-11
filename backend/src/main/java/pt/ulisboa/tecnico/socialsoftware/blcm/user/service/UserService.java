@@ -51,7 +51,7 @@ public class UserService {
         User user = userRepository.findCausal(aggregateId, unitOfWork.getVersion())
                 .orElseThrow(() -> new TutorException(USER_NOT_FOUND, aggregateId));
 
-        if(user.getState() == Aggregate.AggregateState.DELETED) {
+        if (user.getState() == Aggregate.AggregateState.DELETED) {
             throw new TutorException(ErrorMessage.USER_DELETED, user.getAggregateId());
         }
 
@@ -78,7 +78,7 @@ public class UserService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void activateUser(Integer userAggregateId, UnitOfWork unitOfWork) {
         User oldUser = getCausalUserLocal(userAggregateId, unitOfWork);
-        if(oldUser.isActive()) {
+        if (oldUser.isActive()) {
             throw new TutorException(USER_ACTIVE);
         }
         User newUser = new User(oldUser);

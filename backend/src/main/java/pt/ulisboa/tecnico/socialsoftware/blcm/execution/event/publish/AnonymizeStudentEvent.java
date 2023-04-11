@@ -14,7 +14,6 @@ public class AnonymizeStudentEvent extends Event {
 
     public AnonymizeStudentEvent(Integer aggregateId, String name, String username, Integer userAggregateId) {
         super(aggregateId);
-        setPublisherAggregateId(aggregateId);
         setName(name);
         setUsername(username);
         setStudentAggregateId(userAggregateId);
