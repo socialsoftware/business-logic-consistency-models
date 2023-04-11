@@ -4,6 +4,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import jakarta.persistence.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -29,7 +31,7 @@ public class TournamentParticipant {
         setParticipantUsername(userDto.getUsername());
         setParticipantVersion(userDto.getVersion());
         setParticipantAnswer(new TournamentParticipantQuizAnswer());
-        setEnrollTime(LocalDateTime.now());
+        setEnrollTime(DateHandler.now());
         setState(AggregateState.ACTIVE);
     }
 

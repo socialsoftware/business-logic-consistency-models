@@ -206,7 +206,7 @@ public class Quiz extends Aggregate {
             AVAILABLE_DATE_FINAL_AFTER_AVAILABLE_DATE
          */
         Quiz prev = (Quiz) getPrev();
-        if(prev != null && (LocalDateTime.now()).isAfter(prev.getAvailableDate())) {
+        if (prev != null && (DateHandler.now()).isAfter(prev.getAvailableDate())) {
             throw new TutorException(CANNOT_UPDATE_QUIZ, getAggregateId());
         }
         this.availableDate = availableDate;
@@ -221,7 +221,7 @@ public class Quiz extends Aggregate {
             CONCLUSION_DATE_FINAL_AFTER_AVAILABLE_DATE
          */
         Quiz prev = (Quiz) getPrev();
-        if(prev != null && (LocalDateTime.now()).isAfter(prev.getAvailableDate())) {
+        if (prev != null && (DateHandler.now()).isAfter(prev.getAvailableDate())) {
             throw new TutorException(CANNOT_UPDATE_QUIZ, getAggregateId());
         }
         this.conclusionDate = conclusionDate;
@@ -236,7 +236,7 @@ public class Quiz extends Aggregate {
             RESULTS_DATE_FINAL_AFTER_AVAILABLE_DATE
          */
         Quiz prev = (Quiz) getPrev();
-        if(prev != null && (LocalDateTime.now()).isAfter(prev.getAvailableDate())) {
+        if(prev != null && (DateHandler.now()).isAfter(prev.getAvailableDate())) {
             throw new TutorException(CANNOT_UPDATE_QUIZ, getAggregateId());
         }
         this.resultsDate = resultsDate;
@@ -260,7 +260,7 @@ public class Quiz extends Aggregate {
             QUESTIONS_FINAL_AFTER_AVAILABLE_DATE
          */
         Quiz prev = (Quiz) getPrev();
-        if(prev != null && LocalDateTime.now().isAfter(prev.getAvailableDate())) {
+        if (prev != null && DateHandler.now().isAfter(prev.getAvailableDate())) {
             throw new TutorException(CANNOT_UPDATE_QUIZ, getAggregateId());
         }
         this.quizQuestions = quizQuestions;

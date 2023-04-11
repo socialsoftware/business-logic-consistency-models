@@ -222,7 +222,7 @@ public class Tournament extends Aggregate {
 		now < this.startTime => p: this.participant | p.answer.isEmpty
      */
     public boolean invariantAnswerBeforeStart() {
-        if (LocalDateTime.now().isBefore(this.startTime)) {
+        if (DateHandler.now().isBefore(this.startTime)) {
             for (TournamentParticipant t : this.tournamentParticipants) {
                 if (t.getParticipantAnswer().getQuizAnswerAggregateId() != null) {
                     return false;
@@ -262,7 +262,7 @@ public class Tournament extends Aggregate {
     @Override
     public void verifyInvariants() {
         if (!(invariantAnswerBeforeStart()
-                && invariantUniqueParticipant()
+               && invariantUniqueParticipant()
                 && invariantParticipantsEnrolledBeforeStarTime()
                 && invariantStartTimeBeforeEndTime()
                 && invariantDeleteCondition()
@@ -475,7 +475,7 @@ public class Tournament extends Aggregate {
          */
         Tournament prev = (Tournament) getPrev();
         if (prev != null) {
-            if ((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+            if ((prev.getStartTime() != null && DateHandler.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
                 throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
             }
         }
@@ -551,7 +551,7 @@ public class Tournament extends Aggregate {
          */
         Tournament prev = (Tournament) getPrev();
         if(prev != null) {
-            if((prev.getStartTime() != null && LocalDateTime.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
+            if((prev.getStartTime() != null && DateHandler.now().isAfter(prev.getStartTime())) || prev.isCancelled()) {
                 throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
             }
         }
