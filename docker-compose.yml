@@ -36,7 +36,7 @@ services:
       - SPRING.JPA.DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blcmdb
 
-  unit-tests:
+  tournament-tests:
     image: maven:3
     stop_signal: SIGKILL
     stdin_open: true
@@ -44,6 +44,5 @@ services:
     working_dir: $PWD/backend/
     volumes:
       - $PWD:$PWD
-      - ~/.m2:/root/.m2
-    command: mvn -Ptest test
-
+#      - ~/.m2:/root/.m2
+    command: mvn -Ptest test -Dtest=TournamentFunctionalityTest

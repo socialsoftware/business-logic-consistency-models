@@ -271,10 +271,12 @@ public class Tournament extends Aggregate {
         }
     }
 
+    @Override
     public Set<String> getFieldsChangedByFunctionalities()  {
         return Set.of("startTime", "endTime", "numberOfQuestions", "topics", "tournamentParticipants", "cancelled", "tournamentCourseExecution", "tournamentCreator");
     }
 
+    @Override
     public Set<String[]> getIntentions() {
         return Set.of(
                 new String[]{"startTime", "endTime"},
