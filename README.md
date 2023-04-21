@@ -101,36 +101,36 @@ jmeter
 ##  Spock Tests in DAIS2023 paper - 23nd International Conference on Distributed Applications and Interoperable Systems
 
 ### Figure 3(a)
-* Test code 
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L142-L157) 
 * Run:
 ```
-docker-compose up fig3a
+docker-compose up test-fig3a
 ```
 
 ### Figure 3(b)
-* Test code
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L159-L176)
 * Run: 
 ```
-docker-compose up fig3b
+docker-compose up test-fig3b
 ```
 
 ### Figure 3(c)
-* Test code
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L178-L197)
 * Run: 
 ```
-docker-compose up fig3c
+docker-compose up test-fig3c
 ```
 
 ### Figure 3(d)
-* Test code
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L199-L220)
 * Run: 
 ```
-docker-compose up fig3d
+docker-compose up test-fig3d
 ```
 
 ### Figure 4
-* Test code
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L302-L332)
 * Run: 
 ```
-docker-compose up fig4
+docker-compose up test-fig4
 ```
