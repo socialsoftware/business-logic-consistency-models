@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.answer.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.service.QuizAnswerService;
@@ -13,6 +15,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.publish.RemoveUserEvent
 
 @Service
 public class QuizAnswerEventProcessing {
+    private static final Logger logger = LoggerFactory.getLogger(QuizAnswerEventProcessing.class);
+
     @Autowired
     private QuizAnswerService quizAnswerService;
     @Autowired
@@ -20,25 +24,25 @@ public class QuizAnswerEventProcessing {
 
     public void processRemoveUser(Integer aggregateId, Event eventToProcess) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        System.out.printf("Processing remove user %d event for answer %d\n", eventToProcess.getPublisherAggregateId(), aggregateId);
+        logger.info("Processing remove user {} event for answer {}", eventToProcess.getPublisherAggregateId(), aggregateId);
         RemoveUserEvent removeUserEvent = (RemoveUserEvent) eventToProcess;
         quizAnswerService.removeUser(aggregateId, removeUserEvent.getPublisherAggregateId(), removeUserEvent.getPublisherAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
     public void processRemoveQuestion(Integer aggregateId, RemoveQuestionEvent removeQuestionEvent) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        System.out.printf("Processing remove question %d event for answer %d\n", removeQuestionEvent.getPublisherAggregateId(), aggregateId);
+        logger.info("Processing remove question {} event for answer {}", removeQuestionEvent.getPublisherAggregateId(), aggregateId);
         quizAnswerService.removeQuestion(aggregateId, removeQuestionEvent.getPublisherAggregateId(), removeQuestionEvent.getPublisherAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
     public void processUnenrollStudent(Integer aggregateId, UnerollStudentFromCourseExecutionEvent unerollStudentFromCourseExecutionEvent) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        System.out.printf("Processing uneroll student from course execution %d event for answer %d\n", unerollStudentFromCourseExecutionEvent.getPublisherAggregateId(), aggregateId);
+        logger.info("Processing uneroll student from course execution {} event for answer {}", unerollStudentFromCourseExecutionEvent.getPublisherAggregateId(), aggregateId);
         quizAnswerService.removeUser(aggregateId, unerollStudentFromCourseExecutionEvent.getPublisherAggregateId(), unerollStudentFromCourseExecutionEvent.getPublisherAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
     public void processUpdateExecutionStudentNameEvent(Integer subscriberAggregateId, UpdateStudentNameEvent updateStudentNameEvent) {
-        System.out.printf("Processing update execution student name of execution %d event for answer %d\n", updateStudentNameEvent.getPublisherAggregateId(), subscriberAggregateId);
+        logger.info("Processing update execution student name of execution {} event for answer {}", updateStudentNameEvent.getPublisherAggregateId(), subscriberAggregateId);
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
         quizAnswerService.updateUserName(subscriberAggregateId, updateStudentNameEvent.getPublisherAggregateId(), updateStudentNameEvent.getPublisherAggregateVersion(), updateStudentNameEvent.getStudentAggregateId(), updateStudentNameEvent.getUpdatedName(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);

@@ -1,9 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.tournament;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.VersionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.service.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
@@ -29,6 +32,10 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class TournamentFunctionalities {
+    private static final Logger logger = LoggerFactory.getLogger(TournamentFunctionalities.class);
+
+    @Autowired
+    private VersionService versionService;
 
     @Autowired
     private TournamentService tournamentService;
@@ -55,6 +62,8 @@ public class TournamentFunctionalities {
                                           TournamentDto tournamentDto) {
         //unit of work code
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        logger.info("START EXECUTION FUNCTIONALITY: createTournament with version {}", unitOfWork.getVersion());
+
 
         checkInput(userId, topicsId, tournamentDto);
 
@@ -98,20 +107,28 @@ public class TournamentFunctionalities {
 
         unitOfWorkService.commit(unitOfWork);
 
+        logger.info("END EXECUTION FUNCTIONALITY: createTournament with version {}", versionService.getVersionNumber());
+
         return tournamentDto2;
     }
 
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        logger.info("START EXECUTION FUNCTIONALITY: addParticipant with version {}", unitOfWork.getVersion());
+
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
         // by making this call the invariants regarding the course execution and the role of the participant are guaranteed
         UserDto userDto = courseExecutionService.getStudentByExecutionIdAndUserId(tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
         TournamentParticipant participant = new TournamentParticipant(userDto);
         tournamentService.addParticipant(tournamentAggregateId, participant, userDto.getRole(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
+
+        logger.info("END EXECUTION FUNCTIONALITY: addParticipant with version {}", versionService.getVersionNumber());
     }
 
     public void updateTournament(TournamentDto tournamentDto, Set<Integer> topicsAggregateIds) {
+        logger.info("START EXECUTION FUNCTIONALITY: updateTournament");
+
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
 
         //checkInput(topicsAggregateIds, tournamentDto);
@@ -151,6 +168,8 @@ public class TournamentFunctionalities {
         //quizService.updateGeneratedQuiz(quizDto, topicsAggregateIds, newTournamentDto.getNumberOfQuestions(), unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
+
+        logger.info("END EXECUTION FUNCTIONALITY: updateTournament with version {}", versionService.getVersionNumber());
     }
 
 
@@ -196,9 +215,12 @@ public class TournamentFunctionalities {
 
     public void removeTournament(Integer tournamentAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        logger.info("START EXECUTION FUNCTIONALITY: removeTournament with version {} ", unitOfWork.getVersion());
+
         tournamentService.removeTournament(tournamentAggregateId, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
+        logger.info("END EXECUTION FUNCTIONALITY: removeTournament with version {} ", versionService.getVersionNumber());
     }
 
     public TournamentDto findTournament(Integer tournamentAggregateId) {

@@ -1,11 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.publish.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.VersionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
@@ -23,6 +24,10 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class CourseExecutionFunctionalities {
+    private static final Logger logger = LoggerFactory.getLogger(CourseExecutionFunctionalities.class);
+
+    @Autowired
+    private VersionService versionService;
 
     @Autowired
     private CourseService courseService;
@@ -89,6 +94,7 @@ public class CourseExecutionFunctionalities {
 
     public void updateExecutionStudentName(Integer executionAggregateId, Integer userAggregateId ,UserDto userDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        logger.info("START EXECUTION FUNCTIONALITY: updateExecutionStudentName with version {}", unitOfWork.getVersion());
 
         if (userDto.getName() == null) {
             throw new TutorException(USER_MISSING_NAME);
@@ -96,6 +102,8 @@ public class CourseExecutionFunctionalities {
 
         courseExecutionService.updateExecutionStudentName(executionAggregateId, userAggregateId, userDto.getName(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
+
+        logger.info("END EXECUTION FUNCTIONALITY: updateExecutionStudentName with version {}", versionService.getVersionNumber());
     }
 
     private void checkInput(CourseExecutionDto courseExecutionDto) {

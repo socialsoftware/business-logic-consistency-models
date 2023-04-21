@@ -14,19 +14,30 @@ public class Version {
     // represents the version of the last committed transaction in the system.
     private Integer versionNumber;
 
+    // used because of tests where the version number is temporarily decremented
+    // to simulate concurrency in a deterministic test case
+    private Integer numberOfDecrements;
+
     public Version() {
         this.versionNumber = 1;
+        this.numberOfDecrements = 0;
     }
 
     public Integer getVersionNumber() {
-        return this.versionNumber;
+        Integer result = this.versionNumber;
+        this.versionNumber = this.versionNumber + this.numberOfDecrements;
+        this.numberOfDecrements = 0;
+        return result;
     }
 
     public void incrementVersion() {
-        versionNumber++;
+        this.versionNumber = this.versionNumber + this.numberOfDecrements;
+        this.numberOfDecrements = 0;
+        this.versionNumber++;
     }
 
     public void decrementVersion() {
-        versionNumber--;
+        this.versionNumber--;
+        this.numberOfDecrements++;
     }
 }

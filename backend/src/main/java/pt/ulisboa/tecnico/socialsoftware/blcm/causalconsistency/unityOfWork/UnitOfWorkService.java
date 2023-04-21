@@ -109,12 +109,9 @@ public class UnitOfWorkService {
             }
         }
 
-        Integer commitVersion;
-        if (versionService.getVersionNumber() < unitOfWork.getVersion()) {
-            commitVersion = versionService.incrementAndGetVersionNumber();
-        } else {
-            commitVersion = unitOfWork.getVersion();
-        }
+        // The commit is done with the last commited version plus one
+        Integer commitVersion = versionService.incrementAndGetVersionNumber();
+
         commitAllObjects(commitVersion, modifiedAggregatesToCommit);
         unitOfWork.getEventsToEmit().forEach(e -> {
             /* this is so event detectors can compare this version to those of running transactions */
@@ -129,7 +126,7 @@ public class UnitOfWorkService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    void commitAllObjects(Integer commitVersion, Map<Integer, Aggregate> aggregateMap) {
+    public void commitAllObjects(Integer commitVersion, Map<Integer, Aggregate> aggregateMap) {
         aggregateMap.values().forEach(aggregateToWrite -> {
             aggregateToWrite.setVersion(commitVersion);
             aggregateToWrite.setCreationTs(LocalDateTime.now());

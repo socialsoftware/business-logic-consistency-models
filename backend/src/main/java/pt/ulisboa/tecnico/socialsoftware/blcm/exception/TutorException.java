@@ -12,31 +12,31 @@ public class TutorException extends RuntimeException {
 
     public TutorException(ErrorMessage errorMessage) {
         super(errorMessage.label);
-        logger.error(errorMessage.label);
+        logger.info(errorMessage.label);
         this.errorMessage = errorMessage;
     }
 
     public TutorException(ErrorMessage errorMessage, String value) {
         super(String.format(errorMessage.label, value));
-        logger.error(String.format(errorMessage.label, value));
+        logger.info(String.format(errorMessage.label, value));
         this.errorMessage = errorMessage;
     }
 
     public TutorException(ErrorMessage errorMessage, String value1, String value2) {
         super(String.format(errorMessage.label, value1, value2));
-        logger.error(String.format(errorMessage.label, value1, value2));
+        logger.info(String.format(errorMessage.label, value1, value2));
         this.errorMessage = errorMessage;
     }
 
     public TutorException(ErrorMessage errorMessage, int value) {
         super(String.format(errorMessage.label, value));
-        logger.error(String.format(errorMessage.label, value));
+        logger.info(String.format(errorMessage.label, value));
         this.errorMessage = errorMessage;
     }
 
     public TutorException(ErrorMessage errorMessage, int value1, int value2) {
         super(String.format(errorMessage.label, value1, value2));
-        logger.error(String.format(errorMessage.label, value1, value2));
+        logger.info(String.format(errorMessage.label, value1, value2));
         this.errorMessage = errorMessage;
     }
 

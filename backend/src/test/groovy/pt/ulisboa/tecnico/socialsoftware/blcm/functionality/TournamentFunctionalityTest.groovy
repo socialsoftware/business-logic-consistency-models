@@ -175,7 +175,7 @@ class TournamentFunctionalityTest extends SpockTest {
         tournamentDtoResult.getParticipants().find{it.aggregateId == userDto.aggregateId}.name == UPDATED_NAME
     }
 
-    def 'concurrent add student as tournament participant and update name in course execution: add student finishes first' () {
+    def 'concurrent add student as tournament participant and update name in course execution - add student finishes first' () {
         given: 'student is added to tournament'
         tournamentFunctionalities.addParticipant(tournamentDto.getAggregateId(), userDto.getAggregateId())
         and: 'the version number is decreased to simulate concurrency'
@@ -196,7 +196,7 @@ class TournamentFunctionalityTest extends SpockTest {
         tournamentDtoResult.getParticipants().find{it.aggregateId == userDto.aggregateId}.name == UPDATED_NAME
     }
 
-    def 'concurrent add student as tournament participant and update name in course execution: update name finishes first' () {
+    def 'concurrent add student as tournament participant and update name in course execution - update name finishes first' () {
         given: 'student name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
@@ -299,7 +299,7 @@ class TournamentFunctionalityTest extends SpockTest {
         tournamentDtoResult.getParticipants().size() == 0
     }
 
-    def 'concurrent add creator as tournament participant and update name in course execution: update name finishes first and event processing starts before add creator finishes' () {
+    def 'concurrent add creator as tournament participant and update name in course execution - update name finishes first and event processing starts before add creator finishes' () {
         given: 'creator name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
@@ -318,8 +318,6 @@ class TournamentFunctionalityTest extends SpockTest {
         then: 'fails because invariant about same info for creator and participant, if the creator, breaks'
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.INVARIANT_BREAK
-        and: 'reset version number because due to failure it stills in the previous version'
-        versionService.incrementAndGetVersionNumber()
         and: 'process update name event using tournament version that has the creator and the participant'
         tournamentEventDetection.handleUpdateExecutionStudentNameEvent();
         and: 'the name is updated in course execution'

@@ -71,7 +71,7 @@ mvn clean -Ptest test
 
 ## Running JMeter tests
 
-* After starting application, either using Docker or Maven
+* After starting application, either using Docker or Maven, and installing JMeter
 
 ```
 cd backend/jmeter/tournament/thesis-cases/
@@ -97,3 +97,40 @@ jmeter
 ```
 * The command launches JMeter GUI. By clicking `File > Open` and selecting a test file it is possible to observe the test structure.
 * Tests can also be run using the GUI, by clicking on the `Start` button.
+
+##  Spock Tests in DAIS2023 paper - 23nd International Conference on Distributed Applications and Interoperable Systems
+
+### Figure 3(a)
+* Test code 
+* Run:
+```
+docker-compose up fig3a
+```
+
+### Figure 3(b)
+* Test code
+* Run: 
+```
+docker-compose up fig3b
+```
+
+### Figure 3(c)
+* Test code
+* Run: 
+```
+docker-compose up fig3c
+```
+
+### Figure 3(d)
+* Test code
+* Run: 
+```
+docker-compose up fig3d
+```
+
+### Figure 4
+* Test code
+* Run: 
+```
+docker-compose up fig4
+```
