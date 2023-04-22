@@ -73,7 +73,7 @@ public class QuizEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (UpdateQuestionEvent eventToProcess : eventsToProcess) {
-                    quizEventProcessing.processUpdateQuestion(aggregateId, eventToProcess);
+                    quizEventProcessing.processUpdateQuestionEvent(aggregateId, eventToProcess);
                 }
             }
         }
@@ -98,7 +98,7 @@ public class QuizEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (RemoveQuestionEvent eventToProcess : eventsToProcess) {
-                    quizEventProcessing.processRemoveQuizQuestion(aggregateId, eventToProcess);
+                    quizEventProcessing.processRemoveQuizQuestionEvent(aggregateId, eventToProcess);
                 }
             }
         }

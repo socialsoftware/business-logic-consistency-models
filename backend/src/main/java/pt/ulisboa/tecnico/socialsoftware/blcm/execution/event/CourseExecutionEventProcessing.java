@@ -18,9 +18,8 @@ public class CourseExecutionEventProcessing {
     @Autowired
     private UnitOfWorkService unitOfWorkService;
 
-    public void processRemoveUser(Integer aggregateId, RemoveUserEvent removeUserEvent) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        logger.info("Processing remove user {} event for course execution {}", removeUserEvent.getPublisherAggregateId(), aggregateId);
+    public void processRemoveUserEvent(Integer aggregateId, RemoveUserEvent removeUserEvent) {
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         courseExecutionService.removeUser(aggregateId, removeUserEvent.getPublisherAggregateId(), removeUserEvent.getPublisherAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }

@@ -19,7 +19,7 @@ public class Version {
     private Integer numberOfDecrements;
 
     public Version() {
-        this.versionNumber = 1;
+        this.versionNumber = 0;
         this.numberOfDecrements = 0;
     }
 

@@ -26,20 +26,20 @@ public class QuizAnswerFunctionalities {
 
 
     public void answerQuestion(Integer quizAggregateId, Integer userAggregateId, QuestionAnswerDto userQuestionAnswerDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         QuestionDto questionDto = questionService.getCausalQuestionRemote(userQuestionAnswerDto.getQuestionAggregateId(), unitOfWork);
         quizAnswerService.answerQuestion(quizAggregateId, userAggregateId, userQuestionAnswerDto, questionDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void startQuiz(Integer quizAggregateId, Integer courseExecutionAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         quizAnswerService.startQuiz(quizAggregateId, courseExecutionAggregateId, userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void concludeQuiz(Integer quizAggregateId, Integer courseExecutionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         quizAnswerService.concludeQuiz(quizAggregateId, courseExecutionAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }

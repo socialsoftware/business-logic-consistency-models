@@ -1,12 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.VersionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
@@ -24,11 +21,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class CourseExecutionFunctionalities {
-    private static final Logger logger = LoggerFactory.getLogger(CourseExecutionFunctionalities.class);
-
-    @Autowired
-    private VersionService versionService;
-
     @Autowired
     private CourseService courseService;
 
@@ -42,33 +34,37 @@ public class CourseExecutionFunctionalities {
     private UnitOfWorkService unitOfWorkService;
 
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+
         checkInput(courseExecutionDto);
         ExecutionCourse executionCourse = new ExecutionCourse(courseService.getAndOrCreateCourseRemote(courseExecutionDto, unitOfWork));
         CourseExecutionDto courseExecutionDto1 = courseExecutionService.createCourseExecution(courseExecutionDto, executionCourse, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
+
         return courseExecutionDto1;
     }
 
     public CourseExecutionDto getCourseExecutionByAggregateId(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         CourseExecution courseExecution = courseExecutionService.getCausalCourseExecutionLocal(executionAggregateId, unitOfWork);
         return  new CourseExecutionDto(courseExecution);
     }
 
     public List<CourseExecutionDto> getCourseExecutions() {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return courseExecutionService.getAllCausalCourseExecutions(unitOfWork);
     }
 
     public void removeCourseExecution(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+
         courseExecutionService.removeCourseExecution(executionAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void addStudent(Integer executionAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
         ExecutionStudent executionUser = new ExecutionStudent(userDto);
         courseExecutionService.enrollStudent(executionAggregateId, executionUser, unitOfWork);
@@ -76,25 +72,26 @@ public class CourseExecutionFunctionalities {
     }
 
     public Set<CourseExecutionDto> getCourseExecutionsByUser(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return courseExecutionService.getCourseExecutionsByUser(userAggregateId, unitOfWork);
     }
 
     public void removeStudentFromCourseExecution(Integer courseExecutionAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+
         courseExecutionService.removeStudentFromCourseExecution(courseExecutionAggregateId, userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void anonymizeStudent(Integer executionAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+
         courseExecutionService.anonymizeStudent(executionAggregateId, userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void updateExecutionStudentName(Integer executionAggregateId, Integer userAggregateId ,UserDto userDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        logger.info("START EXECUTION FUNCTIONALITY: updateExecutionStudentName with version {}", unitOfWork.getVersion());
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         if (userDto.getName() == null) {
             throw new TutorException(USER_MISSING_NAME);
@@ -102,8 +99,6 @@ public class CourseExecutionFunctionalities {
 
         courseExecutionService.updateExecutionStudentName(executionAggregateId, userAggregateId, userDto.getName(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
-
-        logger.info("END EXECUTION FUNCTIONALITY: updateExecutionStudentName with version {}", versionService.getVersionNumber());
     }
 
     private void checkInput(CourseExecutionDto courseExecutionDto) {

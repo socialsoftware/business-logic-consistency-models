@@ -60,7 +60,7 @@ public class QuizAnswerEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (RemoveUserEvent eventToProcess : eventsToProcess) {
-                    quizAnswerEventProcessing.processRemoveUser(aggregateId, eventToProcess);
+                    quizAnswerEventProcessing.processRemoveUserEvent(aggregateId, eventToProcess);
                 }
             }
         }
@@ -93,7 +93,7 @@ public class QuizAnswerEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (RemoveQuestionEvent eventToProcess : eventsToProcess) {
-                    quizAnswerEventProcessing.processRemoveQuestion(aggregateId, eventToProcess);
+                    quizAnswerEventProcessing.processRemoveQuestionEvent(aggregateId, eventToProcess);
                 }
             }
         }
@@ -119,7 +119,7 @@ public class QuizAnswerEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (UnerollStudentFromCourseExecutionEvent eventToProcess : eventsToProcess) {
-                    quizAnswerEventProcessing.processUnenrollStudent(aggregateId, eventToProcess);
+                    quizAnswerEventProcessing.processUnenrollStudentEvent(aggregateId, eventToProcess);
                 }
             }
         }

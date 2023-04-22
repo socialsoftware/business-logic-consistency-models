@@ -9,7 +9,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.publish.RemoveUserEvent
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecutionRepository;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.CourseExecutionFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 
 import java.util.Comparator;
@@ -47,7 +46,7 @@ public class CourseExecutionEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (RemoveUserEvent eventToProcess : eventsToProcess) {
-                    courseExecutionEventProcessing.processRemoveUser(aggregateId, eventToProcess);
+                    courseExecutionEventProcessing.processRemoveUserEvent(aggregateId, eventToProcess);
                 }
             }
         }

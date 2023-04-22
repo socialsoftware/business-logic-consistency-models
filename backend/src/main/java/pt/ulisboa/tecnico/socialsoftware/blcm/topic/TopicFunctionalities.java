@@ -28,12 +28,12 @@ public class TopicFunctionalities {
     private UnitOfWorkService unitOfWorkService;
 
     public List<TopicDto> findTopicsByCourseAggregateId(Integer courseAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return topicService.findCourseByTopicId(courseAggregateId, unitOfWork);
     }
 
     public TopicDto createTopic(Integer courseAggregateId, TopicDto topicDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         checkInput(topicDto);
         CourseDto courseDto = courseService.getCausalCourseRemote(courseAggregateId, unitOfWork);
         TopicCourse course = new TopicCourse(courseDto);
@@ -43,14 +43,14 @@ public class TopicFunctionalities {
     }
 
     public void updateTopic(TopicDto topicDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         checkInput(topicDto);
         topicService.updateTopic(topicDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void deleteTopic(Integer topicAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         topicService.deleteTopic(topicAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }

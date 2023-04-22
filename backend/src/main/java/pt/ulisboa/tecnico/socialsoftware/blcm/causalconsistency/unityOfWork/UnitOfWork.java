@@ -24,16 +24,18 @@ public class UnitOfWork {
     private Set<Event> eventsToEmit;
 
     private Map<Integer, Aggregate> causalSnapshot;
+    private String functionalityName;
 
     public UnitOfWork() {
 
     }
 
-    public UnitOfWork(Integer version) {
+    public UnitOfWork(Integer version, String functionalityName) {
         this.aggregatesToCommit = new HashMap<>();
         this.eventsToEmit = new HashSet<>();
         this.causalSnapshot = new HashMap<>();
         setVersion(version);
+        this.functionalityName = functionalityName;
     }
 
 
@@ -51,6 +53,14 @@ public class UnitOfWork {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public String getFunctionalityName() {
+        return functionalityName;
+    }
+
+    public void setFunctionalityName(String functionalityName) {
+        this.functionalityName = functionalityName;
     }
 
     public Map<Integer, Aggregate> getAggregatesToCommit() {

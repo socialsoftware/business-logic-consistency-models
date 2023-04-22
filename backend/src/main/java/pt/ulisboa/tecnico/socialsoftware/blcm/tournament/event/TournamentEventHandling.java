@@ -103,7 +103,7 @@ public class TournamentEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (RemoveCourseExecutionEvent eventToProcess : eventsToProcess) {
-                    tournamentEventProcessing.processRemoveCourseExecution(aggregateId, eventToProcess);
+                    tournamentEventProcessing.processRemoveCourseExecutionEvent(aggregateId, eventToProcess);
                 }
             }
         }
@@ -129,7 +129,7 @@ public class TournamentEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (UpdateTopicEvent eventToProcess : eventsToProcess) {
-                    tournamentEventProcessing.processUpdateTopic(aggregateId, eventToProcess);
+                    tournamentEventProcessing.processUpdateTopicEvent(aggregateId, eventToProcess);
                 }
             }
         }
@@ -157,7 +157,7 @@ public class TournamentEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (DeleteTopicEvent eventToProcess : eventsToProcess) {
-                    tournamentEventProcessing.processDeleteTopic(aggregateId, eventToProcess);
+                    tournamentEventProcessing.processDeleteTopicEvent(aggregateId, eventToProcess);
                 }
             }
         }
@@ -183,7 +183,7 @@ public class TournamentEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (QuizAnswerQuestionAnswerEvent eventToProcess : eventsToProcess) {
-                    tournamentEventProcessing.processAnswerQuestion(aggregateId, eventToProcess);
+                    tournamentEventProcessing.processAnswerQuestionEvent(aggregateId, eventToProcess);
                 }
             }
         }
@@ -210,7 +210,7 @@ public class TournamentEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (UnerollStudentFromCourseExecutionEvent eventToProcess : eventsToProcess) {
-                    tournamentEventProcessing.processUnenrollStudent(aggregateId, eventToProcess);
+                    tournamentEventProcessing.processUnenrollStudentEvent(aggregateId, eventToProcess);
                 }
             }
         }

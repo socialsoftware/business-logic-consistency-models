@@ -19,7 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.CourseExecutionEve
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.QuestionFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.QuestionEventHandling
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.QuestionEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.event.QuestionEventProcessingEvent
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.QuizFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.event.QuizEventHandling
@@ -84,8 +84,8 @@ class BeanConfiguration {
     }
 
     @Bean
-    QuestionEventProcessing questionEventProcessing() {
-        return new QuestionEventProcessing();
+    QuestionEventProcessingEvent questionEventProcessing() {
+        return new QuestionEventProcessingEvent();
     }
 
     @Bean

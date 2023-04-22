@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.service.UserService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
@@ -14,18 +13,13 @@ import java.util.List;
 
 @Service
 public class UserFunctionalities {
-
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private CourseExecutionService courseExecutionService;
-
     @Autowired
     private UnitOfWorkService unitOfWorkService;
 
     public UserDto createUser(UserDto userDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         checkInput(userDto);
 
         UserDto userDto1 = userService.createUser(userDto, unitOfWork);
@@ -35,29 +29,29 @@ public class UserFunctionalities {
     }
 
     public UserDto findByAggregateId(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return userService.getCausalUserRemote(userAggregateId, unitOfWork);
     }
 
     public void activateUser(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         userService.activateUser(userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void deleteUser(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         userService.deleteUser(userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public List<UserDto> getStudents() {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return userService.getStudents(unitOfWork);
     }
 
     public List<UserDto> getTeachers() {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return userService.getTeachers(unitOfWork);
     }
 

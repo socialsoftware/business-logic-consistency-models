@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -30,6 +32,8 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class UnitOfWorkService {
+    private static final Logger logger = LoggerFactory.getLogger(UnitOfWorkService.class);
+
     @Autowired
     private EntityManager entityManager;
     @Autowired
@@ -57,9 +61,14 @@ public class UnitOfWorkService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public UnitOfWork createUnitOfWork() {
+    public UnitOfWork createUnitOfWork(String functionalityName) {
         Integer lastCommittedAggregateVersionNumber = versionService.getVersionNumber();
-        return new UnitOfWork(lastCommittedAggregateVersionNumber+1);
+
+        UnitOfWork unitOfWork = new UnitOfWork(lastCommittedAggregateVersionNumber+1, functionalityName);
+
+        logger.info("START EXECUTION FUNCTIONALITY: {} with version {}", functionalityName, unitOfWork.getVersion());
+
+        return unitOfWork;
     }
 
     @Retryable(
@@ -111,6 +120,7 @@ public class UnitOfWorkService {
 
         // The commit is done with the last commited version plus one
         Integer commitVersion = versionService.incrementAndGetVersionNumber();
+        unitOfWork.setVersion(commitVersion);
 
         commitAllObjects(commitVersion, modifiedAggregatesToCommit);
         unitOfWork.getEventsToEmit().forEach(e -> {
@@ -118,6 +128,8 @@ public class UnitOfWorkService {
             e.setPublisherAggregateVersion(commitVersion);
             eventRepository.save(e);
         });
+
+        logger.info("END EXECUTION FUNCTIONALITY: {} with version {}", unitOfWork.getFunctionalityName(), unitOfWork.getVersion());
     }
 
 

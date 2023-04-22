@@ -34,7 +34,7 @@ public class QuizFunctionalities {
     @Autowired
     private QuestionService questionService;
     public QuizDto createQuiz(Integer courseExecutionId, QuizDto quizDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.getCausalCourseExecutionRemote(courseExecutionId, unitOfWork));
         Set<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream()
                 .map(qq -> questionService.getCausalQuestionRemote(qq.getAggregateId(), unitOfWork))
@@ -48,17 +48,17 @@ public class QuizFunctionalities {
     }
 
     public QuizDto findQuiz(Integer quizAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
     }
 
     public List<QuizDto> getAvailableQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return quizService.getAvailableQuizzes(courseExecutionAggregateId, unitOfWork);
     }
 
     public QuizDto updateQuiz(QuizDto quizDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         Set<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream().map(QuizQuestion::new).collect(Collectors.toSet());
         QuizDto quizDto1 = quizService.updateQuiz(quizDto, quizQuestions, unitOfWork);
         unitOfWorkService.commit(unitOfWork);

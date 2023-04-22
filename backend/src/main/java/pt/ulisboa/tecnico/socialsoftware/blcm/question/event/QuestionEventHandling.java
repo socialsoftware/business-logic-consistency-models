@@ -22,7 +22,7 @@ public class QuestionEventHandling {
     @Autowired
     private EventRepository eventRepository;
     @Autowired
-    private QuestionEventProcessing questionEventProcessing;
+    private QuestionEventProcessingEvent questionEventProcessingEvent;
     @Autowired
     private QuestionService questionService;
     @Autowired
@@ -48,7 +48,7 @@ public class QuestionEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (UpdateTopicEvent eventToProcess : eventsToProcess) {
-                    questionEventProcessing.processUpdateTopic(aggregateId, eventToProcess);
+                    questionEventProcessingEvent.processUpdateTopic(aggregateId, eventToProcess);
                 }
             }
         }
@@ -73,7 +73,7 @@ public class QuestionEventHandling {
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
                         .collect(Collectors.toList());
                 for (DeleteTopicEvent e : eventsToProcess) {
-                    questionEventProcessing.processRemoveTopic(aggregateId, e);
+                    questionEventProcessingEvent.processRemoveTopic(aggregateId, e);
                 }
             }
         }

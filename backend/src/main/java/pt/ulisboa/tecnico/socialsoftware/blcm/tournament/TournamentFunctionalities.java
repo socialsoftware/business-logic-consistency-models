@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version.VersionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.topic.service.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
@@ -32,11 +31,6 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.*;
 
 @Service
 public class TournamentFunctionalities {
-    private static final Logger logger = LoggerFactory.getLogger(TournamentFunctionalities.class);
-
-    @Autowired
-    private VersionService versionService;
-
     @Autowired
     private TournamentService tournamentService;
 
@@ -61,9 +55,7 @@ public class TournamentFunctionalities {
     public TournamentDto createTournament(Integer userId, Integer executionId, List<Integer> topicsId,
                                           TournamentDto tournamentDto) {
         //unit of work code
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        logger.info("START EXECUTION FUNCTIONALITY: createTournament with version {}", unitOfWork.getVersion());
-
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         checkInput(userId, topicsId, tournamentDto);
 
@@ -87,9 +79,6 @@ public class TournamentFunctionalities {
         quizDto.setConclusionDate(tournamentDto.getEndTime());
         quizDto.setResultsDate(tournamentDto.getEndTime());
 
-
-
-
 //        NUMBER_OF_QUESTIONS
 //            this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
 //            Quiz(this.tournamentQuiz.id) DEPENDS ON this.numberOfQuestions
@@ -107,14 +96,11 @@ public class TournamentFunctionalities {
 
         unitOfWorkService.commit(unitOfWork);
 
-        logger.info("END EXECUTION FUNCTIONALITY: createTournament with version {}", versionService.getVersionNumber());
-
         return tournamentDto2;
     }
 
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        logger.info("START EXECUTION FUNCTIONALITY: addParticipant with version {}", unitOfWork.getVersion());
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
         // by making this call the invariants regarding the course execution and the role of the participant are guaranteed
@@ -122,14 +108,10 @@ public class TournamentFunctionalities {
         TournamentParticipant participant = new TournamentParticipant(userDto);
         tournamentService.addParticipant(tournamentAggregateId, participant, userDto.getRole(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
-
-        logger.info("END EXECUTION FUNCTIONALITY: addParticipant with version {}", versionService.getVersionNumber());
     }
 
     public void updateTournament(TournamentDto tournamentDto, Set<Integer> topicsAggregateIds) {
-        logger.info("START EXECUTION FUNCTIONALITY: updateTournament");
-
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         //checkInput(topicsAggregateIds, tournamentDto);
 
@@ -168,36 +150,34 @@ public class TournamentFunctionalities {
         //quizService.updateGeneratedQuiz(quizDto, topicsAggregateIds, newTournamentDto.getNumberOfQuestions(), unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
-
-        logger.info("END EXECUTION FUNCTIONALITY: updateTournament with version {}", versionService.getVersionNumber());
     }
 
 
 
 
     public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getTournamentsForCourseExecution(executionAggregateId, unitOfWork);
     }
 
     public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getOpenedTournamentsForCourseExecution(executionAggregateId, unitOfWork);
     }
 
     public List<TournamentDto> getClosedTournamentsForCourseExecution(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getClosedTournamentsForCourseExecution(executionAggregateId, unitOfWork);
     }
 
     public void leaveTournament(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         tournamentService.leaveTournament(tournamentAggregateId, userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public QuizDto solveQuiz(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
         QuizDto quizDto = quizService.startTournamentQuiz(userAggregateId, tournamentDto.getQuiz().getAggregateId(), unitOfWork);
         QuizAnswerDto quizAnswerDto = quizAnswerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
@@ -208,29 +188,27 @@ public class TournamentFunctionalities {
     }
 
     public void cancelTournament(Integer tournamentAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         tournamentService.cancelTournament(tournamentAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void removeTournament(Integer tournamentAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
-        logger.info("START EXECUTION FUNCTIONALITY: removeTournament with version {} ", unitOfWork.getVersion());
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         tournamentService.removeTournament(tournamentAggregateId, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
-        logger.info("END EXECUTION FUNCTIONALITY: removeTournament with version {} ", versionService.getVersionNumber());
     }
 
     public TournamentDto findTournament(Integer tournamentAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
     }
 
     /** FOR TESTING PURPOSES **/
     public void getTournamentAndUser(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork();
+        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         TournamentDto tournamentDto = tournamentService.getCausalTournamentRemote(tournamentAggregateId, unitOfWork);
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
         return;
