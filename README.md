@@ -1,5 +1,9 @@
 # Business Logic Consistency Models
 
+The artifact supports the test of business logic of a microservices application designed on the concept of Domain-Driven Design Aggregate and using Transactional Causal Consistency to handle transactional behavior.
+
+The system allows testing the interleaving of functionalities execution in a deterministic context, such that it is possible to evaluate the resulting behavior.
+
 ## Run Using Docker
 
 * Build the application
@@ -99,6 +103,15 @@ jmeter
 * Tests can also be run using the GUI, by clicking on the `Start` button.
 
 ##  Spock Tests in DAIS2023 paper - 23nd International Conference on Distributed Applications and Interoperable Systems
+
+To reproduce the paper results follow the steps:
+
+* Analyze a figure in the paper, fig3a-d and fig4;
+* Read the test case code for the figure, including the final assertions that define the expected behavior (see below);
+* Run the test case (see below);
+* Read the logger INFO messages, they use UPPERCASE. They identify when a functionality and event processing starts and ends and what its version number is. 
+  * For instance, in test-fig4 both functionalities start with the same version number (they are concurrent), but addParticipant finishes with a higher number, because it finishes after updateName. It can be observed in the log that an exception was thrown, due to the invariant break.
+
 
 ### Figure 3(a)
 * [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L142-L157) 
