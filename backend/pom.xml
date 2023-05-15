@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.5</version>
+		<version>3.0.6</version>
 		<relativePath/>
 	</parent>
 	<groupId>pt.ulisboa.tecnico.socialsoftware</groupId>
 	<artifactId>BusinessLogicConsistencyModels</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>BusinessLogicConsistencyModels</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Microservices Simulator</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -51,7 +51,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-surefire-plugin</artifactId>
-						<version>3.0.0-M9</version>
+						<version>3.1.0</version>
 						<configuration>
 							<excludes>
 								<exclude>**/*IT</exclude>
@@ -117,12 +117,12 @@
 		<dependency>
 			<groupId>org.apache.groovy</groupId>
 			<artifactId>groovy</artifactId>
-			<version>4.0.8</version>
+			<version>4.0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>4.0.8</version>
+			<version>4.0.12</version>
 			<type>pom</type>
 		</dependency>
 	</dependencies>

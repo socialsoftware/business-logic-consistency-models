@@ -11,7 +11,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.respos
 
 import java.sql.SQLException;
 
-
 @Service
 public class AggregateIdGeneratorService {
     @Autowired

@@ -12,7 +12,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import java.sql.SQLException;
 import java.util.Optional;
 
-
 @Service
 public class VersionService {
 

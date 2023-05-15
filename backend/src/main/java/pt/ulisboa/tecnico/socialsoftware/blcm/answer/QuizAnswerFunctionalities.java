@@ -8,13 +8,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 
 @Service
 public class QuizAnswerFunctionalities {
-    @Autowired
-    private QuizService quizService;
-
      @Autowired
      private QuizAnswerService quizAnswerService;
 

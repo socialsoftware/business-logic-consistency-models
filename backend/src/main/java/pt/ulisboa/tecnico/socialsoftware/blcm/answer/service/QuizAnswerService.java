@@ -21,7 +21,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionS
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.repository.QuizAnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.answer.domain.*;

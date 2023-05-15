@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.version;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;

@@ -4,7 +4,6 @@ import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.subscribe.CourseExecutionSubscribesRemoveUser;
-import pt.ulisboa.tecnico.socialsoftware.blcm.user.event.publish.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;

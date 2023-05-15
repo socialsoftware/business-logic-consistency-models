@@ -5,7 +5,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentPartic
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-
 import java.util.Set;
 
 @Embeddable

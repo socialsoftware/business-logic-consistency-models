@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.event.publish;
 
 import jakarta.persistence.Entity;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.Question;
 
 @Entity
 public class UpdateQuestionEvent extends Event {

@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.domain.User;
 
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 @Transactional
