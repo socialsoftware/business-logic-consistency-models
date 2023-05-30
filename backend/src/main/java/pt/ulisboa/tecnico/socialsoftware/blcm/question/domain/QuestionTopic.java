@@ -6,12 +6,17 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
 import java.util.Set;
 
-@Embeddable
+@Entity
 public class QuestionTopic {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer topicAggregateId;
     private String topicName;
     private Integer topicVersion;
     private Aggregate.AggregateState state;
+    @ManyToOne
+    private Question question;
 
     public QuestionTopic() {
     }
@@ -26,6 +31,14 @@ public class QuestionTopic {
         setTopicAggregateId(other.getTopicAggregateId());
         setTopicName(other.getTopicName());
         setTopicVersion(other.getTopicVersion());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Integer getTopicAggregateId() {
@@ -58,6 +71,14 @@ public class QuestionTopic {
 
     public void setState(Aggregate.AggregateState state) {
         this.state = state;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 
     public TopicDto buildDto() {

@@ -4,13 +4,19 @@ import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-@Embeddable
+@Entity
 public class TournamentCreator {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer creatorAggregateId;
     private String creatorName;
     private String creatorUsername;
     private Integer creatorVersion;
     private Aggregate.AggregateState creatorState;
+
+    @OneToOne
+    private Tournament tournament;
 
     public TournamentCreator() {
 
@@ -27,6 +33,14 @@ public class TournamentCreator {
         setCreatorName(other.getCreatorName());
         setCreatorUsername(other.getCreatorUsername());
         setCreatorVersion(other.getCreatorVersion());
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Integer getCreatorAggregateId() {
@@ -69,6 +83,14 @@ public class TournamentCreator {
         this.creatorState = creatorState;
     }
 
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
+
     public UserDto buildDto() {
         UserDto userDto = new UserDto();
         userDto.setAggregateId(getCreatorAggregateId());
@@ -78,4 +100,5 @@ public class TournamentCreator {
 
         return userDto;
     }
+
 }

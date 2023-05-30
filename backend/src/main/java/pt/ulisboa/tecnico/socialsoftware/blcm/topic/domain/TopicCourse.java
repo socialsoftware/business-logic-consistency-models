@@ -1,12 +1,18 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.topic.domain;
 
 import jakarta.persistence.*;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.domain.Course;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 
-@Embeddable
+@Entity
 public class TopicCourse {
+    @Id
+    @GeneratedValue
+    private Integer id;
     private Integer courseAggregateId;
     private Integer courseVersion;
+    @OneToOne
+    private Topic topic;
 
     public TopicCourse() {}
 
@@ -18,6 +24,14 @@ public class TopicCourse {
     public TopicCourse(TopicCourse other) {
         setCourseAggregateId(other.getCourseAggregateId());
         setCourseVersion(other.getCourseVersion());
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getCourseAggregateId() {
@@ -34,5 +48,13 @@ public class TopicCourse {
 
     public void setCourseVersion(Integer courseVersion) {
         this.courseVersion = courseVersion;
+    }
+
+    public Topic getTopic() {
+        return topic;
+    }
+
+    public void setTopic(Topic topic) {
+        this.topic = topic;
     }
 }

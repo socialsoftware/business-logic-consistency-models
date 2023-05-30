@@ -9,17 +9,22 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-@Embeddable
+@Entity
 public class TournamentParticipant {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer participantAggregateId;
     private String participantName;
     private String participantUsername;
     private LocalDateTime enrollTime;
-    @Embedded
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "tournamentParticipant")
     private TournamentParticipantQuizAnswer participantAnswer;
     private Integer participantVersion;
     @Enumerated(EnumType.STRING)
     private AggregateState state;
+    @ManyToOne
+    private Tournament tournament;
 
     public TournamentParticipant() {
         setEnrollTime(LocalDateTime.now());
@@ -45,6 +50,13 @@ public class TournamentParticipant {
         setState(other.getState());
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
 
     public void answerQuiz() {
         this.participantAnswer.setAnswered(true);
@@ -87,8 +99,8 @@ public class TournamentParticipant {
     }
 
     public void setParticipantAnswer(TournamentParticipantQuizAnswer participantAnswer) {
-
         this.participantAnswer = participantAnswer;
+        this.participantAnswer.setTournamentParticipant(this);
     }
 
     public Integer getParticipantVersion() {
@@ -105,6 +117,14 @@ public class TournamentParticipant {
 
     public void setState(AggregateState state) {
         this.state = state;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 
     public void updateAnswerWithQuestion(Integer quizAnswerAggregateId, Integer questionAnswerAggregateId, boolean isCorrect, Integer version) {

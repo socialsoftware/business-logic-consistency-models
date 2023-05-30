@@ -6,14 +6,19 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
 import java.util.Set;
 
-@Embeddable
+@Entity
 public class TournamentTopic {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer topicAggregateId;
     private String topicName;
     private Integer topicCourseAggregateId;
     private Integer topicVersion;
     @Enumerated(EnumType.STRING)
     private Aggregate.AggregateState state;
+    @ManyToOne
+    private Tournament tournament;
 
     public TournamentTopic() {
 
@@ -32,6 +37,14 @@ public class TournamentTopic {
         setTopicName(other.getTopicName());
         setTopicCourseAggregateId(other.getTopicCourseAggregateId());
         setState(other.getState());
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Integer getTopicAggregateId() {
@@ -72,6 +85,14 @@ public class TournamentTopic {
 
     public void setState(Aggregate.AggregateState state) {
         this.state = state;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 
     public TopicDto buildDto() {

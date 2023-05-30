@@ -25,28 +25,26 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
  */
 @Entity
 public class Question extends Aggregate {
-    @Column
     private String title;
-    @Column
     private String content;
     private LocalDateTime creationDate;
-    @Embedded
-    private QuestionCourse course;
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<QuestionTopic> topics;
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<Option> options;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "question")
+    private QuestionCourse questionCourse;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "question")
+    private Set<QuestionTopic> questionTopics = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "question")
+    private List<Option> options = new ArrayList<>();
 
     public Question() {
 
     }
 
-    public Question(Integer aggregateId, QuestionCourse course, QuestionDto questionDto, List<QuestionTopic> questionTopics) {
+    public Question(Integer aggregateId, QuestionCourse questionCourse, QuestionDto questionDto, List<QuestionTopic> questionTopics) {
         super(aggregateId, QUESTION);
         setTitle(questionDto.getTitle());
         setContent(questionDto.getContent());
         setCreationDate(LocalDateTime.now());
-        setCourse(course);
+        setQuestionCourse(questionCourse);
         setOptions(questionDto.getOptionDtos().stream().map(Option::new).collect(Collectors.toList()));
 
         Integer optionKeyGenerator = 1;
@@ -54,7 +52,7 @@ public class Question extends Aggregate {
             o.setOptionKey(optionKeyGenerator++);
         }
 
-        setTopics(new HashSet<>(questionTopics));
+        setQuestionTopics(new HashSet<>(questionTopics));
         setPrev(null);
     }
 
@@ -63,9 +61,9 @@ public class Question extends Aggregate {
         setTitle(other.getTitle());
         setContent(other.getContent());
         setCreationDate(other.getCreationDate());
-        setCourse(new QuestionCourse(other.getCourse()));
+        setQuestionCourse(new QuestionCourse(other.getQuestionCourse()));
         setOptions(other.getOptions().stream().map(Option::new).collect(Collectors.toList()));
-        setTopics(other.getTopics().stream().map(QuestionTopic::new).collect(Collectors.toSet()));
+        setQuestionTopics(other.getQuestionTopics().stream().map(QuestionTopic::new).collect(Collectors.toSet()));
     }
 
 
@@ -85,7 +83,7 @@ public class Question extends Aggregate {
     }
 
     private void interInvariantTopicsExist(Set<EventSubscription> eventSubscriptions) {
-        for (QuestionTopic topic : this.topics) {
+        for (QuestionTopic topic : this.questionTopics) {
             eventSubscriptions.add(new QuestionSubscribesDeleteTopic(topic));
             eventSubscriptions.add(new QuestionSubscribesUpdateTopic(topic));
         }
@@ -93,7 +91,7 @@ public class Question extends Aggregate {
 
     @Override
     public Set<String> getFieldsChangedByFunctionalities() {
-        return Set.of("title", "content", "options", "topics");
+        return Set.of("title", "content", "options", "questionTopics");
     }
 
     @Override
@@ -146,9 +144,9 @@ public class Question extends Aggregate {
         /* Here we "calculate" the result of the incremental fields. This fields will always be the same regardless
          * of the base we choose. */
 
-        Set<QuestionTopic> prevTopicsPre = new HashSet<>(prev.getTopics());
-        Set<QuestionTopic> v1TopicsPre = new HashSet<>(v1.getTopics());
-        Set<QuestionTopic> v2TopicsPre = new HashSet<>(v2.getTopics());
+        Set<QuestionTopic> prevTopicsPre = new HashSet<>(prev.getQuestionTopics());
+        Set<QuestionTopic> v1TopicsPre = new HashSet<>(v1.getQuestionTopics());
+        Set<QuestionTopic> v2TopicsPre = new HashSet<>(v2.getQuestionTopics());
 
         QuestionTopic.syncTopicVersions(prevTopicsPre, v1TopicsPre, v2TopicsPre);
 
@@ -167,7 +165,7 @@ public class Question extends Aggregate {
         );
 
         Set<QuestionTopic> mergedTopics = SetUtils.union(SetUtils.difference(prevTopics, removedTopics), addedTopics);
-        mergedTournament.setTopics(mergedTopics);
+        mergedTournament.setQuestionTopics(mergedTopics);
     }
 
     public String getTitle() {
@@ -194,20 +192,22 @@ public class Question extends Aggregate {
         this.creationDate = creationDate;
     }
 
-    public QuestionCourse getCourse() {
-        return course;
+    public QuestionCourse getQuestionCourse() {
+        return questionCourse;
     }
 
-    public void setCourse(QuestionCourse course) {
-        this.course = course;
+    public void setQuestionCourse(QuestionCourse course) {
+        this.questionCourse = course;
+        this.questionCourse.setQuestion(this);
     }
 
-    public Set<QuestionTopic> getTopics() {
-        return topics;
+    public Set<QuestionTopic> getQuestionTopics() {
+        return questionTopics;
     }
 
-    public void setTopics(Set<QuestionTopic> topics) {
-        this.topics = topics;
+    public void setQuestionTopics(Set<QuestionTopic> topics) {
+        this.questionTopics = topics;
+        this.questionTopics.forEach(questionTopic -> questionTopic.setQuestion(this));
     }
 
     public List<Option> getOptions() {
@@ -216,6 +216,7 @@ public class Question extends Aggregate {
 
     public void setOptions(List<Option> options) {
         this.options = options;
+        this.options.forEach(option -> option.setQuestion(this));
     }
 
     public void update(QuestionDto questionDto) {
@@ -225,7 +226,7 @@ public class Question extends Aggregate {
     }
 
     public QuestionTopic findTopic(Integer topicAggregateId) {
-        for(QuestionTopic questionTopic : this.topics) {
+        for(QuestionTopic questionTopic : this.questionTopics) {
             if(questionTopic.getTopicAggregateId().equals(topicAggregateId)) {
                 return questionTopic;
             }

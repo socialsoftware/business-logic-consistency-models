@@ -21,6 +21,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.repository.QuestionRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -67,7 +68,7 @@ public class QuestionService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return questionRepository.findAll().stream()
-                .filter(q -> q.getCourse().getCourseAggregateId() == courseAggregateId)
+                .filter(q -> q.getQuestionCourse().getCourseAggregateId() == courseAggregateId)
                 .map(Question::getAggregateId)
                 .distinct()
                 .map(id -> getCausalQuestionLocal(id, unitOfWork))
@@ -79,8 +80,12 @@ public class QuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuestionDto createQuestion(QuestionCourse course, QuestionDto questionDto, List<QuestionTopic> questionTopics, UnitOfWork unitOfWork) {
+    public QuestionDto createQuestion(QuestionCourse course, QuestionDto questionDto, List<TopicDto> topics, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
+
+        List<QuestionTopic> questionTopics = topics.stream()
+                .map(QuestionTopic::new)
+                .collect(Collectors.toList());
 
         Question question = new Question(aggregateId, course, questionDto, questionTopics);
         unitOfWork.registerChanged(question);
@@ -121,7 +126,7 @@ public class QuestionService {
     public void updateQuestionTopics(Integer courseAggregateId, Set<QuestionTopic> topics, UnitOfWork unitOfWork) {
         Question oldQuestion = getCausalQuestionLocal(courseAggregateId, unitOfWork);
         Question newQuestion = new Question(oldQuestion);
-        newQuestion.setTopics(topics);
+        newQuestion.setQuestionTopics(topics);
         unitOfWork.registerChanged(newQuestion);
     }
 
@@ -132,7 +137,7 @@ public class QuestionService {
     public List<QuestionDto> findQuestionsByTopics(List<Integer> topicIds, UnitOfWork unitOfWork) {
         Set<Integer> questionAggregateIds = questionRepository.findAll().stream()
                 .filter(q -> {
-                    for(QuestionTopic qt : q.getTopics()) {
+                    for(QuestionTopic qt : q.getQuestionTopics()) {
                         if (topicIds.contains(qt.getTopicAggregateId())) {
                             return true;
                         }

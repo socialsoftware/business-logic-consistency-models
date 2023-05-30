@@ -12,7 +12,7 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface TournamentRepository extends JpaRepository<Tournament, Integer> {
-    @Query(value = "select t1 from Tournament t1 where t1.aggregateId = :aggregateId and t1.state != 'DELETED' and t1.version = (select max(t2.version) from Tournament t2 where t2.aggregateId = :aggregateId and t2.version < :unitOfWorkVersion)")
+    @Query(value = "select t1 from Tournament t1 where t1.aggregateId = :aggregateId and t1.state <> 'DELETED' and t1.version = (select max(t2.version) from Tournament t2 where t2.aggregateId = :aggregateId and t2.version < :unitOfWorkVersion)")
     Optional<Tournament> findCausal(Integer aggregateId, Integer unitOfWorkVersion);
 
     @Query(value = "select t1 from Tournament t1 where t1.aggregateId = :aggregateId and t1.version = (select max(t2.version) from Tournament t2 where t2.aggregateId = :aggregateId and t2.version > :version)")

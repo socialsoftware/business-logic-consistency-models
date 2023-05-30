@@ -3,10 +3,15 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 
-@Embeddable
+@Entity
 public class TournamentQuiz {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer quizAggregateId;
     private Integer quizVersion;
+    @OneToOne
+    private Tournament tournament;
 
     public TournamentQuiz() {
 
@@ -21,6 +26,13 @@ public class TournamentQuiz {
         setQuizVersion(other.getQuizVersion());
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
 
     public Integer getQuizAggregateId() {
         return quizAggregateId;
@@ -36,6 +48,14 @@ public class TournamentQuiz {
 
     public void setQuizVersion(Integer quizVersion) {
         this.quizVersion = quizVersion;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 
     public QuizDto buildDto() {

@@ -19,21 +19,21 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 public class Topic extends Aggregate {
     @Column
     private String name;
-    @Embedded
-    private TopicCourse course;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "topic")
+    private TopicCourse topicCourse;
 
     public Topic() {}
 
-    public Topic(Integer aggregateId, String name, TopicCourse course) {
+    public Topic(Integer aggregateId, String name, TopicCourse topicCourse) {
         super(aggregateId, TOPIC);
         setName(name);
-        setCourse(course);
+        setTopicCourse(topicCourse);
     }
 
     public Topic(Topic other) {
         super(other);
         setName(other.getName());
-        setCourse(new TopicCourse(other.getCourse()));
+        setTopicCourse(new TopicCourse(other.getTopicCourse()));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class Topic extends Aggregate {
     }
 
     private void mergeName(Set<String> toCommitVersionChangedFields, Topic mergedTopic, Topic committedTopic) {
-        if(toCommitVersionChangedFields.contains("name")) {
+        if (toCommitVersionChangedFields.contains("name")) {
             mergedTopic.setName(getName());
         } else {
             mergedTopic.setName(committedTopic.getName());
@@ -85,12 +85,13 @@ public class Topic extends Aggregate {
         this.name = name;
     }
 
-    public TopicCourse getCourse() {
-        return course;
+    public TopicCourse getTopicCourse() {
+        return topicCourse;
     }
 
-    public void setCourse(TopicCourse course) {
-        this.course = course;
+    public void setTopicCourse(TopicCourse course) {
+        this.topicCourse = course;
+        this.topicCourse.setTopic(this);
     }
 
 }

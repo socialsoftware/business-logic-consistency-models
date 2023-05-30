@@ -3,10 +3,15 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain;
 import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-@Embeddable
+@Entity
 public class QuizCourseExecution {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer courseExecutionAggregateId;
     private Integer courseExecutionVersion;
+    @OneToOne
+    private Quiz quiz;
 
     public QuizCourseExecution() {
 
@@ -20,6 +25,14 @@ public class QuizCourseExecution {
     public QuizCourseExecution(QuizCourseExecution other) {
         setCourseExecutionAggregateId(other.getCourseExecutionAggregateId());
         setCourseExecutionVersion(other.getCourseExecutionVersion());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Integer getCourseExecutionAggregateId() {
@@ -36,5 +49,13 @@ public class QuizCourseExecution {
 
     public void setCourseExecutionVersion(Integer courseExecutionVersion) {
         this.courseExecutionVersion = courseExecutionVersion;
+    }
+
+    public Quiz getQuiz() {
+        return quiz;
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
     }
 }

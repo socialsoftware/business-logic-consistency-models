@@ -4,16 +4,19 @@ import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 
-
-
-@Embeddable
+@Entity
 public class TournamentParticipantQuizAnswer {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer quizAnswerAggregateId;
     private Integer quizAnswerVersion;
     private boolean answered;
     // TODO: It does not support the set of answers because there is a limit on @Embeddable nesting
     private Integer numberOfAnswered;
     private Integer numberOfCorrect;
+    @OneToOne
+    private TournamentParticipant tournamentParticipant;
 
     public TournamentParticipantQuizAnswer() {
         setQuizAnswerVersion(0);
@@ -45,6 +48,14 @@ public class TournamentParticipantQuizAnswer {
 
         this.numberOfAnswered++;
         if (isCorrect) this.numberOfCorrect++;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Integer getQuizAnswerAggregateId() {
@@ -86,5 +97,13 @@ public class TournamentParticipantQuizAnswer {
 
     public void setNumberOfCorrect(Integer numberOfCorrect) {
         this.numberOfCorrect = numberOfCorrect;
+    }
+
+    public TournamentParticipant getTournamentParticipant() {
+        return tournamentParticipant;
+    }
+
+    public void setTournamentParticipant(TournamentParticipant tournamentParticipant) {
+        this.tournamentParticipant = tournamentParticipant;
     }
 }

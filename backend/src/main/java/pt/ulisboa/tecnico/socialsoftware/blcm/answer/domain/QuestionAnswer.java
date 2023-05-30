@@ -7,9 +7,13 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.Quiz;
 
-@Embeddable
+@Entity
 public class QuestionAnswer {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer optionSequenceChoice;
     private Integer questionAggregateId;
     private Integer questionVersion;
@@ -17,6 +21,8 @@ public class QuestionAnswer {
     private Integer optionKey;
     private boolean correct;
     private Aggregate.AggregateState state;
+    @ManyToOne
+    private QuizAnswer quizAnswer;
 
     public  QuestionAnswer() {
 
@@ -54,6 +60,14 @@ public class QuestionAnswer {
         setOptionKey(other.getOptionKey());
         setCorrect(other.isCorrect());
         setState(other.getState());
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Integer getOptionSequenceChoice() {
@@ -110,5 +124,13 @@ public class QuestionAnswer {
 
     public void setState(Aggregate.AggregateState state) {
         this.state = state;
+    }
+
+    public QuizAnswer getQuizAnswer() {
+        return quizAnswer;
+    }
+
+    public void setQuizAnswer(QuizAnswer quizAnswer) {
+        this.quizAnswer = quizAnswer;
     }
 }

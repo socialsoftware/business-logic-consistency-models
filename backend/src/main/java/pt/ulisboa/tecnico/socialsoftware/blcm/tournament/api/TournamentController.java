@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.event.TournamentEventHa
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.TournamentFunctionalities;
 
+import java.sql.SQLSyntaxErrorException;
 import java.util.List;
 import java.util.Set;
 

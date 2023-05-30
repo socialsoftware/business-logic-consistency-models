@@ -9,8 +9,8 @@ public class QuizAnswerSubscribesUpdateStudentName extends EventSubscription {
     private Integer studendAggregateId;
 
     public QuizAnswerSubscribesUpdateStudentName(QuizAnswer quizAnswer) {
-        super(quizAnswer.getCourseExecution().getCourseExecutionAggregateId(),
-                quizAnswer.getCourseExecution().getCourseExecutionVersion(),
+        super(quizAnswer.getAnswerCourseExecution().getCourseExecutionAggregateId(),
+                quizAnswer.getAnswerCourseExecution().getCourseExecutionVersion(),
                 UpdateStudentNameEvent.class.getSimpleName());
 
         this.studendAggregateId = quizAnswer.getStudent().getStudentAggregateId();

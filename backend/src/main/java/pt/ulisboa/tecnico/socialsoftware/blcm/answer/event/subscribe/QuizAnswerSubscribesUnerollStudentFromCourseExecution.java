@@ -9,8 +9,8 @@ public class QuizAnswerSubscribesUnerollStudentFromCourseExecution extends Event
     private Integer studentAggregateId;
 
     public QuizAnswerSubscribesUnerollStudentFromCourseExecution(QuizAnswer quizAnswer) {
-        super(quizAnswer.getCourseExecution().getCourseExecutionAggregateId(),
-                quizAnswer.getCourseExecution().getCourseExecutionVersion(),
+        super(quizAnswer.getAnswerCourseExecution().getCourseExecutionAggregateId(),
+                quizAnswer.getAnswerCourseExecution().getCourseExecutionVersion(),
                 UnerollStudentFromCourseExecutionEvent.class.getSimpleName());
 
         this.studentAggregateId = quizAnswer.getStudent().getStudentAggregateId();

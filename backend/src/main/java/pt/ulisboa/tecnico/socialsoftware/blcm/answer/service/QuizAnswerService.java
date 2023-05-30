@@ -93,7 +93,7 @@ public class QuizAnswerService {
         QuizDto quizDto = quizService.getCausalQuizRemote(quizAggregateId, unitOfWork);
 
         // COURSE_EXECUTION_SAME_QUIZ_COURSE_EXECUTION
-        if(!courseExecutionAggregateId.equals(quizDto.getAggregateId())) {
+        if (!courseExecutionAggregateId.equals(quizDto.getAggregateId())) {
             throw new TutorException(ErrorMessage.QUIZ_DOES_NOT_BELONG_TO_COURSE_EXECUTION, quizAggregateId, courseExecutionAggregateId);
         }
 
@@ -155,13 +155,13 @@ public class QuizAnswerService {
         QuizAnswer oldQuizAnswer = getCausalQuizAnswerLocal(answerAggregateId, unitOfWork);
         QuizAnswer newQuizAnswer = new QuizAnswer(oldQuizAnswer);
 
-        if (!newQuizAnswer.getCourseExecution().getCourseExecutionAggregateId().equals(executionAggregateId)) {
+        if (!newQuizAnswer.getAnswerCourseExecution().getCourseExecutionAggregateId().equals(executionAggregateId)) {
             return;
         }
 
         if (newQuizAnswer.getStudent().getStudentAggregateId().equals(userAggregateId)) {
             newQuizAnswer.getStudent().setName(name);
-            newQuizAnswer.getCourseExecution().setCourseExecutionVersion(eventVersion);
+            newQuizAnswer.getAnswerCourseExecution().setCourseExecutionVersion(eventVersion);
             unitOfWork.registerChanged(newQuizAnswer);
         }
     }

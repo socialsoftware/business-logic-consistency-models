@@ -9,10 +9,6 @@ public class VersionController {
     @Autowired
     VersionService versionService;
 
-    @PostMapping(value = "/versions/increment")
-    public void incrementVersion() {
-        versionService.incrementAndGetVersionNumber();
-    }
     @PostMapping(value = "/versions/decrement")
     public void decrementVersion() {
         versionService.decrementVersionNumber();

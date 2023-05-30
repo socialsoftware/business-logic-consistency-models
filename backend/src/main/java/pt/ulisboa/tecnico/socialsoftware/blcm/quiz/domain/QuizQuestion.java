@@ -4,15 +4,19 @@ import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 
-@Embeddable
+@Entity
 public class QuizQuestion {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer questionAggregateId;
     private Integer questionVersion;
     private String title;
     private String content;
     private Integer sequence;
-
     private Aggregate.AggregateState state;
+    @ManyToOne
+    private Quiz quiz;
 
     public QuizQuestion() {
     }
@@ -35,7 +39,13 @@ public class QuizQuestion {
         setState(other.getState());
     }
 
-    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Integer getQuestionAggregateId() {
         return questionAggregateId;
@@ -83,6 +93,14 @@ public class QuizQuestion {
 
     public void setState(Aggregate.AggregateState state) {
         this.state = state;
+    }
+
+    public Quiz getQuiz() {
+        return quiz;
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
     }
 
     public QuestionDto buildDto() {

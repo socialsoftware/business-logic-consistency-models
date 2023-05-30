@@ -13,7 +13,7 @@ import java.util.Set;
 @Repository
 @Transactional
 public interface CourseExecutionRepository extends JpaRepository<CourseExecution, Integer> {
-    @Query(value = "select ce1 from CourseExecution ce1 where ce1.aggregateId = :aggregateId and ce1.state != 'DELETED' and ce1.version = (select max(ce2.version) from CourseExecution ce2 where ce2.aggregateId = :aggregateId AND ce2.version < :unitOfWorkVersion)")
+    @Query(value = "select ce1 from CourseExecution ce1 where ce1.aggregateId = :aggregateId and ce1.state <> 'DELETED' and ce1.version = (select max(ce2.version) from CourseExecution ce2 where ce2.aggregateId = :aggregateId AND ce2.version < :unitOfWorkVersion)")
     Optional<CourseExecution> findCausal(Integer aggregateId, Integer unitOfWorkVersion);
 
     @Query(value = "select ce1 from CourseExecution ce1 where ce1.aggregateId = :aggregateId and ce1.version = (select max(ce2.version) from CourseExecution ce2 where ce2.aggregateId = :aggregateId AND ce2.version > :version)")

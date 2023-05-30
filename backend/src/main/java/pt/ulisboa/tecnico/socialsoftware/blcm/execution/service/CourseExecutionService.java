@@ -12,8 +12,9 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubsc
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecutionStudent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.publish.AnonymizeStudentEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.publish.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.event.publish.UnerollStudentFromCourseExecutionEvent;
@@ -22,7 +23,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.execution.repository.CourseExecuti
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecutionCourse;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
 import java.sql.SQLException;
@@ -42,6 +43,9 @@ public class CourseExecutionService {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired
+    private CourseService courseService;
 
     @Retryable(
             value = { SQLException.class },
@@ -69,8 +73,10 @@ public class CourseExecutionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto, ExecutionCourse executionCourse, UnitOfWork unitOfWork) {
-        CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(), courseExecutionDto, executionCourse);
+    public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto, UnitOfWork unitOfWork) {
+        CourseExecutionCourse courseExecutionCourse = new CourseExecutionCourse(courseService.getAndOrCreateCourseRemote(courseExecutionDto, unitOfWork));
+
+        CourseExecution courseExecution = new CourseExecution(aggregateIdGeneratorService.getNewAggregateId(), courseExecutionDto, courseExecutionCourse);
 
         unitOfWork.registerChanged(courseExecution);
         return new CourseExecutionDto(courseExecution);
@@ -100,9 +106,9 @@ public class CourseExecutionService {
             REMOVE_COURSE_IS_VALID
          */
         Integer numberOfExecutionsOfCourse = Math.toIntExact(getAllCausalCourseExecutions(unitOfWork).stream()
-                .filter(ce -> ce.getCourseAggregateId() == newCourseExecution.getCourse().getAggregateId())
+                .filter(ce -> ce.getCourseAggregateId() == newCourseExecution.getExecutionCourse().getCourseAggregateId())
                 .count());
-        if(numberOfExecutionsOfCourse == 1) {
+        if (numberOfExecutionsOfCourse == 1) {
             throw new TutorException(CANNOT_DELETE_COURSE_EXECUTION);
         }
 
@@ -115,15 +121,17 @@ public class CourseExecutionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void enrollStudent(Integer courseExecutionAggregateId, ExecutionStudent executionStudent, UnitOfWork unitOfWork) {
+    public void enrollStudent(Integer courseExecutionAggregateId, UserDto userDto, UnitOfWork unitOfWork) {
         CourseExecution oldCourseExecution = getCausalCourseExecutionLocal(courseExecutionAggregateId, unitOfWork);
 
-        if(!executionStudent.isActive()){
-            throw new TutorException(ErrorMessage.INACTIVE_USER, executionStudent.getUserAggregateId());
+        CourseExecutionStudent courseExecutionStudent = new CourseExecutionStudent(userDto);
+        if (!courseExecutionStudent.isActive()){
+            throw new TutorException(ErrorMessage.INACTIVE_USER, courseExecutionStudent.getUserAggregateId());
         }
 
         CourseExecution newCourseExecution = new CourseExecution(oldCourseExecution);
-        newCourseExecution.addStudent(executionStudent);
+        newCourseExecution.addStudent(courseExecutionStudent);
+
         unitOfWork.registerChanged(newCourseExecution);
     }
 

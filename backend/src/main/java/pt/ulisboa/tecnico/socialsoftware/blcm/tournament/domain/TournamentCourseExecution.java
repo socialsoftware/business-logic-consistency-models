@@ -3,13 +3,18 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain;
 import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 
-@Embeddable
+@Entity
 public class TournamentCourseExecution {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer courseExecutionAggregateId;
     private Integer courseExecutionCourseId;
     private String courseExecutionAcronym;
     private String courseExecutionStatus;
     private Integer courseExecutionVersion;
+    @OneToOne
+    private Tournament tournament;
 
     public TournamentCourseExecution() { }
     public TournamentCourseExecution(CourseExecutionDto courseExecutionDto) {
@@ -28,6 +33,13 @@ public class TournamentCourseExecution {
         setCourseExecutionStatus(other.getCourseExecutionStatus());
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
 
     public Integer getCourseExecutionAggregateId() {
         return courseExecutionAggregateId;
@@ -67,6 +79,14 @@ public class TournamentCourseExecution {
 
     public void setCourseExecutionVersion(Integer courseExecutionVersion) {
         this.courseExecutionVersion = courseExecutionVersion;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 
     public CourseExecutionDto buildDto() {

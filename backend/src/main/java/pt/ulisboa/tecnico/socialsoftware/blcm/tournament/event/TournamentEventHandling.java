@@ -34,9 +34,6 @@ public class TournamentEventHandling {
     private TournamentService tournamentService;
 
     @Autowired
-    private TournamentFunctionalities tournamentFunctionalities;
-
-    @Autowired
     private TournamentEventProcessing tournamentEventProcessing;
 
     /* fixed delay guarantees this task only runs 10 seconds after the previous finished. With fixed delay concurrent executions are not possible.*/
@@ -181,7 +178,7 @@ public class TournamentEventHandling {
                         .filter(eventSubscription::subscribesEvent)
                         .map(QuizAnswerQuestionAnswerEvent.class::cast)
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+                        .toList();
                 for (QuizAnswerQuestionAnswerEvent eventToProcess : eventsToProcess) {
                     tournamentEventProcessing.processAnswerQuestionEvent(aggregateId, eventToProcess);
                 }
@@ -208,7 +205,7 @@ public class TournamentEventHandling {
                         .filter(eventSubscription::subscribesEvent)
                         .map(UnerollStudentFromCourseExecutionEvent.class::cast)
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+                        .toList();
                 for (UnerollStudentFromCourseExecutionEvent eventToProcess : eventsToProcess) {
                     tournamentEventProcessing.processUnenrollStudentEvent(aggregateId, eventToProcess);
                 }
@@ -234,7 +231,7 @@ public class TournamentEventHandling {
                         .filter(eventSubscription::subscribesEvent)
                         .map(InvalidateQuizEvent.class::cast)
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+                        .toList();
                 for (InvalidateQuizEvent eventToProcess : eventsToProcess) {
                     tournamentEventProcessing.processInvalidateQuizEvent(aggregateId, eventToProcess);
                 }
@@ -256,7 +253,7 @@ public class TournamentEventHandling {
                         .filter(eventSubscription::subscribesEvent)
                         .map(UpdateStudentNameEvent.class::cast)
                         .sorted(Comparator.comparing(Event::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+                        .toList();
                 for (UpdateStudentNameEvent eventToProcess : eventsToProcess) {
                     tournamentEventProcessing.processUpdateExecutionStudentNameEvent(tournament.getAggregateId(), eventToProcess);
                 }

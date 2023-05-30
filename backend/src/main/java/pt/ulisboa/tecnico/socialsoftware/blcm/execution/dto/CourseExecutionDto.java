@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecutionStudent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.io.Serializable;
@@ -38,15 +38,15 @@ public class CourseExecutionDto implements Serializable {
 
     public CourseExecutionDto(CourseExecution courseExecution) {
         setAggregateId(courseExecution.getAggregateId());
-        setCourseAggregateId(courseExecution.getCourse().getAggregateId());
-        setName(courseExecution.getCourse().getName());
-        setType(courseExecution.getCourse().getType().toString());
+        setCourseAggregateId(courseExecution.getExecutionCourse().getCourseAggregateId());
+        setName(courseExecution.getExecutionCourse().getName());
+        setType(courseExecution.getExecutionCourse().getType().toString());
         setAcronym(courseExecution.getAcronym());
         setAcademicTerm(courseExecution.getAcademicTerm());
         setStatus(courseExecution.getState().toString());
         setVersion(courseExecution.getVersion());
         setEndDate(courseExecution.getEndDate().toString());
-        setStudents(courseExecution.getStudents().stream().map(ExecutionStudent::buildDto).collect(Collectors.toSet()));
+        setStudents(courseExecution.getStudents().stream().map(CourseExecutionStudent::buildDto).collect(Collectors.toSet()));
     }
 
     public Integer getAggregateId() {

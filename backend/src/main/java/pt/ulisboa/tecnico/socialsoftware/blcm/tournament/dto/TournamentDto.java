@@ -51,7 +51,7 @@ public class TournamentDto implements Serializable {
         setCreator(tournament.getTournamentCreator().buildDto());
         setParticipants(tournament.getTournamentParticipants().stream().map(TournamentParticipant::buildDto).collect(Collectors.toSet()));
         setCourseExecution(tournament.getTournamentCourseExecution().buildDto());
-        setTopics(tournament.getTopics().stream().map(TournamentTopic::buildDto).collect(Collectors.toSet()));
+        setTopics(tournament.getTournamentTopics().stream().map(TournamentTopic::buildDto).collect(Collectors.toSet()));
         setQuiz(tournament.getTournamentQuiz().buildDto());
         setState(tournament.getState().toString());
     }

@@ -41,27 +41,26 @@ public class Quiz extends Aggregate {
     private LocalDateTime availableDate;
     private LocalDateTime conclusionDate;
     private LocalDateTime resultsDate;
-    @Column(nullable = false)
     private String title = "Title";
-    @ElementCollection(fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "quiz")
     private Set<QuizQuestion> quizQuestions = new HashSet<>();
     @Enumerated(EnumType.STRING)
     private QuizType quizType;
     /*
         COURSE_EXECUTION_FINAL
      */
-    @Embedded
-    private QuizCourseExecution courseExecution;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "quiz")
+    private QuizCourseExecution quizCourseExecution;
 
     public Quiz() {
-        this.courseExecution = null;
+        this.quizCourseExecution = null;
         this.creationDate = null;
     }
 
 
-    public Quiz(Integer aggregateId, QuizCourseExecution courseExecution, Set<QuizQuestion> quizQuestions, QuizDto quizDto, QuizType quizType) {
+    public Quiz(Integer aggregateId, QuizCourseExecution quizCourseExecution, Set<QuizQuestion> quizQuestions, QuizDto quizDto, QuizType quizType) {
         super(aggregateId, QUIZ);
-        this.courseExecution = courseExecution;
+        setQuizCourseExecution(quizCourseExecution);
         setQuizQuestions(quizQuestions);
         setTitle(quizDto.getTitle());
         this.creationDate = LocalDateTime.now();
@@ -74,8 +73,9 @@ public class Quiz extends Aggregate {
 
     public Quiz(Quiz other) {
         super(other);
-        setQuizQuestions(other.getQuizQuestions());
-        this.courseExecution = new QuizCourseExecution(other.getCourseExecution());
+        setQuizCourseExecution(new QuizCourseExecution(other.getQuizCourseExecution()));
+
+        setQuizQuestions(other.getQuizQuestions().stream().map(QuizQuestion::new).collect(Collectors.toSet()));
         setTitle(other.getTitle());
         this.creationDate = other.getCreationDate();
         setAvailableDate(other.getAvailableDate());
@@ -112,7 +112,7 @@ public class Quiz extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new QuizSubscribesRemoveCourseExecution(this.getCourseExecution()));
+        eventSubscriptions.add(new QuizSubscribesRemoveCourseExecution(this.getQuizCourseExecution()));
     }
 
     private void interInvariantQuestionsExist(Set<EventSubscription> eventSubscriptions) {
@@ -261,10 +261,16 @@ public class Quiz extends Aggregate {
             throw new TutorException(CANNOT_UPDATE_QUIZ, getAggregateId());
         }
         this.quizQuestions = quizQuestions;
+        this.quizQuestions.forEach(quizQuestion -> quizQuestion.setQuiz(this));
     }
 
-    public QuizCourseExecution getCourseExecution() {
-        return courseExecution;
+    public QuizCourseExecution getQuizCourseExecution() {
+        return quizCourseExecution;
+    }
+
+    public void setQuizCourseExecution(QuizCourseExecution quizCourseExecution) {
+        this.quizCourseExecution = quizCourseExecution;
+        this.quizCourseExecution.setQuiz(this);
     }
 
     public QuizType getQuizType() {

@@ -89,12 +89,12 @@ public class QuizService {
 
         List<QuestionDto> questionDtos = questionService.findQuestionsByTopics(topicIds, unitOfWork);
 
-        if(questionDtos.size() < numberOfQuestions) {
+        if (questionDtos.size() < numberOfQuestions) {
             throw new TutorException(ErrorMessage.NOT_ENOUGH_QUESTIONS);
         }
 
         Set<Integer> questionPositions = new HashSet<>();
-        while(questionPositions.size() < numberOfQuestions) {
+        while (questionPositions.size() < numberOfQuestions) {
             questionPositions.add(ThreadLocalRandom.current().nextInt(0, questionDtos.size()));
         }
 
@@ -135,8 +135,13 @@ public class QuizService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, Set<QuizQuestion> quizQuestions, QuizDto quizDto, UnitOfWork unitOfWork) {
+    public QuizDto createQuiz(QuizCourseExecution quizCourseExecution, Set<QuestionDto> questions, QuizDto quizDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
+
+        Set<QuizQuestion> quizQuestions = questions.stream()
+                .map(QuizQuestion::new)
+                .collect(Collectors.toSet());
+
         Quiz quiz = new Quiz(aggregateId, quizCourseExecution, quizQuestions, quizDto, IN_CLASS);
         unitOfWork.registerChanged(quiz);
         return new QuizDto(quiz);
@@ -162,9 +167,7 @@ public class QuizService {
                     .map(QuizQuestion::new)
                     .collect(Collectors.toSet());
 
-            if (quizQuestions != null) {
-                newQuiz.setQuizQuestions(quizQuestions);
-            }
+            newQuiz.setQuizQuestions(quizQuestions);
         }
 
         newQuiz.setTitle("Generated Quiz Title");
@@ -238,7 +241,7 @@ public class QuizService {
         Quiz oldQuiz = getCausalQuizLocal(quizAggregateId, unitOfWork);
         Quiz newQuiz = new Quiz(oldQuiz);
         
-        if(newQuiz.getCourseExecution().getCourseExecutionAggregateId().equals(courseExecutionId)) {
+        if(newQuiz.getQuizCourseExecution().getCourseExecutionAggregateId().equals(courseExecutionId)) {
             newQuiz.setState(Aggregate.AggregateState.INACTIVE);
             unitOfWork.registerChanged(newQuiz);
             return newQuiz;

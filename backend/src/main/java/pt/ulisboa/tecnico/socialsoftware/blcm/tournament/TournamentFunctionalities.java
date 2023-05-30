@@ -58,24 +58,19 @@ public class TournamentFunctionalities {
         checkInput(userId, topicsId, tournamentDto);
 
         // by making this call the invariants regarding the course execution and the role of the creator are guaranteed
-        UserDto userDto = courseExecutionService.getStudentByExecutionIdAndUserId(executionId, userId, unitOfWork);
-        TournamentCreator creator = new TournamentCreator(userDto.getAggregateId(), userDto.getName(), userDto.getUsername(), userDto.getVersion());
+        UserDto creatorDto = courseExecutionService.getStudentByExecutionIdAndUserId(executionId, userId, unitOfWork);
 
         CourseExecutionDto courseExecutionDto = courseExecutionService.getCausalCourseExecutionRemote(executionId, unitOfWork);
-        TournamentCourseExecution tournamentCourseExecution = new TournamentCourseExecution(courseExecutionDto);
 
-
-        Set<TournamentTopic> tournamentTopics = new HashSet<>();
-        topicsId.forEach(topicId -> {
-            TopicDto topicDto = topicService.getCausalTopicRemote(topicId, unitOfWork);
-            tournamentTopics.add(new TournamentTopic(topicDto));
-
-        });
+        Set<TopicDto> topicDtos = topicsId.stream()
+                .map(topicId -> topicService.getCausalTopicRemote(topicId, unitOfWork))
+                .collect(Collectors.toSet());
 
         QuizDto quizDto = new QuizDto();
         quizDto.setAvailableDate(tournamentDto.getStartTime());
         quizDto.setConclusionDate(tournamentDto.getEndTime());
         quizDto.setResultsDate(tournamentDto.getEndTime());
+        QuizDto quizResultDto = quizService.generateQuiz(executionId, quizDto, topicsId, tournamentDto.getNumberOfQuestions(), unitOfWork);
 
 //        NUMBER_OF_QUESTIONS
 //            this.numberOfQuestions == Quiz(tournamentQuiz.id).quizQuestions.size
@@ -87,14 +82,11 @@ public class TournamentFunctionalities {
 //        END_TIME_CONCLUSION_DATE
 //            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
 
-        QuizDto quizDto1 = quizService.generateQuiz(executionId, quizDto, topicsId, tournamentDto.getNumberOfQuestions(), unitOfWork);
-
-        TournamentDto tournamentDto2 = tournamentService.createTournament(tournamentDto, creator, tournamentCourseExecution, tournamentTopics, new TournamentQuiz(quizDto1.getAggregateId(), quizDto1.getVersion()), unitOfWork);
-
+        TournamentDto tournamentResultDto = tournamentService.createTournament(tournamentDto, creatorDto, courseExecutionDto, topicDtos, quizResultDto, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
 
-        return tournamentDto2;
+        return tournamentResultDto;
     }
 
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
@@ -113,13 +105,11 @@ public class TournamentFunctionalities {
 
         //checkInput(topicsAggregateIds, tournamentDto);
 
-        Set<TournamentTopic> tournamentTopics = new HashSet<>();
-        topicsAggregateIds.forEach(topicAggregateId -> {
-            TopicDto topicDto = topicService.getCausalTopicRemote(topicAggregateId, unitOfWork);
-            tournamentTopics.add(new TournamentTopic(topicDto));
-        });
+        Set<TopicDto> topicDtos = topicsAggregateIds.stream()
+                .map(topicAggregateId -> topicService.getCausalTopicRemote(topicAggregateId, unitOfWork))
+                .collect(Collectors.toSet());
 
-        TournamentDto newTournamentDto = tournamentService.updateTournament(tournamentDto, tournamentTopics, unitOfWork);
+        TournamentDto newTournamentDto = tournamentService.updateTournament(tournamentDto, topicDtos, unitOfWork);
 
         QuizDto quizDto = new QuizDto();
         quizDto.setAggregateId(newTournamentDto.getQuiz().getAggregateId());
@@ -137,7 +127,7 @@ public class TournamentFunctionalities {
 //        END_TIME_CONCLUSION_DATE
 //            this.endTime == Quiz(tournamentQuiz.id).conclusionDate
 
-        /*this if is required for the case of updating a quiz and not altering neither the number of questions neither the topics */
+        /* this if is required for the case of updating a quiz and not altering neither the number of questions neither the topics */
         if (topicsAggregateIds != null || tournamentDto.getNumberOfQuestions() != null) {
             if (topicsAggregateIds == null) {
                 quizService.updateGeneratedQuiz(quizDto, newTournamentDto.getTopics().stream().filter(t -> t.getState().equals(Aggregate.AggregateState.ACTIVE.toString())).map(TopicDto::getAggregateId).collect(Collectors.toSet()), newTournamentDto.getNumberOfQuestions(), unitOfWork);

@@ -40,8 +40,8 @@ public class QuizDto implements Serializable {
         setQuestionDtos(quiz.getQuizQuestions().stream()
                 .map(qq -> qq.buildDto())
                 .collect(Collectors.toList()));
-        setCourseExecutionAggregateId(quiz.getCourseExecution().getCourseExecutionAggregateId());
-        setCourseExecutionVersion(quiz.getCourseExecution().getCourseExecutionVersion());
+        setCourseExecutionAggregateId(quiz.getQuizCourseExecution().getCourseExecutionAggregateId());
+        setCourseExecutionVersion(quiz.getQuizCourseExecution().getCourseExecutionVersion());
     }
 
     public Integer getAggregateId() {

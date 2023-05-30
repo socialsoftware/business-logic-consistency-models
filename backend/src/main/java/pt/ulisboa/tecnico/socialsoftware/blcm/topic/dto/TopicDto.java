@@ -16,7 +16,7 @@ public class TopicDto implements Serializable {
     public TopicDto(Topic topic) {
         setAggregateId(topic.getAggregateId());
         setVersion(topic.getVersion());
-        setCourseId(topic.getCourse().getCourseAggregateId());
+        setCourseId(topic.getTopicCourse().getCourseAggregateId());
         setName(topic.getName());
     }
 

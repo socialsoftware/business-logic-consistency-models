@@ -287,8 +287,6 @@ class TournamentFunctionalityTest extends SpockTest {
                 'the course execution emitted the event and it is subscribed due to the participant which of a older version'
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED
-        and: 'reset version number because it stills concurrent with update'
-        versionService.incrementAndGetVersionNumber()
         and: 'the name is updated in course execution'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
         courseExecutionDtoResult.getStudents().find{it.aggregateId == userCreatorDto.aggregateId}.name == UPDATED_NAME
@@ -423,8 +421,6 @@ class TournamentFunctionalityTest extends SpockTest {
         then: 'fails during merge because course execution emitted an event that was not processed by the tournament version'
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED
-        and: 'after reset version number to use tournament version where the creator is anonymized'
-        versionService.incrementAndGetVersionNumber()
         and: 'creator is anonymized'
         def courseExecutionDtoResult = courseExecutionFunctionalities.getCourseExecutionByAggregateId(courseExecutionDto.getAggregateId())
         courseExecutionDtoResult.getStudents().find{it.aggregateId == userCreatorDto.aggregateId}.name == ANONYMOUS

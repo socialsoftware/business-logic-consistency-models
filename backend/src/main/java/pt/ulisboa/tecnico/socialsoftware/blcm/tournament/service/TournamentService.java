@@ -10,6 +10,8 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.repository.TournamentRepository;
@@ -19,6 +21,7 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.service.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler;
 
 import java.sql.SQLException;
@@ -71,14 +74,13 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public TournamentDto createTournament(TournamentDto tournamentDto, TournamentCreator creator,
-                                          TournamentCourseExecution courseExecution, Set<TournamentTopic> topics,
-                                          TournamentQuiz quiz, UnitOfWork unitOfWork) {
+    public TournamentDto createTournament(TournamentDto tournamentDto, UserDto creatorDto,
+                                          CourseExecutionDto courseExecutionDto, Set<TopicDto> topicDtos,
+                                          QuizDto quizDto, UnitOfWork unitOfWork) {
+
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-        if (creator.getCreatorName().equals("ANONYMOUS") || creator.getCreatorUsername().equals("ANONYMOUS")) {
-            throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, creator.getCreatorAggregateId());
-        }
-        Tournament tournament = new Tournament(aggregateId, tournamentDto, creator, courseExecution, topics, quiz); /* should the skeleton creation be part of the functionality?? */
+
+        Tournament tournament = new Tournament(aggregateId, tournamentDto, creatorDto, courseExecutionDto, topicDtos, quizDto); /* should the skeleton creation be part of the functionality?? */
 
         unitOfWork.registerChanged(tournament);
         return new TournamentDto(tournament);
@@ -92,7 +94,9 @@ public class TournamentService {
         if (tournamentParticipant.getParticipantName().equals("ANONYMOUS") || tournamentParticipant.getParticipantUsername().equals("ANONYMOUS")) {
             throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, tournamentParticipant.getParticipantAggregateId());
         }
+
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
+
         if (DateHandler.now().isAfter(oldTournament.getStartTime())) {
             throw new TutorException(CANNOT_ADD_PARTICIPANT, tournamentAggregateId);
         }
@@ -112,7 +116,7 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public TournamentDto updateTournament(TournamentDto tournamentDto, Set<TournamentTopic> tournamentTopics, UnitOfWork unitOfWork) {
+    public TournamentDto updateTournament(TournamentDto tournamentDto, Set<TopicDto> topicDtos, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentDto.getAggregateId(), unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
 
@@ -131,8 +135,12 @@ public class TournamentService {
             unitOfWork.registerChanged(newTournament);
         }
 
-        if (tournamentTopics != null && !tournamentTopics.isEmpty() ) {
-            newTournament.setTopics(tournamentTopics);
+        if (topicDtos != null && !topicDtos.isEmpty() ) {
+            Set<TournamentTopic> tournamentTopics = topicDtos.stream()
+                    .map(TournamentTopic::new)
+                    .collect(Collectors.toSet());
+
+            newTournament.setTournamentTopics(tournamentTopics);
             unitOfWork.registerChanged(newTournament);
         }
 
@@ -363,7 +371,7 @@ public class TournamentService {
         quizDto.setConclusionDate(newTournament.getEndTime().toString());
         quizDto.setResultsDate(newTournament.getEndTime().toString());
         try {
-            quizService.updateGeneratedQuiz(quizDto, newTournament.getTopics().stream().filter(t -> t.getState() == Aggregate.AggregateState.ACTIVE).map(TournamentTopic::getTopicAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(), unitOfWork);
+            quizService.updateGeneratedQuiz(quizDto, newTournament.getTournamentTopics().stream().filter(t -> t.getState() == Aggregate.AggregateState.ACTIVE).map(TournamentTopic::getTopicAggregateId).collect(Collectors.toSet()), newTournament.getNumberOfQuestions(), unitOfWork);
         } catch (TutorException e) {
             newTournament.setState(Aggregate.AggregateState.INACTIVE);
         }
@@ -412,7 +420,7 @@ public class TournamentService {
     public Tournament invalidateQuiz(Integer tournamentAggregateId, Integer aggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
         Tournament oldTournament = getCausalTournamentLocal(tournamentAggregateId, unitOfWork);
         Tournament newTournament = new Tournament(oldTournament);
-        List<Integer> topicsIds = newTournament.getTopics().stream().map(TournamentTopic::getTopicAggregateId).collect(Collectors.toList());
+        List<Integer> topicsIds = newTournament.getTournamentTopics().stream().map(TournamentTopic::getTopicAggregateId).collect(Collectors.toList());
 
         QuizDto quizDto = new QuizDto();
         quizDto.setAvailableDate(newTournament.getStartTime().toString());
@@ -455,7 +463,7 @@ public class TournamentService {
         }
 
         for (TournamentParticipant tp : newTournament.getTournamentParticipants()) {
-            if(tp.getParticipantAggregateId().equals(userAggregateId)) {
+            if (tp.getParticipantAggregateId().equals(userAggregateId)) {
                 tp.setParticipantName(name);
                 newTournament.getTournamentCourseExecution().setCourseExecutionVersion(eventVersion);
                 unitOfWork.registerChanged(newTournament);

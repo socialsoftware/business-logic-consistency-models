@@ -9,8 +9,8 @@ public class QuizAnswerSubscribesAnonymizeStudent extends EventSubscription {
     private Integer studentAggregateId;
 
     public QuizAnswerSubscribesAnonymizeStudent(QuizAnswer quizAnswer) {
-        super(quizAnswer.getCourseExecution().getCourseExecutionAggregateId(),
-                quizAnswer.getCourseExecution().getCourseExecutionVersion(),
+        super(quizAnswer.getAnswerCourseExecution().getCourseExecutionAggregateId(),
+                quizAnswer.getAnswerCourseExecution().getCourseExecutionVersion(),
                 AnonymizeStudentEvent.class.getSimpleName());
 
         this.studentAggregateId = quizAnswer.getStudent().getStudentAggregateId();

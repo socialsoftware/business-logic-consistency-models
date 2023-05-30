@@ -3,11 +3,16 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.dto.CourseDto;
 
-@Embeddable
+@Entity
 public class QuestionCourse {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer courseAggregateId;
     private String courseName;
     private Integer courseVersion;
+    @OneToOne
+    private Question question;
 
     public QuestionCourse() {
 
@@ -22,6 +27,14 @@ public class QuestionCourse {
         setCourseAggregateId(other.getCourseAggregateId());
         setCourseName(other.getCourseName());
         setCourseVersion(other.getCourseVersion());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Integer getCourseAggregateId() {
@@ -46,6 +59,14 @@ public class QuestionCourse {
 
     public void setCourseVersion(Integer courseVersion) {
         this.courseVersion = courseVersion;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 
     public CourseDto buildDto() {

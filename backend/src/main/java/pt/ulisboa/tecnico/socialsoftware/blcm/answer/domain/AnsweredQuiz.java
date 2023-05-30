@@ -8,10 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Embeddable
+@Entity
 public class AnsweredQuiz {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer quizAggregateId;
     private Integer quizVersion;
+    @OneToOne
+    private QuizAnswer quizAnswer;
     @ElementCollection
     private List<Integer> quizQuestionsAggregateIds;
 
@@ -33,6 +38,14 @@ public class AnsweredQuiz {
         setQuizQuestionsAggregateIds(new ArrayList<>(other.getQuizQuestionsAggregateIds()));
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
     public Integer getQuizAggregateId() {
         return quizAggregateId;
     }
@@ -51,5 +64,13 @@ public class AnsweredQuiz {
 
     public void setQuizQuestionsAggregateIds(List<Integer> quizQuestionsAggregateIds) {
         this.quizQuestionsAggregateIds = quizQuestionsAggregateIds;
+    }
+
+    public QuizAnswer getQuizAnswer() {
+        return quizAnswer;
+    }
+
+    public void setQuizAnswer(QuizAnswer quizAnswer) {
+        this.quizAnswer = quizAnswer;
     }
 }

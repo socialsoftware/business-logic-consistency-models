@@ -52,12 +52,11 @@ public class QuestionFunctionalities {
             }
         }
 
-        List<QuestionTopic> questionTopics = questionDto.getTopicDto().stream()
+        List<TopicDto> topics = questionDto.getTopicDto().stream()
                 .map(topicDto -> topicService.getCausalTopicRemote(topicDto.getAggregateId(), unitOfWork))
-                .map(QuestionTopic::new)
                 .collect(Collectors.toList());
 
-        QuestionDto questionDto1 = questionService.createQuestion(course, questionDto, questionTopics, unitOfWork);
+        QuestionDto questionDto1 = questionService.createQuestion(course, questionDto, topics, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
         return questionDto1;

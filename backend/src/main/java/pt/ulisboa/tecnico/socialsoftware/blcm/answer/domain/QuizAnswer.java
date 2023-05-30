@@ -38,42 +38,39 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage.QUES
 public class QuizAnswer extends Aggregate {
     private LocalDateTime creationDate;
     private LocalDateTime answerDate;
-    @Column
     private boolean completed;
-    @Embedded
-    private final AnswerCourseExecution courseExecution;
-    @Embedded
-    private final AnswerStudent student;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "quizAnswer")
+    private AnswerCourseExecution answerCourseExecution;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "quizAnswer")
+    private AnswerStudent student;
     /* it is not final because of the question ids inside*/
-    @Embedded
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "quizAnswer")
     private AnsweredQuiz quiz;
-    @ElementCollection
-    private List<QuestionAnswer> questionAnswers;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "quizAnswer")
+    private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
     public QuizAnswer() {
-        this.courseExecution = new AnswerCourseExecution();
-        this.quiz = new AnsweredQuiz();
-        this.student = new AnswerStudent();
+        setAnswerCourseExecution(new AnswerCourseExecution());
+        setStudent(new AnswerStudent());
+        setQuiz(new AnsweredQuiz());
     }
 
-    public QuizAnswer(Integer aggregateId, AnswerCourseExecution courseExecution, AnswerStudent answerStudent, AnsweredQuiz answeredQuiz) {
+    public QuizAnswer(Integer aggregateId, AnswerCourseExecution answerCourseExecution, AnswerStudent answerStudent, AnsweredQuiz answeredQuiz) {
         super(aggregateId, ANSWER);
-        this.courseExecution = courseExecution;
-        this.student = answerStudent;
-        this.quiz = answeredQuiz;
+        setAnswerCourseExecution(answerCourseExecution);
+        setStudent(answerStudent);
+        setQuiz(answeredQuiz);
     }
 
     public QuizAnswer(QuizAnswer other) {
         super(other);
-        this.student = new AnswerStudent(other.getStudent());
-        this.quiz = new AnsweredQuiz(other.getQuiz());
-        this.courseExecution = new AnswerCourseExecution(other.getCourseExecution());
+        setAnswerCourseExecution(new AnswerCourseExecution(other.getAnswerCourseExecution()));
+        setStudent(new AnswerStudent(other.getStudent()));
+        setQuiz(new AnsweredQuiz(other.getQuiz()));
         setAnswerDate(other.getAnswerDate());
         setCreationDate(other.getCreationDate());
         setQuestionAnswers(other.getQuestionAnswers().stream().map(QuestionAnswer::new).collect(Collectors.toList()));
     }
-
-
 
     @Override
     public void verifyInvariants() {
@@ -94,7 +91,7 @@ public class QuizAnswer extends Aggregate {
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
         // TODO: this event is not handled
-        eventSubscriptions.add(new QuizAnswerSubscribesRemoveCourseExecution(this.getCourseExecution()));
+        eventSubscriptions.add(new QuizAnswerSubscribesRemoveCourseExecution(this.getAnswerCourseExecution()));
     }
 
     private void interInvariantQuizExists(Set<EventSubscription> eventSubscriptions) {
@@ -136,10 +133,10 @@ public class QuizAnswer extends Aggregate {
 
     private void mergeCourseExecution(QuizAnswer toCommitQuizAnswer, QuizAnswer committedQuizAnswer) {
         // The course execution version determines which user is more recent because the user is an execution student
-        if (toCommitQuizAnswer.getCourseExecution().getCourseExecutionVersion() >= committedQuizAnswer.getCourseExecution().getCourseExecutionVersion()) {
-            toCommitQuizAnswer.getCourseExecution().setCourseExecutionVersion(toCommitQuizAnswer.getCourseExecution().getCourseExecutionVersion());
+        if (toCommitQuizAnswer.getAnswerCourseExecution().getCourseExecutionVersion() >= committedQuizAnswer.getAnswerCourseExecution().getCourseExecutionVersion()) {
+            toCommitQuizAnswer.getAnswerCourseExecution().setCourseExecutionVersion(toCommitQuizAnswer.getAnswerCourseExecution().getCourseExecutionVersion());
         } else {
-            toCommitQuizAnswer.getCourseExecution().setCourseExecutionVersion(committedQuizAnswer.getCourseExecution().getCourseExecutionVersion());
+            toCommitQuizAnswer.getAnswerCourseExecution().setCourseExecutionVersion(committedQuizAnswer.getAnswerCourseExecution().getCourseExecutionVersion());
         }
     }
 
@@ -221,12 +218,22 @@ public class QuizAnswer extends Aggregate {
         this.completed = completed;
     }
 
-    public AnswerCourseExecution getCourseExecution() {
-        return courseExecution;
+    public AnswerCourseExecution getAnswerCourseExecution() {
+        return answerCourseExecution;
+    }
+
+    public void setAnswerCourseExecution(AnswerCourseExecution answerCourseExecution) {
+        this.answerCourseExecution = answerCourseExecution;
+        answerCourseExecution.setQuizAnswer(this);
     }
 
     public AnswerStudent getStudent() {
         return student;
+    }
+
+    public void setStudent(AnswerStudent answerStudent) {
+        this.student = answerStudent;
+        answerStudent.setQuizAnswer(this);
     }
 
     public AnsweredQuiz getQuiz() {
@@ -235,6 +242,7 @@ public class QuizAnswer extends Aggregate {
 
     public void setQuiz(AnsweredQuiz quiz) {
         this.quiz = quiz;
+        quiz.setQuizAnswer(this);
     }
 
     public List<QuestionAnswer> getQuestionAnswers() {
@@ -242,22 +250,25 @@ public class QuizAnswer extends Aggregate {
     }
 
     public void setQuestionAnswers(List<QuestionAnswer> questionAnswers) {
+        this.questionAnswers.forEach(questionAnswer -> questionAnswer.setQuizAnswer(null));
         this.questionAnswers = questionAnswers;
+        questionAnswers.forEach(questionAnswer -> questionAnswer.setQuizAnswer(this));
     }
 
     public void addQuestionAnswer(QuestionAnswer questionAnswer) {
         List<Integer> answeredQuestionIds = this.questionAnswers.stream()
                 .map(QuestionAnswer::getQuestionAggregateId)
                 .collect(Collectors.toList());
-        if(answeredQuestionIds.contains(questionAnswer.getQuestionAggregateId())) {
+        if (answeredQuestionIds.contains(questionAnswer.getQuestionAggregateId())) {
             throw new TutorException(QUESTION_ALREADY_ANSWERED, questionAnswer.getQuestionAggregateId(), this.getQuiz().getQuizAggregateId());
         }
         this.questionAnswers.add(questionAnswer);
+        questionAnswer.setQuizAnswer(this);
     }
 
     public QuestionAnswer findQuestionAnswer(Integer questionAggregateId) {
-        for(QuestionAnswer qa : this.questionAnswers) {
-            if(qa.getQuestionAggregateId().equals(questionAggregateId)) {
+        for (QuestionAnswer qa : this.questionAnswers) {
+            if (qa.getQuestionAggregateId().equals(questionAggregateId)) {
                 return qa;
             }
         }

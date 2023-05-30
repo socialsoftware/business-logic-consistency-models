@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.quiz;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
+import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.service.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizCourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.domain.QuizQuestion;
@@ -32,12 +33,12 @@ public class QuizFunctionalities {
     public QuizDto createQuiz(Integer courseExecutionId, QuizDto quizDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.getCausalCourseExecutionRemote(courseExecutionId, unitOfWork));
-        Set<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream()
+
+        Set<QuestionDto> questions = quizDto.getQuestionDtos().stream()
                 .map(qq -> questionService.getCausalQuestionRemote(qq.getAggregateId(), unitOfWork))
-                .map(QuizQuestion::new)
                 .collect(Collectors.toSet());
 
-        QuizDto quizDto1 = quizService.createQuiz(quizCourseExecution, quizQuestions, quizDto, unitOfWork);
+        QuizDto quizDto1 = quizService.createQuiz(quizCourseExecution, questions, quizDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
         return quizDto1;
 

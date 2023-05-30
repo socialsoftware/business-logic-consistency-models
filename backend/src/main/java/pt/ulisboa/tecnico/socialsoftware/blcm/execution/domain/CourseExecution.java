@@ -31,28 +31,25 @@ import static pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate
 
 @Entity
 public class CourseExecution extends Aggregate {
-    @Column
     private String acronym;
-    @Column
     private String academicTerm;
     private LocalDateTime endDate;
-    @Embedded
-    private ExecutionCourse course;
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<ExecutionStudent> students;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "courseExecution")
+    private CourseExecutionCourse courseExecutionCourse;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "courseExecution")
+    private Set<CourseExecutionStudent> students = new HashSet<>();
 
     public CourseExecution() {
 
     }
 
 
-    public CourseExecution(Integer aggregateId, CourseExecutionDto courseExecutionDto, ExecutionCourse executionCourse) {
+    public CourseExecution(Integer aggregateId, CourseExecutionDto courseExecutionDto, CourseExecutionCourse courseExecutionCourse) {
         super(aggregateId, COURSE_EXECUTION);
         setAcronym(courseExecutionDto.getAcronym());
         setAcademicTerm(courseExecutionDto.getAcademicTerm());
         setEndDate(DateHandler.toLocalDateTime(courseExecutionDto.getEndDate()));
-        setCourse(executionCourse);
-        setStudents(new HashSet<>());
+        setExecutionCourse(courseExecutionCourse);
     }
 
 
@@ -61,9 +58,8 @@ public class CourseExecution extends Aggregate {
         setAcronym(other.getAcronym());
         setAcademicTerm(other.getAcademicTerm());
         setEndDate(other.getEndDate());
-        setCourse(other.getCourse());
-        setStudents(new HashSet<>(other.getStudents().stream().map(ExecutionStudent::new).collect(Collectors.toSet())));
-
+        setExecutionCourse(new CourseExecutionCourse(other.getExecutionCourse()));
+        setStudents(other.getStudents().stream().map(CourseExecutionStudent::new).collect(Collectors.toSet()));
     }
 
     @Override
@@ -76,7 +72,7 @@ public class CourseExecution extends Aggregate {
     }
 
     private void interInvariantUsersExist(Set<EventSubscription> eventSubscriptions) {
-        for (ExecutionStudent student : this.students) {
+        for (CourseExecutionStudent student : this.students) {
             eventSubscriptions.add(new CourseExecutionSubscribesRemoveUser(student));
         }
     }
@@ -100,28 +96,28 @@ public class CourseExecution extends Aggregate {
     }
 
     private void mergeQuizQuestions(CourseExecution prev, CourseExecution toCommitQuiz, CourseExecution committedQuiz, CourseExecution mergedCourseExecution) {
-        Set<ExecutionStudent> prevStudentsPre = new HashSet<>(prev.getStudents());
-        Set<ExecutionStudent> toCommitStudentsPre = new HashSet<>(toCommitQuiz.getStudents());
-        Set<ExecutionStudent> committedStudentsPre = new HashSet<>(committedQuiz.getStudents());
+        Set<CourseExecutionStudent> prevStudentsPre = new HashSet<>(prev.getStudents());
+        Set<CourseExecutionStudent> toCommitStudentsPre = new HashSet<>(toCommitQuiz.getStudents());
+        Set<CourseExecutionStudent> committedStudentsPre = new HashSet<>(committedQuiz.getStudents());
 
-        ExecutionStudent.syncStudentVersions(prevStudentsPre, toCommitStudentsPre, committedStudentsPre);
+        CourseExecutionStudent.syncStudentVersions(prevStudentsPre, toCommitStudentsPre, committedStudentsPre);
 
-        Set<ExecutionStudent> prevStudents = new HashSet<>(prevStudentsPre);
-        Set<ExecutionStudent> toCommitQuizStudents = new HashSet<>(toCommitStudentsPre);
-        Set<ExecutionStudent> committedQuizStudents = new HashSet<>(committedStudentsPre);
+        Set<CourseExecutionStudent> prevStudents = new HashSet<>(prevStudentsPre);
+        Set<CourseExecutionStudent> toCommitQuizStudents = new HashSet<>(toCommitStudentsPre);
+        Set<CourseExecutionStudent> committedQuizStudents = new HashSet<>(committedStudentsPre);
 
 
-        Set<ExecutionStudent> addedStudents =  SetUtils.union(
+        Set<CourseExecutionStudent> addedStudents =  SetUtils.union(
                 SetUtils.difference(toCommitQuizStudents, prevStudents),
                 SetUtils.difference(committedQuizStudents, prevStudents)
         );
 
-        Set<ExecutionStudent> removedStudents = SetUtils.union(
+        Set<CourseExecutionStudent> removedStudents = SetUtils.union(
                 SetUtils.difference(prevStudents, toCommitQuizStudents),
                 SetUtils.difference(prevStudents, committedQuizStudents)
         );
 
-        Set<ExecutionStudent> mergedStudents = SetUtils.union(SetUtils.difference(prevStudents, removedStudents), addedStudents);
+        Set<CourseExecutionStudent> mergedStudents = SetUtils.union(SetUtils.difference(prevStudents, removedStudents), addedStudents);
         mergedCourseExecution.setStudents(mergedStudents);
     }
 
@@ -150,24 +146,27 @@ public class CourseExecution extends Aggregate {
         this.endDate = endDate;
     }
 
-    public ExecutionCourse getCourse() {
-        return course;
+    public CourseExecutionCourse getExecutionCourse() {
+        return courseExecutionCourse;
     }
 
-    public void setCourse(ExecutionCourse course) {
-        this.course = course;
+    public void setExecutionCourse(CourseExecutionCourse course) {
+        this.courseExecutionCourse = course;
+        this.courseExecutionCourse.setCourseExecution(this);
     }
 
-    public Set<ExecutionStudent> getStudents() {
+    public Set<CourseExecutionStudent> getStudents() {
         return students;
     }
 
-    public void setStudents(Set<ExecutionStudent> students) {
+    public void setStudents(Set<CourseExecutionStudent> students) {
         this.students = students;
+        this.students.forEach(courseExecutionStudent -> courseExecutionStudent.setCourseExecution(this));
     }
 
-    public void addStudent(ExecutionStudent executionStudent) {
-        this.students.add(executionStudent);
+    public void addStudent(CourseExecutionStudent courseExecutionStudent) {
+        this.students.add(courseExecutionStudent);
+        courseExecutionStudent.setCourseExecution(this);
     }
 
     /*
@@ -181,7 +180,7 @@ public class CourseExecution extends Aggregate {
     }
 
     public boolean allStudentsAreActive() {
-        for (ExecutionStudent student : getStudents()) {
+        for (CourseExecutionStudent student : getStudents()) {
             if(!student.isActive()) {
                 return false;
             }
@@ -212,14 +211,14 @@ public class CourseExecution extends Aggregate {
     @Override
     public void setVersion(Integer version) {
         // if the course version is null, it means it that we're creating during this transaction
-        if (this.course.getCourseVersion() == null) {
-            this.course.setCourseVersion(version);
+        if (this.courseExecutionCourse.getCourseVersion() == null) {
+            this.courseExecutionCourse.setCourseVersion(version);
         }
         super.setVersion(version);
     }
 
     public boolean hasStudent(Integer userAggregateId) {
-        for (ExecutionStudent student : this.students) {
+        for (CourseExecutionStudent student : this.students) {
             if (student.getUserAggregateId().equals(userAggregateId)) {
                 return true;
             }
@@ -227,8 +226,8 @@ public class CourseExecution extends Aggregate {
         return false;
     }
 
-    public ExecutionStudent findStudent(Integer userAggregateId) {
-        for (ExecutionStudent student : this.students) {
+    public CourseExecutionStudent findStudent(Integer userAggregateId) {
+        for (CourseExecutionStudent student : this.students) {
             if (student.getUserAggregateId().equals(userAggregateId)) {
                 return student;
             }
@@ -237,11 +236,11 @@ public class CourseExecution extends Aggregate {
     }
 
     public void removeStudent(Integer userAggregateId) {
-        ExecutionStudent studentToRemove = null;
+        CourseExecutionStudent studentToRemove = null;
         if (!hasStudent(userAggregateId)) {
             throw new TutorException(ErrorMessage.COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, getAggregateId());
         }
-        for (ExecutionStudent student : this.students) {
+        for (CourseExecutionStudent student : this.students) {
             if (student.getUserAggregateId().equals(userAggregateId)) {
                 studentToRemove = student;
             }

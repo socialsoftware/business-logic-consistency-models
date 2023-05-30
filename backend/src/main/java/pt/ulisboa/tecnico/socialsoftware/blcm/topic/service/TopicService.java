@@ -78,7 +78,7 @@ public class TopicService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TopicDto> findCourseByTopicId(Integer courseAggregateId, UnitOfWork unitOfWork) {
         return topicRepository.findAll().stream()
-                .filter(t -> courseAggregateId == t.getCourse().getCourseAggregateId())
+                .filter(t -> courseAggregateId == t.getTopicCourse().getCourseAggregateId())
                 .map(Topic::getAggregateId)
                 .distinct()
                 .map(aggregateId -> getCausalTopicLocal(aggregateId, unitOfWork))

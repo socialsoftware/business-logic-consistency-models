@@ -6,8 +6,6 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.Unit
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.CourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionCourse;
-import pt.ulisboa.tecnico.socialsoftware.blcm.execution.domain.ExecutionStudent;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.blcm.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
@@ -35,10 +33,8 @@ public class CourseExecutionFunctionalities {
 
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-
         checkInput(courseExecutionDto);
-        ExecutionCourse executionCourse = new ExecutionCourse(courseService.getAndOrCreateCourseRemote(courseExecutionDto, unitOfWork));
-        CourseExecutionDto courseExecutionDto1 = courseExecutionService.createCourseExecution(courseExecutionDto, executionCourse, unitOfWork);
+        CourseExecutionDto courseExecutionDto1 = courseExecutionService.createCourseExecution(courseExecutionDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
 
         return courseExecutionDto1;
@@ -66,8 +62,8 @@ public class CourseExecutionFunctionalities {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
-        ExecutionStudent executionUser = new ExecutionStudent(userDto);
-        courseExecutionService.enrollStudent(executionAggregateId, executionUser, unitOfWork);
+        courseExecutionService.enrollStudent(executionAggregateId, userDto, unitOfWork);
+
         unitOfWorkService.commit(unitOfWork);
     }
 

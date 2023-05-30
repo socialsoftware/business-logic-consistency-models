@@ -3,15 +3,16 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.aggregate.tournament
 import org.springframework.boot.test.context.SpringBootTest
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.blcm.exception.TutorException
+import pt.ulisboa.tecnico.socialsoftware.blcm.execution.dto.CourseExecutionDto
+import pt.ulisboa.tecnico.socialsoftware.blcm.quiz.dto.QuizDto
+import pt.ulisboa.tecnico.socialsoftware.blcm.topic.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.Tournament
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentCourseExecution
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentCreator
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipant
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentParticipantQuizAnswer
-import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentQuiz
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.domain.TournamentTopic
 import pt.ulisboa.tecnico.socialsoftware.blcm.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.blcm.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto
 import pt.ulisboa.tecnico.socialsoftware.blcm.utils.DateHandler
 import spock.lang.Shared
 import spock.lang.Unroll
@@ -82,30 +83,36 @@ class MergeUnitTest extends SpockTest {
         tournamentDto1.setEndTime(DateHandler.toISOString(TIME_2))
         tournamentDto1.setNumberOfQuestions(5)
 
-        TournamentCreator tournamentCreator1 = new TournamentCreator()
-        tournamentCreator1.setCreatorAggregateId(USER_AGGREGATE_ID_1)
-        tournamentCreator1.setCreatorName(USER_NAME_1)
-        tournamentCreator1.setCreatorUsername(USER_USERNAME_1)
+        UserDto creatorDto = new UserDto()
+        creatorDto.aggregateId = USER_AGGREGATE_ID_1
+        creatorDto.name = USER_NAME_1
+        creatorDto.username = USER_USERNAME_1
 
-        TournamentCourseExecution tournamentCourseExecution1 = new TournamentCourseExecution()
-        tournamentCourseExecution1.setCourseExecutionAggregateId(COURSE_EXECUTION_AGGREGATE_ID_1)
-        tournamentCourseExecution1.setCourseExecutionVersion(6)
-        tournamentCourseExecution1.setCourseExecutionAcronym(ACRONYM_1)
+        CourseExecutionDto courseExecutionDto = new CourseExecutionDto()
+        courseExecutionDto.setAggregateId(COURSE_EXECUTION_AGGREGATE_ID_1)
+        courseExecutionDto.setVersion(6)
+        courseExecutionDto.setAcronym(ACRONYM_1)
 
-        topic1 = new TournamentTopic()
-        topic1.setTopicAggregateId(TOPIC_AGGREGATE_ID_1)
-        topic1.setTopicName(TOPIC_NAME_1)
-        topic1.setTopicVersion(1)
+        TopicDto topicDto1 = new TopicDto()
+        topicDto1.setAggregateId(TOPIC_AGGREGATE_ID_1)
+        topicDto1.setName(TOPIC_NAME_1)
+        topicDto1.setVersion(1)
 
-        topic2 = new TournamentTopic()
-        topic2.setTopicAggregateId(TOPIC_AGGREGATE_ID_2)
-        topic2.setTopicName(TOPIC_NAME_2)
-        topic2.setTopicVersion(2)
+        TopicDto topicDto2 = new TopicDto()
+        topicDto2.setAggregateId(TOPIC_AGGREGATE_ID_2)
+        topicDto2.setName(TOPIC_NAME_2)
+        topicDto2.setVersion(2)
 
-        topic3 = new TournamentTopic()
-        topic3.setTopicAggregateId(TOPIC_AGGREGATE_ID_3)
-        topic3.setTopicName(TOPIC_NAME_3)
-        topic3.setTopicVersion(3)
+        TopicDto topicDto3 = new TopicDto()
+        topicDto3.setAggregateId(TOPIC_AGGREGATE_ID_3)
+        topicDto3.setName(TOPIC_NAME_3)
+        topicDto3.setVersion(3)
+
+        Set<TopicDto> topicDto1And2 = new HashSet<>(Arrays.asList(topicDto1,topicDto2))
+
+        topic1 = new TournamentTopic(topicDto1)
+        topic2 = new TournamentTopic(topicDto2)
+        topic3 = new TournamentTopic(topicDto3)
 
         topicSetHasTopics1and2.add(topic1)
         topicSetHasTopics1and2.add(topic2)
@@ -188,11 +195,11 @@ class MergeUnitTest extends SpockTest {
         participantSetHasParticipants1and2and3.add(participant2)
         participantSetHasParticipants1and2and3.add(participant3)
 
-        TournamentQuiz tournamentQuiz = new TournamentQuiz()
-        tournamentQuiz.setQuizAggregateId(QUIZ_AGGREGATE_ID_1)
-        tournamentQuiz.setQuizVersion(60)
+        QuizDto quizDto = new QuizDto()
+        quizDto.setAggregateId(QUIZ_AGGREGATE_ID_1)
+        quizDto.setVersion(60)
 
-        tournament1 = new Tournament(TOURNAMENT_AGGREGATE_ID_1, tournamentDto1, tournamentCreator1, tournamentCourseExecution1, topicSetHasTopics1and2, tournamentQuiz)
+        tournament1 = new Tournament(TOURNAMENT_AGGREGATE_ID_1, tournamentDto1, creatorDto, courseExecutionDto, topicDto1And2, quizDto)
 
         tournament2 = new Tournament(tournament1)
         tournament3 = new Tournament(tournament1)
@@ -219,8 +226,8 @@ class MergeUnitTest extends SpockTest {
         toCommit.setNumberOfQuestions(toCommitNoQuestions)
         committed.setNumberOfQuestions(committedNoQuestions)
 
-        toCommit.setTopics(toCommitTopics)
-        committed.setTopics(committedTopics)
+        toCommit.setTournamentTopics(toCommitTopics)
+        committed.setTournamentTopics(committedTopics)
 
         when:
         toCommit.merge(committed)
@@ -256,8 +263,8 @@ class MergeUnitTest extends SpockTest {
         toCommit.setNumberOfQuestions(toCommitNoQuestions)
         committed.setNumberOfQuestions(committedNoQuestions)
 
-        toCommit.setTopics(toCommitTopics)
-        committed.setTopics(committedTopics)
+        toCommit.setTournamentTopics(toCommitTopics)
+        committed.setTournamentTopics(committedTopics)
 
         when:
         def mergedTournament = (Tournament)toCommit.merge(committed)
@@ -355,15 +362,15 @@ class MergeUnitTest extends SpockTest {
         def committed = tournament3
         def toCommit = tournament2
 
-        prev.setTopics(topicSetHasTopics1and2)
-        committed.setTopics(committedTopics)
-        toCommit.setTopics(toCommitTopics)
+        prev.setTournamentTopics(topicSetHasTopics1and2)
+        committed.setTournamentTopics(committedTopics)
+        toCommit.setTournamentTopics(toCommitTopics)
 
         when:
         def mergedTournament = (Tournament)toCommit.merge(committed)
 
         then:
-        mergedTournament.getTopics() == result
+        mergedTournament.getTournamentTopics() == result
 
         where:
         committedTopics        | toCommitTopics             || result

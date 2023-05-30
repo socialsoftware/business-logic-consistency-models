@@ -37,8 +37,8 @@ public class QuestionDto implements Serializable {
        setTitle(question.getTitle());
        setContent(question.getContent());
        setCreationDate(question.getCreationDate().toString());
-       setCourse(question.getCourse().buildDto());
-       setTopicDto(question.getTopics().stream()
+       setCourse(question.getQuestionCourse().buildDto());
+       setTopicDto(question.getQuestionTopics().stream()
                .map(QuestionTopic::buildDto)
                .collect(Collectors.toSet()));
        setOptionDtos(question.getOptions().stream()

@@ -4,11 +4,16 @@ import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.causalconsistency.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
-@Embeddable
+@Entity
 public class AnswerStudent {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer studentAggregateId;
     private String name;
     private Aggregate.AggregateState studentState;
+    @OneToOne
+    private QuizAnswer quizAnswer;
 
     public AnswerStudent() {
         this.studentAggregateId = 0;
@@ -24,6 +29,14 @@ public class AnswerStudent {
         this.studentAggregateId = other.getStudentAggregateId();
         this.name = other.getName();
         setStudentState(other.getStudentState());
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Integer getStudentAggregateId() {
@@ -48,5 +61,13 @@ public class AnswerStudent {
 
     public void setStudentState(Aggregate.AggregateState studentState) {
         this.studentState = studentState;
+    }
+
+    public QuizAnswer getQuizAnswer() {
+        return quizAnswer;
+    }
+
+    public void setQuizAnswer(QuizAnswer quizAnswer) {
+        this.quizAnswer = quizAnswer;
     }
 }

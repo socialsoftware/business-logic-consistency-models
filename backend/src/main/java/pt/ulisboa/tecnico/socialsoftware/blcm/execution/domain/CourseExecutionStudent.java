@@ -7,19 +7,24 @@ import pt.ulisboa.tecnico.socialsoftware.blcm.user.dto.UserDto;
 
 import java.util.Set;
 
-@Embeddable
-public class ExecutionStudent {
+@Entity
+public class CourseExecutionStudent {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer userAggregateId;
     private Integer userVersion;
     private String name;
     private String username;
     private boolean active;
     private Aggregate.AggregateState state;
+    @ManyToOne
+    private CourseExecution courseExecution;
 
-    public ExecutionStudent() {
+    public CourseExecutionStudent() {
     }
 
-    public ExecutionStudent(UserDto userDto) {
+    public CourseExecutionStudent(UserDto userDto) {
         setUserAggregateId(userDto.getAggregateId());
         setUserVersion(userDto.getVersion());
         setName(userDto.getName());
@@ -28,13 +33,21 @@ public class ExecutionStudent {
         setState(Aggregate.AggregateState.valueOf(userDto.getState()));
     }
 
-    public ExecutionStudent(ExecutionStudent other) {
+    public CourseExecutionStudent(CourseExecutionStudent other) {
         setUserAggregateId(other.getUserAggregateId());
         setUserVersion(other.getUserVersion());
         setName(other.getName());
         setUsername(other.getUsername());
         setActive(other.isActive());
         setState(other.getState());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void anonymize() {
@@ -90,6 +103,14 @@ public class ExecutionStudent {
         this.state = state;
     }
 
+    public CourseExecution getCourseExecution() {
+        return courseExecution;
+    }
+
+    public void setCourseExecution(CourseExecution courseExecution) {
+        this.courseExecution = courseExecution;
+    }
+
     public UserDto buildDto() {
         UserDto userDto = new UserDto();
         userDto.setAggregateId(getUserAggregateId());
@@ -99,9 +120,9 @@ public class ExecutionStudent {
         return userDto;
     }
 
-    public static void syncStudentVersions(Set<ExecutionStudent> prevStudents, Set<ExecutionStudent> v1Students, Set<ExecutionStudent> v2Students) {
-        for(ExecutionStudent s1 : v1Students) {
-            for(ExecutionStudent s2 : v2Students) {
+    public static void syncStudentVersions(Set<CourseExecutionStudent> prevStudents, Set<CourseExecutionStudent> v1Students, Set<CourseExecutionStudent> v2Students) {
+        for(CourseExecutionStudent s1 : v1Students) {
+            for(CourseExecutionStudent s2 : v2Students) {
                 if(s1.getUserAggregateId().equals(s2.getUserAggregateId())) {
                     if(s1.getUserVersion() > s2.getUserVersion()) {
                         s2.setUserVersion(s1.getUserVersion());
@@ -118,7 +139,7 @@ public class ExecutionStudent {
             }
 
             // no need to check again because the prev does not contain any newer version than v1 an v2
-            for(ExecutionStudent prevStudent : prevStudents) {
+            for(CourseExecutionStudent prevStudent : prevStudents) {
                 if(s1.getUserAggregateId().equals(prevStudent.getUserAggregateId())) {
                     if(s1.getUserVersion() > prevStudent.getUserVersion()) {
                         prevStudent.setUserVersion(s1.getUserVersion());

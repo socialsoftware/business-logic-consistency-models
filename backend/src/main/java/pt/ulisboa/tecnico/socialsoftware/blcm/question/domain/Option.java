@@ -3,12 +3,17 @@ package pt.ulisboa.tecnico.socialsoftware.blcm.question.domain;
 import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.blcm.question.dto.OptionDto;
 
-@Embeddable
+@Entity
 public class Option {
+    @Id
+    @GeneratedValue
+    private Long id;
     private Integer optionKey;
     private Integer sequence;
     private boolean correct;
     private String content;
+    @ManyToOne
+    private Question question;
 
     public Option() {
 
@@ -26,6 +31,13 @@ public class Option {
         setContent(other.getContent());
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Integer getOptionKey() {
         return optionKey;
@@ -57,5 +69,13 @@ public class Option {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 }
