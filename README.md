@@ -1,6 +1,10 @@
 # Microservices Simulator
 
-The artifact supports the test of business logic of a microservices application designed on the concept of Domain-Driven Design Aggregate and using Transactional Causal Consistency to handle transactional behavior.
+The artifact supports the test of business logic of a microservices application designed on the concept of Domain-Driven Design Aggregate and using several transactional models. The current implementations are: 
+
+* Transactional Causal Consistency
+* Eventual Consistency
+  * Sagas applying the Orchestration variant (under development)
 
 The system allows testing the interleaving of functionalities execution in a deterministic context, such that it is possible to evaluate the resulting behavior.
 
