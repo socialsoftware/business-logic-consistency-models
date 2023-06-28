@@ -1,4 +1,4 @@
-# Business Logic Consistency Models
+# Microservices Simulator
 
 The artifact supports the test of business logic of a microservices application designed on the concept of Domain-Driven Design Aggregate and using Transactional Causal Consistency to handle transactional behavior.
 
