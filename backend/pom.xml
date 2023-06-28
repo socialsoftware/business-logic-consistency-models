@@ -11,7 +11,7 @@
 	<groupId>pt.ulisboa.tecnico.socialsoftware</groupId>
 	<artifactId>BusinessLogicConsistencyModels</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>BusinessLogicConsistencyModels</name>
+	<name>MicroservicesSimulator</name>
 	<description>Microservices Simulator</description>
 	<properties>
 		<java.version>17</java.version>
