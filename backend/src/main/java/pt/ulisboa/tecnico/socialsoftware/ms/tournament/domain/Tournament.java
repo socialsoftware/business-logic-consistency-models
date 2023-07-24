@@ -554,6 +554,7 @@ public class Tournament extends Aggregate {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }
         this.tournamentParticipants.add(participant);
+        participant.setTournament(this);
     }
 
     public TournamentCourseExecution getTournamentCourseExecution() {
