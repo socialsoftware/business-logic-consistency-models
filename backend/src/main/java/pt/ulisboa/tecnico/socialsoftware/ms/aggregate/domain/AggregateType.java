@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain;
+package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain;
 
 public enum AggregateType {
     COURSE,

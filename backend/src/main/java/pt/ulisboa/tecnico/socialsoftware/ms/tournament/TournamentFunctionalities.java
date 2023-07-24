@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.dto.QuizAnswerDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.service.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.*;

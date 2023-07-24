@@ -1,13 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.topic.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.AggregateType.TOPIC;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateType.TOPIC;
 
 /*
     INTRA-INVARIANTS:

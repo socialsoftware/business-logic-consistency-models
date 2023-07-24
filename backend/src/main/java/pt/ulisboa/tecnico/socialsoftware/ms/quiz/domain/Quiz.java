@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.quiz.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.ms.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quiz.event.subscribe.QuizSubscribesRemoveCourseExecution;
@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.AggregateType.*;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate.AggregateState.ACTIVE;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateType.QUIZ;
 import static pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage.*;
 
 /*

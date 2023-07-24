@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.question.event.publish;
 
 import jakarta.persistence.Entity;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
 
 @Entity
 public class UpdateQuestionEvent extends Event {

@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.version;
+package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

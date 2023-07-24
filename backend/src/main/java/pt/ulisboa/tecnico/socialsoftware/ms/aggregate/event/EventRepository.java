@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

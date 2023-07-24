@@ -1,9 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain;
 
 import org.apache.commons.collections4.SetUtils;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.AggregateType;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateType;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.dto.TopicDto;

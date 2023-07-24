@@ -5,8 +5,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import pt.ulisboa.tecnico.socialsoftware.ms.BeanConfiguration
 import pt.ulisboa.tecnico.socialsoftware.ms.SpockTest
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.version.VersionService
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.CourseExecutionFunctionalities

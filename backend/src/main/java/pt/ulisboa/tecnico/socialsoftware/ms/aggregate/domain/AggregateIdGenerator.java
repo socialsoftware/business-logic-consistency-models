@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain;
+package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,9 +11,7 @@ public class AggregateIdGenerator {
     @GeneratedValue
     private Integer id;
 
-
     public AggregateIdGenerator() {
-
     }
 
     public Integer getId() {

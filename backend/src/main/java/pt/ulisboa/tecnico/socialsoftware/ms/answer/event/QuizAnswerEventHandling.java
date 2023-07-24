@@ -5,13 +5,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.repository.QuizAnswerRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.event.publish.UpdateStudentNameEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.event.publish.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.user.event.publish.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.event.publish.UnerollStudentFromCourseExecutionEvent;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
 
 import java.util.Comparator;
 import java.util.List;

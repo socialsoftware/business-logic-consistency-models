@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.quiz.domain;
 
 import jakarta.persistence.*;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.dto.QuestionDto;
 
 @Entity

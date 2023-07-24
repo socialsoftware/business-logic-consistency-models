@@ -2,8 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.ms.answer.domain;
 
 import org.apache.commons.collections4.SetUtils;
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.event.subscribe.*;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
 
 import jakarta.persistence.*;
@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.AggregateType.ANSWER;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate.AggregateState.ACTIVE;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateType.ANSWER;
 import static pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage.QUESTION_ALREADY_ANSWERED;
 
 /*

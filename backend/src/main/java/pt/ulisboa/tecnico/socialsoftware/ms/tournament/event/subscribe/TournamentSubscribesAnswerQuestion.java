@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.tournament.event.subscribe;
 
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.event.publish.QuizAnswerQuestionAnswerEvent;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.TournamentParticipant;
 
 public class TournamentSubscribesAnswerQuestion extends EventSubscription {

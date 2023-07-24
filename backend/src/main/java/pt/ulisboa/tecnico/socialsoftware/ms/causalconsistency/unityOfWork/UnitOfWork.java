@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork;
 
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
 
 import java.util.*;
@@ -141,7 +141,7 @@ public class UnitOfWork {
                                 .filter(event -> event.getPublisherAggregateId().equals(es1.getSubscribedAggregateId()))
                                 .filter(event -> event.getClass().getSimpleName().equals(es1.getEventType()))
                                 .filter(event -> minVersion < event.getPublisherAggregateVersion() && event.getPublisherAggregateVersion() <= maxVersion)
-                                .collect(Collectors.toList());
+                                .toList();
                         for (Event eventBetweenAggregates : eventsBetweenAggregates) {
                             if(es1.subscribesEvent(eventBetweenAggregates) && es2.subscribesEvent(eventBetweenAggregates)) {
                                 throw new TutorException(CANNOT_PERFORM_CAUSAL_READ, aggregate.getAggregateId(), getVersion());
@@ -154,7 +154,7 @@ public class UnitOfWork {
     }
 
     private void addAggregateToSnapshot(Aggregate aggregate) {
-        if(!this.causalSnapshot.containsKey(aggregate.getAggregateId()) || !(aggregate.getVersion() <= this.causalSnapshot.get(aggregate.getAggregateId()).getVersion())) {
+        if(!this.causalSnapshot.containsKey(aggregate.getAggregateId()) || aggregate.getVersion() > this.causalSnapshot.get(aggregate.getAggregateId()).getVersion()) {
             this.causalSnapshot.put(aggregate.getAggregateId(), aggregate);
         }
     }

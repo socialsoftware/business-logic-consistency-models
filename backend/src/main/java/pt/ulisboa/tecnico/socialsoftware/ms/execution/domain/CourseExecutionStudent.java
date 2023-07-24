@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.execution.domain;
 
 import jakarta.persistence.*;
 import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.TournamentParticipant;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.user.dto.UserDto;
 
 import java.util.Set;

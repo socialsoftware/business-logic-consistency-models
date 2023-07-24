@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.tournament.event.subscribe;
 
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.event.publish.AnonymizeStudentEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.ms.tournament.dto.TournamentDto;

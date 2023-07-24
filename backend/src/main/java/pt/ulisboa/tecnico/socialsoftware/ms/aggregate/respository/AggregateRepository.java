@@ -1,8 +1,8 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.respository;
+package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.respository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
 
 import jakarta.transaction.Transactional;
 

@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event;
+package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event;
 
 public abstract class EventSubscription {
     private Integer subscribedAggregateId;

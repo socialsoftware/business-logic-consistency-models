@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.answer.event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.service.QuizAnswerService;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.event.publish.UnerollStudentFromCourseExecutionEvent;

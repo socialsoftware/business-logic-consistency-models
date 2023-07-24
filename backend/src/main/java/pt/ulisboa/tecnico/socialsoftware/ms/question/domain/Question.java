@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.question.domain;
 
 import org.apache.commons.collections4.SetUtils;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.event.subscribe.QuestionSubscribesDeleteTopic;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.event.subscribe.QuestionSubscribesUpdateTopic;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.dto.QuestionDto;
@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.AggregateType.QUESTION;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate.AggregateState.ACTIVE;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateType.QUESTION;
 
 /*
     INTRA-INVARIANTS:

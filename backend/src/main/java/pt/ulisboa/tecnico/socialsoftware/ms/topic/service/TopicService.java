@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.repository.TopicRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.event.publish.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.event.publish.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate.AggregateState.DELETED;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate.AggregateState.DELETED;
 
 @Service
 public class TopicService {

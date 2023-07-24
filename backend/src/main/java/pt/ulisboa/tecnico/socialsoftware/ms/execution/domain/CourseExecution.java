@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.execution.domain;
 
 import org.apache.commons.collections4.SetUtils;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.event.subscribe.CourseExecutionSubscribesRemoveUser;
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
@@ -15,8 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate.AggregateState.ACTIVE;
-import static pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.AggregateType.COURSE_EXECUTION;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate.AggregateState.ACTIVE;
+import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateType.COURSE_EXECUTION;
 
 /*
     INTRA-INVARIANTS
@@ -181,7 +181,7 @@ public class CourseExecution extends Aggregate {
 
     public boolean allStudentsAreActive() {
         for (CourseExecutionStudent student : getStudents()) {
-            if(!student.isActive()) {
+            if (!student.isActive()) {
                 return false;
             }
         }

@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.event.publish.DeleteTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.topic.event.publish.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.domain.Question;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.question.service.QuestionService;
 

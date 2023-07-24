@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.Aggregate.AggregateState;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate.AggregateState;
 import pt.ulisboa.tecnico.socialsoftware.ms.user.dto.UserDto;
 
 import jakarta.persistence.*;

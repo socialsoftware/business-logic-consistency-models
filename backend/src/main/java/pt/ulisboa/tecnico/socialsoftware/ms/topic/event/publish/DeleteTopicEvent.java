@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.topic.event.publish;
 
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.event.Event;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
 
 import jakarta.persistence.Entity;
 

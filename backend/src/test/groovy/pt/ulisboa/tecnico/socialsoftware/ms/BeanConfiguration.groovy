@@ -7,10 +7,10 @@ import pt.ulisboa.tecnico.socialsoftware.ms.answer.QuizAnswerFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.event.QuizAnswerEventHandling
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.event.QuizAnswerEventProcessing
 import pt.ulisboa.tecnico.socialsoftware.ms.answer.service.QuizAnswerService
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.service.AggregateIdGeneratorService
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.service.AggregateIdGeneratorService
 
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.version.VersionService
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService
 import pt.ulisboa.tecnico.socialsoftware.ms.config.StartUpService
 import pt.ulisboa.tecnico.socialsoftware.ms.course.service.CourseService
 import pt.ulisboa.tecnico.socialsoftware.ms.execution.CourseExecutionFunctionalities

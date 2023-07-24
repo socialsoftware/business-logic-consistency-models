@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.service;
+package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
@@ -6,8 +6,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.domain.AggregateIdGenerator;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.aggregate.respository.AggregateIdRepository;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateIdGenerator;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.respository.AggregateIdRepository;
 
 import java.sql.SQLException;
 
