@@ -9,17 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
+import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.repository.CausalConsistencyRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService;
-import pt.ulisboa.tecnico.socialsoftware.ms.execution.repository.CourseExecutionRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.topic.repository.TopicRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.repository.TournamentRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.answer.repository.QuizAnswerRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.course.repository.CourseRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage;
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.ms.question.repository.QuestionRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.quiz.repository.QuizRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.user.repository.UserRepository;
+import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.CausalConsistency;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.TutorException;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +22,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage.*;
+import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage.*;
 
 @Service
 public class UnitOfWorkService {
@@ -37,21 +31,7 @@ public class UnitOfWorkService {
     @Autowired
     private EntityManager entityManager;
     @Autowired
-    private TournamentRepository tournamentRepository;
-    @Autowired
-    private QuizRepository quizRepository;
-    @Autowired
-    private CourseExecutionRepository courseExecutionRepository;
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TopicRepository topicRepository;
-    @Autowired
-    private QuestionRepository questionRepository;
-    @Autowired
-    private QuizAnswerRepository quizAnswerRepository;
+    private CausalConsistencyRepository causalConsistencyRepository;
     @Autowired
     private VersionService versionService;
     @Autowired
@@ -103,7 +83,7 @@ public class UnitOfWorkService {
                 // this verification in order to not detect the same as a version as concurrent again
                 if (concurrentAggregate != null && unitOfWork.getVersion() <= concurrentAggregate.getVersion()) {
                     concurrentAggregates = true;
-                    Aggregate newAggregate = aggregateToWrite.merge(concurrentAggregate);
+                    Aggregate newAggregate = ((CausalConsistency) aggregateToWrite).merge(aggregateToWrite, concurrentAggregate);
                     newAggregate.verifyInvariants();
                     newAggregate.setId(null);
                     modifiedAggregatesToCommit.put(aggregateId, newAggregate);
@@ -154,48 +134,15 @@ public class UnitOfWorkService {
             return null;
         }
 
-        switch (aggregate.getAggregateType()) {
-            case COURSE:
-                concurrentAggregate = courseRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            case COURSE_EXECUTION:
-                concurrentAggregate = courseExecutionRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            case USER:
-                concurrentAggregate = userRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            case TOPIC:
-                concurrentAggregate = topicRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            case QUESTION:
-                concurrentAggregate = questionRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            case QUIZ:
-                concurrentAggregate = quizRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            case TOURNAMENT:
-                concurrentAggregate = tournamentRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            case ANSWER:
-                concurrentAggregate = quizAnswerRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
-                        .orElse(null);
-                break;
-            default:
-                throw new TutorException(INVALID_AGGREGATE_TYPE, aggregate.getClass().getSimpleName());
-        }
+        concurrentAggregate = causalConsistencyRepository.findConcurrentVersions(aggregate.getAggregateId(), aggregate.getPrev().getVersion())
+                .orElse(null);
 
         // if a concurrent version is deleted it means the object has been deleted in the meanwhile
         if (concurrentAggregate != null && (concurrentAggregate.getState() == Aggregate.AggregateState.DELETED || concurrentAggregate.getState() == Aggregate.AggregateState.INACTIVE)) {
-            throw new TutorException(ErrorMessage.AGGREGATE_DELETED, concurrentAggregate.getAggregateId());
+            throw new TutorException(ErrorMessage.AGGREGATE_DELETED, concurrentAggregate.getAggregateType().toString(), concurrentAggregate.getAggregateId());
         }
 
         return concurrentAggregate;
     }
+
 }

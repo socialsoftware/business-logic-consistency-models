@@ -1,19 +1,20 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.tournament
 
 import org.springframework.boot.test.context.SpringBootTest
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException
-import pt.ulisboa.tecnico.socialsoftware.ms.execution.dto.CourseExecutionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quiz.dto.QuizDto
-import pt.ulisboa.tecnico.socialsoftware.ms.topic.dto.TopicDto
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.Tournament
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.TournamentParticipant
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.TournamentParticipantQuizAnswer
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.domain.TournamentTopic
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.tcc.TournamentTCC
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.TutorException
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.dto.CourseExecutionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.dto.QuizDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.Tournament
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.TournamentParticipant
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.TournamentParticipantQuizAnswer
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.TournamentTopic
 import pt.ulisboa.tecnico.socialsoftware.ms.SpockTest
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.ms.user.dto.UserDto
-import pt.ulisboa.tecnico.socialsoftware.ms.utils.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.dto.UserDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.utils.DateHandler
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -199,10 +200,10 @@ class MergeUnitTest extends SpockTest {
         quizDto.setAggregateId(QUIZ_AGGREGATE_ID_1)
         quizDto.setVersion(60)
 
-        tournament1 = new Tournament(TOURNAMENT_AGGREGATE_ID_1, tournamentDto1, creatorDto, courseExecutionDto, topicDto1And2, quizDto)
+        tournament1 = new TournamentTCC(TOURNAMENT_AGGREGATE_ID_1, tournamentDto1, creatorDto, courseExecutionDto, topicDto1And2, quizDto)
 
-        tournament2 = new Tournament(tournament1)
-        tournament3 = new Tournament(tournament1)
+        tournament2 = new TournamentTCC(tournament1)
+        tournament3 = new TournamentTCC(tournament1)
     }
 
     def cleanup() {
@@ -230,7 +231,7 @@ class MergeUnitTest extends SpockTest {
         committed.setTournamentTopics(committedTopics)
 
         when:
-        toCommit.merge(committed)
+        toCommit.merge(toCommit, committed)
 
         then:
         def error = thrown(TutorException)
@@ -267,7 +268,7 @@ class MergeUnitTest extends SpockTest {
         committed.setTournamentTopics(committedTopics)
 
         when:
-        def mergedTournament = (Tournament)toCommit.merge(committed)
+        def mergedTournament = (Tournament)toCommit.merge(toCommit, committed)
 
         then:
         mergedTournament != null
@@ -297,7 +298,7 @@ class MergeUnitTest extends SpockTest {
         toCommit.setStartTime(toCommitTime)
 
         when:
-        def mergedTournament = (Tournament)toCommit.merge(committed)
+        def mergedTournament = (Tournament)toCommit.merge(toCommit, committed)
 
         then:
         mergedTournament.getStartTime() == result
@@ -320,7 +321,7 @@ class MergeUnitTest extends SpockTest {
         toCommit.setEndTime(toCommitTime)
 
         when:
-        def mergedTournament = (Tournament)toCommit.merge(committed)
+        def mergedTournament = (Tournament)toCommit.merge(toCommit, committed)
 
         then:
         mergedTournament.getEndTime() == result
@@ -343,7 +344,7 @@ class MergeUnitTest extends SpockTest {
         toCommit.setNumberOfQuestions(toCommitValue)
 
         when:
-        def mergedTournament = (Tournament)toCommit.merge(committed)
+        def mergedTournament = (Tournament)toCommit.merge(toCommit, committed)
 
         then:
         mergedTournament.getNumberOfQuestions() == result
@@ -367,7 +368,7 @@ class MergeUnitTest extends SpockTest {
         toCommit.setTournamentTopics(toCommitTopics)
 
         when:
-        def mergedTournament = (Tournament)toCommit.merge(committed)
+        def mergedTournament = (Tournament)toCommit.merge(toCommit, committed)
 
         then:
         mergedTournament.getTournamentTopics() == result
@@ -392,7 +393,7 @@ class MergeUnitTest extends SpockTest {
         toCommit.setTournamentParticipants(toCommitParticipants)
 
         when:
-        def mergedTournament = (Tournament)toCommit.merge(committed)
+        def mergedTournament = (Tournament)toCommit.merge(toCommit, committed)
 
         then:
         mergedTournament.getTournamentParticipants() == result
@@ -461,7 +462,7 @@ class MergeUnitTest extends SpockTest {
         committed.setTournamentParticipants(committedParticipants)
 
         when:
-        def mergedTournament = (Tournament)(toCommit.merge(committed))
+        def mergedTournament = (Tournament)(toCommit.merge(toCommit, committed))
 
         then:
         mergedTournament.getTournamentParticipants() == new HashSet(committedParticipants)
@@ -518,7 +519,7 @@ class MergeUnitTest extends SpockTest {
         committed.setTournamentParticipants(committedParticipants)
 
         when:
-        def mergedTournament = (Tournament)(toCommit.merge(committed))
+        def mergedTournament = (Tournament)(toCommit.merge(toCommit, committed))
 
         then:
         mergedTournament.getTournamentParticipants() == new HashSet(committedParticipants)

@@ -1,17 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
 
 import jakarta.persistence.*;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate.AggregateState.DELETED;
-import static pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -31,8 +28,7 @@ public abstract class Aggregate {
     private LocalDateTime creationTs;
     @Enumerated(EnumType.STRING)
     private AggregateState state;
-    @Enumerated(EnumType.STRING)
-    private AggregateType aggregateType;
+    private String aggregateType;
     @ManyToOne
     private Aggregate prev;
 
@@ -45,10 +41,9 @@ public abstract class Aggregate {
     }
 
     /* used when creating a new aggregate*/
-    public Aggregate(Integer aggregateId, AggregateType aggregateType) {
+    public Aggregate(Integer aggregateId) {
         setAggregateId(aggregateId);
         setState(AggregateState.ACTIVE);
-        setAggregateType(aggregateType);
     }
 
     public Aggregate(Aggregate other) {
@@ -60,11 +55,6 @@ public abstract class Aggregate {
     }
 
     public abstract void verifyInvariants();
-    public abstract Set<String> getFieldsChangedByFunctionalities();
-
-    public abstract Set<String[]> getIntentions();
-
-    public abstract Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields);
 
     public abstract Set<EventSubscription> getEventSubscriptions();
 
@@ -108,11 +98,11 @@ public abstract class Aggregate {
         this.state = state;
     }
 
-    public AggregateType getAggregateType() {
+    public String getAggregateType() {
         return aggregateType;
     }
 
-    public void setAggregateType(AggregateType aggregateType) {
+    public void setAggregateType(String aggregateType) {
         this.aggregateType = aggregateType;
     }
 
@@ -129,71 +119,5 @@ public abstract class Aggregate {
                 .filter(es -> es.getEventType().equals(eventType))
                 .collect(Collectors.toSet());
     }
-
-    public Aggregate merge(Aggregate other) {
-        Aggregate prev = getPrev();
-        Aggregate toCommitVersion = this;
-        Aggregate committedVersion = other;
-
-        if (prev.getClass() != toCommitVersion.getClass() || prev.getClass() != committedVersion.getClass()) {
-            throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
-        }
-
-        /*if(toCommitVersion.getState() == DELETED) {
-            throw new TutorException(AGGREGATE_DELETED, toCommitVersion.getAggregateId());
-        }*/
-        /* take the state into account because we don't want to override a deleted object*/
-
-        if (committedVersion.getState() == DELETED) {
-            throw new TutorException(AGGREGATE_DELETED, committedVersion.getAggregateId());
-        }
-
-        Set<String> toCommitVersionChangedFields = getChangedFields(prev, toCommitVersion);
-        Set<String> committedVersionChangedFields = getChangedFields(prev, committedVersion);
-
-        checkIntentions(toCommitVersionChangedFields, committedVersionChangedFields);
-
-        Aggregate mergedAggregate = mergeFields(toCommitVersionChangedFields, committedVersion, committedVersionChangedFields);
-
-        mergedAggregate.setPrev(getPrev());
-
-        return mergedAggregate;
-    }
-
-    private Set<String> getChangedFields(Object prevObj, Object obj) {
-        Set<String> changedFields = new HashSet<>();
-        if (prevObj.getClass() != obj.getClass()) {
-            throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
-        }
-
-        try {
-            for (String fieldName : getFieldsChangedByFunctionalities()) {
-
-                Field field = obj.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-
-                Object currentFieldValue = field.get(obj);
-                Object prevFieldValue = field.get(prevObj);
-
-                if (currentFieldValue != null && prevFieldValue != null && !(currentFieldValue.equals(prevFieldValue))) {
-                    changedFields.add(fieldName);
-                }
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new TutorException(AGGREGATE_MERGE_FAILURE, getAggregateId());
-        }
-        return changedFields;
-    }
-
-    private void checkIntentions(Set<String> changedFields1, Set<String> changedFields2) {
-        for (String [] intention : getIntentions()) {
-            if (!(changedFields1.contains(intention[0]) && changedFields1.contains(intention[1]))
-                    && ((changedFields1.contains(intention[0]) && changedFields2.contains(intention[1]))
-                        || (changedFields1.contains(intention[1]) && changedFields2.contains(intention[0])))) {
-                throw new TutorException(AGGREGATE_MERGE_FAILURE_DUE_TO_INTENSIONS_CONFLICT, intention[0] + ":" + intention[1]);
-            }
-        }
-    }
-
 
 }

@@ -3,25 +3,19 @@ package pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.TutorException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
-import static pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED;
+import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ;
+import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage.CANNOT_PERFORM_CAUSAL_READ_DUE_TO_EMITTED_EVENT_NOT_PROCESSED;
 
 public class UnitOfWork {
-
     private Integer id;
-
     private Integer version;
-
     private Map<Integer, Aggregate> aggregatesToCommit;
-
-
     private Set<Event> eventsToEmit;
-
     private Map<Integer, Aggregate> causalSnapshot;
     private String functionalityName;
 

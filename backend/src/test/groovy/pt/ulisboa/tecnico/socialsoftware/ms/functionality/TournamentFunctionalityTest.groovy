@@ -7,22 +7,22 @@ import pt.ulisboa.tecnico.socialsoftware.ms.BeanConfiguration
 import pt.ulisboa.tecnico.socialsoftware.ms.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.ErrorMessage
-import pt.ulisboa.tecnico.socialsoftware.ms.exception.TutorException
-import pt.ulisboa.tecnico.socialsoftware.ms.execution.CourseExecutionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.execution.dto.CourseExecutionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.question.QuestionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.question.dto.OptionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.question.dto.QuestionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quiz.QuizFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.topic.TopicFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.topic.dto.TopicDto
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.TournamentFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.ms.tournament.event.TournamentEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.user.UserFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.user.dto.UserDto
-import pt.ulisboa.tecnico.socialsoftware.ms.utils.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.TutorException
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.CourseExecutionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.dto.CourseExecutionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.QuestionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.dto.OptionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.dto.QuestionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.QuizFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.TopicFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.TournamentFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.event.TournamentEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.UserFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.dto.UserDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.utils.DateHandler
 
 @DataJpaTest
 class TournamentFunctionalityTest extends SpockTest {
@@ -445,7 +445,7 @@ class TournamentFunctionalityTest extends SpockTest {
 
         then: 'fails because the the tournament is not found'
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+        error.errorMessage == ErrorMessage.AGGREGATE_NOT_FOUND
     }
 
     def 'concurrent remove tournament and add student: remove finishes first' () {
@@ -495,7 +495,7 @@ class TournamentFunctionalityTest extends SpockTest {
 
         then: 'after merge the tournament is removed, not found'
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+        error.errorMessage == ErrorMessage.AGGREGATE_NOT_FOUND
     }
 
     // update topics in tournament and update topics in tournament
