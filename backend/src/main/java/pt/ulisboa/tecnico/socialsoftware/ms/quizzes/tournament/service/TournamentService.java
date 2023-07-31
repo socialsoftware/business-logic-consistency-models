@@ -7,12 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.repository.CausalConsistencyRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.service.CausalConsistencyService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.tcc.TournamentTCC;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.tcc.TournamentTCCRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.TournamentParticipant;
@@ -39,13 +36,10 @@ import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessag
 @Service
 public class TournamentService {
     @Autowired
-    private CausalConsistencyService causalConsistencyService;
+    private UnitOfWorkService unitOfWorkService;
 
     @Autowired
-    private CausalConsistencyRepository causalConsistencyRepository;
-
-    @Autowired
-    private TournamentTCCRepository tournamentTCCRepository;
+    private TournamentRepository tournamentRepository;
 
     @Autowired
     private QuizService quizService;
@@ -53,16 +47,13 @@ public class TournamentService {
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
-    @Autowired
-    private EventRepository eventRepository;
-
     // intended for requests from external functionalities
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public TournamentDto addTournamentCausalSnapshot(Integer aggregateId, UnitOfWork unitOfWork) {
-        return new TournamentDto((TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork));
+    public TournamentDto getTournamentById(Integer aggregateId, UnitOfWork unitOfWork) {
+        return new TournamentDto((Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(aggregateId, unitOfWork));
     }
 
     @Retryable(
@@ -75,7 +66,7 @@ public class TournamentService {
 
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
 
-        TournamentTCC tournament = new TournamentTCC(aggregateId, tournamentDto, creatorDto, courseExecutionDto, topicDtos, quizDto); /* should the skeleton creation be part of the functionality?? */
+        Tournament tournament = new TournamentTCC(aggregateId, tournamentDto, creatorDto, courseExecutionDto, topicDtos, quizDto); /* should the skeleton creation be part of the functionality?? */
 
         unitOfWork.registerChanged(tournament);
         return new TournamentDto(tournament);
@@ -90,7 +81,7 @@ public class TournamentService {
             throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, tournamentParticipant.getParticipantAggregateId());
         }
 
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
 
         if (DateHandler.now().isAfter(oldTournament.getStartTime())) {
             throw new TutorException(CANNOT_ADD_PARTICIPANT, tournamentAggregateId);
@@ -100,7 +91,7 @@ public class TournamentService {
         /*if(!userRole.equals(STUDENT.toString())) {
             throw new TutorException(PARTICIPANT_NOT_STUDENT, tournamentParticipant.getAggregateId(), tournamentAggregateId);
         }*/
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
 
         newTournament.addParticipant(tournamentParticipant);
 
@@ -112,8 +103,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public TournamentDto updateTournament(TournamentDto tournamentDto, Set<TopicDto> topicDtos, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentDto.getAggregateId(), unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentDto.getAggregateId(), unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
 
         if (tournamentDto.getStartTime() != null ) {
             newTournament.setStartTime(DateHandler.toLocalDateTime(tournamentDto.getStartTime()));
@@ -146,9 +137,9 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
-        return tournamentTCCRepository.findAllTournamentIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
-                .map(aggregateId -> (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork))
+    public List<TournamentDto> getTournamentsByCourseExecutionId(Integer executionAggregateId, UnitOfWork unitOfWork) {
+        return tournamentRepository.findAllTournamentIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
+                .map(aggregateId -> (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(aggregateId, unitOfWork))
                 .map(TournamentDto::new)
                 .collect(Collectors.toList());
 
@@ -160,10 +151,11 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
         LocalDateTime now = LocalDateTime.now();
-        return tournamentTCCRepository.findAllTournamentIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
-                .map(aggregateId -> (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork))
+        return tournamentRepository.findAllTournamentIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
+                .map(aggregateId -> (Tournament) unitOfWorkService.aggregateLoad(aggregateId, unitOfWork))
                 .filter(t -> now.isBefore(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
+                .map(tournament -> (Tournament) unitOfWorkService.registerRead(tournament, unitOfWork))
                 .map(TournamentDto::new)
                 .collect(Collectors.toList());
     }
@@ -174,10 +166,11 @@ public class TournamentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<TournamentDto> getClosedTournamentsForCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
         LocalDateTime now = LocalDateTime.now();
-        return tournamentTCCRepository.findAllTournamentIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
-                .map(aggregateId -> (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork))
+        return tournamentRepository.findAllTournamentIdsOfNotDeletedAndNotInactiveByCourseExecution(executionAggregateId).stream()
+                .map(aggregateId -> (Tournament) unitOfWorkService.aggregateLoad(aggregateId, unitOfWork))
                 .filter(t -> now.isAfter(t.getEndTime()))
                 .filter(t -> !t.isCancelled())
+                .map(tournament -> (Tournament) unitOfWorkService.registerRead(tournament, unitOfWork))
                 .map(TournamentDto::new)
                 .collect(Collectors.toList());
     }
@@ -187,8 +180,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void leaveTournament(Integer tournamentAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         TournamentParticipant participantToRemove = newTournament.findParticipant(userAggregateId);
         if (participantToRemove == null) {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
@@ -203,8 +196,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void solveQuiz(Integer tournamentAggregateId, Integer userAggregateId, Integer answerAggregateId, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         TournamentParticipant participant = newTournament.findParticipant(userAggregateId);
         if (participant == null) {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, userAggregateId, tournamentAggregateId);
@@ -218,8 +211,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void cancelTournament(Integer tournamentAggregateId, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         newTournament.cancel();
         unitOfWork.registerChanged(newTournament);
     }
@@ -229,8 +222,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeTournament(Integer tournamentAggregateId, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         newTournament.remove();
         unitOfWork.registerChanged(newTournament);
     }
@@ -243,8 +236,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament anonymizeUser(Integer tournamentAggregateId, Integer executionAggregateId, Integer userAggregateId, String name, String username, Integer eventVersion, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
 
         if (!newTournament.getTournamentCourseExecution().getCourseExecutionAggregateId().equals(executionAggregateId)) {
             return null;
@@ -275,12 +268,12 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament removeCourseExecution(Integer tournamentAggregateId, Integer courseExecutionId, Integer eventVersion, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
         if (oldTournament.getTournamentCourseExecution() != null && oldTournament.getTournamentCourseExecution().getCourseExecutionVersion() >= eventVersion) {
             return null;
         }
 
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         if (newTournament.getTournamentCourseExecution().getCourseExecutionAggregateId().equals(courseExecutionId)) {
             newTournament.setState(Aggregate.AggregateState.INACTIVE);
             unitOfWork.registerChanged(newTournament);
@@ -293,10 +286,9 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament removeUser(Integer tournamentAggregateId, Integer courseExecutionAggregateId, Integer userAggregateId, Integer eventVersion, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
 
-
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         if (newTournament.getTournamentCreator().getCreatorAggregateId().equals(userAggregateId)) {
             newTournament.getTournamentCreator().setCreatorState(Aggregate.AggregateState.INACTIVE);
             newTournament.setState(Aggregate.AggregateState.INACTIVE);
@@ -321,8 +313,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament updateTopic(Integer tournamentAggregateId, Integer topicAggregateId, String topicName, Integer eventVersion, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         TournamentTopic topic = newTournament.findTopic(topicAggregateId);
         if (topic == null) {
             throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, topicAggregateId, tournamentAggregateId);
@@ -339,12 +331,12 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament removeTopic(Integer tournamentAggregateId, Integer topicAggregateId, Integer eventVersion, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
         TournamentTopic oldTopic = oldTournament.findTopic(topicAggregateId);
         if (oldTopic != null && oldTopic.getTopicVersion() >= eventVersion) {
             return null;
         }
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         TournamentTopic tournamentTopic  = newTournament.findTopic(topicAggregateId);
         if (tournamentTopic == null) {
             throw new TutorException(TOURNAMENT_TOPIC_NOT_FOUND, topicAggregateId, tournamentAggregateId);
@@ -370,12 +362,12 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament updateParticipantAnswer(Integer tournamentAggregateId, Integer studentAggregateId, Integer quizAnswerAggregateId, Integer questionAggregateId, boolean isCorrect, Integer eventVersion, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
         TournamentParticipant oldParticipant = oldTournament.findParticipant(studentAggregateId);
         if (oldParticipant != null && oldParticipant.getParticipantAnswer().getQuizAnswerVersion() >= eventVersion) {
             return null;
         }
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         TournamentParticipant tournamentParticipant = newTournament.findParticipant(studentAggregateId);
         if (tournamentParticipant == null) {
             throw new TutorException(TOURNAMENT_PARTICIPANT_NOT_FOUND, studentAggregateId, tournamentAggregateId);
@@ -403,8 +395,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Tournament invalidateQuiz(Integer tournamentAggregateId, Integer aggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
         List<Integer> topicsIds = newTournament.getTournamentTopics().stream().map(TournamentTopic::getTopicAggregateId).collect(Collectors.toList());
 
         QuizDto quizDto = new QuizDto();
@@ -434,8 +426,8 @@ public class TournamentService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateUserName(Integer tournamentAggregateId, Integer executionAggregateId, Integer eventVersion, Integer userAggregateId, String name, UnitOfWork unitOfWork) {
-        TournamentTCC oldTournament = (TournamentTCC) causalConsistencyService.addAggregateCausalSnapshot(tournamentAggregateId, unitOfWork);
-        TournamentTCC newTournament = new TournamentTCC(oldTournament);
+        Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
+        Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
 
         if (!newTournament.getTournamentCourseExecution().getCourseExecutionAggregateId().equals(executionAggregateId)) {
             return;

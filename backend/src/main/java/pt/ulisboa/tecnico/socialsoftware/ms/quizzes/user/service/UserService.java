@@ -6,9 +6,9 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.service.CausalConsistencyService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.repository.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.tcc.UserTCC;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.tcc.UserTCCRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.event.publish.RemoveUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.domain.Role;
@@ -27,18 +27,18 @@ import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessag
 @Service
 public class UserService {
     @Autowired
-    private UserTCCRepository userTCCRepository;
+    private UserRepository userRepository;
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
     @Autowired
-    private CausalConsistencyService causalConsistencyService;
+    private UnitOfWorkService unitOfWorkService;
 
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public UserDto getCausalUserRemote(Integer aggregateId, UnitOfWork unitOfWork) {
-        return new UserDto((UserTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork));
+    public UserDto getUserById(Integer aggregateId, UnitOfWork unitOfWork) {
+        return new UserDto((User) unitOfWorkService.aggregateLoadAndRegisterRead(aggregateId, unitOfWork));
     }
 
     /*simple user creation*/
@@ -48,7 +48,7 @@ public class UserService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public UserDto createUser(UserDto userDto, UnitOfWork unitOfWork) {
         Integer aggregateId = aggregateIdGeneratorService.getNewAggregateId();
-        UserTCC user = new UserTCC(aggregateId, userDto);
+        User user = new UserTCC(aggregateId, userDto);
         unitOfWork.registerChanged(user);
         return new UserDto(user);
     }
@@ -58,11 +58,11 @@ public class UserService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void activateUser(Integer userAggregateId, UnitOfWork unitOfWork) {
-        UserTCC oldUser = (UserTCC) causalConsistencyService.addAggregateCausalSnapshot(userAggregateId, unitOfWork);
+        User oldUser = (User) unitOfWorkService.aggregateLoadAndRegisterRead(userAggregateId, unitOfWork);
         if (oldUser.isActive()) {
             throw new TutorException(USER_ACTIVE);
         }
-        UserTCC newUser = new UserTCC(oldUser);
+        User newUser = new UserTCC((UserTCC) oldUser);
         newUser.setActive(true);
         unitOfWork.registerChanged(newUser);
     }
@@ -72,8 +72,8 @@ public class UserService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteUser(Integer userAggregateId, UnitOfWork unitOfWork) {
-        UserTCC oldUser = (UserTCC) causalConsistencyService.addAggregateCausalSnapshot(userAggregateId, unitOfWork);
-        UserTCC newUser = new UserTCC(oldUser);
+        User oldUser = (User) unitOfWorkService.aggregateLoadAndRegisterRead(userAggregateId, unitOfWork);
+        User newUser = new UserTCC((UserTCC) oldUser);
         newUser.remove();
         unitOfWork.registerChanged(newUser);
         unitOfWork.addEvent(new RemoveUserEvent(newUser.getAggregateId()));
@@ -84,12 +84,12 @@ public class UserService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<UserDto> getStudents(UnitOfWork unitOfWork) {
-        Set<Integer> studentsIds = userTCCRepository.findAll().stream()
+        Set<Integer> studentsIds = userRepository.findAll().stream()
                 .filter(u -> u.getRole().equals(Role.STUDENT))
                 .map(User::getAggregateId)
                 .collect(Collectors.toSet());
         return studentsIds.stream()
-                .map(id -> (UserTCC) causalConsistencyService.addAggregateCausalSnapshot(id, unitOfWork))
+                .map(id -> (User) unitOfWorkService.aggregateLoadAndRegisterRead(id, unitOfWork))
                 .map(UserDto::new)
                 .collect(Collectors.toList());
     }
@@ -99,12 +99,12 @@ public class UserService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<UserDto> getTeachers(UnitOfWork unitOfWork) {
-        Set<Integer> teacherIds = userTCCRepository.findAll().stream()
+        Set<Integer> teacherIds = userRepository.findAll().stream()
                 .filter(u -> u.getRole().equals(Role.TEACHER))
                 .map(User::getAggregateId)
                 .collect(Collectors.toSet());
         return teacherIds.stream()
-                .map(id -> (UserTCC) causalConsistencyService.addAggregateCausalSnapshot(id, unitOfWork))
+                .map(id -> (User) unitOfWorkService.aggregateLoadAndRegisterRead(id, unitOfWork))
                 .map(UserDto::new)
                 .collect(Collectors.toList());
     }

@@ -18,24 +18,21 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuizFunctionalities {
-
     @Autowired
     private UnitOfWorkService unitOfWorkService;
-
     @Autowired
     private QuizService quizService;
-
     @Autowired
     private CourseExecutionService courseExecutionService;
-
     @Autowired
     private QuestionService questionService;
+
     public QuizDto createQuiz(Integer courseExecutionId, QuizDto quizDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.addCourseExecutionCausalSnapshot(courseExecutionId, unitOfWork));
+        QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.getCourseExecutionById(courseExecutionId, unitOfWork));
 
         Set<QuestionDto> questions = quizDto.getQuestionDtos().stream()
-                .map(qq -> questionService.addQuestionCausalSnapshot(qq.getAggregateId(), unitOfWork))
+                .map(qq -> questionService.getQuestionById(qq.getAggregateId(), unitOfWork))
                 .collect(Collectors.toSet());
 
         QuizDto quizDto1 = quizService.createQuiz(quizCourseExecution, questions, quizDto, unitOfWork);
@@ -46,7 +43,7 @@ public class QuizFunctionalities {
 
     public QuizDto findQuiz(Integer quizAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return quizService.addQuizCausalSnapshot(quizAggregateId, unitOfWork);
+        return quizService.getQuizById(quizAggregateId, unitOfWork);
     }
 
     public List<QuizDto> getAvailableQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {

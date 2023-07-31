@@ -7,20 +7,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.service.AggregateIdGeneratorService;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.repository.CausalConsistencyRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.service.CausalConsistencyService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.tcc.QuestionTCC;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.event.publish.RemoveQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.event.publish.UpdateQuestionEvent;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.domain.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.domain.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.tcc.QuestionTCCRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.dto.TopicDto;
 
 import java.sql.SQLException;
@@ -30,28 +27,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
-
     @Autowired
-    private QuestionTCCRepository questionTCCRepository;
-
+    private QuestionRepository questionRepository;
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
-
     @Autowired
-    private CausalConsistencyService causalConsistencyService;
-
-    @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
-    private CausalConsistencyRepository causalConsistencyRepository;
+    private UnitOfWorkService unitOfWorkService;
 
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public QuestionDto addQuestionCausalSnapshot(Integer aggregateId, UnitOfWork unitOfWork) {
-        return new QuestionDto((QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork));
+    public QuestionDto getQuestionById(Integer aggregateId, UnitOfWork unitOfWork) {
+        return new QuestionDto((Question) unitOfWorkService.aggregateLoadAndRegisterRead(aggregateId, unitOfWork));
     }
 
     @Retryable(
@@ -59,11 +47,11 @@ public class QuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId, UnitOfWork unitOfWork) {
-        return questionTCCRepository.findAll().stream()
+        return questionRepository.findAll().stream()
                 .filter(q -> q.getQuestionCourse().getCourseAggregateId() == courseAggregateId)
                 .map(Question::getAggregateId)
                 .distinct()
-                .map(id -> (QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(id, unitOfWork))
+                .map(id -> (Question) unitOfWorkService.aggregateLoadAndRegisterRead(id, unitOfWork))
                 .map(QuestionDto::new)
                 .collect(Collectors.toList());
     }
@@ -79,7 +67,7 @@ public class QuestionService {
                 .map(QuestionTopic::new)
                 .collect(Collectors.toList());
 
-        QuestionTCC question = new QuestionTCC(aggregateId, course, questionDto, questionTopics);
+        Question question = new QuestionTCC(aggregateId, course, questionDto, questionTopics);
         unitOfWork.registerChanged(question);
         return new QuestionDto(question);
     }
@@ -92,8 +80,8 @@ public class QuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateQuestion(QuestionDto questionDto, UnitOfWork unitOfWork) {
-        QuestionTCC oldQuestion = (QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(questionDto.getAggregateId(), unitOfWork);
-        QuestionTCC newQuestion = new QuestionTCC(oldQuestion);
+        Question oldQuestion = (Question) unitOfWorkService.aggregateLoadAndRegisterRead(questionDto.getAggregateId(), unitOfWork);
+        Question newQuestion = new QuestionTCC((QuestionTCC) oldQuestion);
         newQuestion.update(questionDto);
         unitOfWork.registerChanged(newQuestion);
         unitOfWork.addEvent(new UpdateQuestionEvent(newQuestion.getAggregateId(), newQuestion.getTitle(), newQuestion.getContent()));
@@ -104,8 +92,8 @@ public class QuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeQuestion(Integer courseAggregateId, UnitOfWork unitOfWork) {
-        QuestionTCC oldQuestion = (QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(courseAggregateId, unitOfWork);
-        QuestionTCC newQuestion = new QuestionTCC(oldQuestion);
+        Question oldQuestion = (Question) unitOfWorkService.aggregateLoadAndRegisterRead(courseAggregateId, unitOfWork);
+        Question newQuestion = new QuestionTCC((QuestionTCC) oldQuestion);
         newQuestion.remove();
         unitOfWork.registerChanged(newQuestion);
         unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion.getAggregateId()));
@@ -116,8 +104,8 @@ public class QuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateQuestionTopics(Integer courseAggregateId, Set<QuestionTopic> topics, UnitOfWork unitOfWork) {
-        QuestionTCC oldQuestion = (QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(courseAggregateId, unitOfWork);
-        QuestionTCC newQuestion = new QuestionTCC(oldQuestion);
+        Question oldQuestion = (Question) unitOfWorkService.aggregateLoadAndRegisterRead(courseAggregateId, unitOfWork);
+        Question newQuestion = new QuestionTCC((QuestionTCC) oldQuestion);
         newQuestion.setQuestionTopics(topics);
         unitOfWork.registerChanged(newQuestion);
     }
@@ -126,10 +114,10 @@ public class QuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public List<QuestionDto> findQuestionsByTopics(List<Integer> topicIds, UnitOfWork unitOfWork) {
-        Set<Integer> questionAggregateIds = questionTCCRepository.findAll().stream()
+    public List<QuestionDto> findQuestionsByTopicIds(List<Integer> topicIds, UnitOfWork unitOfWork) {
+        Set<Integer> questionAggregateIds = questionRepository.findAll().stream()
                 .filter(q -> {
-                    for(QuestionTopic qt : q.getQuestionTopics()) {
+                    for (QuestionTopic qt : q.getQuestionTopics()) {
                         if (topicIds.contains(qt.getTopicAggregateId())) {
                             return true;
                         }
@@ -139,7 +127,7 @@ public class QuestionService {
                 .map(Question::getAggregateId)
                 .collect(Collectors.toSet());
         return questionAggregateIds.stream()
-                .map(id -> (QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(id, unitOfWork))
+                .map(id -> (Question) unitOfWorkService.aggregateLoadAndRegisterRead(id, unitOfWork))
                 .map(QuestionDto::new)
                 .collect(Collectors.toList());
 
@@ -152,8 +140,8 @@ public class QuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Question updateTopic(Integer questionAggregateId, Integer topicAggregateId, String topicName, Integer aggregateVersion, UnitOfWork unitOfWork) {
-        QuestionTCC oldQuestion = (QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(questionAggregateId, unitOfWork);
-        QuestionTCC newQuestion = new QuestionTCC(oldQuestion);
+        Question oldQuestion = (Question) unitOfWorkService.aggregateLoadAndRegisterRead(questionAggregateId, unitOfWork);
+        Question newQuestion = new QuestionTCC((QuestionTCC) oldQuestion);
 
         QuestionTopic questionTopic = newQuestion.findTopic(topicAggregateId);
         /*
@@ -172,8 +160,8 @@ public class QuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Question removeTopic(Integer questionAggregateId, Integer topicAggregateId, Integer aggregateVersion, UnitOfWork unitOfWork) {
-        QuestionTCC oldQuestion = (QuestionTCC) causalConsistencyService.addAggregateCausalSnapshot(questionAggregateId, unitOfWork);
-        QuestionTCC newQuestion = new QuestionTCC(oldQuestion);
+        Question oldQuestion = (Question) unitOfWorkService.aggregateLoadAndRegisterRead(questionAggregateId, unitOfWork);
+        Question newQuestion = new QuestionTCC((QuestionTCC) oldQuestion);
 
         QuestionTopic questionTopic = newQuestion.findTopic(topicAggregateId);
         if(questionTopic != null && questionTopic.getTopicAggregateId().equals(topicAggregateId) && questionTopic.getTopicVersion() >= aggregateVersion) {

@@ -20,7 +20,7 @@ public class UserController {
 
     @GetMapping("/users/{userAggregateId}")
     public UserDto findByAggregateId(@PathVariable Integer userAggregateId) {
-        return userFunctionalities.findByAggregateId(userAggregateId);
+        return userFunctionalities.findByUserId(userAggregateId);
     }
 
     @PostMapping("/users/{userAggregateId}/activate")

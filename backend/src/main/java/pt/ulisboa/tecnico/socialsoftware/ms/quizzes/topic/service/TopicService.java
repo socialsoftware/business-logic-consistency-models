@@ -6,12 +6,11 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.service.CausalConsistencyService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.tcc.TopicTCC;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.tcc.TopicTCCRepository;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.service.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.event.publish.DeleteTopicEvent;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.event.publish.UpdateTopicEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.domain.TopicCourse;
@@ -29,20 +28,17 @@ public class TopicService {
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
     @Autowired
-    private CausalConsistencyService causalConsistencyService;
+    private UnitOfWorkService unitOfWorkService;
 
     @Autowired
-    private TopicTCCRepository topicTCCRepository;
-
-    @Autowired
-    private EventRepository eventRepository;
+    private TopicRepository topicRepository;
 
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public TopicDto AddTopicCausalSnapshot(Integer topicAggregateId, UnitOfWork unitOfWork) {
-        return new TopicDto((TopicTCC) causalConsistencyService.addAggregateCausalSnapshot(topicAggregateId, unitOfWork));
+    public TopicDto getTopicById(Integer topicAggregateId, UnitOfWork unitOfWork) {
+        return new TopicDto((Topic) unitOfWorkService.aggregateLoadAndRegisterRead(topicAggregateId, unitOfWork));
     }
 
     @Retryable(
@@ -50,7 +46,7 @@ public class TopicService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public TopicDto createTopic(TopicDto topicDto, TopicCourse course, UnitOfWork unitOfWorkWorkService) {
-        TopicTCC topic = new TopicTCC(aggregateIdGeneratorService.getNewAggregateId(),
+        Topic topic = new TopicTCC(aggregateIdGeneratorService.getNewAggregateId(),
                 topicDto.getName(), course);
         unitOfWorkWorkService.registerChanged(topic);
         return new TopicDto(topic);
@@ -60,15 +56,14 @@ public class TopicService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public List<TopicDto> findCourseByTopicId(Integer courseAggregateId, UnitOfWork unitOfWork) {
-        return topicTCCRepository.findAll().stream()
+    public List<TopicDto> findTopicsByCourseId(Integer courseAggregateId, UnitOfWork unitOfWork) {
+        return topicRepository.findAll().stream()
                 .filter(t -> courseAggregateId == t.getTopicCourse().getCourseAggregateId())
                 .map(Topic::getAggregateId)
                 .distinct()
-                .map(aggregateId -> (TopicTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork))
+                .map(aggregateId -> (Topic) unitOfWorkService.aggregateLoadAndRegisterRead(aggregateId, unitOfWork))
                 .map(TopicDto::new)
                 .collect(Collectors.toList());
-
     }
 
     @Retryable(
@@ -76,8 +71,8 @@ public class TopicService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateTopic(TopicDto topicDto, UnitOfWork unitOfWork) {
-        TopicTCC oldTopic = (TopicTCC) causalConsistencyService.addAggregateCausalSnapshot(topicDto.getAggregateId(), unitOfWork);
-        TopicTCC newTopic = new TopicTCC(oldTopic);
+        Topic oldTopic = (Topic) unitOfWorkService.aggregateLoadAndRegisterRead(topicDto.getAggregateId(), unitOfWork);
+        Topic newTopic = new TopicTCC((TopicTCC) oldTopic);
         newTopic.setName(topicDto.getName());
         unitOfWork.registerChanged(newTopic);
         unitOfWork.addEvent(new UpdateTopicEvent(newTopic.getAggregateId(), newTopic.getName()));
@@ -88,8 +83,8 @@ public class TopicService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteTopic(Integer topicAggregateId, UnitOfWork unitOfWork) {
-        TopicTCC oldTopic = (TopicTCC) causalConsistencyService.addAggregateCausalSnapshot(topicAggregateId, unitOfWork);
-        TopicTCC newTopic = new TopicTCC(oldTopic);
+        Topic oldTopic = (Topic) unitOfWorkService.aggregateLoadAndRegisterRead(topicAggregateId, unitOfWork);
+        Topic newTopic = new TopicTCC((TopicTCC) oldTopic);
         newTopic.remove();
         unitOfWork.registerChanged(newTopic);
         unitOfWork.addEvent(new DeleteTopicEvent(newTopic.getAggregateId()));

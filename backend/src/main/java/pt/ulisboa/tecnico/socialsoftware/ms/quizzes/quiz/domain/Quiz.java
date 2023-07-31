@@ -219,8 +219,8 @@ public abstract class Quiz extends Aggregate {
     }
 
     public QuizQuestion findQuestion(Integer questionAggregateId) {
-        for(QuizQuestion qq : quizQuestions) {
-            if(qq.getQuestionAggregateId().equals(questionAggregateId)) {
+        for (QuizQuestion qq : quizQuestions) {
+            if (qq.getQuestionAggregateId().equals(questionAggregateId)) {
                 return qq;
             }
         }

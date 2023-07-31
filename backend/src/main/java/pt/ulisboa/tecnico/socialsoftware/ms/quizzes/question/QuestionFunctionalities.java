@@ -31,7 +31,7 @@ public class QuestionFunctionalities {
 
     public QuestionDto findQuestionByAggregateId(Integer aggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return questionService.addQuestionCausalSnapshot(aggregateId, unitOfWork);
+        return questionService.getQuestionById(aggregateId, unitOfWork);
     }
 
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId) {
@@ -41,19 +41,19 @@ public class QuestionFunctionalities {
 
     public QuestionDto createQuestion(Integer courseAggregateId, QuestionDto questionDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        QuestionCourse course = new QuestionCourse(courseService.addCourseCausalSnapshot(courseAggregateId, unitOfWork));
+        QuestionCourse course = new QuestionCourse(courseService.getCourseById(courseAggregateId, unitOfWork));
         /*
             COURSE_SAME_TOPICS_COURSE
          */
 
-        for(TopicDto topicDto : questionDto.getTopicDto()) {
-            if(!topicDto.getCourseId().equals(courseAggregateId)) {
+        for (TopicDto topicDto : questionDto.getTopicDto()) {
+            if (!topicDto.getCourseId().equals(courseAggregateId)) {
                 throw new TutorException(ErrorMessage.QUESTION_TOPIC_INVALID_COURSE, topicDto.getAggregateId(), courseAggregateId);
             }
         }
 
         List<TopicDto> topics = questionDto.getTopicDto().stream()
-                .map(topicDto -> topicService.AddTopicCausalSnapshot(topicDto.getAggregateId(), unitOfWork))
+                .map(topicDto -> topicService.getTopicById(topicDto.getAggregateId(), unitOfWork))
                 .collect(Collectors.toList());
 
         QuestionDto questionDto1 = questionService.createQuestion(course, questionDto, topics, unitOfWork);
@@ -80,7 +80,7 @@ public class QuestionFunctionalities {
     public void updateQuestionTopics(Integer courseAggregateId, List<Integer> topicIds) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         Set<QuestionTopic> topics = topicIds.stream()
-                        .map(id -> topicService.AddTopicCausalSnapshot(id, unitOfWork))
+                        .map(id -> topicService.getTopicById(id, unitOfWork))
                         .map(QuestionTopic::new)
                         .collect(Collectors.toSet());
 

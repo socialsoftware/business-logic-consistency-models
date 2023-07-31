@@ -2,11 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.tcc.CourseExecutionTCC;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.service.CausalConsistencyService;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.domain.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.dto.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.dto.UserDto;
@@ -21,14 +18,9 @@ import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessag
 @Service
 public class CourseExecutionFunctionalities {
     @Autowired
-    private CausalConsistencyService causalConsistencyService;
-
-    @Autowired
     private CourseExecutionService courseExecutionService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private UnitOfWorkService unitOfWorkService;
 
@@ -43,13 +35,12 @@ public class CourseExecutionFunctionalities {
 
     public CourseExecutionDto getCourseExecutionByAggregateId(Integer executionAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        CourseExecution courseExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(executionAggregateId, unitOfWork);
-        return  new CourseExecutionDto(courseExecution);
+        return courseExecutionService.getCourseExecutionById(executionAggregateId, unitOfWork);
     }
 
     public List<CourseExecutionDto> getCourseExecutions() {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return courseExecutionService.getAllCausalCourseExecutions(unitOfWork);
+        return courseExecutionService.getAllCourseExecutions(unitOfWork);
     }
 
     public void removeCourseExecution(Integer executionAggregateId) {
@@ -62,7 +53,7 @@ public class CourseExecutionFunctionalities {
     public void addStudent(Integer executionAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
-        UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
+        UserDto userDto = userService.getUserById(userAggregateId, unitOfWork);
         courseExecutionService.enrollStudent(executionAggregateId, userDto, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
@@ -70,7 +61,7 @@ public class CourseExecutionFunctionalities {
 
     public Set<CourseExecutionDto> getCourseExecutionsByUser(Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return courseExecutionService.getCourseExecutionsByUser(userAggregateId, unitOfWork);
+        return courseExecutionService.getCourseExecutionsByUserId(userAggregateId, unitOfWork);
     }
 
     public void removeStudentFromCourseExecution(Integer courseExecutionAggregateId, Integer userAggregateId) {

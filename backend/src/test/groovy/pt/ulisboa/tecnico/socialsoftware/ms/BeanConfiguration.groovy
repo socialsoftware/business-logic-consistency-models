@@ -4,7 +4,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventService
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.service.CausalConsistencyService
+
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.answer.QuizAnswerFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.answer.event.QuizAnswerEventHandling
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.answer.event.QuizAnswerEventProcessing
@@ -123,11 +123,6 @@ class BeanConfiguration {
     @Bean
     TournamentEventProcessing tournamentEventProcessing() {
         return new TournamentEventProcessing()
-    }
-
-    @Bean
-    CausalConsistencyService aggregateService() {
-        return new CausalConsistencyService();
     }
 
     @Bean

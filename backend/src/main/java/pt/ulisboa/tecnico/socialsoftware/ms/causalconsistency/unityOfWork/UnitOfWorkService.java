@@ -8,6 +8,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.repository.CausalConsistencyRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService;
@@ -49,6 +50,41 @@ public class UnitOfWorkService {
         logger.info("START EXECUTION FUNCTIONALITY: {} with version {}", functionalityName, unitOfWork.getVersion());
 
         return unitOfWork;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Aggregate aggregateLoadAndRegisterRead(Integer aggregateId, UnitOfWork unitOfWork) {
+        Aggregate aggregate = causalConsistencyRepository.findCausal(aggregateId, unitOfWork.getVersion())
+                .orElseThrow(() -> new TutorException(AGGREGATE_NOT_FOUND, aggregateId));
+
+        if (aggregate.getState() == Aggregate.AggregateState.DELETED) {
+            throw new TutorException(AGGREGATE_DELETED, aggregate.getAggregateType().toString(), aggregate.getAggregateId());
+        }
+
+        List<Event> allEvents = eventRepository.findAll();
+
+        unitOfWork.addToCausalSnapshot(aggregate, allEvents);
+        return aggregate;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Aggregate aggregateLoad(Integer aggregateId, UnitOfWork unitOfWork) {
+        Aggregate aggregate = causalConsistencyRepository.findCausal(aggregateId, unitOfWork.getVersion())
+                .orElseThrow(() -> new TutorException(AGGREGATE_NOT_FOUND, aggregateId));
+
+        if (aggregate.getState() == Aggregate.AggregateState.DELETED) {
+            throw new TutorException(AGGREGATE_DELETED, aggregate.getAggregateType().toString(), aggregate.getAggregateId());
+        }
+
+        return aggregate;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Aggregate registerRead(Aggregate aggregate, UnitOfWork unitOfWork) {
+        List<Event> allEvents = eventRepository.findAll();
+
+        unitOfWork.addToCausalSnapshot(aggregate, allEvents);
+        return aggregate;
     }
 
     @Retryable(

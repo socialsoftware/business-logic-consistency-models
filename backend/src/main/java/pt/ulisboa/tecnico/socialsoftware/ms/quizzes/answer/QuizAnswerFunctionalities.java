@@ -13,17 +13,14 @@ import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.service.QuestionSer
 public class QuizAnswerFunctionalities {
      @Autowired
      private QuizAnswerService quizAnswerService;
-
      @Autowired
      private QuestionService questionService;
-
     @Autowired
     private UnitOfWorkService unitOfWorkService;
 
-
     public void answerQuestion(Integer quizAggregateId, Integer userAggregateId, QuestionAnswerDto userQuestionAnswerDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        QuestionDto questionDto = questionService.addQuestionCausalSnapshot(userQuestionAnswerDto.getQuestionAggregateId(), unitOfWork);
+        QuestionDto questionDto = questionService.getQuestionById(userQuestionAnswerDto.getQuestionAggregateId(), unitOfWork);
         quizAnswerService.answerQuestion(quizAggregateId, userAggregateId, userQuestionAnswerDto, questionDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }

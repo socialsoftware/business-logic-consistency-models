@@ -30,22 +30,16 @@ import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessag
 public class TournamentFunctionalities {
     @Autowired
     private TournamentService tournamentService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private CourseExecutionService courseExecutionService;
-
     @Autowired
     private TopicService topicService;
-
     @Autowired
     private QuizService quizService;
-
     @Autowired
     private QuizAnswerService quizAnswerService;
-
     @Autowired
     private UnitOfWorkService unitOfWorkService;
 
@@ -59,10 +53,10 @@ public class TournamentFunctionalities {
         // by making this call the invariants regarding the course execution and the role of the creator are guaranteed
         UserDto creatorDto = courseExecutionService.getStudentByExecutionIdAndUserId(executionId, userId, unitOfWork);
 
-        CourseExecutionDto courseExecutionDto = courseExecutionService.addCourseExecutionCausalSnapshot(executionId, unitOfWork);
+        CourseExecutionDto courseExecutionDto = courseExecutionService.getCourseExecutionById(executionId, unitOfWork);
 
         Set<TopicDto> topicDtos = topicsId.stream()
-                .map(topicId -> topicService.AddTopicCausalSnapshot(topicId, unitOfWork))
+                .map(topicId -> topicService.getTopicById(topicId, unitOfWork))
                 .collect(Collectors.toSet());
 
         QuizDto quizDto = new QuizDto();
@@ -91,7 +85,7 @@ public class TournamentFunctionalities {
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
-        TournamentDto tournamentDto = tournamentService.addTournamentCausalSnapshot(tournamentAggregateId, unitOfWork);
+        TournamentDto tournamentDto = tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
         // by making this call the invariants regarding the course execution and the role of the participant are guaranteed
         UserDto userDto = courseExecutionService.getStudentByExecutionIdAndUserId(tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
         TournamentParticipant participant = new TournamentParticipant(userDto);
@@ -105,7 +99,7 @@ public class TournamentFunctionalities {
         //checkInput(topicsAggregateIds, tournamentDto);
 
         Set<TopicDto> topicDtos = topicsAggregateIds.stream()
-                .map(topicAggregateId -> topicService.AddTopicCausalSnapshot(topicAggregateId, unitOfWork))
+                .map(topicAggregateId -> topicService.getTopicById(topicAggregateId, unitOfWork))
                 .collect(Collectors.toSet());
 
         TournamentDto newTournamentDto = tournamentService.updateTournament(tournamentDto, topicDtos, unitOfWork);
@@ -142,7 +136,7 @@ public class TournamentFunctionalities {
 
     public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return tournamentService.getTournamentsForCourseExecution(executionAggregateId, unitOfWork);
+        return tournamentService.getTournamentsByCourseExecutionId(executionAggregateId, unitOfWork);
     }
 
     public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId) {
@@ -163,7 +157,7 @@ public class TournamentFunctionalities {
 
     public QuizDto solveQuiz(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        TournamentDto tournamentDto = tournamentService.addTournamentCausalSnapshot(tournamentAggregateId, unitOfWork);
+        TournamentDto tournamentDto = tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
         QuizDto quizDto = quizService.startTournamentQuiz(userAggregateId, tournamentDto.getQuiz().getAggregateId(), unitOfWork);
         QuizAnswerDto quizAnswerDto = quizAnswerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
         tournamentService.solveQuiz(tournamentAggregateId, userAggregateId, quizAnswerDto.getAggregateId(), unitOfWork);
@@ -188,14 +182,14 @@ public class TournamentFunctionalities {
 
     public TournamentDto findTournament(Integer tournamentAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return tournamentService.addTournamentCausalSnapshot(tournamentAggregateId, unitOfWork);
+        return tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
     }
 
     /** FOR TESTING PURPOSES **/
     public void getTournamentAndUser(Integer tournamentAggregateId, Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        TournamentDto tournamentDto = tournamentService.addTournamentCausalSnapshot(tournamentAggregateId, unitOfWork);
-        UserDto userDto = userService.getCausalUserRemote(userAggregateId, unitOfWork);
+        TournamentDto tournamentDto = tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
+        UserDto userDto = userService.getUserById(userAggregateId, unitOfWork);
         return;
     }
 

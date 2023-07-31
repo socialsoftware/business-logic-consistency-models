@@ -7,11 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.service.AggregateIdGeneratorService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.repository.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.tcc.CourseExecutionTCC;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.repository.CausalConsistencyRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.service.CausalConsistencyService;
 import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.domain.CourseExecution;
@@ -20,7 +19,6 @@ import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.event.publish.Anon
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.event.publish.RemoveCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.event.publish.UnerollStudentFromCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.event.publish.UpdateStudentNameEvent;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.tcc.CourseExecutionTCCRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.domain.CourseExecutionCourse;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.dto.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage;
@@ -37,26 +35,23 @@ import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessag
 @Service
 public class CourseExecutionService {
     @Autowired
-    private CourseExecutionTCCRepository courseExecutionTCCRepository;
+    private CourseExecutionRepository courseExecutionRepository;
 
     @Autowired
     private AggregateIdGeneratorService aggregateIdGeneratorService;
 
     @Autowired
-    private CausalConsistencyService causalConsistencyService;
+    private UnitOfWorkService unitOfWorkService;
 
     @Autowired
     private CourseService courseService;
-
-    @Autowired
-    private CausalConsistencyRepository causalConsistencyRepository;
 
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public CourseExecutionDto addCourseExecutionCausalSnapshot(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
-        return new CourseExecutionDto((CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(executionAggregateId, unitOfWorkWorkService));
+    public CourseExecutionDto getCourseExecutionById(Integer executionAggregateId, UnitOfWork unitOfWorkWorkService) {
+        return new CourseExecutionDto((CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(executionAggregateId, unitOfWorkWorkService));
     }
 
     @Retryable(
@@ -66,7 +61,7 @@ public class CourseExecutionService {
     public CourseExecutionDto createCourseExecution(CourseExecutionDto courseExecutionDto, UnitOfWork unitOfWork) {
         CourseExecutionCourse courseExecutionCourse = new CourseExecutionCourse(courseService.getAndOrCreateCourseRemote(courseExecutionDto, unitOfWork));
 
-        CourseExecutionTCC courseExecution = new CourseExecutionTCC(aggregateIdGeneratorService.getNewAggregateId(), courseExecutionDto, courseExecutionCourse);
+        CourseExecution courseExecution = new CourseExecutionTCC(aggregateIdGeneratorService.getNewAggregateId(), courseExecutionDto, courseExecutionCourse);
 
         unitOfWork.registerChanged(courseExecution);
         return new CourseExecutionDto(courseExecution);
@@ -76,9 +71,9 @@ public class CourseExecutionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public List<CourseExecutionDto> getAllCausalCourseExecutions(UnitOfWork unitOfWork) {
-        return courseExecutionTCCRepository.findCourseExecutionIdsOfAllNonDeleted().stream()
-                .map(id -> (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(id, unitOfWork))
+    public List<CourseExecutionDto> getAllCourseExecutions(UnitOfWork unitOfWork) {
+        return courseExecutionRepository.findCourseExecutionIdsOfAllNonDeleted().stream()
+                .map(id -> (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(id, unitOfWork))
                 .map(CourseExecutionDto::new)
                 .collect(Collectors.toList());
     }
@@ -88,14 +83,13 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeCourseExecution(Integer executionAggregateId, UnitOfWork unitOfWork) {
-
-        CourseExecutionTCC oldCourseExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(executionAggregateId, unitOfWork);
-        CourseExecutionTCC newCourseExecution = new CourseExecutionTCC(oldCourseExecution);
+        CourseExecution oldCourseExecution = (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(executionAggregateId, unitOfWork);
+        CourseExecution newCourseExecution = new CourseExecutionTCC((CourseExecutionTCC) oldCourseExecution);
 
         /*
             REMOVE_COURSE_IS_VALID
          */
-        Integer numberOfExecutionsOfCourse = Math.toIntExact(getAllCausalCourseExecutions(unitOfWork).stream()
+        Integer numberOfExecutionsOfCourse = Math.toIntExact(getAllCourseExecutions(unitOfWork).stream()
                 .filter(ce -> ce.getCourseAggregateId() == newCourseExecution.getExecutionCourse().getCourseAggregateId())
                 .count());
         if (numberOfExecutionsOfCourse == 1) {
@@ -112,14 +106,14 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void enrollStudent(Integer courseExecutionAggregateId, UserDto userDto, UnitOfWork unitOfWork) {
-        CourseExecutionTCC oldCourseExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(courseExecutionAggregateId, unitOfWork);
+        CourseExecution oldCourseExecution = (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(courseExecutionAggregateId, unitOfWork);
 
         CourseExecutionStudent courseExecutionStudent = new CourseExecutionStudent(userDto);
         if (!courseExecutionStudent.isActive()){
             throw new TutorException(ErrorMessage.INACTIVE_USER, courseExecutionStudent.getUserAggregateId());
         }
 
-        CourseExecutionTCC newCourseExecution = new CourseExecutionTCC(oldCourseExecution);
+        CourseExecution newCourseExecution = new CourseExecutionTCC((CourseExecutionTCC) oldCourseExecution);
         newCourseExecution.addStudent(courseExecutionStudent);
 
         unitOfWork.registerChanged(newCourseExecution);
@@ -129,11 +123,12 @@ public class CourseExecutionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Set<CourseExecutionDto> getCourseExecutionsByUser(Integer userAggregateId, UnitOfWork unitOfWork) {
-        return courseExecutionTCCRepository.findAll().stream()
+    public Set<CourseExecutionDto> getCourseExecutionsByUserId(Integer userAggregateId, UnitOfWork unitOfWork) {
+        return courseExecutionRepository.findAll().stream()
                 .map(CourseExecution::getAggregateId)
-                .map(aggregateId -> (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(aggregateId, unitOfWork))
+                .map(aggregateId -> (CourseExecution) unitOfWorkService.aggregateLoad(aggregateId, unitOfWork))
                 .filter(ce -> ce.hasStudent(userAggregateId))
+                .map(courseExecution -> (CourseExecution) unitOfWorkService.registerRead(courseExecution, unitOfWork))
                 .map(ce -> new CourseExecutionDto(ce))
                 .collect(Collectors.toSet());
 
@@ -144,8 +139,8 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void removeStudentFromCourseExecution(Integer courseExecutionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        CourseExecutionTCC oldCourseExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(courseExecutionAggregateId, unitOfWork);
-        CourseExecutionTCC newCourseExecution = new CourseExecutionTCC(oldCourseExecution);
+        CourseExecution oldCourseExecution = (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(courseExecutionAggregateId, unitOfWork);
+        CourseExecution newCourseExecution = new CourseExecutionTCC((CourseExecutionTCC) oldCourseExecution);
         newCourseExecution.removeStudent(userAggregateId);
         unitOfWork.registerChanged(newCourseExecution);
         unitOfWork.addEvent(new UnerollStudentFromCourseExecutionEvent(courseExecutionAggregateId, userAggregateId));
@@ -156,7 +151,7 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public UserDto getStudentByExecutionIdAndUserId(Integer executionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        CourseExecution courseExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(executionAggregateId, unitOfWork);
+        CourseExecution courseExecution = (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(executionAggregateId, unitOfWork);
         if (!courseExecution.hasStudent(userAggregateId)) {
             throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
         }
@@ -168,11 +163,11 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void anonymizeStudent(Integer executionAggregateId, Integer userAggregateId, UnitOfWork unitOfWork) {
-        CourseExecutionTCC oldExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(executionAggregateId, unitOfWork);
+        CourseExecution oldExecution = (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(executionAggregateId, unitOfWork);
         if (!oldExecution.hasStudent(userAggregateId)) {
             throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
         }
-        CourseExecutionTCC newExecution = new CourseExecutionTCC(oldExecution);
+        CourseExecution newExecution = new CourseExecutionTCC((CourseExecutionTCC) oldExecution);
         newExecution.findStudent(userAggregateId).anonymize();
         unitOfWork.registerChanged(newExecution);
         unitOfWork.addEvent(new AnonymizeStudentEvent(executionAggregateId, "ANONYMOUS", "ANONYMOUS", userAggregateId));
@@ -183,11 +178,11 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateExecutionStudentName(Integer executionAggregateId, Integer userAggregateId, String name, UnitOfWork unitOfWork) {
-        CourseExecutionTCC oldExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(executionAggregateId, unitOfWork);
+        CourseExecution oldExecution = (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(executionAggregateId, unitOfWork);
         if (!oldExecution.hasStudent(userAggregateId)) {
             throw new TutorException(COURSE_EXECUTION_STUDENT_NOT_FOUND, userAggregateId, executionAggregateId);
         }
-        CourseExecutionTCC newExecution = new CourseExecutionTCC(oldExecution);
+        CourseExecution newExecution = new CourseExecutionTCC((CourseExecutionTCC) oldExecution);
         newExecution.findStudent(userAggregateId).setName(name);
         unitOfWork.registerChanged(newExecution);
         unitOfWork.addEvent(new UpdateStudentNameEvent(executionAggregateId, userAggregateId, name));
@@ -201,8 +196,8 @@ public class CourseExecutionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public CourseExecution removeUser(Integer executionAggregateId, Integer userAggregateId, Integer aggregateEventVersion, UnitOfWork unitOfWork) {
-        CourseExecutionTCC oldExecution = (CourseExecutionTCC) causalConsistencyService.addAggregateCausalSnapshot(executionAggregateId, unitOfWork);
-        CourseExecutionTCC newExecution = new CourseExecutionTCC(oldExecution);
+        CourseExecution oldExecution = (CourseExecution) unitOfWorkService.aggregateLoadAndRegisterRead(executionAggregateId, unitOfWork);
+        CourseExecution newExecution = new CourseExecutionTCC((CourseExecutionTCC) oldExecution);
         newExecution.findStudent(userAggregateId).setState(Aggregate.AggregateState.INACTIVE);
         unitOfWork.registerChanged(newExecution);
         unitOfWork.addEvent(new UnerollStudentFromCourseExecutionEvent(executionAggregateId, userAggregateId));

@@ -28,9 +28,9 @@ public class UserFunctionalities {
         return userDto1;
     }
 
-    public UserDto findByAggregateId(Integer userAggregateId) {
+    public UserDto findByUserId(Integer userAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return userService.getCausalUserRemote(userAggregateId, unitOfWork);
+        return userService.getUserById(userAggregateId, unitOfWork);
     }
 
     public void activateUser(Integer userAggregateId) {

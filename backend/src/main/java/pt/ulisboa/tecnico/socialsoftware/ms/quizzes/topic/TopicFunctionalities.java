@@ -17,25 +17,22 @@ import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessag
 
 @Service
 public class TopicFunctionalities {
-
     @Autowired
     private TopicService topicService;
-
     @Autowired
     private CourseService courseService;
-
     @Autowired
     private UnitOfWorkService unitOfWorkService;
 
     public List<TopicDto> findTopicsByCourseAggregateId(Integer courseAggregateId) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        return topicService.findCourseByTopicId(courseAggregateId, unitOfWork);
+        return topicService.findTopicsByCourseId(courseAggregateId, unitOfWork);
     }
 
     public TopicDto createTopic(Integer courseAggregateId, TopicDto topicDto) {
         UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         checkInput(topicDto);
-        CourseDto courseDto = courseService.addCourseCausalSnapshot(courseAggregateId, unitOfWork);
+        CourseDto courseDto = courseService.getCourseById(courseAggregateId, unitOfWork);
         TopicCourse course = new TopicCourse(courseDto);
         TopicDto topicDto1 = topicService.createTopic(topicDto, course, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
