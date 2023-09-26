@@ -540,8 +540,8 @@ ${__setProperty(course_aggregate_id,${course_aggregate_id})}</stringProp>
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
-	&quot;startTime&quot;: &quot;2023-08-24T20:30:08.003198Z&quot;,&#xd;
-	&quot;endTime&quot;:   &quot;2023-08-24T21:00:08.003198Z&quot;,&#xd;
+	&quot;startTime&quot;: &quot;${__timeShift(yyyy-MM-dd&apos;T&apos;hh:mm:ss.SSS&apos;Z&apos;,,P1D,,)}&quot;,&#xd;
+	&quot;endTime&quot;:   &quot;${__timeShift(yyyy-MM-dd&apos;T&apos;hh:mm:ss.SSS&apos;Z&apos;,,P2D,,)}&quot;,&#xd;
 	&quot;numberOfQuestions&quot;: 1&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>

@@ -396,11 +396,15 @@ public abstract class Tournament extends Aggregate {
     }
 
     public void addParticipant(TournamentParticipant participant) {
+        // INV: tournamentParticipants is final after start time
+        Tournament prev = (Tournament) getPrev();
+        if (DateHandler.now().isAfter(prev.getStartTime())) {
+            throw new TutorException(CANNOT_ADD_PARTICIPANT, getAggregateId());
+        }
         /*
         IS_CANCELED
 		    this.canceled => final this.startTime && final this.endTime && final this.numberOfQuestions && final this.tournamentTopics && final this.participants && p: this.participant | final p.answer
          */
-        Tournament prev = (Tournament) getPrev();
         if (prev != null && prev.isCancelled()) {
             throw new TutorException(CANNOT_UPDATE_TOURNAMENT, getAggregateId());
         }

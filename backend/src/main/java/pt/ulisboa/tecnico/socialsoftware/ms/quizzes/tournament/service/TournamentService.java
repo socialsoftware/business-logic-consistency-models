@@ -80,17 +80,8 @@ public class TournamentService {
         if (tournamentParticipant.getParticipantName().equals("ANONYMOUS") || tournamentParticipant.getParticipantUsername().equals("ANONYMOUS")) {
             throw new TutorException(ErrorMessage.USER_IS_ANONYMOUS, tournamentParticipant.getParticipantAggregateId());
         }
-
         Tournament oldTournament = (Tournament) unitOfWorkService.aggregateLoadAndRegisterRead(tournamentAggregateId, unitOfWork);
 
-        if (DateHandler.now().isAfter(oldTournament.getStartTime())) {
-            throw new TutorException(CANNOT_ADD_PARTICIPANT, tournamentAggregateId);
-        }
-
-        // verification not needed anymore because request is made to course execution aggregate in which all are students
-        /*if(!userRole.equals(STUDENT.toString())) {
-            throw new TutorException(PARTICIPANT_NOT_STUDENT, tournamentParticipant.getAggregateId(), tournamentAggregateId);
-        }*/
         Tournament newTournament = new TournamentTCC((TournamentTCC) oldTournament);
 
         newTournament.addParticipant(tournamentParticipant);

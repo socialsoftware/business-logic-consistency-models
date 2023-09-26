@@ -25,7 +25,7 @@ public class TournamentController {
     private TournamentEventHandling tournamentEventHandling;
 
     @PostMapping(value = "/executions/{executionId}/tournaments/create")
-    public TournamentDto createTournament(@RequestParam Integer userId, @PathVariable int executionId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
+    public TournamentDto createTournament(@PathVariable int executionId, @RequestParam Integer userId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
         return tournamentFunctionalities.createTournament(userId, executionId, topicsId, tournamentDto);
     }
 
