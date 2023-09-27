@@ -9,7 +9,7 @@
 		<relativePath/>
 	</parent>
 	<groupId>pt.ulisboa.tecnico.socialsoftware</groupId>
-	<artifactId>MicroservicesSimulator</artifactId>
+	<artifactId>BusinessLogicConsistencyModels</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>MicroservicesSimulator</name>
 	<description>Microservices Simulator</description>
