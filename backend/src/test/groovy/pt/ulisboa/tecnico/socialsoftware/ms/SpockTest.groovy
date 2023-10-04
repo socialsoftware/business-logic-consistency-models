@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.ms
 
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.utils.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.utils.DateHandler
 import spock.lang.Specification
 
 import java.time.LocalDateTime

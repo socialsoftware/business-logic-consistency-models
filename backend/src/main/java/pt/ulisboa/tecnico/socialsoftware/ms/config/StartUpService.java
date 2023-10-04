@@ -12,7 +12,6 @@ import java.sql.SQLException;
 
 @Service
 public class StartUpService {
-
     @Autowired
     private EventRepository eventRepository;
 

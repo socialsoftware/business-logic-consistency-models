@@ -5,37 +5,37 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event.EventService
 
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.answer.QuizAnswerFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.answer.event.QuizAnswerEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.answer.event.QuizAnswerEventProcessing
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.answer.service.QuizAnswerService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuizAnswerFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.answer.event.QuizAnswerEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.answer.event.QuizAnswerEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.answer.service.QuizAnswerService
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.service.AggregateIdGeneratorService
 
-import pt.ulisboa.tecnico.socialsoftware.ms.causalconsistency.unityOfWork.UnitOfWorkService
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWorkService
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService
 import pt.ulisboa.tecnico.socialsoftware.ms.config.StartUpService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.course.service.CourseService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.CourseExecutionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.event.CourseExecutionEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.event.CourseExecutionEventProcessing
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.service.CourseExecutionService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.QuestionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.event.QuestionEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.event.QuestionEventProcessing
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.service.QuestionService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.QuizFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.event.QuizEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.event.QuizEventProcessing
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.service.QuizService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.TopicFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.course.service.CourseService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.CourseExecutionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.event.CourseExecutionEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.event.CourseExecutionEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.service.CourseExecutionService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuestionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.event.QuestionEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.event.QuestionEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.service.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuizFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.event.QuizEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.event.QuizEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.service.QuizService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TopicFunctionalities
 
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.service.TopicService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.TournamentFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.event.TournamentEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.event.TournamentEventProcessing
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.service.TournamentService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.UserFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.service.UserService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.service.TopicService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TournamentFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.event.TournamentEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.event.TournamentEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.service.TournamentService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.UserFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.service.UserService
 
 @TestConfiguration
 @PropertySource("classpath:application-test.properties")

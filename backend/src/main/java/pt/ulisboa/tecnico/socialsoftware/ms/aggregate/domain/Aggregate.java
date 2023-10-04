@@ -44,6 +44,7 @@ public abstract class Aggregate {
     public Aggregate(Integer aggregateId) {
         setAggregateId(aggregateId);
         setState(AggregateState.ACTIVE);
+        setPrev(null);
     }
 
     public Aggregate(Aggregate other) {

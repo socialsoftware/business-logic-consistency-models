@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.event;
 
 import jakarta.persistence.*;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.utils.DateHandler;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.utils.DateHandler;
 
 import java.time.LocalDateTime;
 
@@ -11,13 +11,10 @@ public abstract class Event {
     @Id
     @GeneratedValue
     private Integer id;
-
     @Column
     private Integer publisherAggregateId;
-
     @Column
     private Integer publisherAggregateVersion;
-
     private LocalDateTime timestamp;
 
     public Event() {

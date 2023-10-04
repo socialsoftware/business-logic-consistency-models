@@ -7,22 +7,22 @@ import pt.ulisboa.tecnico.socialsoftware.ms.BeanConfiguration
 import pt.ulisboa.tecnico.socialsoftware.ms.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.TutorException
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.CourseExecutionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.dto.CourseExecutionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.QuestionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.dto.OptionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.question.dto.QuestionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.QuizFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.TopicFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.dto.TopicDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.TournamentFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.event.TournamentEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.UserFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.dto.UserDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.utils.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.ErrorMessage
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.TutorException
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.CourseExecutionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.dto.CourseExecutionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuestionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.dto.OptionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.dto.QuestionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuizFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TopicFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TournamentFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.event.TournamentEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.UserFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.dto.UserDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.utils.DateHandler
 
 @DataJpaTest
 class TournamentFunctionalityTest extends SpockTest {

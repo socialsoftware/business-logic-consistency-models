@@ -1,20 +1,20 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.aggregate.tournament
 
 import org.springframework.boot.test.context.SpringBootTest
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.tcc.TournamentTCC
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.TutorException
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.execution.dto.CourseExecutionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.quiz.dto.QuizDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.topic.dto.TopicDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.Tournament
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.TournamentParticipant
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.TournamentParticipantQuizAnswer
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.domain.TournamentTopic
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.domain.TournamentTCC
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.ErrorMessage
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.TutorException
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.dto.CourseExecutionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.dto.QuizDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.domain.Tournament
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.domain.TournamentParticipant
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.domain.TournamentParticipantQuizAnswer
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.domain.TournamentTopic
 import pt.ulisboa.tecnico.socialsoftware.ms.SpockTest
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.user.dto.UserDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.utils.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.dto.UserDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.utils.DateHandler
 import spock.lang.Shared
 import spock.lang.Unroll
 

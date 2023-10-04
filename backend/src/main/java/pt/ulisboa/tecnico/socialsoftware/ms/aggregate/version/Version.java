@@ -9,10 +9,8 @@ public class Version {
     @Id
     @GeneratedValue
     private Integer id;
-
     // represents the version of the last committed transaction in the system.
     private Integer versionNumber;
-
     // used because of tests where the version number is temporarily decremented
     // to simulate concurrency in a deterministic test case
     private Integer numberOfDecrements;

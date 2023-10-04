@@ -6,8 +6,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.ErrorMessage;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.TutorException;
 
 import java.sql.SQLException;
 import java.util.Optional;

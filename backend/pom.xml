@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>pt.ulisboa.tecnico.socialsoftware</groupId>
 	<artifactId>BusinessLogicConsistencyModels</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>MicroservicesSimulator</name>
-	<description>Microservices Simulator</description>
+	<version>1.1.0-SNAPSHOT</version>
+	<name>BusinessLogicConsistencyModels</name>
+	<description>Business Logic Consistency Models</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

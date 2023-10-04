@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import jakarta.transaction.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.AggregateIdGenerator;
 
 import java.util.Optional;
 
