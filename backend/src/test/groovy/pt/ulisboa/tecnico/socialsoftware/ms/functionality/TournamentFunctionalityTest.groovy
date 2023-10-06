@@ -5,24 +5,24 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import pt.ulisboa.tecnico.socialsoftware.ms.BeanConfiguration
 import pt.ulisboa.tecnico.socialsoftware.ms.SpockTest
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.version.VersionService
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.ErrorMessage
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.TutorException
+import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.version.VersionService
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.ErrorMessage
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.CourseExecutionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.dto.CourseExecutionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.aggregate.CourseExecutionDto
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuestionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.dto.OptionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.dto.QuestionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.OptionDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuizFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TopicFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.aggregate.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TournamentFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.event.TournamentEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.event.TournamentEventHandling
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.UserFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.dto.UserDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.utils.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserDto
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.utils.DateHandler
 
 @DataJpaTest
 class TournamentFunctionalityTest extends SpockTest {

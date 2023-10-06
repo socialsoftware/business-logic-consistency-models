@@ -2,17 +2,17 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.domain.QuestionCourse;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.domain.QuestionTopic;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.service.TopicService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.course.service.CourseService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.ErrorMessage;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.service.QuestionService;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionCourse;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionTopic;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.aggregate.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.service.TopicService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.course.service.CourseService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.service.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
 
 import java.util.List;
 import java.util.Set;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionFunctionalities {
     @Autowired
-    private UnitOfWorkService unitOfWorkService;
+    private CausalUnitOfWorkService unitOfWorkService;
     @Autowired
     private QuestionService questionService;
     @Autowired
@@ -30,17 +30,17 @@ public class QuestionFunctionalities {
     private TopicService topicService;
 
     public QuestionDto findQuestionByAggregateId(Integer aggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return questionService.getQuestionById(aggregateId, unitOfWork);
     }
 
     public List<QuestionDto> findQuestionsByCourseAggregateId(Integer courseAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return questionService.findQuestionsByCourseAggregateId(courseAggregateId, unitOfWork);
     }
 
     public QuestionDto createQuestion(Integer courseAggregateId, QuestionDto questionDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         QuestionCourse course = new QuestionCourse(courseService.getCourseById(courseAggregateId, unitOfWork));
         /*
             COURSE_SAME_TOPICS_COURSE
@@ -63,14 +63,14 @@ public class QuestionFunctionalities {
     }
 
     public void updateQuestion(QuestionDto questionDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         questionService.updateQuestion(questionDto, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void removeQuestion(Integer questionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         questionService.removeQuestion(questionAggregateId, unitOfWork);
 
         unitOfWorkService.commit(unitOfWork);
@@ -78,7 +78,7 @@ public class QuestionFunctionalities {
 
 
     public void updateQuestionTopics(Integer courseAggregateId, List<Integer> topicIds) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         Set<QuestionTopic> topics = topicIds.stream()
                         .map(id -> topicService.getTopicById(id, unitOfWork))
                         .map(QuestionTopic::new)

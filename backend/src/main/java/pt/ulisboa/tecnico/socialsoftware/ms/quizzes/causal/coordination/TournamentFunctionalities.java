@@ -2,29 +2,29 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.answer.dto.QuizAnswerDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.aggregate.domain.Aggregate;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.domain.TournamentParticipant;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.dto.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.tournament.service.TournamentService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.topic.service.TopicService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.answer.service.QuizAnswerService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.dto.CourseExecutionDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.service.CourseExecutionService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.service.QuizService;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.dto.UserDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.service.UserService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.aggregate.QuizAnswerDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentParticipant;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.service.TournamentService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.aggregate.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.service.TopicService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.service.QuizAnswerService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.aggregate.CourseExecutionDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.service.CourseExecutionService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.service.QuizService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.service.UserService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.ErrorMessage.*;
+import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.ErrorMessage.*;
 
 @Service
 public class TournamentFunctionalities {
@@ -41,12 +41,12 @@ public class TournamentFunctionalities {
     @Autowired
     private QuizAnswerService quizAnswerService;
     @Autowired
-    private UnitOfWorkService unitOfWorkService;
+    private CausalUnitOfWorkService unitOfWorkService;
 
     public TournamentDto createTournament(Integer userId, Integer executionId, List<Integer> topicsId,
                                           TournamentDto tournamentDto) {
         //unit of work code
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         checkInput(userId, topicsId, tournamentDto);
 
@@ -83,7 +83,7 @@ public class TournamentFunctionalities {
     }
 
     public void addParticipant(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         TournamentDto tournamentDto = tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
         // by making this call the invariants regarding the course execution and the role of the participant are guaranteed
@@ -94,7 +94,7 @@ public class TournamentFunctionalities {
     }
 
     public void updateTournament(TournamentDto tournamentDto, Set<Integer> topicsAggregateIds) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         //checkInput(topicsAggregateIds, tournamentDto);
 
@@ -134,28 +134,28 @@ public class TournamentFunctionalities {
     }
 
     public List<TournamentDto> getTournamentsForCourseExecution(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getTournamentsByCourseExecutionId(executionAggregateId, unitOfWork);
     }
 
     public List<TournamentDto> getOpenedTournamentsForCourseExecution(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getOpenedTournamentsForCourseExecution(executionAggregateId, unitOfWork);
     }
 
     public List<TournamentDto> getClosedTournamentsForCourseExecution(Integer executionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getClosedTournamentsForCourseExecution(executionAggregateId, unitOfWork);
     }
 
     public void leaveTournament(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         tournamentService.leaveTournament(tournamentAggregateId, userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public QuizDto solveQuiz(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         TournamentDto tournamentDto = tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
         QuizDto quizDto = quizService.startTournamentQuiz(userAggregateId, tournamentDto.getQuiz().getAggregateId(), unitOfWork);
         QuizAnswerDto quizAnswerDto = quizAnswerService.startQuiz(tournamentDto.getQuiz().getAggregateId(), tournamentDto.getCourseExecution().getAggregateId(), userAggregateId, unitOfWork);
@@ -166,13 +166,13 @@ public class TournamentFunctionalities {
     }
 
     public void cancelTournament(Integer tournamentAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         tournamentService.cancelTournament(tournamentAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void removeTournament(Integer tournamentAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         tournamentService.removeTournament(tournamentAggregateId, unitOfWork);
 
@@ -180,13 +180,13 @@ public class TournamentFunctionalities {
     }
 
     public TournamentDto findTournament(Integer tournamentAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
     }
 
     /** FOR TESTING PURPOSES **/
     public void getTournamentAndUser(Integer tournamentAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         TournamentDto tournamentDto = tournamentService.getTournamentById(tournamentAggregateId, unitOfWork);
         UserDto userDto = userService.getUserById(userAggregateId, unitOfWork);
         return;

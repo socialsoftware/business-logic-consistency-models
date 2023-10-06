@@ -2,15 +2,15 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.execution.service.CourseExecutionService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.service.QuestionService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.domain.QuizCourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.domain.QuizQuestion;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.dto.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.quiz.service.QuizService;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.service.CourseExecutionService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.service.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizCourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.service.QuizService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
 
 import java.util.List;
 import java.util.Set;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 public class QuizFunctionalities {
     @Autowired
-    private UnitOfWorkService unitOfWorkService;
+    private CausalUnitOfWorkService unitOfWorkService;
     @Autowired
     private QuizService quizService;
     @Autowired
@@ -28,7 +28,7 @@ public class QuizFunctionalities {
     private QuestionService questionService;
 
     public QuizDto createQuiz(Integer courseExecutionId, QuizDto quizDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         QuizCourseExecution quizCourseExecution = new QuizCourseExecution(courseExecutionService.getCourseExecutionById(courseExecutionId, unitOfWork));
 
         Set<QuestionDto> questions = quizDto.getQuestionDtos().stream()
@@ -42,17 +42,17 @@ public class QuizFunctionalities {
     }
 
     public QuizDto findQuiz(Integer quizAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return quizService.getQuizById(quizAggregateId, unitOfWork);
     }
 
     public List<QuizDto> getAvailableQuizzes(Integer userAggregateId, Integer courseExecutionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return quizService.getAvailableQuizzes(courseExecutionAggregateId, unitOfWork);
     }
 
     public QuizDto updateQuiz(QuizDto quizDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         Set<QuizQuestion> quizQuestions = quizDto.getQuestionDtos().stream().map(QuizQuestion::new).collect(Collectors.toSet());
         QuizDto quizDto1 = quizService.updateQuiz(quizDto, quizQuestions, unitOfWork);
         unitOfWorkService.commit(unitOfWork);

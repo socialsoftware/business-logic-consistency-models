@@ -2,12 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.dto.UserDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.user.service.UserService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.ErrorMessage;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.service.UserService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.ErrorMessage;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
 
 import java.util.List;
 
@@ -16,10 +16,10 @@ public class UserFunctionalities {
     @Autowired
     private UserService userService;
     @Autowired
-    private UnitOfWorkService unitOfWorkService;
+    private CausalUnitOfWorkService unitOfWorkService;
 
     public UserDto createUser(UserDto userDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         checkInput(userDto);
 
         UserDto userDto1 = userService.createUser(userDto, unitOfWork);
@@ -29,29 +29,29 @@ public class UserFunctionalities {
     }
 
     public UserDto findByUserId(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return userService.getUserById(userAggregateId, unitOfWork);
     }
 
     public void activateUser(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         userService.activateUser(userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void deleteUser(Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         userService.deleteUser(userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public List<UserDto> getStudents() {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return userService.getStudents(unitOfWork);
     }
 
     public List<UserDto> getTeachers() {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         return userService.getTeachers(unitOfWork);
     }
 

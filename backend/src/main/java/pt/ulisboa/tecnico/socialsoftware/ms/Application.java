@@ -9,7 +9,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import pt.ulisboa.tecnico.socialsoftware.ms.config.StartUpService;
+import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventService;
+
 @PropertySource({"classpath:application.properties"})
 @EnableJpaRepositories
 @EnableTransactionManagement
@@ -18,7 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.ms.config.StartUpService;
 @EnableScheduling
 public class Application implements InitializingBean {
 	@Autowired
-	private StartUpService startUpService;
+	private EventService eventService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -27,7 +28,7 @@ public class Application implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() {
 		// Run on startup
-		startUpService.clearEvents();
+		eventService.clearEventsAtApplicationStartUp();
 	}
 
 }

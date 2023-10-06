@@ -2,12 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.answer.dto.QuestionAnswerDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.answer.service.QuizAnswerService;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.UnitOfWorkService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.modules.question.service.QuestionService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.aggregate.QuestionAnswerDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.service.QuizAnswerService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.service.QuestionService;
 
 @Service
 public class QuizAnswerFunctionalities {
@@ -16,23 +16,23 @@ public class QuizAnswerFunctionalities {
     @Autowired
     private QuestionService questionService;
     @Autowired
-    private UnitOfWorkService unitOfWorkService;
+    private CausalUnitOfWorkService unitOfWorkService;
 
     public void answerQuestion(Integer quizAggregateId, Integer userAggregateId, QuestionAnswerDto userQuestionAnswerDto) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         QuestionDto questionDto = questionService.getQuestionById(userQuestionAnswerDto.getQuestionAggregateId(), unitOfWork);
         quizAnswerService.answerQuestion(quizAggregateId, userAggregateId, userQuestionAnswerDto, questionDto, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void startQuiz(Integer quizAggregateId, Integer courseExecutionAggregateId, Integer userAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         quizAnswerService.startQuiz(quizAggregateId, courseExecutionAggregateId, userAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 
     public void concludeQuiz(Integer quizAggregateId, Integer courseExecutionAggregateId) {
-        UnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
+        CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
         quizAnswerService.concludeQuiz(quizAggregateId, courseExecutionAggregateId, unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
