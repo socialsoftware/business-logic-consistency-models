@@ -2,12 +2,12 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.service.UserService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWorkService;
 
 import java.util.List;
 

@@ -2,9 +2,9 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregat
 
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.event.subscribe.QuizSubscribesRemoveCourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.event.subscribe.QuizSubscribesRemoveQuestion;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.event.subscribe.QuizSubscribesUpdateQuestion;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesRemoveCourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesRemoveQuestion;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesUpdateQuestion;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.utils.DateHandler;
 

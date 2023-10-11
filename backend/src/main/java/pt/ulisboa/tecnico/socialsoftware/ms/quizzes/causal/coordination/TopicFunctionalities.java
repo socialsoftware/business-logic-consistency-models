@@ -8,8 +8,8 @@ import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.service.
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.course.aggregate.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.course.service.CourseService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWorkService;
 
 import java.util.List;
 

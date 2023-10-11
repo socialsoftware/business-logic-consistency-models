@@ -13,7 +13,7 @@ import static pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.excepti
 public interface CausalAggregate {
     Aggregate mergeFields(Set<String> toCommitVersionChangedFields, Aggregate committedVersion, Set<String> committedVersionChangedFields);
     Set<String[]> getIntentions();
-    Set<String> getFieldsChangedByFunctionalities();
+    Set<String> getMutableFields();
 
     default Aggregate merge(Aggregate toCommitVersion, Aggregate committedVersion) {
         Aggregate prev = toCommitVersion.getPrev();
@@ -49,7 +49,7 @@ public interface CausalAggregate {
         }
 
         try {
-            for (String fieldName : getFieldsChangedByFunctionalities()) {
+            for (String fieldName : getMutableFields()) {
                 Field field = obj.getClass().getSuperclass().getDeclaredField(fieldName);
 
                 field.setAccessible(true);

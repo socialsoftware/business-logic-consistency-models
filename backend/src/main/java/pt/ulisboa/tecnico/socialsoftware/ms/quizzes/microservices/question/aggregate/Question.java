@@ -2,8 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggr
 
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.event.subscribe.QuestionSubscribesDeleteTopic;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.event.subscribe.QuestionSubscribesUpdateTopic;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.subscribe.QuestionSubscribesDeleteTopic;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.subscribe.QuestionSubscribesUpdateTopic;
 
 import jakarta.persistence.*;
 

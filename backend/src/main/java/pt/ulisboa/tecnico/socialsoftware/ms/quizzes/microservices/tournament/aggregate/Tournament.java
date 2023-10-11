@@ -4,7 +4,7 @@ import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventSubscription;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.aggregate.CourseExecutionDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.event.subscribe.*;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.subscribe.*;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.aggregate.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserDto;

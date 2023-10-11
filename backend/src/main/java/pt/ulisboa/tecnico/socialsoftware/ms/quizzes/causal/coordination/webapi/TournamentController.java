@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.event.TournamentEventHandling;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.TournamentEventHandling;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizDto;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
@@ -75,12 +76,12 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/tournament/process/anonymize")
-    public void processAnonymize() {
+    public void processAnonymize() throws Throwable {
         tournamentEventHandling.handleAnonymizeStudentEvents();
     }
 
     @PostMapping(value = "/tournament/process/updateExecutionStudentName")
-    public void processUpdateExecutionName() {
+    public void processUpdateExecutionName() throws Throwable {
         tournamentEventHandling.handleUpdateExecutionStudentNameEvent();
     }
 

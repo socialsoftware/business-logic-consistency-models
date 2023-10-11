@@ -14,11 +14,11 @@ import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.aggr
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.service.CourseExecutionService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.service.QuizService;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWorkService;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserDto;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.service.UserService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.ms.causal.causalUnityOfWork.CausalUnitOfWork;
+import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWork;
 
 import java.util.List;
 import java.util.Set;

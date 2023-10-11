@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.aggreg
 
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.event.subscribe.*;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events.subscribe.*;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
 
 import jakarta.persistence.*;

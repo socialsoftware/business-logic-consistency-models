@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.domain.tournament
 
 import org.springframework.boot.test.context.SpringBootTest
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.domain.CausalTournament
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.aggregates.CausalTournament
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.aggregate.CourseExecutionDto

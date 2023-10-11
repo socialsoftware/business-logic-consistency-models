@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.event.QuizAnswerEventHandling;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.event.QuestionEventHandling;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.event.CourseExecutionEventHandling;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.event.QuizEventHandling;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.event.TournamentEventHandling;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events.QuizAnswerEventHandling;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.QuestionEventHandling;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.CourseExecutionEventHandling;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.QuizEventHandling;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.TournamentEventHandling;
 
 @RestController
 public class EnableDisableEventsController {
