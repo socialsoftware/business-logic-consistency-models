@@ -14,6 +14,6 @@ ARG PROFILE=dev
 RUN mvn -P$PROFILE -Dmaven.test.skip=true package
 
 FROM azul/zulu-openjdk-alpine:17
-COPY --from=run target/BusinessLogicConsistencyModels-0.0.1-SNAPSHOT.jar ./
-CMD ["java","-Djava.security.egd=file:/dev/./urandom","-jar", "./BusinessLogicConsistencyModels-0.0.1-SNAPSHOT.jar"]
+COPY --from=run target/BusinessLogicConsistencyModels-1.1.0-SNAPSHOT.jar ./
+CMD ["java","-Djava.security.egd=file:/dev/./urandom","-jar", "./BusinessLogicConsistencyModels-1.1.0-SNAPSHOT.jar"]
 
