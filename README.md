@@ -26,8 +26,8 @@ docker-compose up unit-tests
 ```
 
 * Some test cases:
-  * [Tournament Merge Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/aggregate/tournament/MergeUnitTest.groovy)
-  * [Tournament Functionality Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy)
+  * [Tournament Merge Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/aggregate/tournament/MergeUnitTest.groovy)
+  * [Tournament Functionality Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy)
 
 
 ## Run Using Maven
@@ -74,8 +74,8 @@ mvn clean -Ptest test
 ```
 
 * Some test cases:
-  * [Tournament Merge Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/aggregate/tournament/MergeUnitTest.groovy)
-  * [Tournament Functionality Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy)
+  * [Tournament Merge Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/aggregate/tournament/MergeUnitTest.groovy)
+  * [Tournament Functionality Tests](backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy)
 
 ## Running JMeter tests
 
@@ -118,35 +118,35 @@ To reproduce the paper results follow the steps:
 
 
 ### Figure 3(a)
-* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L142-L157) 
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy#L142-L157) 
 * Run:
 ```
 docker-compose up test-fig3a
 ```
 
 ### Figure 3(b)
-* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L159-L176)
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy#L159-L176)
 * Run: 
 ```
 docker-compose up test-fig3b
 ```
 
 ### Figure 3(c)
-* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L178-L197)
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy#L178-L197)
 * Run: 
 ```
 docker-compose up test-fig3c
 ```
 
 ### Figure 3(d)
-* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L199-L220)
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy#L199-L220)
 * Run: 
 ```
 docker-compose up test-fig3d
 ```
 
 ### Figure 4
-* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/blcm/functionality/TournamentFunctionalityTest.groovy#L302-L332)
+* [Test code](https://github.com/socialsoftware/business-logic-consistency-models/blob/8dcfbc6ce824ae5e506521bde4c63322f47c6e00/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy#L302-L332)
 * Run: 
 ```
 docker-compose up test-fig4
