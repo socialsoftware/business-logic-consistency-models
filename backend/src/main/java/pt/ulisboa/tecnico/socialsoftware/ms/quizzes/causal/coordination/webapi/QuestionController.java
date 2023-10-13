@@ -41,7 +41,4 @@ public class QuestionController {
     public void updateQuestionTopics(@PathVariable Integer courseAggregateId, @RequestParam List<Integer> topicIds) {
         questionFunctionalities.updateQuestionTopics(courseAggregateId, topicIds);
     }
-
-
-
 }

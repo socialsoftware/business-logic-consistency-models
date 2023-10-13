@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TournamentFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.TournamentEventHandling;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizDto;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
@@ -19,9 +17,6 @@ public class TournamentController {
 
     @Autowired
     private TournamentFunctionalities tournamentFunctionalities;
-
-    @Autowired
-    private TournamentEventHandling tournamentEventHandling;
 
     @PostMapping(value = "/executions/{executionId}/tournaments/create")
     public TournamentDto createTournament(@PathVariable int executionId, @RequestParam Integer userId, @RequestParam List<Integer> topicsId, @RequestBody TournamentDto tournamentDto) {
@@ -68,21 +63,8 @@ public class TournamentController {
         tournamentFunctionalities.removeTournament(tournamentAggregate);
     }
 
-    /*********************************** ONLY FOR EVENT PROCESSING TESTING PURPOSES ***********************************/
-
     @GetMapping(value = "/tournaments/{tournamentAggregateId}/user/{userAggregateId}")
     public void getTournamentAndUser(@PathVariable Integer tournamentAggregateId, @PathVariable Integer userAggregateId) {
         tournamentFunctionalities.getTournamentAndUser(tournamentAggregateId, userAggregateId);
     }
-
-    @PostMapping(value = "/tournament/process/anonymize")
-    public void processAnonymize() throws Throwable {
-        tournamentEventHandling.handleAnonymizeStudentEvents();
-    }
-
-    @PostMapping(value = "/tournament/process/updateExecutionStudentName")
-    public void processUpdateExecutionName() throws Throwable {
-        tournamentEventHandling.handleUpdateExecutionStudentNameEvent();
-    }
-
 }

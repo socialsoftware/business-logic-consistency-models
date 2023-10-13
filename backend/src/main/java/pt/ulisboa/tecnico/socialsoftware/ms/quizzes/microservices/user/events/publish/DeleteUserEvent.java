@@ -5,12 +5,12 @@ import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.Event;
 import jakarta.persistence.Entity;
 
 @Entity
-public class RemoveUserEvent extends Event {
-    public RemoveUserEvent() {
+public class DeleteUserEvent extends Event {
+    public DeleteUserEvent() {
         super();
     }
 
-    public RemoveUserEvent(Integer userAggregateId) {
+    public DeleteUserEvent(Integer userAggregateId) {
         super(userAggregateId);
     }
 }

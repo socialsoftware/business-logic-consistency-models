@@ -2,14 +2,14 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.ev
 
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.publish.RemoveCourseExecutionEvent;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.publish.DeleteCourseExecutionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentCourseExecution;
 
-public class TournamentSubscribesRemoveCourseExecution extends EventSubscription {
-    public TournamentSubscribesRemoveCourseExecution(TournamentCourseExecution tournamentCourseExecution) {
+public class TournamentSubscribesDeleteCourseExecution extends EventSubscription {
+    public TournamentSubscribesDeleteCourseExecution(TournamentCourseExecution tournamentCourseExecution) {
         super(tournamentCourseExecution.getCourseExecutionAggregateId(),
                 tournamentCourseExecution.getCourseExecutionVersion(),
-                RemoveCourseExecutionEvent.class.getSimpleName());
+                DeleteCourseExecutionEvent.class.getSimpleName());
     }
 
     public boolean subscribesEvent(Event event) {

@@ -1,11 +1,11 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events;
+package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.handling;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWork;
 import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWorkService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.service.CourseExecutionService;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.events.publish.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.events.publish.DeleteUserEvent;
 
 @Service
 public class CourseExecutionEventProcessing {
@@ -14,9 +14,9 @@ public class CourseExecutionEventProcessing {
     @Autowired
     private CausalUnitOfWorkService unitOfWorkService;
 
-    public void processRemoveUserEvent(Integer aggregateId, RemoveUserEvent removeUserEvent) {
+    public void processDeleteUserEvent(Integer aggregateId, DeleteUserEvent deleteUserEvent) {
         CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
-        courseExecutionService.removeUser(aggregateId, removeUserEvent.getPublisherAggregateId(), removeUserEvent.getPublisherAggregateVersion(), unitOfWork);
+        courseExecutionService.removeUser(aggregateId, deleteUserEvent.getPublisherAggregateId(), deleteUserEvent.getPublisherAggregateVersion(), unitOfWork);
         unitOfWorkService.commit(unitOfWork);
     }
 

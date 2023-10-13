@@ -10,7 +10,7 @@ import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWorkS
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.aggregates.CausalUser;
 import pt.ulisboa.tecnico.socialsoftware.ms.causal.unityOfWork.CausalUnitOfWork;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.events.publish.RemoveUserEvent;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.events.publish.DeleteUserEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.Role;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.AggregateIdGeneratorService;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
@@ -76,7 +76,7 @@ public class UserService {
         User newUser = new CausalUser((CausalUser) oldUser);
         newUser.remove();
         unitOfWork.registerChanged(newUser);
-        unitOfWork.addEvent(new RemoveUserEvent(newUser.getAggregateId()));
+        unitOfWork.addEvent(new DeleteUserEvent(newUser.getAggregateId()));
     }
 
     @Retryable(

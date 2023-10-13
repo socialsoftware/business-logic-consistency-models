@@ -1,9 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.TournamentEventHandling;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.handling.TournamentEventHandling;
 
 @RestController
 public class TournamentEventController {
@@ -11,7 +13,17 @@ public class TournamentEventController {
     private TournamentEventHandling tournamentEventHandling;
 
     @PostMapping("/events/topic/update")
-    public void processUpdateTopic() throws Throwable {
+    public void processUpdateTopic() {
         tournamentEventHandling.handleUpdateTopicEvents();
+    }
+
+    @PostMapping(value = "/tournament/process/anonymize")
+    public void processAnonymize() {
+        tournamentEventHandling.handleAnonymizeStudentEvents();
+    }
+
+    @PostMapping(value = "/tournament/process/updateExecutionStudentName")
+    public void processUpdateExecutionName() {
+        tournamentEventHandling.handleUpdateStudentNameEvent();
     }
 }

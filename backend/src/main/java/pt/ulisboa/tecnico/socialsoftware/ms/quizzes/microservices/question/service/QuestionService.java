@@ -13,7 +13,7 @@ import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggre
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionCourse;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionTopic;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.publish.RemoveQuestionEvent;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.publish.DeleteQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.publish.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.aggregates.CausalQuestion;
@@ -96,7 +96,7 @@ public class QuestionService {
         Question newQuestion = new CausalQuestion((CausalQuestion) oldQuestion);
         newQuestion.remove();
         unitOfWork.registerChanged(newQuestion);
-        unitOfWork.addEvent(new RemoveQuestionEvent(newQuestion.getAggregateId()));
+        unitOfWork.addEvent(new DeleteQuestionEvent(newQuestion.getAggregateId()));
     }
 
     @Retryable(

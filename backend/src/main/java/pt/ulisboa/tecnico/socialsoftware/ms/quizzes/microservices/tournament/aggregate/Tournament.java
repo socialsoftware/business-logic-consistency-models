@@ -153,7 +153,7 @@ public abstract class Tournament extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new TournamentSubscribesRemoveCourseExecution(this.getTournamentCourseExecution()));
+        eventSubscriptions.add(new TournamentSubscribesDeleteCourseExecution(this.getTournamentCourseExecution()));
     }
 
     private void interInvariantCreatorExists(Set<EventSubscription> eventSubscriptions) {

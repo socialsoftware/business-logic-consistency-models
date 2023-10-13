@@ -2,8 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregat
 
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventSubscription;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesRemoveCourseExecution;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesRemoveQuestion;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesDeleteCourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesDeleteQuestion;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.subscribe.QuizSubscribesUpdateQuestion;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.utils.DateHandler;
@@ -106,13 +106,13 @@ public abstract class Quiz extends Aggregate {
     }
 
     private void interInvariantCourseExecutionExists(Set<EventSubscription> eventSubscriptions) {
-        eventSubscriptions.add(new QuizSubscribesRemoveCourseExecution(this.getQuizCourseExecution()));
+        eventSubscriptions.add(new QuizSubscribesDeleteCourseExecution(this.getQuizCourseExecution()));
     }
 
     private void interInvariantQuestionsExist(Set<EventSubscription> eventSubscriptions) {
         for (QuizQuestion quizQuestion : this.quizQuestions) {
             eventSubscriptions.add(new QuizSubscribesUpdateQuestion(quizQuestion));
-            eventSubscriptions.add(new QuizSubscribesRemoveQuestion(quizQuestion));
+            eventSubscriptions.add(new QuizSubscribesDeleteQuestion(quizQuestion));
         }
     }
 

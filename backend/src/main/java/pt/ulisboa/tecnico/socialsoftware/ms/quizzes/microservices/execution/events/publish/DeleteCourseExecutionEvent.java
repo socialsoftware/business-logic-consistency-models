@@ -4,10 +4,10 @@ import jakarta.persistence.Entity;
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.Event;
 
 @Entity
-public class RemoveCourseExecutionEvent extends Event {
-    public RemoveCourseExecutionEvent() {}
+public class DeleteCourseExecutionEvent extends Event {
+    public DeleteCourseExecutionEvent() {}
 
-    public RemoveCourseExecutionEvent(Integer aggregateId) {
+    public DeleteCourseExecutionEvent(Integer aggregateId) {
         super(aggregateId);
     }
 }

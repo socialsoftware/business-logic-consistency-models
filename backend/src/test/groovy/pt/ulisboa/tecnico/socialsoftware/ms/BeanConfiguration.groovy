@@ -3,11 +3,12 @@ package pt.ulisboa.tecnico.socialsoftware.ms
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
+import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventApplicationService
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventService
 
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuizAnswerFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events.QuizAnswerEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events.QuizAnswerEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events.handling.QuizAnswerEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events.handling.QuizAnswerEventProcessing
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.service.QuizAnswerService
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.AggregateIdGeneratorService
 
@@ -16,23 +17,23 @@ import pt.ulisboa.tecnico.socialsoftware.ms.causal.version.VersionService
 
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.course.service.CourseService
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.CourseExecutionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.CourseExecutionEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.CourseExecutionEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.handling.CourseExecutionEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.events.handling.CourseExecutionEventProcessing
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.service.CourseExecutionService
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuestionFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.QuestionEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.QuestionEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.handling.QuestionEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.handling.QuestionEventProcessing
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.service.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuizFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.QuizEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.QuizEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.handling.QuizEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.handling.QuizEventProcessing
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.service.QuizService
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TopicFunctionalities
 
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.service.TopicService
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TournamentFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.TournamentEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.TournamentEventProcessing
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.handling.TournamentEventHandling
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.handling.TournamentEventProcessing
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.service.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.UserFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.service.UserService
@@ -48,6 +49,11 @@ class BeanConfiguration {
     @Bean
     VersionService versionService() {
         return new VersionService();
+    }
+
+    @Bean
+    EventApplicationService eventApplicationService() {
+        return new EventApplicationService();
     }
 
     @Bean
