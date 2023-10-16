@@ -112,7 +112,7 @@ public class TournamentEventHandling {
     @Scheduled(fixedDelay = 1000)
     public void handleUpdateStudentNameEvent() {
         eventApplicationService.handleSubscribedEvent(UpdateStudentNameEvent.class,
-                new UpdateExecutionStudentNameEventHandler(tournamentRepository, tournamentEventProcessing));
+                new UpdateStudentNameEventHandler(tournamentRepository, tournamentEventProcessing));
     }
 
 }

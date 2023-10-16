@@ -5,13 +5,13 @@ import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.even
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.handling.TournamentEventProcessing;
 
-public class UpdateExecutionStudentNameEventHandler extends TournamentEventHandler {
-    public UpdateExecutionStudentNameEventHandler(TournamentRepository tournamentRepository, TournamentEventProcessing tournamentEventProcessing) {
+public class UpdateStudentNameEventHandler extends TournamentEventHandler {
+    public UpdateStudentNameEventHandler(TournamentRepository tournamentRepository, TournamentEventProcessing tournamentEventProcessing) {
         super(tournamentRepository, tournamentEventProcessing);
     }
 
     @Override
     public void handleEvent(Integer subscriberAggregateId, Event event) {
-        this.tournamentEventProcessing.processUpdateExecutionStudentNameEvent(subscriberAggregateId, (UpdateStudentNameEvent) event);
+        this.tournamentEventProcessing.processUpdateStudentNameEvent(subscriberAggregateId, (UpdateStudentNameEvent) event);
     }
 }

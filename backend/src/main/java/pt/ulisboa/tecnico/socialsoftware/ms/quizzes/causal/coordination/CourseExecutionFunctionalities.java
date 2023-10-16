@@ -78,7 +78,7 @@ public class CourseExecutionFunctionalities {
         unitOfWorkService.commit(unitOfWork);
     }
 
-    public void updateExecutionStudentName(Integer executionAggregateId, Integer userAggregateId ,UserDto userDto) {
+    public void updateStudentName(Integer executionAggregateId, Integer userAggregateId , UserDto userDto) {
         CausalUnitOfWork unitOfWork = unitOfWorkService.createUnitOfWork(new Throwable().getStackTrace()[0].getMethodName());
 
         if (userDto.getName() == null) {

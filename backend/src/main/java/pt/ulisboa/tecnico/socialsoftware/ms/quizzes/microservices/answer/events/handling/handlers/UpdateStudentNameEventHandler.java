@@ -12,6 +12,6 @@ public class UpdateStudentNameEventHandler extends QuizAnswerEventHandler {
 
     @Override
     public void handleEvent(Integer subscriberAggregateId, Event event) {
-        this.quizAnswerEventProcessing.processUpdateExecutionStudentNameEvent(subscriberAggregateId, (UpdateStudentNameEvent) event);
+        this.quizAnswerEventProcessing.processUpdateStudentNameEvent(subscriberAggregateId, (UpdateStudentNameEvent) event);
     }
 }

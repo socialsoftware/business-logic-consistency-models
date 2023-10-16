@@ -57,6 +57,6 @@ public class CourseExecutionController {
 
     @PostMapping("/executions/{executionAggregateId}/students/{userAggregateId}/update/name")
     public void updateExecutionStudentName(@PathVariable Integer executionAggregateId, @PathVariable Integer userAggregateId, @RequestBody UserDto userDto) {
-        courseExecutionFunctionalities.updateExecutionStudentName(executionAggregateId, userAggregateId, userDto);
+        courseExecutionFunctionalities.updateStudentName(executionAggregateId, userAggregateId, userDto);
     }
 }

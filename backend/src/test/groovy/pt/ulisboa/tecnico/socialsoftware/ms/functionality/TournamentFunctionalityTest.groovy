@@ -143,7 +143,7 @@ class TournamentFunctionalityTest extends SpockTest {
         given: 'student name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
 
         when: 'student is added to tournament'
         tournamentFunctionalities.addParticipant(tournamentDto.getAggregateId(), userDto.getAggregateId())
@@ -162,7 +162,7 @@ class TournamentFunctionalityTest extends SpockTest {
         and: 'student name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
 
         when: 'update name event is processed'
         tournamentEventHandling.handleUpdateStudentNameEvent()
@@ -183,7 +183,7 @@ class TournamentFunctionalityTest extends SpockTest {
         and: 'student name is updated and the commit does not require merge'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
 
         when: 'update name event is processed such that the participant is updated in tournament'
         tournamentEventHandling.handleUpdateStudentNameEvent();
@@ -200,7 +200,7 @@ class TournamentFunctionalityTest extends SpockTest {
         given: 'student name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userDto.getAggregateId(), updateNameDto)
         and: 'try to process update name event but there are no subscribers'
         tournamentEventHandling.handleUpdateStudentNameEvent();
         and: 'the version number is decreased to simulate concurrency'
@@ -225,7 +225,7 @@ class TournamentFunctionalityTest extends SpockTest {
         given: 'creator name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
 
         when: 'add creator as participant where the creator in tournament still has the old name'
         tournamentFunctionalities.addParticipant(tournamentDto.getAggregateId(), userCreatorDto.getAggregateId())
@@ -254,7 +254,7 @@ class TournamentFunctionalityTest extends SpockTest {
         and: 'creator name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
 
         when: 'when event is processed it updates the creator name'
         tournamentEventHandling.handleUpdateStudentNameEvent()
@@ -274,7 +274,7 @@ class TournamentFunctionalityTest extends SpockTest {
         given: 'creator name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
         and: 'process update name event which updates the name of the creator in the tournament'
         tournamentEventHandling.handleUpdateStudentNameEvent();
         and: 'the version number is decreased to simulate concurrency'
@@ -301,7 +301,7 @@ class TournamentFunctionalityTest extends SpockTest {
         given: 'creator name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
         and: 'the version number is decreased to simulate concurrency'
         versionService.decrementVersionNumber()
         and: 'add creator as participant which uses a previous version of the name, creator and participant have the same info'
@@ -337,7 +337,7 @@ class TournamentFunctionalityTest extends SpockTest {
         and: 'creator name is updated'
         def updateNameDto = new UserDto()
         updateNameDto.setName(UPDATED_NAME)
-        courseExecutionFunctionalities.updateExecutionStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
+        courseExecutionFunctionalities.updateStudentName(courseExecutionDto.getAggregateId(), userCreatorDto.getAggregateId(), updateNameDto)
 
         when: 'the event is processed'
         tournamentEventHandling.handleUpdateStudentNameEvent()
