@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.webapi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TopicFunctionalities;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.functionalities.TopicFunctionalities;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.aggregate.TopicDto;
 
 import java.util.List;

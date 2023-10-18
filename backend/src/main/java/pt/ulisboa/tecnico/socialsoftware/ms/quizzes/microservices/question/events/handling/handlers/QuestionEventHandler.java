@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.even
 
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventHandler;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.handling.QuestionEventProcessing;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.eventProcessing.QuestionEventProcessing;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.Question;
 
 import java.util.Set;

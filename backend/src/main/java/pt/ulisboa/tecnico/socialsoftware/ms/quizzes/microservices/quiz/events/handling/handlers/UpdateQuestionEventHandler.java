@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.h
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.Event;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.publish.UpdateQuestionEvent;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.aggregate.QuizRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.quiz.events.handling.QuizEventProcessing;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.eventProcessing.QuizEventProcessing;
 
 public class UpdateQuestionEventHandler extends QuizEventHandler {
     public UpdateQuestionEventHandler(QuizRepository quizRepository, QuizEventProcessing quizEventProcessing) {

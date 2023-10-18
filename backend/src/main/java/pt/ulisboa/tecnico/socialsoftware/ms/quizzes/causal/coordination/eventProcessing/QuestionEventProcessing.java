@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.events.handling;
+package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.eventProcessing;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

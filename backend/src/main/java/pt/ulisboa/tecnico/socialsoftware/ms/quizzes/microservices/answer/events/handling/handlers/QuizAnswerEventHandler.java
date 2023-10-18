@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events
 import pt.ulisboa.tecnico.socialsoftware.ms.domain.event.EventHandler;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.aggregate.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.aggregate.QuizAnswerRepository;
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.answer.events.handling.QuizAnswerEventProcessing;
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.eventProcessing.QuizAnswerEventProcessing;
 
 import java.util.Set;
 import java.util.stream.Collectors;

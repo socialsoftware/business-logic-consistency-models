@@ -9,18 +9,18 @@ import pt.ulisboa.tecnico.socialsoftware.ms.domain.aggregate.Aggregate
 import pt.ulisboa.tecnico.socialsoftware.ms.causal.version.VersionService
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.exception.TutorException
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.CourseExecutionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.functionalities.CourseExecutionFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.execution.aggregate.CourseExecutionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuestionFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.functionalities.QuestionFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.OptionDto
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.question.aggregate.QuestionDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.QuizFunctionalities
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TopicFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.functionalities.QuizFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.functionalities.TopicFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.topic.aggregate.TopicDto
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.TournamentFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.functionalities.TournamentFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.aggregate.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.tournament.events.handling.TournamentEventHandling
-import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.UserFunctionalities
+import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.causal.coordination.functionalities.UserFunctionalities
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.user.aggregate.UserDto
 import pt.ulisboa.tecnico.socialsoftware.ms.quizzes.microservices.utils.DateHandler
 
