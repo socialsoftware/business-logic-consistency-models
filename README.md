@@ -8,6 +8,8 @@ The artifact supports the test of business logic of a microservices application 
 
 The system allows testing the interleaving of functionalities execution in a deterministic context, such that it is possible to evaluate the resulting behavior.
 
+The description of the examples for Transactional Causal Consistency are in [Transactional Causal Consistent Microservices Simulator](https://doi.org/10.1007/978-3-031-35260-7_4).
+
 ## Run Using Docker
 
 ### Technology Requirements
@@ -64,7 +66,7 @@ CREATE USER your-username WITH SUPERUSER LOGIN PASSWORD 'yourpassword';
 exit
 ```
 * Copy `backend/src/main/resources/application-dev.properties.example` to `application-dev.properties` and fill the placeholder fields.
-
+* If you have run the unit-test using docker, `backend/target` directory may be with root owner and group, do: `sudo rm -rf backend/target`.
 
 ### Running the application
 
@@ -140,7 +142,7 @@ where each service interacts with the unit of work to register changes and publi
 9. **Define Test Cases**: Define deterministic tests cases for the concurrent execution of functionalities using services to decrement the system version number, 
 which defines functionalities execution order, and to force the deterministic processing of events, like in the [Concurrent Execution of Update Name and Add Participant](https://github.com/socialsoftware/business-logic-consistency-models/blob/af1196a31afdb8ddca9a8e2dd3bff014f3c4066b/backend/src/test/groovy/pt/ulisboa/tecnico/socialsoftware/ms/functionality/TournamentFunctionalityTest.groovy#L178).
 
-##  Spock Tests in DAIS2023 paper - 23nd International Conference on Distributed Applications and Interoperable Systems
+##  Spock Tests in [DAIS2023](https://docs.docker.com/compose/install/) paper - 23nd International Conference on Distributed Applications and Interoperable Systems
 
 To reproduce the paper results follow the steps:
 
