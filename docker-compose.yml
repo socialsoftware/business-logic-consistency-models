@@ -12,8 +12,8 @@ services:
       - ./data/dumps:/dumps
     environment:
       - POSTGRES_DB=blcmdb
-      - POSTGRES_USER=ars
-      - POSTGRES_PASSWORD=ars
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -35,8 +35,8 @@ services:
     restart: unless-stopped
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING.DATASOURCE.USERNAME=ars
-      - SPRING.DATASOURCE.PASSWORD=ars
+      - SPRING.DATASOURCE.USERNAME=postgres
+      - SPRING.DATASOURCE.PASSWORD=postgres
       - SPRING.JPA.DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blcmdb
 
