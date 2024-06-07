@@ -6,7 +6,7 @@ services:
     container_name: postgres
     command: postgres -c 'max_connections=50'
     ports:
-      - "5433:5432"
+      - "5432:5432"
     restart: unless-stopped
     volumes:
       - ./data/dumps:/dumps
@@ -14,6 +14,11 @@ services:
       - POSTGRES_DB=blcmdb
       - POSTGRES_USER=ars
       - POSTGRES_PASSWORD=ars
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
       
   backend:
     build:
@@ -23,9 +28,8 @@ services:
     image: backend
     container_name: backend
     depends_on:
-      - postgres
-    links:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "8080:8080"
     restart: unless-stopped
