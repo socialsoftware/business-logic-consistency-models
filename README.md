@@ -1,4 +1,4 @@
-# **This project migrated to [https://github.com/socialsoftware/microservices-simulator](https://github.com/socialsoftware/microservices-simulator), where the simulator also supports the Sagas transactional model and is being enriched with more features**
+# :bangbang: **This project migrated to [https://github.com/socialsoftware/microservices-simulator](https://github.com/socialsoftware/microservices-simulator), where the simulator also supports the Sagas transactional model and is being enriched with more features** :bangbang:
 
 ---
 
